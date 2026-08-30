@@ -62,7 +62,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
-<section class="card"><h2>Customer Details</h2><div class="grid">
+<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
 <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
 <div class="field"><label>Bank Name</label><input id="bankName" type="text" placeholder="Enter bank name"></div>
