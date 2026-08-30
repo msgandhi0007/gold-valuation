@@ -1394,7 +1394,7 @@ function updateCustomerGroups(){
     return `<div class="customer-group">
       <div class="customer-group-head">
         <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div></div>
-        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" onclick="openCustomerStatementByIndex(${gi})">📄 Statement</button></div>
+        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}">📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
         <div class="customer-group-stat"><span>Total Valuation</span><b>${typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN')}</b></div>
@@ -1420,8 +1420,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     </div>
     <div id="statementPreview" class="statement-preview"></div>
     <div class="statement-actions">
-      <button type="button" onclick="printCustomerStatement()">📄 Print / Save PDF</button>
-      <button type="button" onclick="shareCustomerStatement()">↗ Share Statement</button>
+      <button id="statementPrintButton" type="button">📄 Print / Save PDF</button>
+      <button id="statementShareButton" type="button">↗ Share Statement</button>
     </div>
   </div>
 </div>
@@ -1429,127 +1429,132 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 <script>
-
-/* Step 29 - Customer Statement */
-let _statementCustomer={name:'',mobile:'',records:[]};
-
-function openCustomerStatementByIndex(index){
-  const g=(window._customerGroups||[])[Number(index)];
-  if(!g){
-    alert('Customer statement could not be found.');
-    return;
+/* Step 29 FINAL - Standalone Customer Statement */
+(function(){
+  function sv(v){ return String(v==null?'':v); }
+  function escS(v){
+    return sv(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
-  openCustomerStatement(g.name,g.mobile);
-}
-function openCustomerStatement(name,mobile){
-  // Read saved valuations directly; do not depend on another helper function.
-  let all=[];
-  try{
-    const raw=localStorage.getItem('goldValuations');
-    const parsed=raw?JSON.parse(raw):[];
-    all=Array.isArray(parsed)?parsed:[];
-  }catch(e){
-    console.error('Statement storage read error',e);
-    alert('Unable to read saved valuations.');
-    return;
+  function moneyS(n){
+    n=Number(n||0);
+    return '₹'+n.toLocaleString('en-IN',{maximumFractionDigits:0});
   }
-  const n=String(name||'').trim().toLowerCase();
-  const m=String(mobile||'').trim();
-  const records=all.filter(r=>{
-    const c=r?.customer||{};
-    const rn=String(c.name||r?.customerName||'').trim().toLowerCase();
-    const rm=String(c.mobile||r?.mobile||'').trim();
-    return rn===n && rm===m;
-  });
-  _statementCustomer={name:name||'',mobile:mobile||'',records};
-  renderCustomerStatement();
-  const modal=document.getElementById('statementModal');
-  if(modal){
-    modal.style.display='flex';
-    modal.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
-  }
-}
-function closeCustomerStatement(){
-  const modal=document.getElementById('statementModal');
-  if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
-  document.body.style.overflow='';
-}
-function statementMoney(n){
-  return typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
-}
-function renderCustomerStatement(){
-  const g=_statementCustomer;
-  const totalValue=g.records.reduce((s,r)=>s+(typeof dashboardValue==='function'?dashboardValue(r):0),0);
-  const totalLoan=g.records.reduce((s,r)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(r):0),0);
-  const banks=[...new Set(g.records.map(r=>String(r?.customer?.bank||'').trim()).filter(Boolean))].join(', ');
-  const rows=g.records.map((r,i)=>{
-    const c=r?.customer||{};
-    const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
-    const bank=esc(c.bank||'');
-    const value=typeof dashboardValue==='function'?dashboardValue(r):0;
-    const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
-    const items=Array.isArray(r.items)?r.items.length:0;
-    return `<tr><td>${i+1}</td><td>${date}</td><td>${bank}</td><td style="text-align:right">${statementMoney(value)}</td><td style="text-align:right">${statementMoney(loan)}</td><td style="text-align:center">${items}</td></tr>`;
-  }).join('');
-  const content=`
-    <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:10px">
-      <div style="font-size:24px;font-weight:800">RAJENDRA JEWELLERS</div>
-      <div style="font-size:17px;font-weight:750;margin-top:4px">CUSTOMER VALUATION STATEMENT</div>
-    </div>
-    <div style="margin-top:15px;font-size:13px;line-height:1.7">
-      <b>Customer:</b> ${esc(g.name||'')}<br>
-      <b>Mobile:</b> ${esc(g.mobile||'')}<br>
-      <b>Bank(s):</b> ${esc(banks||'—')}<br>
-      <b>Statement Date:</b> ${new Date().toLocaleDateString('en-IN')}
-    </div>
-    <div class="statement-table-wrap">
-      <table class="statement-table">
-        <thead><tr><th>#</th><th>Date</th><th>Bank</th><th>Valuation</th><th>Sanctioned Loan</th><th>Items</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="6" style="text-align:center">No valuations found.</td></tr>'}</tbody>
-        <tfoot><tr><td colspan="3" style="text-align:right;font-weight:800">TOTAL</td><td style="text-align:right;font-weight:800">${statementMoney(totalValue)}</td><td style="text-align:right;font-weight:800">${statementMoney(totalLoan)}</td><td style="text-align:center;font-weight:800">${g.records.reduce((s,r)=>s+(Array.isArray(r.items)?r.items.length:0),0)}</td></tr></tfoot>
-      </table>
-    </div>
-    <div style="margin-top:28px;font-size:12px">
-      <b>REGISTERED GOLD APPRAISER</b><br>
-      MAHENDRA SHANTILAL GANDHI<br>
-      PPDC/GA/2026/244642
-    </div>`;
-  const preview=document.getElementById('statementPreview');
-  if(preview)preview.innerHTML=content;
-  const print=document.getElementById('statementPrintArea');
-  if(print)print.innerHTML=content;
-}
-function printCustomerStatement(){
-  renderCustomerStatement();
-  document.body.classList.add('statement-printing');
-  const print=document.getElementById('statementPrintArea');
-  if(print)print.style.display='block';
-  setTimeout(()=>{
-    window.print();
-    setTimeout(()=>{
-      document.body.classList.remove('statement-printing');
-      if(print)print.style.display='none';
-    },700);
-  },100);
-}
-async function shareCustomerStatement(){
-  renderCustomerStatement();
-  // Browser print-to-PDF is the reliable cross-platform fallback.
-  // If Web Share is available, share the statement text; otherwise open print.
-  const g=_statementCustomer;
-  if(navigator.share){
+  function readSavedS(){
     try{
-      await navigator.share({
-        title:'Customer Valuation Statement - '+g.name,
-        text:'Customer Valuation Statement for '+g.name+' ('+g.mobile+'). Total valuations: '+g.records.length+'.'
-      });
-      return;
-    }catch(e){}
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){ return []; }
   }
-  printCustomerStatement();
-}
+  function valueS(r){
+    if(typeof window.dashboardValue==='function'){
+      try{return Number(window.dashboardValue(r))||0}catch(e){}
+    }
+    return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0;
+  }
+  function loanS(r){
+    if(typeof window.reportLoanAmount==='function'){
+      try{return Number(window.reportLoanAmount(r))||0}catch(e){}
+    }
+    const c=r?.customer||{};
+    return Number(c.sanctionedLoanAmount||c.loanAmount||r?.sanctionedLoanAmount||r?.loanAmount||0)||0;
+  }
+  function getCustomerRecords(name,mobile){
+    const n=sv(name).trim().toLowerCase(), m=sv(mobile).trim();
+    return readSavedS().filter(r=>{
+      const c=r?.customer||{};
+      return sv(c.name||r?.customerName).trim().toLowerCase()===n &&
+             sv(c.mobile||r?.mobile).trim()===m;
+    });
+  }
+  window.showCustomerStatement=function(name,mobile){
+    const records=getCustomerRecords(name,mobile);
+    const totalV=records.reduce((s,r)=>s+valueS(r),0);
+    const totalL=records.reduce((s,r)=>s+loanS(r),0);
+    const banks=[...new Set(records.map(r=>sv(r?.customer?.bank).trim()).filter(Boolean))].join(', ');
+    const rows=records.map((r,i)=>{
+      const c=r?.customer||{};
+      const d=sv(c.date||r.date).slice(0,10)||'—';
+      const b=sv(c.bank);
+      const items=Array.isArray(r.items)?r.items.length:0;
+      return `<tr><td>${i+1}</td><td>${escS(d)}</td><td>${escS(b)}</td><td>${moneyS(valueS(r))}</td><td>${moneyS(loanS(r))}</td><td>${items}</td></tr>`;
+    }).join('');
+    const content=`
+      <div style="font-family:Arial,sans-serif;color:#111">
+        <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:10px">
+          <div style="font-size:24px;font-weight:800">RAJENDRA JEWELLERS</div>
+          <div style="font-size:17px;font-weight:700;margin-top:4px">CUSTOMER VALUATION STATEMENT</div>
+        </div>
+        <div style="margin-top:14px;line-height:1.7">
+          <b>Customer:</b> ${escS(name)}<br>
+          <b>Mobile:</b> ${escS(mobile)}<br>
+          <b>Bank(s):</b> ${escS(banks||'—')}<br>
+          <b>Statement Date:</b> ${new Date().toLocaleDateString('en-IN')}
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:12px">
+          <thead><tr><th style="border:1px solid #ccc;padding:7px">#</th><th style="border:1px solid #ccc;padding:7px">Date</th><th style="border:1px solid #ccc;padding:7px">Bank</th><th style="border:1px solid #ccc;padding:7px">Valuation</th><th style="border:1px solid #ccc;padding:7px">Sanctioned Loan</th><th style="border:1px solid #ccc;padding:7px">Items</th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:10px;text-align:center">No valuations found.</td></tr>'}</tbody>
+          <tfoot><tr><td colspan="3" style="border:1px solid #ccc;padding:7px;text-align:right;font-weight:800">TOTAL</td><td style="border:1px solid #ccc;padding:7px;font-weight:800">${moneyS(totalV)}</td><td style="border:1px solid #ccc;padding:7px;font-weight:800">${moneyS(totalL)}</td><td style="border:1px solid #ccc;padding:7px;font-weight:800">${records.reduce((s,r)=>s+(Array.isArray(r.items)?r.items.length:0),0)}</td></tr></tfoot>
+        </table>
+        <div style="margin-top:30px;font-size:12px"><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
+      </div>`;
+    const modal=document.getElementById('statementModal');
+    const preview=document.getElementById('statementPreview');
+    if(!modal||!preview){ alert('Statement screen is missing. Please upload the latest index.html.'); return; }
+    preview.innerHTML=content;
+    modal.style.display='flex';
+    document.body.style.overflow='hidden';
 
+    const printBtn=document.getElementById('statementPrintButton');
+    const shareBtn=document.getElementById('statementShareButton');
+    if(printBtn) printBtn.onclick=function(){
+      const w=window.open('','_blank');
+      if(!w){ alert('Please allow pop-ups for this app to print the statement.'); return; }
+      w.document.open();
+      w.document.write('<!doctype html><html><head><title>Customer Statement - '+escS(name)+'</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4;margin:14mm}body{font-family:Arial,sans-serif}table{page-break-inside:auto}tr{page-break-inside:avoid}</style></head><body>'+content+'</body></html>');
+      w.document.close();
+      setTimeout(function(){w.focus();w.print();},300);
+    };
+    if(shareBtn) shareBtn.onclick=function(){
+      const text='Customer Valuation Statement\\nCustomer: '+name+'\\nMobile: '+mobile+'\\nValuations: '+records.length+'\\nTotal Valuation: '+moneyS(totalV)+'\\nTotal Sanctioned Loan: '+moneyS(totalL);
+      if(navigator.share){ navigator.share({title:'Customer Valuation Statement',text:text}).catch(function(){}); }
+      else { navigator.clipboard?.writeText(text); alert('Statement details copied.'); }
+    };
+  };
+  window.closeCustomerStatement=function(){
+    const modal=document.getElementById('statementModal');
+    if(modal)modal.style.display='none';
+    document.body.style.overflow='';
+  };
+  window.openCustomerStatementByIndex=function(index){
+    const groups=window._customerGroups||[];
+    const g=groups[Number(index)];
+    if(!g){ alert('Customer statement could not be found. Tap Refresh in Customer Summary and try again.'); return; }
+    showCustomerStatement(g.name,g.mobile);
+  };
+  function wireStatementButtons(){
+    document.querySelectorAll('[data-statement-index]').forEach(function(btn){
+      if(btn.dataset.statementWired)return;
+      btn.dataset.statementWired='1';
+      btn.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        openCustomerStatementByIndex(btn.getAttribute('data-statement-index'));
+      });
+    });
+  }
+  const oldUpdate=window.updateCustomerGroups;
+  if(typeof oldUpdate==='function'){
+    window.updateCustomerGroups=function(){
+      oldUpdate.apply(this,arguments);
+      setTimeout(wireStatementButtons,0);
+    };
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(wireStatementButtons,100);
+    const sm=document.getElementById('statementModal');
+    if(sm)sm.addEventListener('click',function(e){if(e.target===sm)closeCustomerStatement();});
+  });
+})();
 </script>
 </body>
 </html>
