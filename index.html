@@ -24,7 +24,15 @@ button.primary{width:100%;padding:13px;border:0;border-radius:13px;background:va
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
 footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
-@media print{footer,.actions,.remove,.primary{display:none!important}.app{padding-bottom:0;max-width:none}}
+@media print{footer,.actions,.remove,.primary,.save-manager{display:none!important}.app{padding-bottom:0;max-width:none}}
+.save-manager{position:fixed;inset:0;background:#0008;z-index:20;display:none;padding:18px;overflow:auto}
+.save-box{max-width:520px;margin:30px auto;background:#fff;border-radius:18px;padding:16px;box-shadow:0 12px 40px #0005}
+.save-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.save-top h2{margin:0;font-size:20px}
+.close{border:0;background:#f1eee7;border-radius:10px;padding:8px 12px;font-size:18px}
+.search{width:100%;padding:11px;border:1px solid #dcd7cc;border-radius:10px;font-size:15px;margin-bottom:10px}
+.bank-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:8px}.bank-tab{border:1px solid #ddd;border-radius:20px;padding:7px 11px;background:#fff;white-space:nowrap}.bank-tab.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.saved-row{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0}.saved-row-top{display:flex;justify-content:space-between;gap:8px}.saved-name{font-weight:800}.saved-meta{font-size:12px;color:#777;margin-top:3px}.saved-actions{display:flex;gap:7px;margin-top:9px}.saved-actions button{flex:1;padding:8px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:700}.saved-actions .load-btn{background:var(--gold);color:#fff;border-color:var(--gold)}.saved-actions .delete-btn{color:#b42318}
+.no-saved{text-align:center;color:#777;padding:20px}
 </style>
 </head>
 <body>
@@ -37,6 +45,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 <section class="card"><h2>Customer Details</h2><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
 <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
+<div class="field"><label>Bank Name</label><input id="bankName" type="text" placeholder="Enter bank name"></div>
 <div class="field"><label>Valuation Date</label><input id="valuationDate" type="date"></div>
 </div></section>
 <section class="card"><h2>Jewellery Items</h2><div id="items"></div><button class="primary" onclick="addItem()">＋ Add Jewellery Item</button></section>
@@ -49,6 +58,14 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 </section>
 <section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="window.print()">Print / Save PDF</button></div></section>
 </main></div>
+<div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
+  <div class="save-box">
+    <div class="save-top"><h2>Saved Valuations</h2><button class="close" onclick="closeLoad()">✕</button></div>
+    <input id="saveSearch" class="search" type="search" placeholder="Search customer or bank..." oninput="renderSaved()">
+    <div id="bankTabs" class="bank-tabs"></div>
+    <div id="savedList"></div>
+  </div>
+</div>
 <footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 
 <script>
@@ -79,19 +96,58 @@ rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(el.qu
 document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
 document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);document.getElementById('l65').textContent=money(tv*.65);document.getElementById('l70').textContent=money(tv*.70);
 }
-function currentData(){return{id:Date.now(),customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value},rate:rate.value,items:[...document.querySelectorAll('.item')].map(x=>({name:x.querySelector('.itemName').value,gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}}
-function saveData(){let a=JSON.parse(localStorage.getItem('goldValuations')||'[]');a.push(currentData());localStorage.setItem('goldValuations',JSON.stringify(a));alert('Valuation saved successfully.')}
-function loadData(){
-let a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
-if(!a.length){const old=localStorage.getItem('goldValuation');if(old)try{a=[JSON.parse(old)];localStorage.setItem('goldValuations',JSON.stringify(a))}catch(e){}}
-if(!a.length){alert('No saved valuations found.');return}
-let list='SAVED VALUATIONS\n\n';a.forEach((v,i)=>list+=`${i+1}. ${v.customer?.name||'Unnamed Customer'} - ${v.customer?.date||''}\n`);
-const c=prompt(list+'\nEnter valuation number to load:');if(c===null)return;const i=parseInt(c,10)-1;if(i<0||i>=a.length){alert('Invalid valuation number.');return}
-const d=a[i];customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();alert('Valuation loaded successfully.')
+function currentData(){
+return{id:Date.now(),customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
+rate:rate.value,items:[...document.querySelectorAll('.item')].map(x=>({name:x.querySelector('.itemName').value,gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}
 }
-function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;addItem();calculate()}
+function getSaved(){
+let a=[];
+try{a=JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){a=[]}
+if(!Array.isArray(a))a=[];
+if(!a.length){
+try{const old=localStorage.getItem('goldValuation');if(old){const d=JSON.parse(old);d.id=d.id||Date.now();d.customer=d.customer||{};d.customer.bank=d.customer.bank||'';a=[d];localStorage.setItem('goldValuations',JSON.stringify(a))}}catch(e){}
+}
+return a;
+}
+let selectedBank='ALL';
+function saveData(){
+const d=currentData();let a=getSaved();
+d.customer.bank=d.customer.bank||'Other / Not specified';
+a.push(d);localStorage.setItem('goldValuations',JSON.stringify(a));
+alert('Valuation saved successfully under '+d.customer.bank+'.');
+}
+function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';selectedBank='ALL';renderSaved()}
+function closeLoad(){document.getElementById('saveManager').style.display='none'}
+function loadData(){openLoad()}
+function renderSaved(){
+const a=getSaved(),q=(document.getElementById('saveSearch').value||'').toLowerCase().trim();
+const banks=['ALL',...new Set(a.map(v=>v.customer?.bank||'Other / Not specified'))];
+if(!banks.includes(selectedBank))selectedBank='ALL';
+document.getElementById('bankTabs').innerHTML=banks.map(b=>`<button class="bank-tab ${selectedBank===b?'active':''}" onclick="selectedBank='${esc(b).replace(/'/g,"&#39;")}';renderSaved()">${esc(b==='ALL'?'All Banks':b)}</button>`).join('');
+const filtered=a.map((v,i)=>({v,i})).filter(x=>{
+const v=x.v,bank=v.customer?.bank||'Other / Not specified',name=v.customer?.name||'Unnamed Customer',mobile=v.customer?.mobile||'';
+return(selectedBank==='ALL'||bank===selectedBank)&&(!q||(name+' '+bank+' '+mobile).toLowerCase().includes(q))
+}).reverse();
+if(!filtered.length){document.getElementById('savedList').innerHTML='<div class="no-saved">No saved valuations found.</div>';return}
+document.getElementById('savedList').innerHTML=filtered.map(x=>{
+const v=x.v,bank=v.customer?.bank||'Other / Not specified',name=v.customer?.name||'Unnamed Customer',date=v.customer?.date||'',items=(v.items||[]).length;
+return `<div class="saved-row"><div class="saved-row-top"><div><div class="saved-name">${esc(name)}</div><div class="saved-meta">🏦 ${esc(bank)} · 📅 ${esc(date)} · 💍 ${items} item${items===1?'':'s'}</div></div><div class="saved-meta">${money((v.items||[]).reduce((sum,it)=>{const g=num(it.gross),s=num(it.stone),p=num(it.purity),pure=Math.max(0,g-s)*p/100,r=Math.floor((pure+1e-9)*10)/10;return sum+r*num(v.rate)},0))}</div></div><div class="saved-actions"><button class="load-btn" onclick="loadSaved(${x.i})">Load</button><button class="delete-btn" onclick="deleteSaved(${x.i})">Delete</button></div></div>`
+}).join('');
+}
+function loadSaved(i){
+const a=getSaved(),d=a[i];if(!d)return;
+customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';bankName.value=d.customer?.bank||'';valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
+items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
+}
+function deleteSaved(i){
+const a=getSaved(),d=a[i];if(!d)return;
+const name=d.customer?.name||'Unnamed Customer',bank=d.customer?.bank||'Other / Not specified';
+if(!confirm('Delete '+name+' from '+bank+'?'))return;
+a.splice(i,1);localStorage.setItem('goldValuations',JSON.stringify(a));renderSaved();
+}
+function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';bankName.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;addItem();calculate()}
 async function shareResult(){
-let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
+let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
 document.querySelectorAll('.item').forEach((el,i)=>{const n=el.querySelector('.itemName').value||'Item '+(i+1),g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,r=Math.floor((pure+1e-9)*10)/10;t+=`${i+1}. ${n}\nGross: ${g.toFixed(2)} g\nStone: ${s.toFixed(2)} g\nNet: ${net.toFixed(2)} g\nPurity: ${p.toFixed(2)}%\nPure Gold: ${pure.toFixed(2)} g\nValue: ${money(r*num(rate.value))}\n\n`});
 t+='Total Value: '+tv.textContent+'\nLTV 65%: '+l65.textContent+'\nLTV 70%: '+l70.textContent;
 try{if(navigator.share)await navigator.share({title:'Gold Valuation',text:t});else if(navigator.clipboard){await navigator.clipboard.writeText(t);alert('Valuation copied. You can paste it in WhatsApp.')}else prompt('Copy this valuation:',t)}catch(e){if(e.name!=='AbortError')prompt('Copy this valuation:',t)}
