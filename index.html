@@ -102,7 +102,13 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
-    <div class="save-top"><h2>Saved Valuations</h2><button class="close" onclick="closeLoad()">✕</button></div>
+    <div class="save-top"><h2>Saved Valuations</h2>
+<div class="backup-note" style="font-size:11px;color:#777;margin:4px 0 10px">Backup creates a file containing your saved valuation records. Restore merges records without deleting existing ones.</div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0">
+<button class="secondary" onclick="exportBackup()">💾 Backup</button>
+<button class="secondary" onclick="document.getElementById('backupFile').click()">📥 Restore</button>
+<input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0])">
+</div><button class="close" onclick="closeLoad()">✕</button></div>
     <input id="saveSearch" class="search" type="search" placeholder="Search customer or bank..." oninput="renderSaved()">
     <div id="bankTabs" class="bank-tabs"></div>
     <div id="savedList"></div>
@@ -331,6 +337,55 @@ ltv1:String(document.getElementById('ltv1')?.value??'65'),
 loanRate:String(document.getElementById('loanRate')?.value??'0'),
 items:[...document.querySelectorAll('.item')].map(x=>({name:getItemName(x),gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}
 }
+
+function exportBackup(){
+  const records=getSaved();
+  const payload={
+    app:"Gold Valuation",
+    version:18,
+    exportedAt:new Date().toISOString(),
+    records:records
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const d=new Date();
+  const stamp=d.toISOString().slice(0,10);
+  a.href=url;
+  a.download="Gold-Valuation-Backup-"+stamp+".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  alert("Backup created successfully. Keep this file in a safe place.");
+}
+function importBackup(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const payload=JSON.parse(reader.result);
+      const incoming=Array.isArray(payload)?payload:(Array.isArray(payload.records)?payload.records:null);
+      if(!incoming)throw new Error("Invalid backup");
+      const existing=getSaved();
+      const byId=new Map(existing.map(x=>[String(x.id),x]));
+      incoming.forEach(x=>{
+        if(!x || typeof x!=="object")return;
+        if(!x.id)x.id=Date.now()+Math.floor(Math.random()*100000);
+        byId.set(String(x.id),x);
+      });
+      const merged=[...byId.values()];
+      localStorage.setItem("goldValuations",JSON.stringify(merged));
+      alert("Restore completed. "+incoming.length+" valuation record(s) processed.");
+      if(typeof renderSaved==="function")renderSaved();
+      if(typeof openLoad==="function")openLoad();
+    }catch(e){
+      alert("Restore failed. Please select a valid Gold Valuation backup file.");
+    }
+  };
+  reader.readAsText(file);
+}
+
 function getSaved(){
 let a=[];
 try{a=JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){a=[]}
