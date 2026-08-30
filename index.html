@@ -191,6 +191,22 @@ al App Cover */
  .customer-group-entry{grid-template-columns:1fr}
 }
 
+
+/* Step 29 - Customer Statement */
+.statement-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}
+.statement-box{width:min(680px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.statement-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.statement-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.statement-actions button{min-height:46px}
+.statement-preview{margin-top:14px;border:1px solid #ddd;border-radius:12px;padding:15px;background:#fff}
+.statement-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.statement-table th,.statement-table td{border:1px solid #ddd;padding:7px}
+@media print{
+ body.statement-printing>*{display:none!important}
+ body.statement-printing #statementPrintArea{display:block!important;position:static!important}
+ #statementPrintArea{font-family:Arial,sans-serif;color:#111;background:#fff;padding:28px}
+}
+
 </style>
 </head>
 <body>
@@ -1374,7 +1390,7 @@ function updateCustomerGroups(){
     return `<div class="customer-group">
       <div class="customer-group-head">
         <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div></div>
-        <div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div>
+        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" onclick='openCustomerStatement(${JSON.stringify(g.name).replace(/'/g,"&#39;")},${JSON.stringify(g.mobile).replace(/'/g,"&#39;")})'>📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
         <div class="customer-group-stat"><span>Total Valuation</span><b>${typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN')}</b></div>
@@ -1389,6 +1405,122 @@ function updateCustomerGroups(){
 document.addEventListener('DOMContentLoaded',()=>{
   updateCustomerGroups();
 });
+
+</script>
+
+<div id="statementModal" class="statement-modal">
+  <div class="statement-box">
+    <div class="statement-head">
+      <div><h2 style="margin:0">Customer Statement</h2><div style="font-size:12px;opacity:.65;margin-top:3px">Complete valuation history</div></div>
+      <button type="button" onclick="closeCustomerStatement()" style="font-size:22px;padding:7px 12px">×</button>
+    </div>
+    <div id="statementPreview" class="statement-preview"></div>
+    <div class="statement-actions">
+      <button type="button" onclick="printCustomerStatement()">📄 Print / Save PDF</button>
+      <button type="button" onclick="shareCustomerStatement()">↗ Share Statement</button>
+    </div>
+  </div>
+</div>
+<div id="statementPrintArea" style="display:none"></div>
+
+
+<script>
+
+/* Step 29 - Customer Statement */
+let _statementCustomer={name:'',mobile:'',records:[]};
+
+function openCustomerStatement(name,mobile){
+  const all=groupRecords();
+  const n=String(name||'').trim().toLowerCase();
+  const m=String(mobile||'').trim();
+  const records=all.filter(r=>{
+    const c=r?.customer||{};
+    return String(c.name||r?.customerName||'').trim().toLowerCase()===n &&
+           String(c.mobile||r?.mobile||'').trim()===m;
+  });
+  _statementCustomer={name:name||'',mobile:mobile||'',records};
+  renderCustomerStatement();
+  const modal=document.getElementById('statementModal');
+  if(modal)modal.style.display='flex';
+}
+function closeCustomerStatement(){
+  const modal=document.getElementById('statementModal');
+  if(modal)modal.style.display='none';
+}
+function statementMoney(n){
+  return typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+}
+function renderCustomerStatement(){
+  const g=_statementCustomer;
+  const totalValue=g.records.reduce((s,r)=>s+(typeof dashboardValue==='function'?dashboardValue(r):0),0);
+  const totalLoan=g.records.reduce((s,r)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(r):0),0);
+  const banks=[...new Set(g.records.map(r=>String(r?.customer?.bank||'').trim()).filter(Boolean))].join(', ');
+  const rows=g.records.map((r,i)=>{
+    const c=r?.customer||{};
+    const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
+    const bank=esc(c.bank||'');
+    const value=typeof dashboardValue==='function'?dashboardValue(r):0;
+    const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
+    const items=Array.isArray(r.items)?r.items.length:0;
+    return `<tr><td>${i+1}</td><td>${date}</td><td>${bank}</td><td style="text-align:right">${statementMoney(value)}</td><td style="text-align:right">${statementMoney(loan)}</td><td style="text-align:center">${items}</td></tr>`;
+  }).join('');
+  const content=`
+    <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:10px">
+      <div style="font-size:24px;font-weight:800">RAJENDRA JEWELLERS</div>
+      <div style="font-size:17px;font-weight:750;margin-top:4px">CUSTOMER VALUATION STATEMENT</div>
+    </div>
+    <div style="margin-top:15px;font-size:13px;line-height:1.7">
+      <b>Customer:</b> ${esc(g.name||'')}<br>
+      <b>Mobile:</b> ${esc(g.mobile||'')}<br>
+      <b>Bank(s):</b> ${esc(banks||'—')}<br>
+      <b>Statement Date:</b> ${new Date().toLocaleDateString('en-IN')}
+    </div>
+    <div class="statement-table-wrap">
+      <table class="statement-table">
+        <thead><tr><th>#</th><th>Date</th><th>Bank</th><th>Valuation</th><th>Sanctioned Loan</th><th>Items</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="6" style="text-align:center">No valuations found.</td></tr>'}</tbody>
+        <tfoot><tr><td colspan="3" style="text-align:right;font-weight:800">TOTAL</td><td style="text-align:right;font-weight:800">${statementMoney(totalValue)}</td><td style="text-align:right;font-weight:800">${statementMoney(totalLoan)}</td><td style="text-align:center;font-weight:800">${g.records.reduce((s,r)=>s+(Array.isArray(r.items)?r.items.length:0),0)}</td></tr></tfoot>
+      </table>
+    </div>
+    <div style="margin-top:28px;font-size:12px">
+      <b>REGISTERED GOLD APPRAISER</b><br>
+      MAHENDRA SHANTILAL GANDHI<br>
+      PPDC/GA/2026/244642
+    </div>`;
+  const preview=document.getElementById('statementPreview');
+  if(preview)preview.innerHTML=content;
+  const print=document.getElementById('statementPrintArea');
+  if(print)print.innerHTML=content;
+}
+function printCustomerStatement(){
+  renderCustomerStatement();
+  document.body.classList.add('statement-printing');
+  const print=document.getElementById('statementPrintArea');
+  if(print)print.style.display='block';
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      document.body.classList.remove('statement-printing');
+      if(print)print.style.display='none';
+    },700);
+  },100);
+}
+async function shareCustomerStatement(){
+  renderCustomerStatement();
+  // Browser print-to-PDF is the reliable cross-platform fallback.
+  // If Web Share is available, share the statement text; otherwise open print.
+  const g=_statementCustomer;
+  if(navigator.share){
+    try{
+      await navigator.share({
+        title:'Customer Valuation Statement - '+g.name,
+        text:'Customer Valuation Statement for '+g.name+' ('+g.mobile+'). Total valuations: '+g.records.length+'.'
+      });
+      return;
+    }catch(e){}
+  }
+  printCustomerStatement();
+}
 
 </script>
 </body>
