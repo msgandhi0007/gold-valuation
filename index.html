@@ -24,6 +24,26 @@ button.primary{width:100%;padding:13px;border:0;border-radius:13px;background:va
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
 footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
+
+.certificate{display:none;background:#fff;color:#222}
+.cert-page{max-width:780px;margin:0 auto;padding:32px;border:2px solid #b78320}
+.cert-head{text-align:center;border-bottom:2px solid #b78320;padding-bottom:14px}
+.cert-company{font-size:28px;font-weight:900;letter-spacing:1px}
+.cert-title{font-size:18px;font-weight:800;margin-top:6px}
+.cert-sub{font-size:11px;color:#666;margin-top:5px}
+.cert-section{margin-top:18px}.cert-section h3{font-size:13px;margin:0 0 8px;background:#f3ead5;padding:8px;border-left:4px solid #b78320}
+.cert-info{display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;font-size:12px}
+.cert-table{width:100%;border-collapse:collapse;font-size:10px}.cert-table th,.cert-table td{border:1px solid #aaa;padding:6px}.cert-table th{background:#f3ead5}
+.cert-total{margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.cert-box{border:1px solid #aaa;padding:9px;text-align:center}.cert-box span{display:block;font-size:9px;color:#666}.cert-box b{font-size:16px}
+.cert-footer{margin-top:48px;display:flex;justify-content:space-between;font-size:11px}.cert-note{margin-top:18px;font-size:9px;color:#666;line-height:1.5}
+@media screen{.certificate{display:none!important}}
+@media print{
+  body{background:#fff}
+  footer,.actions,.remove,.primary,.save-manager{display:none!important}
+  .app{display:none!important}
+  .certificate{display:block!important}
+}
+
 @media print{footer,.actions,.remove,.primary,.save-manager{display:none!important}.app{padding-bottom:0;max-width:none}}
 .save-manager{position:fixed;inset:0;background:#0008;z-index:20;display:none;padding:18px;overflow:auto}
 .save-box{max-width:520px;margin:30px auto;background:#fff;border-radius:18px;padding:16px;box-shadow:0 12px 40px #0005}
@@ -56,7 +76,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 </table></div>
 <div class="ltv"><div class="loan"><span>LTV 65%</span><b id="l65">₹0</b></div><div class="loan"><span>LTV 70%</span><b id="l70">₹0</b></div></div>
 </section>
-<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="window.print()">Print / Save PDF</button></div></section>
+<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
@@ -66,6 +86,45 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
     <div id="savedList"></div>
   </div>
 </div>
+
+<div id="certificate" class="certificate">
+  <div class="cert-page">
+    <div class="cert-head">
+      <div class="cert-company">RAJENDRA JEWELLERS</div>
+      <div class="cert-title">GOLD JEWELLERY VALUATION CERTIFICATE</div>
+      <div class="cert-sub">Professional valuation report</div>
+    </div>
+    <div class="cert-section">
+      <h3>Customer Details</h3>
+      <div class="cert-info">
+        <div><b>Bank:</b> <span id="cBank"></span></div>
+        <div><b>Valuation Date:</b> <span id="cDate"></span></div>
+        <div><b>Customer Name:</b> <span id="cName"></span></div>
+        <div><b>Mobile Number:</b> <span id="cMobile"></span></div>
+        <div><b>Market Rate:</b> <span id="cRate"></span></div>
+      </div>
+    </div>
+    <div class="cert-section">
+      <h3>Jewellery Valuation Details</h3>
+      <table class="cert-table">
+        <thead><tr><th>Sr.</th><th>Jewellery Item</th><th>Gross Wt.</th><th>Stone Wt.</th><th>Purity</th><th>Rounded Wt.</th><th>Value</th></tr></thead>
+        <tbody id="cRows"></tbody>
+        <tfoot><tr><th colspan="2">TOTAL</th><th id="cGross"></th><th id="cStone"></th><th id="cPurity"></th><th id="cRounded"></th><th id="cValue"></th></tr></tfoot>
+      </table>
+    </div>
+    <div class="cert-total">
+      <div class="cert-box"><span>TOTAL MARKET VALUE</span><b id="cTotal"></b></div>
+      <div class="cert-box"><span>LTV 65%</span><b id="c65"></b></div>
+      <div class="cert-box"><span>LTV 70%</span><b id="c70"></b></div>
+    </div>
+    <div class="cert-footer">
+      <div><b>Valuer</b><br>MAHENDRA SHANTILAL GANDHI<br>REGISTERED GOLD APPRAISER<br>PPDC/GA/2026/244642</div>
+      <div style="text-align:right"><br><br>Authorized Signatory<br><br>________________________</div>
+    </div>
+    <div class="cert-note">This valuation is prepared based on the customer/jewellery information and market rate entered in the application. The valuation is subject to physical verification of the jewellery and applicable institutional policies.</div>
+  </div>
+</div>
+
 <footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 
 <script>
@@ -74,6 +133,39 @@ document.getElementById('valuationDate').value=new Date().toISOString().slice(0,
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
 const num=n=>Number(n||0);
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+
+function printCertificate(){
+  const rateVal=num(document.getElementById('rate').value);
+  document.getElementById('cBank').textContent=document.getElementById('bankName').value||'—';
+  document.getElementById('cName').textContent=document.getElementById('customerName').value||'—';
+  document.getElementById('cMobile').textContent=document.getElementById('customerMobile').value||'—';
+  document.getElementById('cDate').textContent=document.getElementById('valuationDate').value||'—';
+  document.getElementById('cRate').textContent=money(rateVal)+'/g';
+
+  let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,no=0;
+  document.querySelectorAll('.item').forEach(el=>{
+    no++;
+    const n=el.querySelector('.itemName').value||'Item '+no;
+    const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value);
+    const net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rateVal;
+    tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
+    rows+=`<tr><td>${no}</td><td>${esc(n)}</td><td>${g.toFixed(2)}</td><td>${s.toFixed(2)}</td><td>${p.toFixed(2)}%</td><td>${rounded.toFixed(2)}</td><td>${money(value)}</td></tr>`;
+  });
+
+  document.getElementById('cRows').innerHTML=rows||'<tr><td colspan="7">No items</td></tr>';
+  document.getElementById('cGross').textContent=tg.toFixed(2);
+  document.getElementById('cStone').textContent=ts.toFixed(2);
+  document.getElementById('cPurity').textContent=(tn?wp/tn:0).toFixed(2)+'%';
+  document.getElementById('cRounded').textContent=tr.toFixed(2);
+  document.getElementById('cValue').textContent=money(tv);
+  document.getElementById('cTotal').textContent=money(tv);
+  document.getElementById('c65').textContent=money(tv*.65);
+  document.getElementById('c70').textContent=money(tv*.70);
+
+  document.getElementById('certificate').style.display='block';
+  setTimeout(()=>window.print(),200);
+}
 
 function addItem(data={name:'',gross:0,stone:0,purity:80}){
 count++;const d=document.createElement('div');d.className='item';d.id='item'+count;
