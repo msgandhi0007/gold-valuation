@@ -313,6 +313,48 @@ al App Cover */
   </table>
   <div class="report-note">Select a bank and/or month to filter the report. Totals update automatically.</div>
 </section>
+
+<section class="card" id="bankStatementReport">
+  <div class="itemhead">
+    <div>
+      <h2>Bank-wise Customer Report</h2>
+      <div style="font-size:13px;opacity:.68">Customer, valuation and sanctioned-loan overview by bank</div>
+    </div>
+    <button type="button" onclick="refreshBankStatementReport()">↻ Refresh</button>
+  </div>
+
+  <div style="margin-top:14px">
+    <label>Bank</label>
+    <select id="bankStatementSelect" onchange="refreshBankStatementReport()" style="width:100%">
+      <option value="">All Banks</option>
+      <option value="SBI BANK">SBI BANK</option>
+      <option value="IDBI BANK">IDBI BANK</option>
+      <option value="MAHARASHTRA GRAMIN BANK">MAHARASHTRA GRAMIN BANK</option>
+      <option value="DNYANDEEP CO-OP SOCIETY LTD">DNYANDEEP CO-OP SOCIETY LTD</option>
+    </select>
+  </div>
+
+  <div id="bankReportStats" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px"></div>
+
+  <div style="margin-top:14px;overflow:auto">
+    <table id="bankReportTable" style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr>
+          <th style="text-align:left;border:1px solid #ddd;padding:8px">Customer</th>
+          <th style="border:1px solid #ddd;padding:8px">Valuations</th>
+          <th style="text-align:right;border:1px solid #ddd;padding:8px">Valuation ₹</th>
+          <th style="text-align:right;border:1px solid #ddd;padding:8px">Loan ₹</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <button type="button" id="exportBankReportButton"
+    style="width:100%;margin-top:12px;min-height:48px"
+    onclick="exportBankStatementPDF()">📄 Export Bank Report as PDF</button>
+</section>
+
 <section class="card customer-history-card" id="customerHistory" style="display:block!important;visibility:visible!important">
   <div class="itemhead">
     <div>
@@ -1629,5 +1671,129 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 })();
 </script>
+
+<script>
+/* STEP 31 - Bank-wise Customer Report */
+(function(){
+  const BANKS=[
+    'SBI BANK',
+    'IDBI BANK',
+    'MAHARASHTRA GRAMIN BANK',
+    'DNYANDEEP CO-OP SOCIETY LTD'
+  ];
+
+  function saved31(){
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return[];}
+  }
+  function value31(r){
+    try{if(typeof window.dashboardValue==='function')return Number(window.dashboardValue(r))||0;}catch(e){}
+    return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0;
+  }
+  function loan31(r){
+    try{if(typeof window.reportLoanAmount==='function')return Number(window.reportLoanAmount(r))||0;}catch(e){}
+    const c=r?.customer||{};
+    return Number(c.sanctionedLoanAmount||c.loanAmount||r?.sanctionedLoanAmount||r?.loanAmount||0)||0;
+  }
+  function money31(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function esc31(v){
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  window.refreshBankStatementReport=function(){
+    const select=document.getElementById('bankStatementSelect');
+    const stats=document.getElementById('bankReportStats');
+    const tbody=document.querySelector('#bankReportTable tbody');
+    if(!select||!stats||!tbody)return;
+
+    const bank=String(select.value||'').trim();
+    const records=saved31().filter(r=>{
+      const b=String(r?.customer?.bank||'').trim();
+      return !bank || b===bank;
+    });
+
+    const groups=new Map();
+    records.forEach(r=>{
+      const c=r?.customer||{};
+      const name=String(c.name||r?.customerName||'Unnamed').trim()||'Unnamed';
+      const mobile=String(c.mobile||r?.mobile||'').trim();
+      const key=name.toLowerCase()+'|'+mobile;
+      if(!groups.has(key))groups.set(key,{name,mobile,count:0,value:0,loan:0});
+      const g=groups.get(key);
+      g.count++;
+      g.value+=value31(r);
+      g.loan+=loan31(r);
+    });
+
+    const gs=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name));
+    const totalV=records.reduce((s,r)=>s+value31(r),0);
+    const totalL=records.reduce((s,r)=>s+loan31(r),0);
+
+    stats.innerHTML=`
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Customers</span><br>
+        <b style="font-size:20px">${gs.length}</b>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Valuations</span><br>
+        <b style="font-size:20px">${records.length}</b>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Total Valuation</span><br>
+        <b style="font-size:18px">${money31(totalV)}</b>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Total Sanctioned Loan</span><br>
+        <b style="font-size:18px">${money31(totalL)}</b>
+      </div>`;
+
+    tbody.innerHTML=gs.length?gs.map(g=>`
+      <tr>
+        <td style="border:1px solid #ddd;padding:8px">
+          <b>${esc31(g.name)}</b>${g.mobile?'<br><span style="opacity:.65">'+esc31(g.mobile)+'</span>':''}
+        </td>
+        <td style="border:1px solid #ddd;padding:8px;text-align:center">${g.count}</td>
+        <td style="border:1px solid #ddd;padding:8px;text-align:right">${money31(g.value)}</td>
+        <td style="border:1px solid #ddd;padding:8px;text-align:right">${money31(g.loan)}</td>
+      </tr>`).join('') :
+      '<tr><td colspan="4" style="padding:14px;text-align:center">No valuations found.</td></tr>';
+  };
+
+  window.exportBankStatementPDF=function(){
+    const select=document.getElementById('bankStatementSelect');
+    const bank=String(select?.value||'').trim()||'All Banks';
+    const records=saved31().filter(r=>!select?.value || String(r?.customer?.bank||'').trim()===select.value);
+    const groups=new Map();
+    records.forEach(r=>{
+      const c=r?.customer||{},name=String(c.name||r?.customerName||'Unnamed').trim()||'Unnamed';
+      const mobile=String(c.mobile||r?.mobile||'').trim();
+      const key=name.toLowerCase()+'|'+mobile;
+      if(!groups.has(key))groups.set(key,{name,mobile,count:0,value:0,loan:0});
+      const g=groups.get(key);g.count++;g.value+=value31(r);g.loan+=loan31(r);
+    });
+    const gs=[...groups.values()];
+    const tv=records.reduce((s,r)=>s+value31(r),0),tl=records.reduce((s,r)=>s+loan31(r),0);
+    const rows=gs.map((g,i)=>`<tr><td>${i+1}</td><td>${esc31(g.name)}${g.mobile?'<br>'+esc31(g.mobile):''}</td><td>${g.count}</td><td>${money31(g.value)}</td><td>${money31(g.loan)}</td></tr>`).join('');
+    const doc=`<!doctype html><html><head><title>Bank-wise Customer Report</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#111}h1,h2{margin:0}.head{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}.meta{margin:16px 0;line-height:1.7}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.box{border:1px solid #ccc;padding:10px}.box span{font-size:11px;color:#666}.box b{font-size:17px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th,td{border:1px solid #ccc;padding:8px}th{background:#f1eee6}td:nth-child(1),td:nth-child(3){text-align:center}td:nth-child(4),td:nth-child(5){text-align:right}.sign{margin-top:35px;border-top:1px solid #777;padding-top:8px;font-size:12px}</style></head><body>
+      <div class="head"><h1>RAJENDRA JEWELLERS</h1><h2>BANK-WISE CUSTOMER REPORT</h2></div>
+      <div class="meta"><b>Bank:</b> ${esc31(bank)}<br><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
+      <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
+      <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
+      <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
+      </body></html>`;
+    const w=window.open('','_blank');
+    if(!w){alert('Please allow pop-ups for the PDF report.');return;}
+    w.document.open();w.document.write(doc);w.document.close();
+    setTimeout(()=>{w.focus();w.print();},350);
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(refreshBankStatementReport,150);
+  });
+})();
+</script>
+
 </body>
 </html>
