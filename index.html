@@ -139,9 +139,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
     <div class="cert-total">
       <div class="cert-box"><span>TOTAL MARKET VALUE</span><b id="cTotal"></b></div>
       <div class="cert-box"><span>SANCTIONED LOAN AMOUNT</span><b id="cLoanTotal"></b></div>
-      <div class="cert-box"><span>LTV <span id="cLtv1Pct">65</span>%</span><b id="c65"></b></div>
-      <div class="cert-box"><span>LTV <span id="cLtv2Pct">70</span>%</span><b id="c70"></b></div>
-    </div>
+</div>
     <div class="cert-footer">
       <div><b>Valuer</b><br>MAHENDRA SHANTILAL GANDHI<br>REGISTERED GOLD APPRAISER<br>PPDC/GA/2026/244642</div>
       <div style="text-align:right"><br><br>Authorized Signatory<br><br>________________________</div>
@@ -234,7 +232,13 @@ function getCertificateNo(d){
   return makeCertificateNo();
 }
 
+function pdfFileName(name,date){
+const safeName=String(name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\\s+/g,' ');
+const safeDate=String(date||'').trim().replace(/[^0-9-]/g,'-');
+return (safeName||'Customer')+' - '+(safeDate||'Valuation')+'.pdf';
+}
 function printCertificate(){
+const oldTitle=document.title;document.title=pdfFileName(customerName.value,valuationDate.value);
   const rateVal=num(document.getElementById('rate').value);
   document.getElementById('cCertNo').textContent=getCertificateNo(window._currentSavedRecord||null);
   document.getElementById('cBank').textContent=selectedBankName()||'—';
@@ -262,8 +266,8 @@ function printCertificate(){
   document.getElementById('cValue').textContent=money(tv);
   document.getElementById('cTotal').textContent=money(tv);
   document.getElementById('cLoanTotal').textContent=money(num(document.getElementById('sanctionedLoan').value));
-  const certLtv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const certLtv2=Math.max(0,Math.min(100,num(document.getElementById('ltv2').value)));document.getElementById('cLtv1Pct').textContent=certLtv1;document.getElementById('cLtv2Pct').textContent=certLtv2;document.getElementById('c65').textContent=money(tv*certLtv1/100);
-  document.getElementById('c70').textContent=money(tv*certLtv2/100);
+  
+  
 
   document.getElementById('certificate').style.display='block';
   setTimeout(()=>window.print(),200);
