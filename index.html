@@ -641,6 +641,11 @@ try{if(navigator.share)await navigator.share({title:'Gold Valuation',text:t});el
 addItem();
 </script>
 
+
+}
+
+
+<script>
 function enterValuationApp(){
   const cover=document.getElementById('appCover');
   if(!cover)return;
@@ -684,7 +689,6 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker registration failed',err));
   });
-}
-
+</script>
 </body>
 </html>
