@@ -171,94 +171,34 @@ function calculate(){
   document.getElementById('l65').textContent=money(tv * 0.65);
   document.getElementById('l70').textContent=money(tv * 0.70);
 }
+function clearAll(){if(confirm('Reset this valuation?')){document.getElementById('items').innerHTML='';count=0;document.getElementById('rate').value=0;addItem();calculate()}}
 function saveData(){
-  const data = {
-    id: Date.now(),
-    customer: {
-      name: document.getElementById('customerName').value,
-      mobile: document.getElementById('customerMobile').value,
-      date: document.getElementById('valuationDate').value
-    },
-    rate: document.getElementById('rate').value,
-    items: [...document.querySelectorAll('.item')].map(x => ({
-      name: x.querySelector('.itemName')?.value || '',
-      gross: x.querySelector('.gross').value,
-      stone: x.querySelector('.stone').value,
-      purity: x.querySelector('.purity').value
-    }))
-  };
-
-  const saved = JSON.parse(localStorage.getItem('goldValuations') || '[]');
-
-  saved.push(data);
-
-  localStorage.setItem('goldValuations', JSON.stringify(saved));
-
-  alert('Valuation saved successfully on this phone.');
+  const data={
+  customer:{
+    name:document.getElementById('customerName').value,
+    mobile:document.getElementById('customerMobile').value,
+    date:document.getElementById('valuationDate').value
+  },
+  rate:document.getElementById('rate').value,
+  items:[...document.querySelectorAll('.item')].map(x=>({name:x.querySelector('.itemName')?.value||'',gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))
+};
+  localStorage.setItem('goldValuation',JSON.stringify(data)); alert('Valuation saved on this phone.');
 }
-
-
 function loadData(){
-  const saved = JSON.parse(localStorage.getItem('goldValuations') || '[]');
-
-  if(saved.length === 0){
-    alert('No saved valuations found.');
-    return;
-  }
-
-  let list = 'SELECT SAVED VALUATION\\n\\n';
-
-  saved.forEach((v, i) => {
-    const name = v.customer?.name || 'Unnamed Customer';
-    const mobile = v.customer?.mobile || '';
-    const date = v.customer?.date || '';
-
-    list += `${i + 1}. ${name}`;
-    if(mobile) list += ` - ${mobile}`;
-    if(date) list += ` - ${date}`;
-    list += '\\n';
-  });
-
-  const choice = prompt(list + '\\nEnter valuation number to load:');
-
-  if(choice === null) return;
-
-  const index = parseInt(choice) - 1;
-
-  if(index < 0 || index >= saved.length){
-    alert('Invalid valuation number.');
-    return;
-  }
-
-  const data = saved[index];
-
-  document.getElementById('customerName').value =
-    data.customer?.name || '';
-
-  document.getElementById('customerMobile').value =
-    data.customer?.mobile || '';
-
-  document.getElementById('valuationDate').value =
-    data.customer?.date || new Date().toISOString().slice(0,10);
-
-  document.getElementById('rate').value =
-    data.rate || 0;
-
-  document.getElementById('items').innerHTML = '';
-  count = 0;
-
-  (data.items || []).forEach(item => {
-    addItem();
-
-    const el = document.querySelectorAll('.item')[count - 1];
-
-    el.querySelector('.itemName').value = item.name || '';
-    el.querySelector('.gross').value = item.gross || 0;
-    el.querySelector('.stone').value = item.stone || 0;
-    el.querySelector('.purity').value = item.purity || 0;
-  });
-
-  calculate();
-
-  alert('Valuation loaded successfully.');
+  const raw=localStorage.getItem('goldValuation'); if(!raw){alert('No saved valuation found.');return}
+  const data=JSON.parse(raw);
+document.getElementById('customerName').value=data.customer?.name||'';
+document.getElementById('customerMobile').value=data.customer?.mobile||'';
+document.getElementById('valuationDate').value=data.customer?.date||today.toISOString().slice(0,10);
+document.getElementById('rate').value=data.rate||0;document.getElementById('items').innerHTML='';count=0;(data.items||[]).forEach(addItem);calculate();
 }
+async function shareResult(){
+  const text=`Gold Valuation\nMarket Rate: ${money(num(document.getElementById('rate').value))}/g\nMarket Value: ${document.getElementById('tv').textContent}\nLTV 65%: ${document.getElementById('l65').textContent}\nLTV 70%: ${document.getElementById('l70').textContent}`;
+  if(navigator.share){try{await navigator.share({title:'Gold Valuation',text})}catch(e){}}
+  else{await navigator.clipboard?.writeText(text);alert(text)}
+}
+addItem();
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));
+</script>
+</body>
+</html>
