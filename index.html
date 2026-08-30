@@ -241,6 +241,15 @@ al App Cover */
  #statementPrintArea .s30-note{display:block}
 }
 
+
+/* STEP 32 - Data Safety & Backup */
+.s32-backup-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+.s32-status{margin-top:10px;padding:10px;border-radius:10px;background:#f4f1e9;font-size:12px}
+.s32-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.s32-actions button{min-height:46px}
+.s32-reminder{margin-top:10px;font-size:12px;opacity:.72}
+@media(max-width:520px){.s32-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -427,6 +436,26 @@ al App Cover */
 </div>
 </section>
 <section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
+
+<section class="card s32-backup-card" id="dataSafetyBackup">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Data Safety & Backup</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Protect your saved valuations and customer records</div>
+    </div>
+    <button type="button" onclick="refreshBackupStatus()">↻ Refresh</button>
+  </div>
+
+  <div class="s32-actions">
+    <button type="button" onclick="createFullBackup()">💾 Backup All Data</button>
+    <button type="button" onclick="document.getElementById('s32RestoreFile').click()">📥 Restore Backup</button>
+  </div>
+  <input id="s32RestoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreFullBackup(this.files[0])">
+
+  <div id="s32BackupStatus" class="s32-status">Checking saved data…</div>
+  <div class="s32-reminder">Backup includes saved valuations, customer details, bank information, sanctioned loan amounts and app settings stored by this app.</div>
+</section>
+
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
