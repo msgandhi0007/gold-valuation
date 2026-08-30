@@ -60,9 +60,7 @@ footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7
 <th style="padding:10px;text-align:left">Item</th>
 <th style="padding:10px;text-align:right">Gross Wt (g)</th>
 <th style="padding:10px;text-align:right">Stone Wt (g)</th>
-<th style="padding:10px;text-align:right">Net Wt (g)</th>
 <th style="padding:10px;text-align:right">Purity %</th>
-<th style="padding:10px;text-align:right">Pure Gold (g)</th>
 <th style="padding:10px;text-align:right">Rounded (g)</th>
 <th style="padding:10px;text-align:right">Value (₹)</th>
 </tr>
@@ -73,9 +71,7 @@ footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7
 <td style="padding:10px">TOTAL</td>
 <td id="tg" style="padding:10px;text-align:right">0.00</td>
 <td id="ts" style="padding:10px;text-align:right">0.00</td>
-<td id="tn" style="padding:10px;text-align:right">0.00</td>
 <td id="avgPurity" style="padding:10px;text-align:right">0.00</td>
-<td id="tp" style="padding:10px;text-align:right">0.00</td>
 <td id="tr" style="padding:10px;text-align:right">0.00</td>
 <td id="tv" style="padding:10px;text-align:right">₹0</td>
 </tr>
@@ -153,10 +149,8 @@ function calculate(){
       <td style="padding:9px">${itemNo}</td>
       <td style="padding:9px;text-align:right">${g.toFixed(2)}</td>
       <td style="padding:9px;text-align:right">${s.toFixed(2)}</td>
-      <td style="padding:9px;text-align:right">${net.toFixed(2)}</td>
-      <td style="padding:9px;text-align:right">${p.toFixed(2)}</td>
-      <td style="padding:9px;text-align:right">${pure.toFixed(2)}</td>
-      <td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td>
+            <td style="padding:9px;text-align:right">${p.toFixed(2)}</td>
+            <td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td>
       <td style="padding:9px;text-align:right">${money(value)}</td>
     </tr>`;
   });
