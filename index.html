@@ -4,201 +4,99 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#9a6b12">
-<link rel="manifest" href="manifest.json">
 <title>Gold Valuation • Excel Matched</title>
 <style>
-:root{--gold:#b78320;--gold2:#f3c969;--bg:#f7f5f0;--card:#fff;--text:#242424;--muted:#777;--line:#e7e2d8;--green:#167a48}
+:root{--gold:#b78320;--bg:#f7f5f0;--card:#fff;--text:#242424;--muted:#777;--line:#e7e2d8;--green:#167a48}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
 .app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:90px}
-header{background:linear-gradient(135deg,#8c5c08,#d3a438);color:white;padding:22px 18px 20px;border-radius:0 0 24px 24px;box-shadow:0 4px 16px #0002}
+header{background:linear-gradient(135deg,#8c5c08,#d3a438);color:white;padding:22px 18px 20px;border-radius:0 0 24px 24px}
 .brand{font-size:23px;font-weight:800}.sub{opacity:.9;font-size:13px;margin-top:3px}
 .rate{margin-top:18px;background:#fff2;border:1px solid #fff5;border-radius:16px;padding:14px}
-.rate label{font-size:12px;opacity:.9}.rate input{width:100%;font-size:24px;font-weight:800;border:0;background:transparent;color:white;outline:0;margin-top:5px}
-main{padding:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #0000000a}
-.card h2{font-size:16px;margin:0 0 12px}.item{border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px;background:#fff}
+.rate input{width:100%;font-size:24px;font-weight:800;border:0;background:transparent;color:white;outline:0;margin-top:5px}
+main{padding:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 12px}.item{border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px}
 .itemhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:750}
 .remove{border:0;background:#fff0f0;color:#b42318;border-radius:9px;padding:6px 9px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.field input{width:100%;padding:11px;border:1px solid #dcd7cc;border-radius:10px;font-size:16px;outline:0;background:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.field input{width:100%;padding:11px;border:1px solid #dcd7cc;border-radius:10px;font-size:16px;outline:0}
 .calc{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.metric{background:#faf8f3;border-radius:10px;padding:8px}.metric small{display:block;color:var(--muted);font-size:10px}.metric b{font-size:14px}
 button.primary{width:100%;padding:13px;border:0;border-radius:13px;background:var(--gold);color:white;font-size:16px;font-weight:750}
-.summary{background:#222;color:#fff}.summary h2{color:#fff}.big{font-size:28px;font-weight:850}.summary .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #fff2}.ltv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.loan{background:#fff;color:#222;border-radius:13px;padding:12px}.loan span{display:block;color:#666;font-size:11px}.loan b{font-size:20px;color:var(--green)}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}
-footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
+.summary{background:#222;color:#fff}.summary h2{color:#fff}.ltv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.loan{background:#fff;color:#222;border-radius:13px;padding:12px}.loan span{display:block;color:#666;font-size:11px}.loan b{font-size:20px;color:var(--green)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
+@media print{footer,.actions,.remove,.primary{display:none!important}.app{padding-bottom:0;max-width:none}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand">Gold Valuation</div>
-  <div class="sub">Simple jewellery valuation & LTV calculator</div>
-  <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
+<div class="brand">Gold Valuation</div><div class="sub">Simple jewellery valuation & LTV calculator</div>
+<div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
-<section class="card">
-<h2>Customer Details</h2>
-<div class="grid">
-  <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
-  <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
-  <div class="field"><label>Valuation Date</label><input id="valuationDate" type="date"></div>
-</div>
+<section class="card"><h2>Customer Details</h2><div class="grid">
+<div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
+<div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
+<div class="field"><label>Valuation Date</label><input id="valuationDate" type="date"></div>
+</div></section>
+<section class="card"><h2>Jewellery Items</h2><div id="items"></div><button class="primary" onclick="addItem()">＋ Add Jewellery Item</button></section>
+<section class="card summary"><h2>Valuation Summary — Table</h2>
+<div style="overflow-x:auto;border-radius:12px;border:1px solid #ffffff22"><table style="width:100%;border-collapse:collapse;min-width:760px;font-size:12px">
+<thead><tr><th style="padding:10px;text-align:left">Item</th><th style="padding:10px;text-align:left">Jewellery Name</th><th style="padding:10px;text-align:right">Gross Wt (g)</th><th style="padding:10px;text-align:right">Stone Wt (g)</th><th style="padding:10px;text-align:right">Purity %</th><th style="padding:10px;text-align:right">Rounded (g)</th><th style="padding:10px;text-align:right">Value (₹)</th></tr></thead>
+<tbody id="summaryRows"></tbody><tfoot><tr style="font-weight:850;background:#ffffff18"><td style="padding:10px">TOTAL</td><td></td><td id="tg" style="padding:10px;text-align:right">0.00</td><td id="ts" style="padding:10px;text-align:right">0.00</td><td id="avgPurity" style="padding:10px;text-align:right">0.00</td><td id="tr" style="padding:10px;text-align:right">0.00</td><td id="tv" style="padding:10px;text-align:right">₹0</td></tr></tfoot>
+</table></div>
+<div class="ltv"><div class="loan"><span>LTV 65%</span><b id="l65">₹0</b></div><div class="loan"><span>LTV 70%</span><b id="l70">₹0</b></div></div>
 </section>
-
-<section class="card">
-<h2>Jewellery Items</h2>
-<div id="items"></div>
-<button class="primary" onclick="addItem()">＋ Add Jewellery Item</button>
-</section>
-
-<section class="card summary">
-<h2>Valuation Summary — Table</h2>
-<div style="overflow-x:auto;border-radius:12px;border:1px solid #ffffff22">
-<table id="summaryTable" style="width:100%;border-collapse:collapse;min-width:760px;font-size:12px">
-<thead>
-<tr>
-<th style="padding:10px;text-align:left">Item</th><th style="padding:10px;text-align:left">Jewellery Name</th>
-<th style="padding:10px;text-align:right">Gross Wt (g)</th>
-<th style="padding:10px;text-align:right">Stone Wt (g)</th>
-<th style="padding:10px;text-align:right">Purity %</th>
-<th style="padding:10px;text-align:right">Rounded (g)</th>
-<th style="padding:10px;text-align:right">Value (₹)</th>
-</tr>
-</thead>
-<tbody id="summaryRows"></tbody>
-<tfoot>
-<tr style="font-weight:850;background:#ffffff18">
-<td style="padding:10px">TOTAL</td>
-<td style="padding:10px"></td>
-<td id="tg" style="padding:10px;text-align:right">0.00</td>
-<td id="ts" style="padding:10px;text-align:right">0.00</td>
-<td id="avgPurity" style="padding:10px;text-align:right">0.00</td>
-<td id="tr" style="padding:10px;text-align:right">0.00</td>
-<td id="tv" style="padding:10px;text-align:right">₹0</td>
-</tr>
-</tfoot>
-</table>
-</div>
-<div class="ltv">
-  <div class="loan"><span>LTV 65%</span><b id="l65">₹0</b></div>
-  <div class="loan"><span>LTV 70%</span><b id="l70">₹0</b></div>
-</div>
-</section>
-
-<section class="card">
-<div class="actions">
-<button class="secondary" onclick="clearAll()">Reset</button>
-<button class="secondary" onclick="window.print()">Print / Save PDF</button>
-</div>
-</section>
-</main>
-</div>
-<footer>
-<button onclick="saveData()">💾 Save</button>
-<button onclick="loadData()">↻ Load</button>
-<button onclick="shareResult()">↗ Share</button>
-</footer>
+<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="window.print()">Print / Save PDF</button></div></section>
+</main></div>
+<footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 
 <script>
 let count=0;
-const today=new Date(); document.getElementById('valuationDate').value=today.toISOString().slice(0,10);
+document.getElementById('valuationDate').value=new Date().toISOString().slice(0,10);
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
 const num=n=>Number(n||0);
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-function addItem(data={name:"",gross:0,stone:0,purity:80}){
-  count++;
-  const d=document.createElement('div'); d.className='item'; d.id='item'+count;
-  d.innerHTML=`
-  <div class="itemhead"><span>Item ${count}</span><button class="remove" onclick="removeItem(${count})">Remove</button></div>
-  <div class="field" style="margin-bottom:10px"><label>Jewellery Item Name</label><input class="itemName" type="text" placeholder="e.g. Gold Chain" value="${data.name || ''}" oninput="calculate()"></div>
-  <div class="grid">
-    <div class="field"><label>Gross Weight (g)</label><input class="gross" type="number" step="0.01" inputmode="decimal" value="${data.gross}" oninput="calculate()"></div>
-    <div class="field"><label>Stone Weight (g)</label><input class="stone" type="number" step="0.01" inputmode="decimal" value="${data.stone}" oninput="calculate()"></div>
-    <div class="field"><label>Purity (%)</label><input class="purity" type="number" step="0.01" inputmode="decimal" value="${data.purity}" oninput="calculate()"></div>
-  </div>
-  <div class="calc">
-    <div class="metric"><small>Net Weight</small><b class="net">0.00 g</b></div>
-    <div class="metric"><small>Pure Gold</small><b class="pure">0.00 g</b></div>
-    <div class="metric"><small>Value</small><b class="value">₹0</b></div>
-  </div>`;
-  document.getElementById('items').appendChild(d); calculate();
+function addItem(data={name:'',gross:0,stone:0,purity:80}){
+count++;const d=document.createElement('div');d.className='item';d.id='item'+count;
+d.innerHTML=`<div class="itemhead"><span>Item ${count}</span><button class="remove" onclick="removeItem(${count})">Remove</button></div>
+<div class="field" style="margin-bottom:10px"><label>Jewellery Item Name</label><input class="itemName" type="text" placeholder="e.g. Gold Chain" value="${esc(data.name)}" oninput="calculate()"></div>
+<div class="grid"><div class="field"><label>Gross Weight (g)</label><input class="gross" type="number" step="0.01" inputmode="decimal" value="${data.gross}" oninput="calculate()"></div>
+<div class="field"><label>Stone Weight (g)</label><input class="stone" type="number" step="0.01" inputmode="decimal" value="${data.stone}" oninput="calculate()"></div>
+<div class="field"><label>Purity (%)</label><input class="purity" type="number" step="0.01" inputmode="decimal" value="${data.purity}" oninput="calculate()"></div></div>
+<div class="calc"><div class="metric"><small>Net Weight</small><b class="net">0.00 g</b></div><div class="metric"><small>Pure Gold</small><b class="pure">0.00 g</b></div><div class="metric"><small>Value</small><b class="value">₹0</b></div></div>`;
+document.getElementById('items').appendChild(d);calculate();
 }
-function removeItem(id){document.getElementById('item'+id)?.remove(); renumber(); calculate()}
+function removeItem(id){document.getElementById('item'+id)?.remove();renumber();calculate()}
 function renumber(){[...document.querySelectorAll('.item')].forEach((x,i)=>x.querySelector('.itemhead span').textContent='Item '+(i+1))}
 function calculate(){
-  const rate=num(document.getElementById('rate').value);
-  let tg=0,ts=0,tn=0,tp=0,tr=0,tv=0, weightedPurity=0, rows='';
-  let itemNo=0;
-
-  document.querySelectorAll('.item').forEach(el=>{
-    itemNo++;
-    const g=num(el.querySelector('.gross').value);
-    const s=num(el.querySelector('.stone').value);
-    const p=num(el.querySelector('.purity').value);
-    const net=g-s;
-    const pure=net*p/100;
-    const rounded=Math.floor((pure+1e-9)*10)/10;
-    const value=rounded*rate;
-
-    tg+=g; ts+=s; tn+=net; tp+=pure; tr+=rounded; tv+=value;
-    weightedPurity += net*p;
-
-    el.querySelector('.net').textContent=net.toFixed(2)+' g';
-    el.querySelector('.pure').textContent=pure.toFixed(2)+' g';
-    el.querySelector('.value').textContent=money(value);
-
-    const itemName=(el.querySelector('.itemName')?.value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    rows += `<tr>
-      <td style="padding:9px">${itemNo}</td>
-      <td style="padding:9px">${itemName}</td>
-      <td style="padding:9px;text-align:right">${g.toFixed(2)}</td>
-      <td style="padding:9px;text-align:right">${s.toFixed(2)}</td>
-            <td style="padding:9px;text-align:right">${p.toFixed(2)}</td>
-            <td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td>
-      <td style="padding:9px;text-align:right">${money(value)}</td>
-    </tr>`;
-  });
-
-  document.getElementById('summaryRows').innerHTML = rows ||
-    `<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>`;
-
-  const avgPurity = tn ? weightedPurity/tn : 0;
-  document.getElementById('tg').textContent=tg.toFixed(2);
-  document.getElementById('ts').textContent=ts.toFixed(2);
-  document.getElementById('avgPurity').textContent=avgPurity.toFixed(2);
-  document.getElementById('tr').textContent=tr.toFixed(2);
-  document.getElementById('tv').textContent=money(tv);
-  document.getElementById('l65').textContent=money(tv * 0.65);
-  document.getElementById('l70').textContent=money(tv * 0.70);
+const rate=num(document.getElementById('rate').value);let tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,rows='',no=0;
+document.querySelectorAll('.item').forEach(el=>{no++;const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rate;
+tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
+el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
+rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
+document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
+document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);document.getElementById('l65').textContent=money(tv*.65);document.getElementById('l70').textContent=money(tv*.70);
 }
-function clearAll(){if(confirm('Reset this valuation?')){document.getElementById('items').innerHTML='';count=0;document.getElementById('rate').value=0;addItem();calculate()}}
-function saveData(){
-  const data={
-  customer:{
-    name:document.getElementById('customerName').value,
-    mobile:document.getElementById('customerMobile').value,
-    date:document.getElementById('valuationDate').value
-  },
-  rate:document.getElementById('rate').value,
-  items:[...document.querySelectorAll('.item')].map(x=>({name:x.querySelector('.itemName')?.value||'',gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))
-};
-  localStorage.setItem('goldValuation',JSON.stringify(data)); alert('Valuation saved on this phone.');
-}
+function currentData(){return{id:Date.now(),customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value},rate:rate.value,items:[...document.querySelectorAll('.item')].map(x=>({name:x.querySelector('.itemName').value,gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}}
+function saveData(){let a=JSON.parse(localStorage.getItem('goldValuations')||'[]');a.push(currentData());localStorage.setItem('goldValuations',JSON.stringify(a));alert('Valuation saved successfully.')}
 function loadData(){
-  const raw=localStorage.getItem('goldValuation'); if(!raw){alert('No saved valuation found.');return}
-  const data=JSON.parse(raw);
-document.getElementById('customerName').value=data.customer?.name||'';
-document.getElementById('customerMobile').value=data.customer?.mobile||'';
-document.getElementById('valuationDate').value=data.customer?.date||today.toISOString().slice(0,10);
-document.getElementById('rate').value=data.rate||0;document.getElementById('items').innerHTML='';count=0;(data.items||[]).forEach(addItem);calculate();
+let a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+if(!a.length){const old=localStorage.getItem('goldValuation');if(old)try{a=[JSON.parse(old)];localStorage.setItem('goldValuations',JSON.stringify(a))}catch(e){}}
+if(!a.length){alert('No saved valuations found.');return}
+let list='SAVED VALUATIONS\n\n';a.forEach((v,i)=>list+=`${i+1}. ${v.customer?.name||'Unnamed Customer'} - ${v.customer?.date||''}\n`);
+const c=prompt(list+'\nEnter valuation number to load:');if(c===null)return;const i=parseInt(c,10)-1;if(i<0||i>=a.length){alert('Invalid valuation number.');return}
+const d=a[i];customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();alert('Valuation loaded successfully.')
 }
+function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;addItem();calculate()}
 async function shareResult(){
-  const text=`Gold Valuation\nMarket Rate: ${money(num(document.getElementById('rate').value))}/g\nMarket Value: ${document.getElementById('tv').textContent}\nLTV 65%: ${document.getElementById('l65').textContent}\nLTV 70%: ${document.getElementById('l70').textContent}`;
-  if(navigator.share){try{await navigator.share({title:'Gold Valuation',text})}catch(e){}}
-  else{await navigator.clipboard?.writeText(text);alert(text)}
+let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
+document.querySelectorAll('.item').forEach((el,i)=>{const n=el.querySelector('.itemName').value||'Item '+(i+1),g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,r=Math.floor((pure+1e-9)*10)/10;t+=`${i+1}. ${n}\nGross: ${g.toFixed(2)} g\nStone: ${s.toFixed(2)} g\nNet: ${net.toFixed(2)} g\nPurity: ${p.toFixed(2)}%\nPure Gold: ${pure.toFixed(2)} g\nValue: ${money(r*num(rate.value))}\n\n`});
+t+='Total Value: '+tv.textContent+'\nLTV 65%: '+l65.textContent+'\nLTV 70%: '+l70.textContent;
+try{if(navigator.share)await navigator.share({title:'Gold Valuation',text:t});else if(navigator.clipboard){await navigator.clipboard.writeText(t);alert('Valuation copied. You can paste it in WhatsApp.')}else prompt('Copy this valuation:',t)}catch(e){if(e.name!=='AbortError')prompt('Copy this valuation:',t)}
 }
 addItem();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));
 </script>
 </body>
 </html>
