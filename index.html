@@ -308,11 +308,25 @@ try{const old=localStorage.getItem('goldValuation');if(old){const d=JSON.parse(o
 return a;
 }
 let selectedBank='ALL';
+function resetAfterSave(){
+document.getElementById('customerName').value='';
+document.getElementById('customerMobile').value='';
+if(document.getElementById('bankName')) document.getElementById('bankName').value='';
+if(document.getElementById('valuationDate')) document.getElementById('valuationDate').value=new Date().toISOString().slice(0,10);
+if(document.getElementById('rate')) document.getElementById('rate').value=0;
+if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=0;
+document.getElementById('items').innerHTML='';
+count=0;
+window._currentSavedRecord=null;
+if(typeof addItem==='function') addItem();
+if(typeof calculate==='function') calculate();
+}
 function saveData(){
 const d=currentData();let a=getSaved();
 d.customer.bank=d.customer.bank||'Other / Not specified';
 a.push(d);localStorage.setItem('goldValuations',JSON.stringify(a));
-alert('Valuation saved successfully under '+d.customer.bank+'.');
+alert('Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
+resetAfterSave();
 }
 function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';selectedBank='ALL';renderSaved()}
 function closeLoad(){document.getElementById('saveManager').style.display='none'}
