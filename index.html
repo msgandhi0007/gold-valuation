@@ -109,7 +109,17 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 <button class="secondary" onclick="document.getElementById('backupFile').click()">📥 Restore</button>
 <input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0])">
 </div><button class="close" onclick="closeLoad()">✕</button></div>
-    <input id="saveSearch" class="search" type="search" placeholder="Search customer or bank..." oninput="renderSaved()">
+    <input id="saveSearch" class="search" type="search" placeholder="Search customer name, mobile, bank or certificate no..." oninput="renderSaved()">
+<div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+<label style="font-size:12px;font-weight:700">Sort:</label>
+<select id="saveSort" onchange="renderSaved()" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--line);border-radius:10px">
+<option value="newest">Newest first</option>
+<option value="oldest">Oldest first</option>
+<option value="name">Customer name A–Z</option>
+<option value="valueHigh">Highest valuation</option>
+<option value="valueLow">Lowest valuation</option>
+</select>
+</div>
     <div id="bankTabs" class="bank-tabs"></div>
     <div id="savedList"></div>
   </div>
@@ -425,27 +435,73 @@ localStorage.setItem('goldValuations',JSON.stringify(a));
 alert(existingIndex>=0 ? 'Valuation updated successfully under '+d.customer.bank+'. Form has been reset for the next customer.' : 'Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
 resetAfterSave();
 }
-function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';selectedBank='ALL';renderSaved()}
+function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
 function closeLoad(){document.getElementById('saveManager').style.display='none'}
 function loadData(){openLoad()}
 function renderSaved(){
-const a=getSaved(),q=(document.getElementById('saveSearch').value||'').toLowerCase().trim();
-const banks=['ALL',...new Set(a.map(v=>v.customer?.bank||'Other / Not specified'))];
-if(!banks.includes(selectedBank))selectedBank='ALL';
-document.getElementById('bankTabs').innerHTML=banks.map(b=>`<button class="bank-tab ${selectedBank===b?'active':''}" onclick="selectedBank='${esc(b).replace(/'/g,"&#39;")}';renderSaved()">${esc(b==='ALL'?'All Banks':b)}</button>`).join('');
-const filtered=a.map((v,i)=>({v,i})).filter(x=>{
-const v=x.v,bank=v.customer?.bank||'Other / Not specified',name=v.customer?.name||'Unnamed Customer',mobile=v.customer?.mobile||'';
-return(selectedBank==='ALL'||bank===selectedBank)&&(!q||(name+' '+bank+' '+mobile).toLowerCase().includes(q))
-}).reverse();
-if(!filtered.length){document.getElementById('savedList').innerHTML='<div class="no-saved">No saved valuations found.</div>';return}
-document.getElementById('savedList').innerHTML=filtered.map(x=>{
-const v=x.v,bank=v.customer?.bank||'Other / Not specified',name=v.customer?.name||'Unnamed Customer',date=v.customer?.date||'',items=(v.items||[]).length;
-return `<div class="saved-row"><div class="saved-row-top"><div><div class="saved-name">${esc(name)}</div><div class="saved-meta">🏦 ${esc(bank)} · 📅 ${esc(date)} · 💍 ${items} item${items===1?'':'s'}</div></div><div class="saved-meta">${money((v.items||[]).reduce((sum,it)=>{const g=num(it.gross),s=num(it.stone),p=num(it.purity),pure=Math.max(0,g-s)*p/100,r=Math.floor((pure+1e-9)*10)/10;return sum+r*num(v.rate)},0))}</div></div><div class="saved-actions">
-<button class="load-btn" onclick="loadSaved(${x.i})">Open</button>
-<button class="print-btn" onclick="printSaved(${x.i})">Print PDF</button><button class="share-btn" onclick="shareSavedPdf(${x.i})">Share PDF</button>
-<button class="delete-btn" onclick="deleteSaved(${x.i})">Delete</button>
-</div></div>`
-}).join('');
+  const all=getSaved();
+  const q=(document.getElementById('saveSearch')?.value||'').trim().toLowerCase();
+  const sort=document.getElementById('saveSort')?.value||'newest';
+  const banks=[...new Set(all.map(x=>x.customer?.bank||'').filter(Boolean))];
+  const tabNames=['ALL',...banks];
+  const tabs=document.getElementById('bankTabs');
+  tabs.innerHTML=tabNames.map(b=>`<button class="${selectedBank===b?'active':''}" onclick="selectedBank=${JSON.stringify(b)};renderSaved()">${esc(b==='ALL'?'All Banks':b)}</button>`).join('');
+
+  let rows=all.map((x,i)=>({x,i})).filter(({x})=>{
+    const bank=x.customer?.bank||'';
+    if(selectedBank!=='ALL' && bank!==selectedBank)return false;
+    if(!q)return true;
+    const hay=[
+      x.customer?.name,x.customer?.mobile,x.customer?.bank,
+      x.customer?.date,x.certificateNo,x.sanctionedLoan
+    ].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+
+  const valueOf=({x})=>{
+    if(typeof x.totalValue==='number')return x.totalValue;
+    if(typeof x.value==='number')return x.value;
+    let total=0;
+    const rate=num(x.rate);
+    (x.items||[]).forEach(it=>{
+      const net=Math.max(0,num(it.gross)-num(it.stone));
+      const rounded=Math.floor((net*num(it.purity)/100+1e-9)*10)/10;
+      total+=rounded*rate;
+    });
+    return total;
+  };
+
+  rows.sort((a,b)=>{
+    if(sort==='oldest') return String(a.x.customer?.date||'').localeCompare(String(b.x.customer?.date||'')) || a.i-b.i;
+    if(sort==='name') return String(a.x.customer?.name||'').localeCompare(String(b.x.customer?.name||''),undefined,{sensitivity:'base'});
+    if(sort==='valueHigh') return valueOf(b)-valueOf(a);
+    if(sort==='valueLow') return valueOf(a)-valueOf(b);
+    return String(b.x.customer?.date||'').localeCompare(String(a.x.customer?.date||'')) || b.i-a.i;
+  });
+
+  const list=document.getElementById('savedList');
+  if(!rows.length){
+    list.innerHTML='<div style="padding:20px;text-align:center;color:#777">No saved valuations found.</div>';
+    return;
+  }
+
+  list.innerHTML=rows.map(({x,i})=>{
+    const val=valueOf({x});
+    const loan=num(x.sanctionedLoan);
+    return `<div class="saved-card">
+      <div class="saved-main">
+        <div class="saved-name">${esc(x.customer?.name||'Unnamed Customer')}</div>
+        <div class="saved-meta">${esc(x.customer?.bank||'—')} • ${esc(x.customer?.mobile||'—')} • ${esc(x.customer?.date||'—')}</div>
+        <div style="font-size:11px;color:#777;margin-top:3px">Certificate: ${esc(x.certificateNo||'—')} • Items: ${(x.items||[]).length} • Value: ${money(val)} • Loan: ${money(loan)}</div>
+      </div>
+      <div class="saved-actions">
+        <button class="load-btn" onclick="loadSaved(${i})">Open</button>
+        <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
+        <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
+        <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 function loadSaved(i){
 const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
@@ -472,10 +528,12 @@ setTimeout(()=>printCertificate(),100);
 }
 
 function deleteSaved(i){
-const a=getSaved(),d=a[i];if(!d)return;
-const name=d.customer?.name||'Unnamed Customer',bank=d.customer?.bank||'Other / Not specified';
-if(!confirm('Delete '+name+' from '+bank+'?'))return;
-a.splice(i,1);localStorage.setItem('goldValuations',JSON.stringify(a));renderSaved();
+  const a=getSaved(),d=a[i];if(!d)return;
+  const name=d.customer?.name||'this valuation';
+  if(!confirm('Delete saved valuation for '+name+'? This cannot be undone.'))return;
+  a.splice(i,1);
+  localStorage.setItem('goldValuations',JSON.stringify(a));
+  renderSaved();
 }
 window._currentSavedRecord=null;
 function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';bankName.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;setupBankDropdown();
