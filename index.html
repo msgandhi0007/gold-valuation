@@ -172,8 +172,7 @@ al App Cover */
 @media(max-width:520px){.history-actions{grid-template-columns:1fr 1fr}}
 
 
-/* Step 28 - Customer Grouping */
-.customer-group-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+/* Step 28 FIX - embedded customer grouping */
 .customer-group{border:1px solid var(--line);border-radius:15px;background:#fff;padding:14px;margin-top:10px}
 .customer-group-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .customer-group-name{font-size:18px;font-weight:850}
@@ -188,8 +187,8 @@ al App Cover */
 .customer-group-actions{display:flex;gap:6px;flex-wrap:wrap}
 .customer-group-actions button{min-height:38px;padding:7px 10px}
 @media(max-width:520px){
-  .customer-group-stats{grid-template-columns:1fr 1fr}
-  .customer-group-entry{grid-template-columns:1fr}
+ .customer-group-stats{grid-template-columns:1fr 1fr}
+ .customer-group-entry{grid-template-columns:1fr}
 }
 
 </style>
@@ -280,25 +279,23 @@ al App Cover */
 
   <div id="historySummary" style="font-size:13px;margin-top:10px;opacity:.75"></div>
   <div id="customerHistoryRows" style="margin-top:8px"></div>
-</section>
-<section class="card customer-group-card" id="customerGroups" style="display:block!important;visibility:visible!important">
-  <div class="itemhead">
-    <div>
-      <h2 style="margin:0">Customer Summary</h2>
-      <div style="font-size:12px;opacity:.68;margin-top:4px">Grouped history for repeat customers</div>
+
+  <div id="customerSummaryEmbedded" style="margin-top:18px;padding-top:15px;border-top:1px solid var(--line)">
+    <div class="itemhead">
+      <div>
+        <h3 style="margin:0">Customer Summary</h3>
+        <div style="font-size:12px;opacity:.68;margin-top:4px">Grouped history for repeat customers</div>
+      </div>
+      <button type="button" onclick="updateCustomerGroups()" style="padding:8px 12px">↻ Refresh</button>
     </div>
-    <button type="button" onclick="updateCustomerGroups()" style="padding:8px 12px">↻ Refresh</button>
+    <input id="groupSearch" type="search"
+      placeholder="Search customer name or mobile number..."
+      oninput="updateCustomerGroups()"
+      style="width:100%;margin-top:12px">
+    <div id="groupSummary" style="font-size:13px;margin-top:10px;opacity:.75"></div>
+    <div id="customerGroupRows" style="margin-top:8px"></div>
   </div>
-
-  <input id="groupSearch" type="search"
-    placeholder="Search customer name or mobile number..."
-    oninput="updateCustomerGroups()"
-    style="width:100%;margin-top:12px">
-
-  <div id="groupSummary" style="font-size:13px;margin-top:10px;opacity:.75"></div>
-  <div id="customerGroupRows" style="margin-top:8px"></div>
 </section>
-
 
 
 
@@ -1324,27 +1321,20 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <script>
 
-/* Step 28 - Customer Grouping */
-function groupRecords(){
-  try{
-    const raw=localStorage.getItem('goldValuations');
-    const a=raw?JSON.parse(raw):[];
-    return Array.isArray(a)?a:[];
-  }catch(e){return[]}
-}
-function customerGroupKey(r){
-  const c=r?.customer||{};
-  return (String(c.name||r?.customerName||'').trim().toLowerCase()+'|'+String(c.mobile||r?.mobile||'').trim());
-}
+/* Step 28 FIX - Customer Grouping */
 function updateCustomerGroups(){
   const q=String(document.getElementById('groupSearch')?.value||'').trim().toLowerCase();
   const rows=document.getElementById('customerGroupRows');
   const summary=document.getElementById('groupSummary');
   if(!rows)return;
+  let all=[];
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const parsed=raw?JSON.parse(raw):[];
+    all=Array.isArray(parsed)?parsed:[];
+  }catch(e){all=[]}
 
-  const all=groupRecords();
   const map=new Map();
-
   all.forEach((r,idx)=>{
     const c=r?.customer||{};
     const name=String(c.name||r?.customerName||'').trim();
@@ -1352,26 +1342,23 @@ function updateCustomerGroups(){
     const bank=String(c.bank||'').trim();
     const hay=(name+' '+mobile+' '+bank).toLowerCase();
     if(q && !hay.includes(q))return;
-    const key=customerGroupKey(r);
-    if(!map.has(key)) map.set(key,{name:name||'Unnamed Customer',mobile,records:[]});
+    const key=name.toLowerCase()+'|'+mobile;
+    if(!map.has(key))map.set(key,{name:name||'Unnamed Customer',mobile,records:[]});
     map.get(key).records.push({r,idx});
   });
 
-  const groups=Array.from(map.values()).sort((a,b)=>a.name.localeCompare(b.name));
-  const totalCustomers=groups.length;
-  if(summary) summary.textContent=totalCustomers+' customer group(s) found';
-
+  const groups=[...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  if(summary)summary.textContent=groups.length+' customer group(s) found';
   if(!groups.length){
     rows.innerHTML='<div class="history-empty">No customers found.</div>';
     return;
   }
-
-  rows.innerHTML=groups.map((g,gi)=>{
+  rows.innerHTML=groups.map(g=>{
     const totalValue=g.records.reduce((s,x)=>s+(typeof dashboardValue==='function'?dashboardValue(x.r):0),0);
     const totalLoan=g.records.reduce((s,x)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(x.r):0),0);
     const banks=[...new Set(g.records.map(x=>String(x.r?.customer?.bank||'').trim()).filter(Boolean))].join(', ');
-    const entries=g.records.map((x,ei)=>{
-      const r=x.r, c=r?.customer||{};
+    const entries=g.records.map(x=>{
+      const r=x.r,c=r?.customer||{};
       const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
       const bank=esc(c.bank||'');
       const value=typeof dashboardValue==='function'?dashboardValue(r):0;
@@ -1379,12 +1366,11 @@ function updateCustomerGroups(){
       return `<div class="customer-group-entry">
         <div><b>${date}</b>${bank?' · '+bank:''}<br><span style="font-size:12px;opacity:.7">Valuation ${typeof money==='function'?money(value):'₹'+value.toLocaleString('en-IN')} · Loan ${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</span></div>
         <div class="customer-group-actions">
-          <button type="button" onclick="openHistoryRecord(groupRecords()[${x.idx}])">Open</button>
-          <button type="button" onclick="printHistoryRecord(groupRecords()[${x.idx}])">📄 PDF</button>
+          <button type="button" onclick="openHistoryRecord(window._groupRecords[${x.idx}])">Open</button>
+          <button type="button" onclick="printHistoryRecord(window._groupRecords[${x.idx}])">📄 PDF</button>
         </div>
       </div>`;
     }).join('');
-
     return `<div class="customer-group">
       <div class="customer-group-head">
         <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div></div>
@@ -1395,16 +1381,13 @@ function updateCustomerGroups(){
         <div class="customer-group-stat"><span>Total Sanctioned Loan</span><b>${typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN')}</b></div>
         <div class="customer-group-stat"><span>Valuations</span><b>${g.records.length}</b></div>
       </div>
-      <div class="customer-group-history">
-        <div style="font-weight:800;font-size:13px;margin-bottom:2px">Previous Valuations</div>
-        ${entries}
-      </div>
+      <div class="customer-group-history"><div style="font-weight:800;font-size:13px;margin-bottom:2px">Previous Valuations</div>${entries}</div>
     </div>`;
   }).join('');
+  window._groupRecords=all;
 }
 document.addEventListener('DOMContentLoaded',()=>{
   updateCustomerGroups();
-  setInterval(updateCustomerGroups,2000);
 });
 
 </script>
