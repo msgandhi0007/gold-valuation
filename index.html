@@ -150,6 +150,14 @@ al App Cover */
 .report-note{font-size:12px;opacity:.68;margin-top:8px}
 @media(max-width:520px){.report-controls{grid-template-columns:1fr}}
 
+
+@media print{
+  body.report-printing > *{display:none!important}
+  body.report-printing #bankMonthlyPrint{display:block!important}
+  #bankMonthlyPrint{font-family:Arial,sans-serif;color:#111;background:#fff;padding:28px;max-width:760px;margin:auto}
+}
+#bankMonthlyPrint{display:none}
+
 </style>
 </head>
 <body>
@@ -185,7 +193,10 @@ al App Cover */
       <h2 style="margin:0">Bank & Monthly Reports</h2>
       <div style="font-size:12px;opacity:.68;margin-top:4px">Valuation and sanctioned-loan overview</div>
     </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end">
     <button type="button" onclick="updateReports()" style="padding:8px 12px">↻ Refresh</button>
+    <button type="button" onclick="printBankMonthlyReport()" style="padding:8px 12px;background:#b78320;color:#fff;border:0;border-radius:10px;font-weight:800">📄 Export PDF</button>
+  </div>
   </div>
 
   <div class="report-controls">
@@ -1012,6 +1023,93 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateReports();
   setInterval(updateReports,2000);
 });
+
+</script>
+
+<div id="bankMonthlyPrint"></div>
+
+
+<script>
+
+/* Step 26 - Bank & Monthly Report PDF */
+function reportFilteredRecords(){
+  const bank=(document.getElementById('reportBank')||{}).value||'';
+  const month=(document.getElementById('reportMonth')||{}).value||'';
+  return reportRecords().filter(r=>{
+    const rb=String(r?.customer?.bank||'');
+    return (!bank||rb===bank)&&(!month||reportMonth(r)===month);
+  });
+}
+function printBankMonthlyReport(){
+  try{
+    const records=reportFilteredRecords();
+    const bank=(document.getElementById('reportBank')||{}).value||'All Banks';
+    const month=(document.getElementById('reportMonth')||{}).value||'All Months';
+    const esc2=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const money2=n=>typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+    const totalValue=records.reduce((s,r)=>s+dashboardValue(r),0);
+    const totalLoan=records.reduce((s,r)=>s+reportLoanAmount(r),0);
+    const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
+    const rows=records.map((r,i)=>{
+      const c=r?.customer||{};
+      return `<tr>
+        <td>${i+1}</td>
+        <td>${esc2(c.name||'')}</td>
+        <td>${esc2(c.bank||'')}</td>
+        <td>${esc2(reportDate(r)||'')}</td>
+        <td style="text-align:right">${money2(dashboardValue(r))}</td>
+        <td style="text-align:right">${money2(reportLoanAmount(r))}</td>
+      </tr>`;
+    }).join('');
+    const el=document.getElementById('bankMonthlyPrint');
+    el.innerHTML=`
+      <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:12px">
+        <div style="font-size:25px;font-weight:800;letter-spacing:.4px">RAJENDRA JEWELLERS</div>
+        <div style="font-size:18px;font-weight:700;margin-top:5px">GOLD VALUATION REPORT</div>
+        <div style="font-size:12px;margin-top:5px">Bank-wise / Monthly Report</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;font-size:13px">
+        <div><b>Bank:</b> ${esc2(bank)}</div>
+        <div><b>Month:</b> ${esc2(month)}</div>
+        <div><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
+        <div><b>Valuer:</b> MAHENDRA SHANTILAL GANDHI</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
+        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Valuations</b><br><span style="font-size:20px">${records.length}</span></div>
+        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Total Valuation</b><br><span style="font-size:20px">${money2(totalValue)}</span></div>
+        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Sanctioned Loan</b><br><span style="font-size:20px">${money2(totalLoan)}</span></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:#f1eee7">
+          <th style="border:1px solid #ccc;padding:7px">#</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:left">Customer</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:left">Bank</th>
+          <th style="border:1px solid #ccc;padding:7px">Date</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:right">Valuation ₹</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:right">Loan ₹</th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:12px;text-align:center">No valuations found for this selection.</td></tr>'}</tbody>
+        <tfoot><tr>
+          <td colspan="4" style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">TOTAL</td>
+          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalValue)}</td>
+          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalLoan)}</td>
+        </tr></tfoot>
+      </table>
+      <div style="margin-top:35px;font-size:12px">
+        <div style="font-weight:800">REGISTERED GOLD APPRAISER</div>
+        <div>MAHENDRA SHANTILAL GANDHI</div>
+        <div>PPDC/GA/2026/244642</div>
+      </div>`;
+    document.body.classList.add('report-printing');
+    setTimeout(()=>{
+      window.print();
+      setTimeout(()=>document.body.classList.remove('report-printing'),700);
+    },100);
+  }catch(e){
+    console.error(e);
+    alert('Report PDF could not be prepared.');
+  }
+}
 
 </script>
 </body>
