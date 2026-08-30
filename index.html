@@ -29,12 +29,12 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 .cert-page{max-width:780px;margin:0 auto;padding:32px;border:2px solid #b78320}
 .cert-head{text-align:center;border-bottom:2px solid #b78320;padding-bottom:14px}
 .cert-company{font-size:28px;font-weight:900;letter-spacing:1px}
-.cert-title{font-size:18px;font-weight:800;margin-top:6px}
+.cert-number{font-size:11px;font-weight:800;margin-top:6px}.cert-title{font-size:18px;font-weight:800;margin-top:6px}
 .cert-sub{font-size:11px;color:#666;margin-top:5px}
 .cert-section{margin-top:18px}.cert-section h3{font-size:13px;margin:0 0 8px;background:#f3ead5;padding:8px;border-left:4px solid #b78320}
 .cert-info{display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;font-size:12px}
 .cert-table{width:100%;border-collapse:collapse;font-size:10px}.cert-table th,.cert-table td{border:1px solid #aaa;padding:6px}.cert-table th{background:#f3ead5}
-.cert-total{margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.cert-box{border:1px solid #aaa;padding:9px;text-align:center}.cert-box span{display:block;font-size:9px;color:#666}.cert-box b{font-size:16px}
+.cert-total{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.cert-box{border:1px solid #aaa;padding:9px;text-align:center}.cert-box span{display:block;font-size:9px;color:#666}.cert-box b{font-size:16px}
 .cert-footer{margin-top:48px;display:flex;justify-content:space-between;font-size:11px}.cert-note{margin-top:18px;font-size:9px;color:#666;line-height:1.5}
 @media screen{.certificate{display:none!important}}
 @media print{
@@ -65,8 +65,18 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
 <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
-<div class="field"><label>Bank Name</label><input id="bankName" type="text" placeholder="Enter bank name"></div>
+<div class="field"><label>Bank Name</label>
+<select id="bankName">
+<option value="">Select Bank</option>
+<option value="SBI BANK">SBI BANK</option>
+<option value="IDBI BANK">IDBI BANK</option>
+<option value="MAHARASHTRA GRAMIN BANK">MAHARASHTRA GRAMIN BANK</option>
+<option value="DNYANDEEP CO-OP SOCIETY LTD">DNYANDEEP CO-OP SOCIETY LTD</option>
+<option value="Other">Other</option>
+</select></div>
+
 <div class="field"><label>Valuation Date</label><input id="valuationDate" type="date"></div>
+<div class="field"><label>Sanctioned Loan Amount (₹)</label><input id="sanctionedLoan" type="number" inputmode="decimal" min="0" step="1" placeholder="Enter sanctioned loan amount"></div>
 </div></section>
 <section class="card"><h2>Jewellery Items</h2><div id="items"></div><button class="primary" onclick="addItem()">＋ Add Jewellery Item</button></section>
 <section class="card summary"><h2>Valuation Summary — Table</h2>
@@ -97,11 +107,13 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
     <div class="cert-section">
       <h3>Customer Details</h3>
       <div class="cert-info">
+        <div><b>Certificate No.:</b> <span id="cCertNo"></span></div>
         <div><b>Bank:</b> <span id="cBank"></span></div>
         <div><b>Valuation Date:</b> <span id="cDate"></span></div>
         <div><b>Customer Name:</b> <span id="cName"></span></div>
         <div><b>Mobile Number:</b> <span id="cMobile"></span></div>
         <div><b>Market Rate:</b> <span id="cRate"></span></div>
+        <div><b>Sanctioned Loan Amount:</b> <span id="cLoan"></span></div>
       </div>
     </div>
     <div class="cert-section">
@@ -114,6 +126,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
     </div>
     <div class="cert-total">
       <div class="cert-box"><span>TOTAL MARKET VALUE</span><b id="cTotal"></b></div>
+      <div class="cert-box"><span>SANCTIONED LOAN AMOUNT</span><b id="cLoanTotal"></b></div>
       <div class="cert-box"><span>LTV 65%</span><b id="c65"></b></div>
       <div class="cert-box"><span>LTV 70%</span><b id="c70"></b></div>
     </div>
@@ -141,25 +154,64 @@ function shareCurrentPdf(){
   printCertificate();
 }
 function shareSavedPdf(i){
-  const a=getSaved(),d=a[i];if(!d)return;
+  const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord=d;
   customerName.value=d.customer?.name||'';
   customerMobile.value=d.customer?.mobile||'';
-  bankName.value=d.customer?.bank||'';
+  setBankValue(d.customer?.bank||'');
   valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
   rate.value=d.rate||0;
+  sanctionedLoan.value=d.sanctionedLoan||0;
   items.innerHTML='';count=0;
   (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
   calculate();closeLoad();
   setTimeout(()=>printCertificate(),100);
 }
 
+
+
+
+function setBankValue(v){
+  const sel=document.getElementById('bankName');
+  if(!sel)return;
+  const exists=[...sel.options].some(o=>o.value===v);
+  if(exists){sel.value=v;}
+  else{sel.value='';}
+}
+
+function selectedBankName(){
+  const sel=document.getElementById('bankName');
+  if(sel && sel.value==='Other') return '';
+  return sel ? sel.value : '';
+}
+function setupBankDropdown(){
+  const sel=document.getElementById('bankName');
+  const wrap=document.getElementById('otherBankWrap');
+  if(!sel)return;
+  sel.addEventListener('change',()=>{
+    if(wrap)wrap.style.display=sel.value==='Other'?'block':'none';
+  });
+}
+
+function makeCertificateNo(){
+  const key='goldValuationNextCert';
+  let n=parseInt(localStorage.getItem(key)||'0',10)+1;
+  localStorage.setItem(key,String(n));
+  return 'RJ/'+new Date().getFullYear()+'/'+String(n).padStart(5,'0');
+}
+function getCertificateNo(d){
+  if(d && d.certificateNo) return d.certificateNo;
+  return makeCertificateNo();
+}
+
 function printCertificate(){
   const rateVal=num(document.getElementById('rate').value);
-  document.getElementById('cBank').textContent=document.getElementById('bankName').value||'—';
+  document.getElementById('cCertNo').textContent=getCertificateNo(window._currentSavedRecord||null);
+  document.getElementById('cBank').textContent=selectedBankName()||'—';
   document.getElementById('cName').textContent=document.getElementById('customerName').value||'—';
   document.getElementById('cMobile').textContent=document.getElementById('customerMobile').value||'—';
   document.getElementById('cDate').textContent=document.getElementById('valuationDate').value||'—';
   document.getElementById('cRate').textContent=money(rateVal)+'/g';
+  document.getElementById('cLoan').textContent=money(num(document.getElementById('sanctionedLoan').value));
 
   let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,no=0;
   document.querySelectorAll('.item').forEach(el=>{
@@ -178,6 +230,7 @@ function printCertificate(){
   document.getElementById('cRounded').textContent=tr.toFixed(2);
   document.getElementById('cValue').textContent=money(tv);
   document.getElementById('cTotal').textContent=money(tv);
+  document.getElementById('cLoanTotal').textContent=money(num(document.getElementById('sanctionedLoan').value));
   document.getElementById('c65').textContent=money(tv*.65);
   document.getElementById('c70').textContent=money(tv*.70);
 
@@ -249,15 +302,15 @@ return `<div class="saved-row"><div class="saved-row-top"><div><div class="saved
 }).join('');
 }
 function loadSaved(i){
-const a=getSaved(),d=a[i];if(!d)return;
-customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';bankName.value=d.customer?.bank||'';valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
+const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord=d;
+customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
 items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
 }
 function printSaved(i){
-const a=getSaved(),d=a[i];if(!d)return;
+const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord=d;
 customerName.value=d.customer?.name||'';
 customerMobile.value=d.customer?.mobile||'';
-bankName.value=d.customer?.bank||'';
+setBankValue(d.customer?.bank||'');
 valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
 rate.value=d.rate||0;
 items.innerHTML='';count=0;
@@ -272,7 +325,9 @@ const name=d.customer?.name||'Unnamed Customer',bank=d.customer?.bank||'Other / 
 if(!confirm('Delete '+name+' from '+bank+'?'))return;
 a.splice(i,1);localStorage.setItem('goldValuations',JSON.stringify(a));renderSaved();
 }
-function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';bankName.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;addItem();calculate()}
+window._currentSavedRecord=null;
+function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';bankName.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;setupBankDropdown();
+addItem();calculate()}
 async function shareResult(){
 let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
 document.querySelectorAll('.item').forEach((el,i)=>{const n=el.querySelector('.itemName').value||'Item '+(i+1),g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,r=Math.floor((pure+1e-9)*10)/10;t+=`${i+1}. ${n}\nGross: ${g.toFixed(2)} g\nStone: ${s.toFixed(2)} g\nNet: ${net.toFixed(2)} g\nPurity: ${p.toFixed(2)}%\nPure Gold: ${pure.toFixed(2)} g\nValue: ${money(r*num(rate.value))}\n\n`});
