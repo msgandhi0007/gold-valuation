@@ -51,7 +51,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 .close{border:0;background:#f1eee7;border-radius:10px;padding:8px 12px;font-size:18px}
 .search{width:100%;padding:11px;border:1px solid #dcd7cc;border-radius:10px;font-size:15px;margin-bottom:10px}
 .bank-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:8px}.bank-tab{border:1px solid #ddd;border-radius:20px;padding:7px 11px;background:#fff;white-space:nowrap}.bank-tab.active{background:var(--gold);color:#fff;border-color:var(--gold)}
-.saved-row{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0}.saved-row-top{display:flex;justify-content:space-between;gap:8px}.saved-name{font-weight:800}.saved-meta{font-size:12px;color:#777;margin-top:3px}.saved-actions{display:flex;gap:7px;margin-top:9px}.saved-actions button{flex:1;padding:8px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:700}.saved-actions .load-btn{background:var(--gold);color:#fff;border-color:var(--gold)}.saved-actions .delete-btn{color:#b42318}
+.saved-row{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0}.saved-row-top{display:flex;justify-content:space-between;gap:8px}.saved-name{font-weight:800}.saved-meta{font-size:12px;color:#777;margin-top:3px}.saved-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.saved-actions button{padding:8px 5px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:12px}.saved-actions .load-btn{background:var(--gold);color:#fff;border-color:var(--gold)}.saved-actions .print-btn{color:#167a48}.saved-actions .share-btn{color:#1769aa}.saved-actions .delete-btn{color:#b42318}
 .no-saved{text-align:center;color:#777;padding:20px}
 </style>
 </head>
@@ -134,6 +134,24 @@ const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:
 const num=n=>Number(n||0);
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+
+
+function shareCurrentPdf(){
+  // Android Chrome's print sheet lets you choose "Save as PDF" and then share the PDF.
+  printCertificate();
+}
+function shareSavedPdf(i){
+  const a=getSaved(),d=a[i];if(!d)return;
+  customerName.value=d.customer?.name||'';
+  customerMobile.value=d.customer?.mobile||'';
+  bankName.value=d.customer?.bank||'';
+  valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
+  rate.value=d.rate||0;
+  items.innerHTML='';count=0;
+  (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
+  calculate();closeLoad();
+  setTimeout(()=>printCertificate(),100);
+}
 
 function printCertificate(){
   const rateVal=num(document.getElementById('rate').value);
@@ -223,7 +241,11 @@ return(selectedBank==='ALL'||bank===selectedBank)&&(!q||(name+' '+bank+' '+mobil
 if(!filtered.length){document.getElementById('savedList').innerHTML='<div class="no-saved">No saved valuations found.</div>';return}
 document.getElementById('savedList').innerHTML=filtered.map(x=>{
 const v=x.v,bank=v.customer?.bank||'Other / Not specified',name=v.customer?.name||'Unnamed Customer',date=v.customer?.date||'',items=(v.items||[]).length;
-return `<div class="saved-row"><div class="saved-row-top"><div><div class="saved-name">${esc(name)}</div><div class="saved-meta">🏦 ${esc(bank)} · 📅 ${esc(date)} · 💍 ${items} item${items===1?'':'s'}</div></div><div class="saved-meta">${money((v.items||[]).reduce((sum,it)=>{const g=num(it.gross),s=num(it.stone),p=num(it.purity),pure=Math.max(0,g-s)*p/100,r=Math.floor((pure+1e-9)*10)/10;return sum+r*num(v.rate)},0))}</div></div><div class="saved-actions"><button class="load-btn" onclick="loadSaved(${x.i})">Load</button><button class="delete-btn" onclick="deleteSaved(${x.i})">Delete</button></div></div>`
+return `<div class="saved-row"><div class="saved-row-top"><div><div class="saved-name">${esc(name)}</div><div class="saved-meta">🏦 ${esc(bank)} · 📅 ${esc(date)} · 💍 ${items} item${items===1?'':'s'}</div></div><div class="saved-meta">${money((v.items||[]).reduce((sum,it)=>{const g=num(it.gross),s=num(it.stone),p=num(it.purity),pure=Math.max(0,g-s)*p/100,r=Math.floor((pure+1e-9)*10)/10;return sum+r*num(v.rate)},0))}</div></div><div class="saved-actions">
+<button class="load-btn" onclick="loadSaved(${x.i})">Open</button>
+<button class="print-btn" onclick="printSaved(${x.i})">Print PDF</button><button class="share-btn" onclick="shareSavedPdf(${x.i})">Share PDF</button>
+<button class="delete-btn" onclick="deleteSaved(${x.i})">Delete</button>
+</div></div>`
 }).join('');
 }
 function loadSaved(i){
@@ -231,6 +253,19 @@ const a=getSaved(),d=a[i];if(!d)return;
 customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';bankName.value=d.customer?.bank||'';valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
 items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
 }
+function printSaved(i){
+const a=getSaved(),d=a[i];if(!d)return;
+customerName.value=d.customer?.name||'';
+customerMobile.value=d.customer?.mobile||'';
+bankName.value=d.customer?.bank||'';
+valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
+rate.value=d.rate||0;
+items.innerHTML='';count=0;
+(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
+calculate();closeLoad();
+setTimeout(()=>printCertificate(),100);
+}
+
 function deleteSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
 const name=d.customer?.name||'Unnamed Customer',bank=d.customer?.bank||'Other / Not specified';
