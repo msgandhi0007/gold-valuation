@@ -85,7 +85,18 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 <thead><tr><th style="padding:10px;text-align:left">Item</th><th style="padding:10px;text-align:left">Jewellery Name</th><th style="padding:10px;text-align:right">Gross Wt (g)</th><th style="padding:10px;text-align:right">Stone Wt (g)</th><th style="padding:10px;text-align:right">Purity %</th><th style="padding:10px;text-align:right">Rounded (g)</th><th style="padding:10px;text-align:right">Value (₹)</th></tr></thead>
 <tbody id="summaryRows"></tbody><tfoot><tr style="font-weight:850;background:#ffffff18"><td style="padding:10px">TOTAL</td><td></td><td id="tg" style="padding:10px;text-align:right">0.00</td><td id="ts" style="padding:10px;text-align:right">0.00</td><td id="avgPurity" style="padding:10px;text-align:right">0.00</td><td id="tr" style="padding:10px;text-align:right">0.00</td><td id="tv" style="padding:10px;text-align:right">₹0</td></tr></tfoot>
 </table></div>
-<div class="ltv"><div class="loan"><span>LTV 65%</span><b id="l65">₹0</b></div><div class="loan"><span>LTV 70%</span><b id="l70">₹0</b></div></div>
+<div class="ltv">
+  <div class="loan">
+    <span>LTV 1 (%)</span>
+    <input id="ltv1" type="number" min="0" max="100" step="0.01" value="65" inputmode="decimal" oninput="calculate()" style="width:100%;border:1px solid #ddd;border-radius:8px;padding:7px;margin:5px 0;font-size:16px">
+    <b id="l65">₹0</b>
+  </div>
+  <div class="loan">
+    <span>LTV 2 (%)</span>
+    <input id="ltv2" type="number" min="0" max="100" step="0.01" value="70" inputmode="decimal" oninput="calculate()" style="width:100%;border:1px solid #ddd;border-radius:8px;padding:7px;margin:5px 0;font-size:16px">
+    <b id="l70">₹0</b>
+  </div>
+</div>
 </section>
 <section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
 </main></div>
@@ -128,8 +139,8 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
     <div class="cert-total">
       <div class="cert-box"><span>TOTAL MARKET VALUE</span><b id="cTotal"></b></div>
       <div class="cert-box"><span>SANCTIONED LOAN AMOUNT</span><b id="cLoanTotal"></b></div>
-      <div class="cert-box"><span>LTV 65%</span><b id="c65"></b></div>
-      <div class="cert-box"><span>LTV 70%</span><b id="c70"></b></div>
+      <div class="cert-box"><span>LTV <span id="cLtv1Pct">65</span>%</span><b id="c65"></b></div>
+      <div class="cert-box"><span>LTV <span id="cLtv2Pct">70</span>%</span><b id="c70"></b></div>
     </div>
     <div class="cert-footer">
       <div><b>Valuer</b><br>MAHENDRA SHANTILAL GANDHI<br>REGISTERED GOLD APPRAISER<br>PPDC/GA/2026/244642</div>
@@ -161,6 +172,8 @@ function shareSavedPdf(i){
   setBankValue(d.customer?.bank||'');
   valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
   rate.value=d.rate||0;
+  ltv1.value=d.ltv1??65;
+  ltv2.value=d.ltv2??70;
   sanctionedLoan.value=d.sanctionedLoan||0;
   items.innerHTML='';count=0;
   (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
@@ -249,8 +262,8 @@ function printCertificate(){
   document.getElementById('cValue').textContent=money(tv);
   document.getElementById('cTotal').textContent=money(tv);
   document.getElementById('cLoanTotal').textContent=money(num(document.getElementById('sanctionedLoan').value));
-  document.getElementById('c65').textContent=money(tv*.65);
-  document.getElementById('c70').textContent=money(tv*.70);
+  const certLtv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const certLtv2=Math.max(0,Math.min(100,num(document.getElementById('ltv2').value)));document.getElementById('cLtv1Pct').textContent=certLtv1;document.getElementById('cLtv2Pct').textContent=certLtv2;document.getElementById('c65').textContent=money(tv*certLtv1/100);
+  document.getElementById('c70').textContent=money(tv*certLtv2/100);
 
   document.getElementById('certificate').style.display='block';
   setTimeout(()=>window.print(),200);
@@ -292,7 +305,7 @@ tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
 el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
 rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
 document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
-document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);document.getElementById('l65').textContent=money(tv*.65);document.getElementById('l70').textContent=money(tv*.70);
+document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const ltv2=Math.max(0,Math.min(100,num(document.getElementById('ltv2').value)));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tv*ltv2/100);
 }
 function currentData(){
 return{id:Date.now(),customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
@@ -314,6 +327,8 @@ document.getElementById('customerMobile').value='';
 if(document.getElementById('bankName')) document.getElementById('bankName').value='';
 if(document.getElementById('valuationDate')) document.getElementById('valuationDate').value=new Date().toISOString().slice(0,10);
 if(document.getElementById('rate')) document.getElementById('rate').value=0;
+if(document.getElementById('ltv1')) document.getElementById('ltv1').value=65;
+if(document.getElementById('ltv2')) document.getElementById('ltv2').value=70;
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=0;
 document.getElementById('items').innerHTML='';
 count=0;
