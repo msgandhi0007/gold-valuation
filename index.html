@@ -158,6 +158,19 @@ al App Cover */
 }
 #bankMonthlyPrint{display:none}
 
+
+/* Step 27 - Customer-wise History */
+.customer-history-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+.history-row{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px;margin-top:10px}
+.history-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.history-name{font-size:17px;font-weight:850}
+.history-meta{font-size:12px;opacity:.7;margin-top:4px}
+.history-amount{font-size:18px;font-weight:850}
+.history-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:11px}
+.history-actions button{min-height:42px}
+.history-empty{padding:18px;text-align:center;opacity:.6}
+@media(max-width:520px){.history-actions{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -230,6 +243,24 @@ al App Cover */
   </table>
   <div class="report-note">Select a bank and/or month to filter the report. Totals update automatically.</div>
 </section>
+<section class="card customer-history-card" id="customerHistory" style="display:block!important;visibility:visible!important">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Customer History</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Find previous valuations by customer</div>
+    </div>
+    <button type="button" onclick="updateCustomerHistory()" style="padding:8px 12px">↻ Refresh</button>
+  </div>
+
+  <input id="historySearch" type="search"
+    placeholder="Search customer name or mobile number..."
+    oninput="updateCustomerHistory()"
+    style="width:100%;margin-top:12px">
+
+  <div id="historySummary" style="font-size:13px;margin-top:10px;opacity:.75"></div>
+  <div id="customerHistoryRows" style="margin-top:8px"></div>
+</section>
+
 
 
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
@@ -1111,6 +1142,144 @@ function printBankMonthlyReport(){
     alert('Report PDF could not be prepared.');
   }
 }
+
+</script>
+
+<script>
+
+/* Step 27 - Customer-wise History */
+function historyRecords(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const a=raw?JSON.parse(raw):[];
+    return Array.isArray(a)?a:[];
+  }catch(e){return[]}
+}
+function historyCustomer(r){
+  return r?.customer||{};
+}
+function historyMobile(r){
+  const c=historyCustomer(r);
+  return String(c.mobile||r?.mobile||'').trim();
+}
+function historyName(r){
+  const c=historyCustomer(r);
+  return String(c.name||r?.customerName||'').trim();
+}
+function openHistoryRecord(record){
+  try{
+    // Restore the selected saved valuation using the app's normal load flow.
+    const c=historyCustomer(record);
+    if(document.getElementById('customerName'))document.getElementById('customerName').value=c.name||'';
+    if(document.getElementById('customerMobile'))document.getElementById('customerMobile').value=c.mobile||'';
+    if(document.getElementById('valuationDate'))document.getElementById('valuationDate').value=c.date||record.date||'';
+    if(document.getElementById('bankName'))document.getElementById('bankName').value=c.bank||'';
+    if(document.getElementById('sanctionedLoan'))document.getElementById('sanctionedLoan').value=c.sanctionedLoan||record.sanctionedLoan||'';
+    if(document.getElementById('rate'))document.getElementById('rate').value=record.rate||'';
+    if(document.getElementById('ltvRate'))document.getElementById('ltvRate').value=record.ltvRate||'';
+    if(document.getElementById('loanRatePerGram'))document.getElementById('loanRatePerGram').value=record.loanRatePerGram||'';
+
+    const items=document.getElementById('items');
+    if(items && Array.isArray(record.items)){
+      items.innerHTML='';
+      if(typeof count!=='undefined') count=0;
+      record.items.forEach(it=>{
+        if(typeof addItem==='function') addItem(it);
+      });
+    }
+    if(typeof calculate==='function')calculate();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){
+    console.error(e);
+    alert('This saved valuation could not be opened.');
+  }
+}
+function printHistoryRecord(record){
+  try{
+    window._currentSavedRecord=record;
+    if(typeof printSavedCertificate==='function'){
+      printSavedCertificate(record);
+    }else if(typeof printCertificate==='function'){
+      openHistoryRecord(record);
+      setTimeout(()=>printCertificate(),100);
+    }else{
+      alert('Certificate print function is not available.');
+    }
+  }catch(e){
+    console.error(e);
+    alert('Certificate could not be prepared.');
+  }
+}
+function shareHistoryRecord(record){
+  try{
+    window._currentSavedRecord=record;
+    if(typeof shareSavedPdf==='function'){
+      const all=historyRecords();
+      const i=all.indexOf(record);
+      if(i>=0)shareSavedPdf(i);
+      else alert('Saved valuation could not be found.');
+    }else{
+      alert('Share PDF function is not available.');
+    }
+  }catch(e){
+    console.error(e);
+    alert('Share PDF could not be prepared.');
+  }
+}
+function updateCustomerHistory(){
+  const q=String(document.getElementById('historySearch')?.value||'').trim().toLowerCase();
+  const rows=document.getElementById('customerHistoryRows');
+  const summary=document.getElementById('historySummary');
+  if(!rows)return;
+
+  let records=historyRecords();
+  if(q){
+    records=records.filter(r=>{
+      const n=historyName(r).toLowerCase();
+      const m=historyMobile(r).toLowerCase();
+      const b=String(historyCustomer(r).bank||'').toLowerCase();
+      return n.includes(q)||m.includes(q)||b.includes(q);
+    });
+  }
+
+  const totalValue=records.reduce((s,r)=>s+(typeof dashboardValue==='function'?dashboardValue(r):0),0);
+  const totalLoan=records.reduce((s,r)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(r):0),0);
+  if(summary){
+    summary.textContent=records.length+' valuation(s) found · Valuation '+(typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN'))+' · Loan '+(typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN'));
+  }
+
+  if(!records.length){
+    rows.innerHTML='<div class="history-empty">No customer valuations found.</div>';
+    return;
+  }
+
+  window._historyShown=records;
+  rows.innerHTML=records.map((r,i)=>{
+    const c=historyCustomer(r);
+    const name=esc(historyName(r)||'Unnamed Customer');
+    const mobile=esc(historyMobile(r)||'No mobile');
+    const bank=esc(c.bank||'');
+    const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
+    const val=typeof dashboardValue==='function'?dashboardValue(r):0;
+    const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
+    return `<div class="history-row">
+      <div class="history-top">
+        <div><div class="history-name">${name}</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
+        <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
+      </div>
+      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
+      <div class="history-actions">
+        <button type="button" onclick="openHistoryRecord(window._historyShown[${i}])">Open</button>
+        <button type="button" onclick="printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
+        <button type="button" onclick="shareHistoryRecord(window._historyShown[${i}])">↗ Share PDF</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  updateCustomerHistory();
+  setInterval(updateCustomerHistory,2000);
+});
 
 </script>
 </body>
