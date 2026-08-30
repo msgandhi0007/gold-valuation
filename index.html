@@ -1034,6 +1034,9 @@ function updateDashboard(){
   }
 }
 document.addEventListener('DOMContentLoaded',()=>{
+  const sm=document.getElementById('statementModal');
+  if(sm)sm.addEventListener('click',e=>{if(e.target===sm)closeCustomerStatement();});
+
   updateDashboard();
   setInterval(updateDashboard,2000);
 });
@@ -1369,7 +1372,8 @@ function updateCustomerGroups(){
     rows.innerHTML='<div class="history-empty">No customers found.</div>';
     return;
   }
-  rows.innerHTML=groups.map(g=>{
+  window._customerGroups=groups;
+  rows.innerHTML=groups.map((g,gi)=>{
     const totalValue=g.records.reduce((s,x)=>s+(typeof dashboardValue==='function'?dashboardValue(x.r):0),0);
     const totalLoan=g.records.reduce((s,x)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(x.r):0),0);
     const banks=[...new Set(g.records.map(x=>String(x.r?.customer?.bank||'').trim()).filter(Boolean))].join(', ');
@@ -1390,7 +1394,7 @@ function updateCustomerGroups(){
     return `<div class="customer-group">
       <div class="customer-group-head">
         <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div></div>
-        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" onclick='openCustomerStatement(${JSON.stringify(g.name).replace(/'/g,"&#39;")},${JSON.stringify(g.mobile).replace(/'/g,"&#39;")})'>📄 Statement</button></div>
+        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" onclick="openCustomerStatementByIndex(${gi})">📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
         <div class="customer-group-stat"><span>Total Valuation</span><b>${typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN')}</b></div>
@@ -1429,6 +1433,14 @@ document.addEventListener('DOMContentLoaded',()=>{
 /* Step 29 - Customer Statement */
 let _statementCustomer={name:'',mobile:'',records:[]};
 
+function openCustomerStatementByIndex(index){
+  const g=(window._customerGroups||[])[Number(index)];
+  if(!g){
+    alert('Customer statement could not be found.');
+    return;
+  }
+  openCustomerStatement(g.name,g.mobile);
+}
 function openCustomerStatement(name,mobile){
   const all=groupRecords();
   const n=String(name||'').trim().toLowerCase();
@@ -1441,11 +1453,11 @@ function openCustomerStatement(name,mobile){
   _statementCustomer={name:name||'',mobile:mobile||'',records};
   renderCustomerStatement();
   const modal=document.getElementById('statementModal');
-  if(modal)modal.style.display='flex';
+  if(modal){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
 }
 function closeCustomerStatement(){
   const modal=document.getElementById('statementModal');
-  if(modal)modal.style.display='none';
+  if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
 }
 function statementMoney(n){
   return typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
