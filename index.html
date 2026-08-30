@@ -1811,7 +1811,67 @@ document.addEventListener('DOMContentLoaded',()=>{
       <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
-      </body></html>`;
+      <script>
+/* STEP 32 FINAL FIX - Reliable Android Backup */
+(function(){
+  function allLocalData(){
+    const data={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k)continue;
+      const raw=localStorage.getItem(k);
+      try{data[k]=JSON.parse(raw);}catch(e){data[k]=raw;}
+    }
+    return data;
+  }
+  window.createFullBackup=function(){
+    try{
+      const payload={
+        app:"Gold Valuation App",
+        backupVersion:32,
+        createdAt:new Date().toISOString(),
+        data:allLocalData()
+      };
+      const json=JSON.stringify(payload,null,2);
+      const blob=new Blob([json],{type:"application/json"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      const d=new Date();
+      const pad=n=>String(n).padStart(2,"0");
+      a.download="Gold_Valuation_Backup_"+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"_"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+".json";
+      a.href=url;
+      a.style.display="none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
+      localStorage.setItem("s32LastBackup",new Date().toISOString());
+      if(typeof refreshBackupStatus==="function")refreshBackupStatus();
+      alert("Backup created successfully. Check your Downloads folder.");
+    }catch(e){
+      alert("Backup failed: "+(e.message||"Unknown error"));
+    }
+  };
+  window.refreshBackupStatus=function(){
+    const el=document.getElementById("s32BackupStatus");
+    if(!el)return;
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem("goldValuations")||"[]");if(!Array.isArray(a))a=[]}catch(e){}
+    const customers=new Set(a.map(r=>String(r?.customer?.name||r?.customerName||"").trim().toLowerCase()).filter(Boolean));
+    const last=localStorage.getItem("s32LastBackup");
+    el.innerHTML="<b>"+a.length+" saved valuation(s)</b> · "+customers.size+" customer(s)"+
+      (last?"<br>Last backup: "+new Date(last).toLocaleString("en-IN"):"<br>No backup created yet.");
+  };
+  document.addEventListener("DOMContentLoaded",function(){
+    const b=document.querySelector('#dataSafetyBackup button[onclick*="createFullBackup"]');
+    if(b){
+      b.removeAttribute("onclick");
+      b.addEventListener("click",function(e){e.preventDefault();window.createFullBackup();});
+    }
+    window.refreshBackupStatus();
+  });
+})();
+</script>
+</body></html>`;
     const w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups for the PDF report.');return;}
     w.document.open();w.document.write(doc);w.document.close();
