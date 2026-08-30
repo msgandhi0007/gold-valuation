@@ -161,13 +161,11 @@ function calculate(){
   const avgPurity = tn ? weightedPurity/tn : 0;
   document.getElementById('tg').textContent=tg.toFixed(2);
   document.getElementById('ts').textContent=ts.toFixed(2);
-  document.getElementById('tn').textContent=tn.toFixed(2);
   document.getElementById('avgPurity').textContent=avgPurity.toFixed(2);
-  document.getElementById('tp').textContent=tp.toFixed(2);
   document.getElementById('tr').textContent=tr.toFixed(2);
   document.getElementById('tv').textContent=money(tv);
-  document.getElementById('l65').textContent=money(tv*.65);
-  document.getElementById('l70').textContent=money(tv*.70);
+  document.getElementById('l65').textContent=money(tv * 0.65);
+  document.getElementById('l70').textContent=money(tv * 0.70);
 }
 function clearAll(){if(confirm('Reset this valuation?')){document.getElementById('items').innerHTML='';count=0;document.getElementById('rate').value=0;addItem();calculate()}}
 function saveData(){
@@ -191,7 +189,7 @@ document.getElementById('valuationDate').value=data.customer?.date||today.toISOS
 document.getElementById('rate').value=data.rate||0;document.getElementById('items').innerHTML='';count=0;(data.items||[]).forEach(addItem);calculate();
 }
 async function shareResult(){
-  const text=`Gold Valuation\nMarket Rate: ${money(num(document.getElementById('rate').value))}/g\nTotal Pure Gold: ${document.getElementById('tp').textContent}\nMarket Value: ${document.getElementById('tv').textContent}\nLTV 65%: ${document.getElementById('l65').textContent}\nLTV 70%: ${document.getElementById('l70').textContent}`;
+  const text=`Gold Valuation\nMarket Rate: ${money(num(document.getElementById('rate').value))}/g\nMarket Value: ${document.getElementById('tv').textContent}\nLTV 65%: ${document.getElementById('l65').textContent}\nLTV 70%: ${document.getElementById('l70').textContent}`;
   if(navigator.share){try{await navigator.share({title:'Gold Valuation',text})}catch(e){}}
   else{await navigator.clipboard?.writeText(text);alert(text)}
 }
