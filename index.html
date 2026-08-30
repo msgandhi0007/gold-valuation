@@ -164,7 +164,7 @@ function shareCurrentPdf(){
   printCertificate();
 }
 function shareSavedPdf(i){
-  const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord=d;
+  const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
   customerName.value=d.customer?.name||'';
   customerMobile.value=d.customer?.mobile||'';
   setBankValue(d.customer?.bank||'');
@@ -325,8 +325,10 @@ document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById(
 }
 function currentData(){
 return{id:window._currentSavedRecord?.id||Date.now(),customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
-rate:rate.value,sanctionedLoan:document.getElementById('sanctionedLoan')?.value||0,
-ltv1:document.getElementById('ltv1')?.value||65,loanRate:document.getElementById('loanRate')?.value||0,
+rate:rate.value,
+sanctionedLoan:String(document.getElementById('sanctionedLoan')?.value??''),
+ltv1:String(document.getElementById('ltv1')?.value??'65'),
+loanRate:String(document.getElementById('loanRate')?.value??'0'),
 items:[...document.querySelectorAll('.item')].map(x=>({name:getItemName(x),gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}
 }
 function getSaved(){
@@ -350,6 +352,7 @@ if(document.getElementById('loanRate')) document.getElementById('loanRate').valu
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=0;
 document.getElementById('items').innerHTML='';
 count=0;
+window._currentSavedRecord=null;
 window._currentSavedRecord=null;
 if(typeof addItem==='function') addItem();
 if(typeof calculate==='function') calculate();
@@ -390,15 +393,18 @@ return `<div class="saved-row"><div class="saved-row-top"><div><div class="saved
 }).join('');
 }
 function loadSaved(i){
-const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord=d;
+const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
 customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
-if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=d.sanctionedLoan||0;
-if(document.getElementById('ltv1')) document.getElementById('ltv1').value=d.ltv1??65;
-if(document.getElementById('loanRate')) document.getElementById('loanRate').value=d.loanRate??0;
+if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
+  d.sanctionedLoan ?? d.sanctioned ?? d.loanAmount ?? d.customer?.sanctionedLoan ?? '';
+if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
+  d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
+if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
+  d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
 items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
 }
 function printSaved(i){
-const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord=d;
+const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
 customerName.value=d.customer?.name||'';
 customerMobile.value=d.customer?.mobile||'';
 setBankValue(d.customer?.bank||'');
