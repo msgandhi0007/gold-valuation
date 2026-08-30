@@ -1,10 +1,19 @@
 {
-  "name":"Gold Valuation",
-  "short_name":"Gold Valuation",
-  "start_url":"./index.html",
-  "display":"standalone",
-  "background_color":"#f7f5f0",
-  "theme_color":"#9a6b12",
-  "description":"Mobile gold jewellery valuation and LTV calculator",
-  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "name": "Rajendra Jewellers – Gold Valuation",
+  "short_name": "Gold Valuation",
+  "description": "Professional gold jewellery valuation, bank-wise records and valuation certificates.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f3ea",
+  "theme_color": "#b78320",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
