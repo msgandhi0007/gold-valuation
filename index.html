@@ -26,7 +26,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
 
 .certificate{display:none;background:#fff;color:#222}
-.cert-page{max-width:780px;margin:0 auto;padding:32px;border:2px solid #b78320}
+.cert-page{width:100%;max-width:780px;box-sizing:border-box;margin:0 auto;padding:30px;border:2px solid #b78320;min-height:1000px}
 .cert-head{text-align:center;border-bottom:2px solid #b78320;padding-bottom:14px}
 .cert-company{font-size:28px;font-weight:900;letter-spacing:1px}
 .cert-number{font-size:11px;font-weight:800;margin-top:6px}.cert-title{font-size:18px;font-weight:800;margin-top:6px}
@@ -37,6 +37,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 .cert-total{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.cert-box{border:1px solid #aaa;padding:9px;text-align:center}.cert-box span{display:block;font-size:9px;color:#666}.cert-box b{font-size:16px}
 .cert-footer{margin-top:48px;display:flex;justify-content:space-between;font-size:11px}.cert-note{margin-top:18px;font-size:9px;color:#666;line-height:1.5}
 @media screen{.certificate{display:none!important}}
+@page{size:A4;margin:12mm}
 @media print{
   body{background:#fff}
   footer,.actions,.remove,.primary,.save-manager{display:none!important}
@@ -129,7 +130,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
   <div class="cert-page">
     <div class="cert-head">
       <div class="cert-company">RAJENDRA JEWELLERS</div>
-      <div class="cert-title">GOLD JEWELLERY VALUATION CERTIFICATE</div>
+      <div class="cert-title">GOLD JEWELLERY VALUATION CERTIFICATE</div><div class="cert-number">Certificate No.: <span id="cCertNo"></span></div>
       <div class="cert-sub">Professional valuation report</div>
     </div>
     <div class="cert-section">
