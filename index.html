@@ -121,6 +121,10 @@ al App Cover */
 
 #appCover #installAppBtn{background:#0b2342;border-color:#e0b54a}
 
+
+.backup-card{border:1px solid var(--line)}
+.backup-card button{min-height:48px}
+
 </style>
 </head>
 <body>
@@ -235,6 +239,20 @@ al App Cover */
 <div class="cert-note">This valuation is prepared based on the customer/jewellery information and market rate entered in the application. The valuation is subject to physical verification of the jewellery and applicable institutional policies.</div>
   </div>
 </div>
+
+
+<section class="card backup-card" style="margin-top:14px">
+  <h2>Backup & Restore</h2>
+  <p style="font-size:13px;opacity:.72;margin-top:-4px">
+    Protect your saved valuations before changing or updating the app.
+  </p>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <button type="button" onclick="exportValuationsBackup()">⬇ Backup Valuations</button>
+    <button type="button" onclick="document.getElementById('backupFileInput').click()">⬆ Restore Backup</button>
+  </div>
+  <input id="backupFileInput" type="file" accept=".json,application/json" style="display:none" onchange="restoreValuationsBackup(event)">
+  <div id="backupStatus" style="font-size:12px;margin-top:10px;opacity:.78"></div>
+</section>
 
 <footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 
@@ -689,6 +707,91 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker registration failed',err));
   });
+</script>
+
+<script>
+
+/* Step 23 - Backup & Restore Protection */
+function getSavedValuations(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(Array.isArray(parsed)) return parsed;
+    }
+    const legacy=localStorage.getItem('goldValuation');
+    if(legacy){
+      const one=JSON.parse(legacy);
+      if(one) return [one];
+    }
+  }catch(e){}
+  return [];
+}
+function setBackupStatus(msg,ok=true){
+  const el=document.getElementById('backupStatus');
+  if(el){el.textContent=msg;el.style.color=ok?'#087f5b':'#b42318';}
+}
+function exportValuationsBackup(){
+  try{
+    const records=getSavedValuations();
+    if(!records.length){
+      alert('No saved valuations found to back up.');
+      return;
+    }
+    const payload={
+      app:'Rajendra Jewellers – Gold Valuation',
+      backupVersion:1,
+      exportedAt:new Date().toISOString(),
+      valuations:records
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const d=new Date();
+    const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    a.href=url;
+    a.download='Gold-Valuation-Backup-'+stamp+'.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setBackupStatus(records.length+' valuation(s) backed up successfully.');
+  }catch(e){
+    console.error(e);
+    alert('Backup could not be created.');
+  }
+}
+function restoreValuationsBackup(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const payload=JSON.parse(reader.result);
+      const incoming=Array.isArray(payload)?payload:(Array.isArray(payload.valuations)?payload.valuations:[]);
+      if(!incoming.length) throw new Error('No valuations found');
+      const existing=getSavedValuations();
+      const key=r=>String(r.id||r.certificateNo||(
+        (r.customer&&r.customer.name)||r.customerName||''
+      ))+'|'+String(r.createdAt||r.savedAt||r.date||'');
+      const map=new Map(existing.map(r=>[key(r),r]));
+      incoming.forEach(r=>map.set(key(r),r));
+      const merged=Array.from(map.values());
+      localStorage.setItem('goldValuations',JSON.stringify(merged));
+      // Keep the current/legacy record untouched; restore is additive.
+      setBackupStatus(incoming.length+' valuation(s) restored. Existing records were kept.');
+      if(typeof renderSavedValuations==='function') renderSavedValuations();
+      alert('Backup restored successfully. '+incoming.length+' valuation(s) added/updated.');
+      event.target.value='';
+    }catch(e){
+      console.error(e);
+      alert('Invalid backup file. Please select a Gold Valuation backup JSON file.');
+      event.target.value='';
+    }
+  };
+  reader.readAsText(file);
+}
+
 </script>
 </body>
 </html>
