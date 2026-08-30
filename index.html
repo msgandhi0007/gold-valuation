@@ -364,6 +364,24 @@ al App Cover */
     onclick="exportBankStatementPDF()">📄 Export Bank Report as PDF</button>
 </section>
 
+
+<section class="card s32-backup-card" id="dataSafetyBackup">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Data Safety & Backup</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Protect your saved valuations and customer records</div>
+    </div>
+    <button type="button" id="s32RefreshBtn">↻ Refresh</button>
+  </div>
+  <div class="s32-actions">
+    <button type="button" id="s32BackupBtn">💾 Backup All Data</button>
+    <button type="button" id="s32RestoreBtn">📥 Restore Backup</button>
+  </div>
+  <input id="s32RestoreFile" type="file" accept=".json,application/json" style="display:none">
+  <div id="s32BackupStatus" class="s32-status">Checking saved data…</div>
+  <div class="s32-reminder">Backup includes saved valuations, customer details, bank information, sanctioned loan amounts and app settings stored by this app.</div>
+</section>
+
 <section class="card customer-history-card" id="customerHistory" style="display:block!important;visibility:visible!important">
   <div class="itemhead">
     <div>
@@ -436,26 +454,6 @@ al App Cover */
 </div>
 </section>
 <section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
-
-<section class="card s32-backup-card" id="dataSafetyBackup">
-  <div class="itemhead">
-    <div>
-      <h2 style="margin:0">Data Safety & Backup</h2>
-      <div style="font-size:12px;opacity:.68;margin-top:4px">Protect your saved valuations and customer records</div>
-    </div>
-    <button type="button" onclick="refreshBackupStatus()">↻ Refresh</button>
-  </div>
-
-  <div class="s32-actions">
-    <button type="button" onclick="createFullBackup()">💾 Backup All Data</button>
-    <button type="button" onclick="document.getElementById('s32RestoreFile').click()">📥 Restore Backup</button>
-  </div>
-  <input id="s32RestoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreFullBackup(this.files[0])">
-
-  <div id="s32BackupStatus" class="s32-status">Checking saved data…</div>
-  <div class="s32-reminder">Backup includes saved valuations, customer details, bank information, sanctioned loan amounts and app settings stored by this app.</div>
-</section>
-
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
@@ -1811,67 +1809,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
-      <script>
-/* STEP 32 FINAL FIX - Reliable Android Backup */
-(function(){
-  function allLocalData(){
-    const data={};
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(!k)continue;
-      const raw=localStorage.getItem(k);
-      try{data[k]=JSON.parse(raw);}catch(e){data[k]=raw;}
-    }
-    return data;
-  }
-  window.createFullBackup=function(){
-    try{
-      const payload={
-        app:"Gold Valuation App",
-        backupVersion:32,
-        createdAt:new Date().toISOString(),
-        data:allLocalData()
-      };
-      const json=JSON.stringify(payload,null,2);
-      const blob=new Blob([json],{type:"application/json"});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement("a");
-      const d=new Date();
-      const pad=n=>String(n).padStart(2,"0");
-      a.download="Gold_Valuation_Backup_"+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"_"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+".json";
-      a.href=url;
-      a.style.display="none";
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
-      localStorage.setItem("s32LastBackup",new Date().toISOString());
-      if(typeof refreshBackupStatus==="function")refreshBackupStatus();
-      alert("Backup created successfully. Check your Downloads folder.");
-    }catch(e){
-      alert("Backup failed: "+(e.message||"Unknown error"));
-    }
-  };
-  window.refreshBackupStatus=function(){
-    const el=document.getElementById("s32BackupStatus");
-    if(!el)return;
-    let a=[];
-    try{a=JSON.parse(localStorage.getItem("goldValuations")||"[]");if(!Array.isArray(a))a=[]}catch(e){}
-    const customers=new Set(a.map(r=>String(r?.customer?.name||r?.customerName||"").trim().toLowerCase()).filter(Boolean));
-    const last=localStorage.getItem("s32LastBackup");
-    el.innerHTML="<b>"+a.length+" saved valuation(s)</b> · "+customers.size+" customer(s)"+
-      (last?"<br>Last backup: "+new Date(last).toLocaleString("en-IN"):"<br>No backup created yet.");
-  };
-  document.addEventListener("DOMContentLoaded",function(){
-    const b=document.querySelector('#dataSafetyBackup button[onclick*="createFullBackup"]');
-    if(b){
-      b.removeAttribute("onclick");
-      b.addEventListener("click",function(e){e.preventDefault();window.createFullBackup();});
-    }
-    window.refreshBackupStatus();
-  });
-})();
-</script>
-</body></html>`;
+      </body></html>`;
     const w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups for the PDF report.');return;}
     w.document.open();w.document.write(doc);w.document.close();
@@ -1880,6 +1818,109 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(refreshBankStatementReport,150);
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 32 FINAL - Data Safety & Backup */
+(function(){
+  function getData(){
+    const data={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k) continue;
+      const raw=localStorage.getItem(k);
+      try{data[k]=JSON.parse(raw);}catch(e){data[k]=raw;}
+    }
+    return data;
+  }
+
+  function status(){
+    const el=document.getElementById('s32BackupStatus');
+    if(!el)return;
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(a))a=[];}catch(e){}
+    const customers=new Set(a.map(r=>String(r?.customer?.name||r?.customerName||'').trim().toLowerCase()).filter(Boolean));
+    const last=localStorage.getItem('s32LastBackup');
+    el.innerHTML='<b>'+a.length+' saved valuation(s)</b> · '+customers.size+' customer(s)'+
+      (last?'<br>Last backup: '+new Date(last).toLocaleString('en-IN'):'<br>No backup created yet.');
+  }
+
+  function backup(){
+    try{
+      const payload={app:'Gold Valuation App',backupVersion:32,createdAt:new Date().toISOString(),data:getData()};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      const d=new Date(),p=n=>String(n).padStart(2,'0');
+      a.href=url;
+      a.download='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
+      a.style.display='none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){a.remove();URL.revokeObjectURL(url);},3000);
+      localStorage.setItem('s32LastBackup',new Date().toISOString());
+      status();
+      setTimeout(function(){alert('Backup created successfully. Check your Downloads folder.');},150);
+    }catch(e){
+      console.error(e);
+      alert('Backup failed: '+(e.message||'Unknown error'));
+    }
+  }
+
+  function restore(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+      try{
+        const payload=JSON.parse(reader.result);
+        const incoming=payload&&payload.data?payload.data:payload;
+        if(!incoming||typeof incoming!=='object'||Array.isArray(incoming))throw new Error('Invalid backup');
+
+        // Restore ordinary settings/data first.
+        Object.keys(incoming).forEach(function(k){
+          if(k==='goldValuations')return;
+          try{localStorage.setItem(k,typeof incoming[k]==='string'?incoming[k]:JSON.stringify(incoming[k]));}catch(e){}
+        });
+
+        // Merge valuations so existing records are not deleted.
+        if(Array.isArray(incoming.goldValuations)){
+          let current=[];
+          try{current=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(current))current=[];}catch(e){}
+          const map=new Map();
+          current.forEach(function(r,i){map.set(JSON.stringify([r?.id,r?.customer?.name||r?.customerName,r?.customer?.mobile||r?.mobile,r?.customer?.date||r?.date,r?.createdAt||r?.savedAt||i]),r);});
+          incoming.goldValuations.forEach(function(r,i){map.set(JSON.stringify([r?.id,r?.customer?.name||r?.customerName,r?.customer?.mobile||r?.mobile,r?.customer?.date||r?.date,r?.createdAt||r?.savedAt||'b'+i]),r);});
+          localStorage.setItem('goldValuations',JSON.stringify(Array.from(map.values())));
+        }
+
+        if(typeof window.renderSaved==='function')window.renderSaved();
+        if(typeof window.renderSavedValuations==='function')window.renderSavedValuations();
+        if(typeof window.updateCustomerHistory==='function')window.updateCustomerHistory();
+        if(typeof window.updateCustomerGroups==='function')window.updateCustomerGroups();
+        if(typeof window.refreshBankStatementReport==='function')window.refreshBankStatementReport();
+        status();
+        document.getElementById('s32RestoreFile').value='';
+        alert('Backup restored successfully. Existing valuations were kept.');
+      }catch(e){
+        console.error(e);
+        alert('Restore failed. Please select a valid Gold Valuation backup file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    const b=document.getElementById('s32BackupBtn');
+    const r=document.getElementById('s32RestoreBtn');
+    const f=document.getElementById('s32RestoreFile');
+    const ref=document.getElementById('s32RefreshBtn');
+    if(b)b.addEventListener('click',backup);
+    if(ref)ref.addEventListener('click',status);
+    if(r&&f)r.addEventListener('click',function(){f.click();});
+    if(f)f.addEventListener('change',function(){restore(f.files&&f.files[0]);});
+    status();
   });
 })();
 </script>
