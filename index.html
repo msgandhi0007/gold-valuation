@@ -207,6 +207,40 @@ al App Cover */
  #statementPrintArea{font-family:Arial,sans-serif;color:#111;background:#fff;padding:28px}
 }
 
+
+/* STEP 30 - Professional A4 Customer Statement */
+.s30-paper{font-family:Arial,Helvetica,sans-serif;color:#171717;background:#fff;border:1px solid #d7d0c2;border-radius:12px;padding:22px}
+.s30-brand{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}
+.s30-brand-title{font-size:27px;font-weight:900;letter-spacing:.4px}
+.s30-brand-sub{font-size:14px;font-weight:800;margin-top:5px;letter-spacing:.8px}
+.s30-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-top:16px;font-size:13px;line-height:1.55}
+.s30-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:15px}
+.s30-box{border:1px solid #d9d9d9;border-radius:9px;padding:10px;background:#faf9f5}
+.s30-box span{display:block;font-size:11px;color:#666}
+.s30-box b{display:block;font-size:16px;margin-top:4px}
+.s30-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12px}
+.s30-table th{background:#f1eee6;font-weight:800}
+.s30-table th,.s30-table td{border:1px solid #cfcfcf;padding:8px;vertical-align:middle}
+.s30-table td.num,.s30-table th.num{text-align:right}
+.s30-table td.center,.s30-table th.center{text-align:center}
+.s30-footer{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:34px}
+.s30-sign{border-top:1px solid #777;padding-top:8px;font-size:12px;min-height:65px}
+.s30-note{margin-top:18px;font-size:10px;color:#666;text-align:center}
+@media(max-width:520px){
+ .s30-meta,.s30-summary,.s30-footer{grid-template-columns:1fr}
+ .s30-brand-title{font-size:23px}
+ .s30-paper{padding:14px}
+}
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ html,body{background:#fff!important}
+ body.statement-printing>*{display:none!important}
+ body.statement-printing #statementPrintArea{display:block!important;position:static!important}
+ #statementPrintArea{display:block!important;background:#fff!important}
+ #statementPrintArea .s30-paper{border:0!important;border-radius:0!important;padding:0!important}
+ #statementPrintArea .s30-note{display:block}
+}
+
 </style>
 </head>
 <body>
@@ -1416,7 +1450,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   <div class="statement-box">
     <div class="statement-head">
       <div><h2 style="margin:0">Customer Statement</h2><div style="font-size:12px;opacity:.65;margin-top:3px">Complete valuation history</div></div>
-      <button type="button" onclick="closeCustomerStatement()" style="font-size:22px;padding:7px 12px">×</button>
+      <button type="button" aria-label="Close customer statement" onclick="closeCustomerStatement()" style="font-size:22px;padding:7px 12px">×</button>
     </div>
     <div id="statementPreview" class="statement-preview"></div>
     <div class="statement-actions">
@@ -1429,130 +1463,169 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 <script>
-/* Step 29 FINAL - Standalone Customer Statement */
+/* STEP 30 - Professional A4 Customer Statement */
 (function(){
-  function sv(v){ return String(v==null?'':v); }
-  function escS(v){
-    return sv(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  function s(v){return String(v==null?'':v);}
+  function esc(v){return s(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function money(n){return '₹'+(Number(n||0)).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function saved(){
+    try{const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}
   }
-  function moneyS(n){
-    n=Number(n||0);
-    return '₹'+n.toLocaleString('en-IN',{maximumFractionDigits:0});
-  }
-  function readSavedS(){
-    try{
-      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
-      return Array.isArray(a)?a:[];
-    }catch(e){ return []; }
-  }
-  function valueS(r){
-    if(typeof window.dashboardValue==='function'){
-      try{return Number(window.dashboardValue(r))||0}catch(e){}
-    }
+  function val(r){
+    try{if(typeof window.dashboardValue==='function')return Number(window.dashboardValue(r))||0;}catch(e){}
     return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0;
   }
-  function loanS(r){
-    if(typeof window.reportLoanAmount==='function'){
-      try{return Number(window.reportLoanAmount(r))||0}catch(e){}
-    }
+  function loan(r){
+    try{if(typeof window.reportLoanAmount==='function')return Number(window.reportLoanAmount(r))||0;}catch(e){}
     const c=r?.customer||{};
     return Number(c.sanctionedLoanAmount||c.loanAmount||r?.sanctionedLoanAmount||r?.loanAmount||0)||0;
   }
-  function getCustomerRecords(name,mobile){
-    const n=sv(name).trim().toLowerCase(), m=sv(mobile).trim();
-    return readSavedS().filter(r=>{
+  function recordsFor(name,mobile){
+    const n=s(name).trim().toLowerCase(),m=s(mobile).trim();
+    return saved().filter(r=>{
       const c=r?.customer||{};
-      return sv(c.name||r?.customerName).trim().toLowerCase()===n &&
-             sv(c.mobile||r?.mobile).trim()===m;
+      return s(c.name||r?.customerName).trim().toLowerCase()===n &&
+             s(c.mobile||r?.mobile).trim()===m;
     });
   }
-  window.showCustomerStatement=function(name,mobile){
-    const records=getCustomerRecords(name,mobile);
-    const totalV=records.reduce((s,r)=>s+valueS(r),0);
-    const totalL=records.reduce((s,r)=>s+loanS(r),0);
-    const banks=[...new Set(records.map(r=>sv(r?.customer?.bank).trim()).filter(Boolean))].join(', ');
+  function build(name,mobile){
+    const records=recordsFor(name,mobile);
+    const tv=records.reduce((a,r)=>a+val(r),0);
+    const tl=records.reduce((a,r)=>a+loan(r),0);
+    const ti=records.reduce((a,r)=>a+(Array.isArray(r.items)?r.items.length:0),0);
+    const banks=[...new Set(records.map(r=>s(r?.customer?.bank).trim()).filter(Boolean))].join(', ')||'—';
+    const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
     const rows=records.map((r,i)=>{
       const c=r?.customer||{};
-      const d=sv(c.date||r.date).slice(0,10)||'—';
-      const b=sv(c.bank);
+      const d=s(c.date||r.date).slice(0,10)||'—';
+      const b=s(c.bank)||'—';
       const items=Array.isArray(r.items)?r.items.length:0;
-      return `<tr><td>${i+1}</td><td>${escS(d)}</td><td>${escS(b)}</td><td>${moneyS(valueS(r))}</td><td>${moneyS(loanS(r))}</td><td>${items}</td></tr>`;
+      return `<tr>
+        <td class="center">${i+1}</td>
+        <td>${esc(d)}</td>
+        <td>${esc(b)}</td>
+        <td class="num">${money(val(r))}</td>
+        <td class="num">${money(loan(r))}</td>
+        <td class="center">${items}</td>
+      </tr>`;
     }).join('');
-    const content=`
-      <div style="font-family:Arial,sans-serif;color:#111">
-        <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:10px">
-          <div style="font-size:24px;font-weight:800">RAJENDRA JEWELLERS</div>
-          <div style="font-size:17px;font-weight:700;margin-top:4px">CUSTOMER VALUATION STATEMENT</div>
+    return `
+      <div class="s30-paper">
+        <div class="s30-brand">
+          <div class="s30-brand-title">RAJENDRA JEWELLERS</div>
+          <div class="s30-brand-sub">CUSTOMER VALUATION STATEMENT</div>
         </div>
-        <div style="margin-top:14px;line-height:1.7">
-          <b>Customer:</b> ${escS(name)}<br>
-          <b>Mobile:</b> ${escS(mobile)}<br>
-          <b>Bank(s):</b> ${escS(banks||'—')}<br>
-          <b>Statement Date:</b> ${new Date().toLocaleDateString('en-IN')}
+
+        <div class="s30-meta">
+          <div><b>Customer Name:</b> ${esc(name)}</div>
+          <div><b>Mobile Number:</b> ${esc(mobile)}</div>
+          <div><b>Bank(s):</b> ${esc(banks)}</div>
+          <div><b>Statement Date:</b> ${esc(today)}</div>
         </div>
-        <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:12px">
-          <thead><tr><th style="border:1px solid #ccc;padding:7px">#</th><th style="border:1px solid #ccc;padding:7px">Date</th><th style="border:1px solid #ccc;padding:7px">Bank</th><th style="border:1px solid #ccc;padding:7px">Valuation</th><th style="border:1px solid #ccc;padding:7px">Sanctioned Loan</th><th style="border:1px solid #ccc;padding:7px">Items</th></tr></thead>
-          <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:10px;text-align:center">No valuations found.</td></tr>'}</tbody>
-          <tfoot><tr><td colspan="3" style="border:1px solid #ccc;padding:7px;text-align:right;font-weight:800">TOTAL</td><td style="border:1px solid #ccc;padding:7px;font-weight:800">${moneyS(totalV)}</td><td style="border:1px solid #ccc;padding:7px;font-weight:800">${moneyS(totalL)}</td><td style="border:1px solid #ccc;padding:7px;font-weight:800">${records.reduce((s,r)=>s+(Array.isArray(r.items)?r.items.length:0),0)}</td></tr></tfoot>
+
+        <div class="s30-summary">
+          <div class="s30-box"><span>Total Valuations</span><b>${records.length}</b></div>
+          <div class="s30-box"><span>Total Valuation</span><b>${money(tv)}</b></div>
+          <div class="s30-box"><span>Total Sanctioned Loan</span><b>${money(tl)}</b></div>
+        </div>
+
+        <div style="margin-top:19px;font-size:14px;font-weight:800">VALUATION HISTORY</div>
+        <table class="s30-table">
+          <thead><tr>
+            <th class="center">#</th><th>Date</th><th>Bank</th>
+            <th class="num">Valuation</th><th class="num">Sanctioned Loan</th><th class="center">Items</th>
+          </tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" class="center">No valuations found.</td></tr>'}</tbody>
+          <tfoot><tr>
+            <td colspan="3" class="num"><b>TOTAL</b></td>
+            <td class="num"><b>${money(tv)}</b></td>
+            <td class="num"><b>${money(tl)}</b></td>
+            <td class="center"><b>${ti}</b></td>
+          </tr></tfoot>
         </table>
-        <div style="margin-top:30px;font-size:12px"><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
+
+        <div class="s30-footer">
+          <div class="s30-sign">
+            <b>AUTHORISED SIGNATORY</b><br><br>
+            Signature: ______________________
+          </div>
+          <div class="s30-sign">
+            <b>VALUER DETAILS</b><br>
+            REGISTERED GOLD APPRAISER<br>
+            MAHENDRA SHANTILAL GANDHI
+          </div>
+        </div>
+
+        <div class="s30-note">
+          This statement is a summary of valuations saved in the Gold Valuation App.
+        </div>
       </div>`;
+  }
+
+  window.showCustomerStatement=function(name,mobile){
     const modal=document.getElementById('statementModal');
     const preview=document.getElementById('statementPreview');
-    if(!modal||!preview){ alert('Statement screen is missing. Please upload the latest index.html.'); return; }
+    if(!modal||!preview){alert('Customer Statement screen is missing. Please upload the Step 30 index.html.');return;}
+    const content=build(name,mobile);
     preview.innerHTML=content;
     modal.style.display='flex';
     document.body.style.overflow='hidden';
 
-    const printBtn=document.getElementById('statementPrintButton');
-    const shareBtn=document.getElementById('statementShareButton');
-    if(printBtn) printBtn.onclick=function(){
-      const w=window.open('','_blank');
-      if(!w){ alert('Please allow pop-ups for this app to print the statement.'); return; }
-      w.document.open();
-      w.document.write('<!doctype html><html><head><title>Customer Statement - '+escS(name)+'</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4;margin:14mm}body{font-family:Arial,sans-serif}table{page-break-inside:auto}tr{page-break-inside:avoid}</style></head><body>'+content+'</body></html>');
-      w.document.close();
-      setTimeout(function(){w.focus();w.print();},300);
+    const print=document.getElementById('statementPrintButton');
+    const share=document.getElementById('statementShareButton');
+
+    if(print)print.onclick=function(){
+      const area=document.getElementById('statementPrintArea');
+      if(area)area.innerHTML=content;
+      document.body.classList.add('statement-printing');
+      if(area)area.style.display='block';
+      setTimeout(function(){
+        window.print();
+        setTimeout(function(){
+          document.body.classList.remove('statement-printing');
+          if(area)area.style.display='none';
+        },800);
+      },120);
     };
-    if(shareBtn) shareBtn.onclick=function(){
-      const text='Customer Valuation Statement\\nCustomer: '+name+'\\nMobile: '+mobile+'\\nValuations: '+records.length+'\\nTotal Valuation: '+moneyS(totalV)+'\\nTotal Sanctioned Loan: '+moneyS(totalL);
-      if(navigator.share){ navigator.share({title:'Customer Valuation Statement',text:text}).catch(function(){}); }
-      else { navigator.clipboard?.writeText(text); alert('Statement details copied.'); }
+
+    if(share)share.onclick=function(){
+      const records=recordsFor(name,mobile);
+      const tv=records.reduce((a,r)=>a+val(r),0);
+      const tl=records.reduce((a,r)=>a+loan(r),0);
+      const text='Customer Valuation Statement\nRAJENDRA JEWELLERS\nCustomer: '+name+'\nMobile: '+mobile+'\nValuations: '+records.length+'\nTotal Valuation: '+money(tv)+'\nTotal Sanctioned Loan: '+money(tl);
+      if(navigator.share){navigator.share({title:'Customer Valuation Statement - '+name,text:text}).catch(function(){});}
+      else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){alert('Statement details copied.');});}
+      else alert(text);
     };
   };
+
   window.closeCustomerStatement=function(){
     const modal=document.getElementById('statementModal');
     if(modal)modal.style.display='none';
     document.body.style.overflow='';
   };
+
   window.openCustomerStatementByIndex=function(index){
-    const groups=window._customerGroups||[];
-    const g=groups[Number(index)];
-    if(!g){ alert('Customer statement could not be found. Tap Refresh in Customer Summary and try again.'); return; }
+    const g=(window._customerGroups||[])[Number(index)];
+    if(!g){alert('Customer statement could not be found. Tap Refresh in Customer Summary and try again.');return;}
     showCustomerStatement(g.name,g.mobile);
   };
-  function wireStatementButtons(){
-    document.querySelectorAll('[data-statement-index]').forEach(function(btn){
-      if(btn.dataset.statementWired)return;
-      btn.dataset.statementWired='1';
-      btn.addEventListener('click',function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        openCustomerStatementByIndex(btn.getAttribute('data-statement-index'));
+
+  function wire(){
+    document.querySelectorAll('[data-statement-index]').forEach(function(b){
+      if(b.dataset.statementWired)return;
+      b.dataset.statementWired='1';
+      b.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        openCustomerStatementByIndex(b.getAttribute('data-statement-index'));
       });
     });
   }
-  const oldUpdate=window.updateCustomerGroups;
-  if(typeof oldUpdate==='function'){
-    window.updateCustomerGroups=function(){
-      oldUpdate.apply(this,arguments);
-      setTimeout(wireStatementButtons,0);
-    };
-  }
+
   document.addEventListener('DOMContentLoaded',function(){
-    setTimeout(wireStatementButtons,100);
-    const sm=document.getElementById('statementModal');
-    if(sm)sm.addEventListener('click',function(e){if(e.target===sm)closeCustomerStatement();});
+    setTimeout(wire,150);
+    const modal=document.getElementById('statementModal');
+    if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeCustomerStatement();});
   });
 })();
 </script>
