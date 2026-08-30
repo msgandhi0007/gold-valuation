@@ -131,7 +131,7 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
   <div class="cert-page">
     <div class="cert-head">
       <div class="cert-company">RAJENDRA JEWELLERS</div>
-      <div class="cert-title">GOLD JEWELLERY VALUATION CERTIFICATE</div>
+      <div class="cert-title">GOLD JEWELLERY VALUATION CERTIFICATE</div><div class="cert-number">Certificate No.: <span id="cCertNo"></span></div>
       <div class="cert-sub">Professional valuation report</div>
     </div>
     <div class="cert-section">
@@ -261,39 +261,60 @@ const safeDate=String(date||'').trim().replace(/[^0-9-]/g,'-');
 return (safeName||'Customer')+' - '+(safeDate||'Valuation')+'.pdf';
 }
 function printCertificate(){
-const oldTitle=document.title;document.title=pdfFileName(customerName.value,valuationDate.value);
-  const rateVal=num(document.getElementById('rate').value);
-  document.getElementById('cCertNo').textContent=getCertificateNo(window._currentSavedRecord||null);
-  document.getElementById('cBank').textContent=selectedBankName()||'—';
-  document.getElementById('cName').textContent=document.getElementById('customerName').value||'—';
-  document.getElementById('cMobile').textContent=document.getElementById('customerMobile').value||'—';
-  document.getElementById('cDate').textContent=document.getElementById('valuationDate').value||'—';
-  document.getElementById('cRate').textContent=money(rateVal)+'/g';
-  document.getElementById('cLoan').textContent=money(num(document.getElementById('sanctionedLoan').value));
+  try{
+    const $=id=>document.getElementById(id);
+    const customerNameEl=$('customerName');
+    const customerMobileEl=$('customerMobile');
+    const valuationDateEl=$('valuationDate');
+    const rateEl=$('rate');
+    const sanctionedLoanEl=$('sanctionedLoan');
+    const cert=$('certificate');
+    if(!cert) throw new Error('Certificate section not found');
 
-  let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,no=0;
-  document.querySelectorAll('.item').forEach(el=>{
-    no++;
-    const n=el.querySelector('.itemName').value||'Item '+no;
-    const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value);
-    const net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rateVal;
-    tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
-    rows+=`<tr><td>${no}</td><td>${esc(n)}</td><td>${g.toFixed(2)}</td><td>${s.toFixed(2)}</td><td>${p.toFixed(2)}%</td><td>${rounded.toFixed(2)}</td><td>${money(value)}</td></tr>`;
-  });
+    const name=customerNameEl ? customerNameEl.value : '';
+    const date=valuationDateEl ? valuationDateEl.value : '';
+    document.title=pdfFileName(name,date);
 
-  document.getElementById('cRows').innerHTML=rows||'<tr><td colspan="7">No items</td></tr>';
-  document.getElementById('cGross').textContent=tg.toFixed(2);
-  document.getElementById('cStone').textContent=ts.toFixed(2);
-  document.getElementById('cPurity').textContent=(tn?wp/tn:0).toFixed(2)+'%';
-  document.getElementById('cRounded').textContent=tr.toFixed(2);
-  document.getElementById('cValue').textContent=money(tv);
-  document.getElementById('cTotal').textContent=money(tv);
-  document.getElementById('cLoanTotal').textContent=money(num(document.getElementById('sanctionedLoan').value));
-  
-  
+    const rateVal=num(rateEl ? rateEl.value : 0);
+    const certNoEl=$('cCertNo');
+    if(certNoEl) certNoEl.textContent=getCertificateNo(window._currentSavedRecord||null);
+    $('cBank').textContent=selectedBankName()||'—';
+    $('cName').textContent=name||'—';
+    $('cMobile').textContent=customerMobileEl ? (customerMobileEl.value||'—') : '—';
+    $('cDate').textContent=date||'—';
+    $('cRate').textContent=money(rateVal)+'/g';
+    $('cLoan').textContent=money(num(sanctionedLoanEl ? sanctionedLoanEl.value : 0));
 
-  document.getElementById('certificate').style.display='block';
-  setTimeout(()=>window.print(),200);
+    let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,no=0;
+    document.querySelectorAll('.item').forEach(el=>{
+      no++;
+      const sel=el.querySelector('.itemName');
+      const n=sel ? (sel.value||'Item '+no) : 'Item '+no;
+      const g=num(el.querySelector('.gross')?.value);
+      const s=num(el.querySelector('.stone')?.value);
+      const p=num(el.querySelector('.purity')?.value);
+      const net=Math.max(0,g-s),pure=net*p/100;
+      const rounded=Math.floor((pure+1e-9)*10)/10;
+      const value=rounded*rateVal;
+      tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
+      rows+=`<tr><td>${no}</td><td>${esc(n)}</td><td>${g.toFixed(2)}</td><td>${s.toFixed(2)}</td><td>${p.toFixed(2)}%</td><td>${rounded.toFixed(2)}</td><td>${money(value)}</td></tr>`;
+    });
+
+    $('cRows').innerHTML=rows||'<tr><td colspan="7">No items</td></tr>';
+    $('cGross').textContent=tg.toFixed(2);
+    $('cStone').textContent=ts.toFixed(2);
+    $('cPurity').textContent=(tn?wp/tn:0).toFixed(2)+'%';
+    $('cRounded').textContent=tr.toFixed(2);
+    $('cValue').textContent=money(tv);
+    $('cTotal').textContent=money(tv);
+    $('cLoanTotal').textContent=money(num(sanctionedLoanEl ? sanctionedLoanEl.value : 0));
+
+    cert.style.display='block';
+    setTimeout(()=>{ try{ window.focus(); window.print(); }catch(e){ alert("Please use the browser menu → Print/Share to save the certificate as PDF."); } },250);
+  }catch(err){
+    console.error(err);
+    alert('Unable to open the valuation certificate. Please reload the app and try again.');
+  }
 }
 
 function addItem(data={name:'',gross:0,stone:0,purity:80}){
