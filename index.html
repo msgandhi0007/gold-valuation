@@ -139,6 +139,17 @@ al App Cover */
 .dashboard-history-row:last-child{border-bottom:0}
 @media(max-width:650px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
 
+
+/* Step 25 - Bank-wise & Monthly Reports */
+.report-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+.report-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.report-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
+.report-table th,.report-table td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:right}
+.report-table th:first-child,.report-table td:first-child{text-align:left}
+.report-table tr:last-child td{font-weight:850;background:rgba(0,0,0,.035)}
+.report-note{font-size:12px;opacity:.68;margin-top:8px}
+@media(max-width:520px){.report-controls{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -168,6 +179,46 @@ al App Cover */
     <div id="dashHistory"></div>
   </div>
 </section>
+<section class="card report-card" id="reports">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Bank & Monthly Reports</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Valuation and sanctioned-loan overview</div>
+    </div>
+    <button type="button" onclick="updateReports()" style="padding:8px 12px">↻ Refresh</button>
+  </div>
+
+  <div class="report-controls">
+    <div class="field">
+      <label>Bank</label>
+      <select id="reportBank" onchange="updateReports()">
+        <option value="">All Banks</option>
+        <option>SBI BANK</option>
+        <option>IDBI BANK</option>
+        <option>MAHARASHTRA GRAMIN BANK</option>
+        <option>DNYANDEEP CO-OP SOCIETY LTD</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Month</label>
+      <input id="reportMonth" type="month" onchange="updateReports()">
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-stat"><div class="label">Valuations</div><div class="num" id="reportCount">0</div></div>
+    <div class="dashboard-stat"><div class="label">Valuation Total</div><div class="num" id="reportValue">₹0</div></div>
+    <div class="dashboard-stat"><div class="label">Sanctioned Loan</div><div class="num" id="reportLoan">₹0</div></div>
+    <div class="dashboard-stat"><div class="label">Customers</div><div class="num" id="reportCustomers">0</div></div>
+  </div>
+
+  <table class="report-table">
+    <thead><tr><th>Bank</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead>
+    <tbody id="reportRows"></tbody>
+  </table>
+  <div class="report-note">Select a bank and/or month to filter the report. Totals update automatically.</div>
+</section>
+
 
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
@@ -890,6 +941,76 @@ function updateDashboard(){
 document.addEventListener('DOMContentLoaded',()=>{
   updateDashboard();
   setInterval(updateDashboard,2000);
+});
+
+</script>
+
+<script>
+
+/* Step 25 reports */
+function reportRecords(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const a=raw?JSON.parse(raw):[];
+    return Array.isArray(a)?a:[];
+  }catch(e){return[]}
+}
+function reportLoanAmount(r){
+  return num(r?.customer?.sanctionedLoan||r?.sanctionedLoan||r?.loanAmount||0);
+}
+function reportDate(r){
+  return String(r?.customer?.date||r?.date||'').slice(0,10);
+}
+function reportMonth(r){
+  const d=reportDate(r);
+  return d.length>=7?d.slice(0,7):'';
+}
+function updateReports(){
+  const bank=(document.getElementById('reportBank')||{}).value||'';
+  const month=(document.getElementById('reportMonth')||{}).value||'';
+  const all=reportRecords();
+  const records=all.filter(r=>{
+    const rb=String(r?.customer?.bank||'');
+    return (!bank || rb===bank) && (!month || reportMonth(r)===month);
+  });
+
+  const value=records.reduce((s,r)=>s+dashboardValue(r),0);
+  const loan=records.reduce((s,r)=>s+reportLoanAmount(r),0);
+  const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
+
+  const c=document.getElementById('reportCount');
+  const v=document.getElementById('reportValue');
+  const l=document.getElementById('reportLoan');
+  const cu=document.getElementById('reportCustomers');
+  if(c)c.textContent=records.length;
+  if(v)v.textContent=money(value);
+  if(l)l.textContent=money(loan);
+  if(cu)cu.textContent=customers.size;
+
+  const map={};
+  records.forEach(r=>{
+    const b=String(r?.customer?.bank||'Other / Not specified');
+    if(!map[b])map[b]={count:0,value:0,loan:0};
+    map[b].count++;
+    map[b].value+=dashboardValue(r);
+    map[b].loan+=reportLoanAmount(r);
+  });
+  const rows=document.getElementById('reportRows');
+  if(rows){
+    const entries=Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0]));
+    rows.innerHTML=entries.map(([b,x])=>
+      `<tr><td>${esc(b)}</td><td>${x.count}</td><td>${money(x.value)}</td><td>${money(x.loan)}</td></tr>`
+    ).join('') || '<tr><td colspan="4" style="text-align:center;opacity:.6">No valuations for this selection.</td></tr>';
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const m=document.getElementById('reportMonth');
+  if(m && !m.value){
+    const d=new Date();
+    m.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  }
+  updateReports();
+  setInterval(updateReports,2000);
 });
 
 </script>
