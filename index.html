@@ -1442,22 +1442,38 @@ function openCustomerStatementByIndex(index){
   openCustomerStatement(g.name,g.mobile);
 }
 function openCustomerStatement(name,mobile){
-  const all=groupRecords();
+  // Read saved valuations directly; do not depend on another helper function.
+  let all=[];
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const parsed=raw?JSON.parse(raw):[];
+    all=Array.isArray(parsed)?parsed:[];
+  }catch(e){
+    console.error('Statement storage read error',e);
+    alert('Unable to read saved valuations.');
+    return;
+  }
   const n=String(name||'').trim().toLowerCase();
   const m=String(mobile||'').trim();
   const records=all.filter(r=>{
     const c=r?.customer||{};
-    return String(c.name||r?.customerName||'').trim().toLowerCase()===n &&
-           String(c.mobile||r?.mobile||'').trim()===m;
+    const rn=String(c.name||r?.customerName||'').trim().toLowerCase();
+    const rm=String(c.mobile||r?.mobile||'').trim();
+    return rn===n && rm===m;
   });
   _statementCustomer={name:name||'',mobile:mobile||'',records};
   renderCustomerStatement();
   const modal=document.getElementById('statementModal');
-  if(modal){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); }
+  if(modal){
+    modal.style.display='flex';
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
 }
 function closeCustomerStatement(){
   const modal=document.getElementById('statementModal');
   if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+  document.body.style.overflow='';
 }
 function statementMoney(n){
   return typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
