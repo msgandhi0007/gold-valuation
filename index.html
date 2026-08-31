@@ -761,7 +761,17 @@ function setupItemNameDropdown(el){
   const sel=el.querySelector('.itemName');
   if(!sel)return;
   const update=()=>{
-    if(other) other.style.display=sel.value==='Other'?'block':'none';
+    const isOther=sel.value==='Other';
+    if(other){
+      other.style.display=isOther?'block':'none';
+      other.disabled=!isOther;
+      if(isOther){
+        other.focus();
+        other.select();
+      }else{
+        other.value='';
+      }
+    }
   };
   sel.addEventListener('change',update);
   update();
@@ -923,7 +933,10 @@ d.innerHTML=`<div class="itemhead"><span>Item ${count}</span><button class="remo
 <option value="S.Mangalsutra">S.Mangalsutra</option>
 <option value="Mala">Mala</option>
 <option value="Other">Other</option>
-</select></div>
+</select>
+<input class="itemOther" type="text" placeholder="Enter gold item name" autocomplete="off"
+  style="display:none;margin-top:8px" oninput="calculate()">
+</div>
 <div class="grid"><div class="field"><label>Gross Weight (g)</label><input class="gross" type="number" step="0.01" inputmode="decimal" value="${data.gross}" oninput="calculate()"></div>
 <div class="field"><label>Stone Weight (g)</label><input class="stone" type="number" step="0.01" inputmode="decimal" value="${data.stone}" oninput="calculate()"></div>
 <div class="field"><label>Purity (%)</label><input class="purity" type="number" step="0.01" inputmode="decimal" value="${data.purity}" oninput="calculate()"></div></div>
@@ -937,10 +950,14 @@ if(itemSelect){
   else if(savedName){
     itemSelect.value='Other';
     const other=d.querySelector('.itemOther');
-    if(other){other.value=savedName;other.style.display='block';}
+    if(other){other.value=savedName;}
   }
 }
 setupItemNameDropdown(items.lastElementChild);
+if(itemSelect && itemSelect.value==='Other'){
+  const other=d.querySelector('.itemOther');
+  if(other){other.style.display='block';other.disabled=false;}
+}
 calculate();
 }
 function removeItem(id){document.getElementById('item'+id)?.remove();renumber();calculate()}
