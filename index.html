@@ -951,6 +951,12 @@ customerMobile.value=d.customer?.mobile||'';
 setBankValue(d.customer?.bank||'');
 valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
 rate.value=d.rate||0;
+if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
+  d.sanctionedLoan ?? d.sanctioned ?? d.loanAmount ?? d.customer?.sanctionedLoan ?? 0;
+if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
+  d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
+if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
+  d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
 items.innerHTML='';count=0;
 (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
 calculate();closeLoad();
