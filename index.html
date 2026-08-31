@@ -377,6 +377,10 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
 .customer-group:not(.customer-expanded) .collapsed-hint{display:block!important;font-size:11px;color:#777;margin-top:3px;font-weight:600}
 .customer-group.customer-expanded .collapsed-hint{display:none!important}
 
+
+/* STEP 47 FIX - Menu sections must not show the main valuation form */
+body.menu-viewing #valuation-main-sections{display:none!important}
+
 </style>
 </head>
 <body>
@@ -2748,6 +2752,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
 
   window.showMenuSection=function(id){
+    const valuation=document.getElementById('valuation-main-sections');
+    if(valuation) valuation.style.display='none';
+
     menuIds.forEach(function(x){
       const el=document.getElementById(x);
       if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
