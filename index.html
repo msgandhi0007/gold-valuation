@@ -336,6 +336,30 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
 .customer-click-hint{font-size:11px;color:#777;margin-top:4px;font-weight:600}
 .history-row{cursor:default}
 
+
+/* STEP 45 - Show valuation actions only after customer click */
+.history-actions,
+.customer-group-actions{
+  display:none!important;
+}
+.history-row.customer-expanded .history-actions,
+.customer-group.customer-expanded .customer-group-actions{
+  display:grid!important;
+}
+.customer-row-toggle{
+  display:inline-flex;align-items:center;gap:4px;
+  border:0;background:transparent;padding:0;margin:0;
+  font:inherit;font-size:17px;font-weight:850;color:#111;
+  cursor:pointer;text-align:left;
+}
+.customer-row-toggle::after{
+  content:'›';font-size:24px;line-height:16px;opacity:.5;
+}
+.history-row.customer-expanded .customer-row-toggle::after,
+.customer-group.customer-expanded .customer-summary-link::after{
+  content:'⌄';
+}
+
 </style>
 </head>
 <body>
@@ -1713,7 +1737,7 @@ function updateCustomerHistory(){
     const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
     return `<div class="history-row">
       <div class="history-top">
-        <div><button type="button" class="customer-name-link" onclick="openHistoryRecord(window._historyShown[${i}])">${name}</button><div class="customer-click-hint">Tap customer name to open valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
+        <div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to open valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
         <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
       </div>
       <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
@@ -1787,7 +1811,7 @@ function updateCustomerGroups(){
     }).join('');
     return `<div class="customer-group">
       <div class="customer-group-head">
-        <div><button type="button" class="customer-summary-link" onclick="openHistoryRecord(window._groupRecords[${g.records[g.records.length-1].idx}])">${esc(g.name)}</button><div class="customer-click-hint">Tap customer name to open latest valuation</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint">Tap customer to open latest valuation</div></div>
+        <div><button type="button" class="customer-summary-link" onclick="toggleCustomerSummaryGroup(this)">${esc(g.name)}</button><div class="customer-click-hint">Tap customer name to open latest valuation</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint">Tap customer to open latest valuation</div></div>
         <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}" onclick="event.stopPropagation()">📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
@@ -2727,6 +2751,22 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.addEventListener('DOMContentLoaded',addBackButtons);
 })();
+</script>
+
+
+<script>
+/* STEP 45 - Customer click reveals actions */
+window.toggleCustomerHistoryRow=function(i, btn){
+  const row=btn.closest('.history-row');
+  if(!row)return;
+  row.classList.toggle('customer-expanded');
+};
+
+window.toggleCustomerSummaryGroup=function(btn){
+  const group=btn.closest('.customer-group');
+  if(!group)return;
+  group.classList.toggle('customer-expanded');
+};
 </script>
 
 </body>
