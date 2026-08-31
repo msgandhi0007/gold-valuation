@@ -1189,7 +1189,68 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <script>
+/* STEP 46 - Sync every report bank selector with Bank Management + saved valuations */
+(function(){
+  function reportBankNames46(){
+    const names=[];
+    const add=(v)=>{
+      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ');
+      if(n && !names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
+    };
 
+    // Banks managed in Step 33.
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');
+      if(Array.isArray(a)) a.forEach(add);
+    }catch(e){}
+
+    // Banks actually used by saved valuations.
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      if(Array.isArray(a)) a.forEach(r=>add(r?.customer?.bank));
+    }catch(e){}
+
+    return names;
+  }
+
+  function syncReportSelect46(id){
+    const sel=document.getElementById(id);
+    if(!sel)return;
+
+    const old=String(sel.value||'').trim();
+    const names=reportBankNames46();
+
+    sel.innerHTML='<option value="">All Banks</option>'+
+      names.map(n=>'<option value="'+
+        String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')+
+        '">'+
+        String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')+
+        '</option>').join('');
+
+    let match=names.find(n=>n===old);
+    if(!match && old) match=names.find(n=>n.toLowerCase()===old.toLowerCase());
+
+    // Preserve compatibility with the original legacy label.
+    if(!match && old==='SBI BANK')
+      match=names.find(n=>n.toLowerCase()==='state bank of india');
+
+    sel.value=match||'';
+  }
+
+  window.syncAllReportBankSelectors=function(){
+    syncReportSelect46('reportBank');
+    syncReportSelect46('bankStatementSelect');
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    window.syncAllReportBankSelectors();
+    if(typeof window.updateReports==='function') window.updateReports();
+    if(typeof window.refreshBankStatementReport==='function') window.refreshBankStatementReport();
+  });
+})();
+</script>
+
+<script>
 /* Step 25 reports */
 function reportRecords(){
   try{
@@ -1209,6 +1270,7 @@ function reportMonth(r){
   return d.length>=7?d.slice(0,7):'';
 }
 function updateReports(){
+  if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
   const bank=(document.getElementById('reportBank')||{}).value||'';
   const month=(document.getElementById('reportMonth')||{}).value||'';
   const all=reportRecords();
@@ -1265,6 +1327,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 /* Step 26 - Bank & Monthly Report PDF */
 function reportFilteredRecords(){
+  if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
   const bank=(document.getElementById('reportBank')||{}).value||'';
   const month=(document.getElementById('reportMonth')||{}).value||'';
   return reportRecords().filter(r=>{
@@ -1774,45 +1837,33 @@ document.addEventListener('DOMContentLoaded',()=>{
   function syncBankStatementSelect(){
     const select=document.getElementById('bankStatementSelect');
     if(!select)return;
-
     const current=String(select.value||'').trim();
-    const names=[];
-    const addName=(v)=>{
-      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ');
-      if(!n)return;
-      if(!names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
-    };
 
-    // 1) Banks created/renamed in Bank Management.
+    let managed=[];
     try{
       const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');
-      if(Array.isArray(a)) a.forEach(addName);
+      if(Array.isArray(a)) managed=a.map(x=>String(x||'').trim()).filter(Boolean);
     }catch(e){}
 
-    // 2) Every bank actually present in saved valuations.
-    saved31().forEach(r=>addName(r?.customer?.bank));
-
-    // 3) Keep any bank already present in the HTML as a fallback.
-    [...select.options].forEach(o=>{
-      if(o.value) addName(o.value);
-    });
+    const saved=saved31().map(r=>String(r?.customer?.bank||'').trim()).filter(Boolean);
+    const names=[...new Set([...managed,...saved])];
 
     select.innerHTML='<option value="">All Banks</option>'+
       names.map(b=>'<option value="'+esc31(b)+'">'+esc31(b)+'</option>').join('');
 
-    let match=names.find(x=>x===current);
-    if(!match && current){
-      // Case-insensitive match for renamed/case differences.
-      match=names.find(x=>x.toLowerCase()===current.toLowerCase());
+    if(names.includes(current)){
+      select.value=current;
+    }else if(current==='SBI BANK' && names.includes('State Bank Of India')){
+      select.value='State Bank Of India';
+    }else if(current==='IDBI BANK' && names.includes('IDBI BANK')){
+      select.value='IDBI BANK';
+    }else if(current){
+      select.value='';
     }
-    if(!match && current==='SBI BANK'){
-      match=names.find(x=>x.toLowerCase()==='state bank of india');
-    }
-
-    select.value=match||'';
   }
 
   window.refreshBankStatementReport=function(){
+    if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
     syncBankStatementSelect();
     const select=document.getElementById('bankStatementSelect');
     const stats=document.getElementById('bankReportStats');
@@ -2422,17 +2473,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     await sharePdfFile();
   };
 })();
-</script>
-
-<script>
-/* STEP 45 - Always refresh Bank-wise Customer Report bank list */
-document.addEventListener('DOMContentLoaded',function(){
-  try{
-    if(typeof window.refreshBankStatementReport==='function'){
-      window.refreshBankStatementReport();
-    }
-  }catch(e){console.error(e);}
-});
 </script>
 
 </body>
