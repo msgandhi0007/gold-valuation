@@ -1890,9 +1890,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!select||!stats||!tbody)return;
 
     const bank=String(select.value||'').trim();
+    const normBank=function(v){
+      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ').toLowerCase();
+      if(n==='sbi bank') return 'state bank of india';
+      return n;
+    };
+    const wanted=normBank(bank);
     const records=saved31().filter(r=>{
-      const b=String(r?.customer?.bank||'').trim();
-      return !bank || b===bank;
+      const b=normBank(r?.customer?.bank);
+      return !wanted || b===wanted;
     });
 
     const groups=new Map();
@@ -1946,7 +1952,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     syncBankStatementSelect();
     const select=document.getElementById('bankStatementSelect');
     const bank=String(select?.value||'').trim()||'All Banks';
-    const records=saved31().filter(r=>!select?.value || String(r?.customer?.bank||'').trim()===select.value);
+    const normBank=function(v){
+      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ').toLowerCase();
+      if(n==='sbi bank') return 'state bank of india';
+      return n;
+    };
+    const wanted=normBank(select?.value||'');
+    const records=saved31().filter(r=>!wanted || normBank(r?.customer?.bank)===wanted);
     const groups=new Map();
     records.forEach(r=>{
       const c=r?.customer||{},name=String(c.name||r?.customerName||'Unnamed').trim()||'Unnamed';
@@ -2205,14 +2217,25 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function cleanName(v){return String(v||'').trim().replace(/\s+/g,' ');}
   function banks(){
+    let raw=localStorage.getItem(KEY);
     let a=[];
-    try{a=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){a=[];}
+    try{a=raw===null?[]:JSON.parse(raw||'[]');}catch(e){a=[];}
     if(!Array.isArray(a))a=[];
     a=a.map(cleanName).filter(Boolean);
-    DEFAULTS.forEach(function(x){if(!a.includes(x))a.push(x);});
+
+    // Only seed the original default banks on first installation.
+    // Do NOT re-add them after the user deletes one.
+    if(raw===null){
+      a=DEFAULTS.slice();
+      localStorage.setItem(KEY,JSON.stringify(a));
+    }
+
     const seen=new Set(), out=[];
-    a.forEach(function(x){const k=x.toLowerCase();if(!seen.has(k)){seen.add(k);out.push(x);}});
-    localStorage.setItem(KEY,JSON.stringify(out));
+    a.forEach(function(x){
+      const k=x.toLowerCase();
+      if(!seen.has(k)){seen.add(k);out.push(x);}
+    });
+    if(raw!==null) localStorage.setItem(KEY,JSON.stringify(out));
     return out;
   }
 
@@ -2269,7 +2292,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         '<div class="s33-bank-actions">'+
         '<button type="button" data-action="default" data-bank="'+safe+'">Set Default</button>'+
         '<button type="button" data-action="rename" data-bank="'+safe+'">Rename</button>'+
-        '<button type="button" data-action="delete" data-bank="'+safe+'">Delete</button>'+
+        '<button type="button" onclick="window.deleteManagedBank47('+JSON.stringify(name).replace(/</g,'\\u003c')+');return false;">Delete</button>'+
         '</div></div>';
     }).join('');
     status();
@@ -2318,30 +2341,56 @@ document.addEventListener('DOMContentLoaded',()=>{
     alert('Bank renamed successfully. Existing records were updated to '+next+'.');
   }
 
-  function remove(name){
+  window.deleteManagedBank47=function(name){
+    name=cleanName(name);
+    if(!name)return;
+
     const a=banks();
-    const used=getSaved33().some(r=>String(r?.customer?.bank||'').trim().toLowerCase()===String(name).trim().toLowerCase());
+    const exists=a.some(function(x){
+      return String(x).trim().toLowerCase()===name.toLowerCase();
+    });
+    if(!exists){
+      alert('Bank not found in Bank Management.');
+      render();
+      return;
+    }
+
+    const used=getSaved33().some(function(r){
+      return String(r?.customer?.bank||'').trim().replace(/\\s+/g,' ').toLowerCase()===name.toLowerCase();
+    });
+
     const msg=used
-      ? 'Delete '+name+' from Bank Management? Existing saved valuations will be kept and will still appear in reports.'
-      : 'Remove '+name+' from the bank list?';
+      ? 'Delete '+name+' from Bank Management? Existing saved valuations will NOT be deleted.'
+      : 'Delete '+name+' from Bank Management?';
+
     if(!confirm(msg))return;
 
-    const next=a.filter(x=>String(x).trim().toLowerCase()!==String(name).trim().toLowerCase());
+    const next=a.filter(function(x){
+      return String(x).trim().toLowerCase()!==name.toLowerCase();
+    });
+
     localStorage.setItem(KEY,JSON.stringify(next));
 
-    if(String(localStorage.getItem('goldValuationDefaultBank')||'').trim().toLowerCase()===String(name).trim().toLowerCase())
+    const currentDefault=String(localStorage.getItem('goldValuationDefaultBank')||'').trim().toLowerCase();
+    if(currentDefault===name.toLowerCase()){
       localStorage.setItem('goldValuationDefaultBank',next[0]||'');
+    }
 
+    // Force all dependent controls to refresh after deletion.
     render();
-
-    // Refresh every dependent UI without touching historical valuation data.
+    try{ if(typeof window.setupBankDropdown==='function')window.setupBankDropdown(); }catch(e){}
     try{ if(typeof renderSaved==='function')renderSaved(); }catch(e){}
     try{ if(typeof updateCustomerHistory==='function')updateCustomerHistory(); }catch(e){}
     try{ if(typeof updateCustomerGroups==='function')updateCustomerGroups(); }catch(e){}
     try{ if(typeof updateReports==='function')updateReports(); }catch(e){}
+    try{ if(typeof window.syncAllReportBankSelectors==='function')window.syncAllReportBankSelectors(); }catch(e){}
     try{ if(typeof refreshBankStatementReport==='function')refreshBankStatementReport(); }catch(e){}
 
-    alert(name+' deleted from Bank Management. Existing saved valuations were kept.');
+    alert(name+' deleted successfully from Bank Management.');
+  };
+
+  function remove(name){
+    window.deleteManagedBank47(name);
   }
 
   function getSaved33(){
