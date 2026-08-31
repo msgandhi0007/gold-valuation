@@ -360,6 +360,23 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
   content:'⌄';
 }
 
+
+/* STEP 47 - Clean Customer Summary: details appear after customer click */
+.customer-group-stats,
+.customer-group-history{display:none!important}
+.customer-group.customer-expanded .customer-group-stats,
+.customer-group.customer-expanded .customer-group-history{display:grid!important}
+.customer-group.customer-expanded .customer-group-history{display:block!important}
+.customer-group .customer-click-hint{display:none!important}
+.customer-group-head .customer-group-contact{margin-top:6px}
+.customer-group-head{align-items:center}
+.customer-group-actions{display:none!important}
+.customer-group.customer-expanded .customer-group-actions{display:flex!important}
+
+
+.customer-group:not(.customer-expanded) .collapsed-hint{display:block!important;font-size:11px;color:#777;margin-top:3px;font-weight:600}
+.customer-group.customer-expanded .collapsed-hint{display:none!important}
+
 </style>
 </head>
 <body>
@@ -1843,7 +1860,7 @@ function updateCustomerGroups(){
     }).join('');
     return `<div class="customer-group">
       <div class="customer-group-head">
-        <div><button type="button" class="customer-summary-link" onclick="toggleCustomerSummaryGroup(this)">${esc(g.name)}</button><div class="customer-click-hint">Tap customer name to open latest valuation</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint">Tap customer to open latest valuation</div></div>
+        <div><button type="button" class="customer-summary-link" onclick="toggleCustomerSummaryGroup(this)">${esc(g.name)}</button><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint collapsed-hint">Tap customer name to view details</div></div>
         <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}" onclick="event.stopPropagation()">📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
