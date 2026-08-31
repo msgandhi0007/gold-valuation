@@ -41,13 +41,48 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 @page{size:A4;margin:12mm}
 .cert-signature-block{page-break-inside:avoid}
 @media print{
-  body{background:#fff}
-  footer,.actions,.remove,.primary,.save-manager,.backup-card{display:none!important}
-  .app{display:none!important}
-  .certificate{display:block!important}
+  @page{size:A4 portrait;margin:0}
+  html,body{
+    margin:0!important;
+    padding:0!important;
+    width:210mm!important;
+    height:297mm!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+  body > *{display:none!important}
+  body > #certificate{
+    display:block!important;
+    position:relative!important;
+    width:210mm!important;
+    height:297mm!important;
+    margin:0!important;
+    padding:12mm!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    page-break-after:avoid!important;
+    break-after:avoid-page!important;
+  }
+  #certificate .cert-page{
+    width:100%!important;
+    max-width:none!important;
+    height:273mm!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:8mm!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    page-break-after:avoid!important;
+    break-after:avoid-page!important;
+    break-inside:avoid!important;
+  }
+  #certificate .cert-signature-block{
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+  }
 }
 
-@media print{footer,.actions,.remove,.primary,.save-manager{display:none!important}.app{padding-bottom:0;max-width:none}}
+@media print{footer,.actions,.remove,.primary,.save-manager,.backup-card{display:none!important}.app{display:none!important;padding-bottom:0;max-width:none}}
 .save-manager{position:fixed;inset:0;background:#0008;z-index:20;display:none;padding:18px;overflow:auto}
 .save-box{max-width:520px;margin:30px auto;background:#fff;border-radius:18px;padding:16px;box-shadow:0 12px 40px #0005}
 .save-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.save-top h2{margin:0;font-size:20px}
