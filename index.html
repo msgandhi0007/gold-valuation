@@ -973,15 +973,12 @@ function importBackup(file){
       const incoming=Array.isArray(payload)?payload:(Array.isArray(payload.records)?payload.records:null);
       if(!incoming)throw new Error("Invalid backup");
       const existing=getSaved();
-      const byId=new Map(existing.map(x=>[String(x.id),x]));
-      incoming.forEach(x=>{
-        if(!x || typeof x!=="object")return;
+      const merged=dedupeValuations(existing.concat(incoming.filter(x=>x && typeof x==="object").map(x=>{
         if(!x.id)x.id=Date.now()+Math.floor(Math.random()*100000);
-        byId.set(String(x.id),x);
-      });
-      const merged=[...byId.values()];
+        return x;
+      })));
       localStorage.setItem("goldValuations",JSON.stringify(merged));
-      alert("Restore completed. "+incoming.length+" valuation record(s) processed.");
+      alert("Restore completed. "+incoming.length+" valuation record(s) processed. Duplicate records were ignored.");
       if(typeof renderSaved==="function")renderSaved();
       if(typeof openLoad==="function")openLoad();
     }catch(e){
@@ -991,14 +988,52 @@ function importBackup(file){
   reader.readAsText(file);
 }
 
+function valuationDedupeKey(r){
+  if(!r || typeof r!=='object') return '';
+  // Certificate number is the strongest identity for a saved valuation.
+  if(r.certificateNo) return 'cert:'+String(r.certificateNo).trim().toLowerCase();
+  if(r.id) return 'id:'+String(r.id);
+  const c=r.customer||{};
+  const items=Array.isArray(r.items)?r.items.map(it=>[
+    String(it?.name||'').trim().toLowerCase(),
+    String(it?.gross??''),
+    String(it?.stone??''),
+    String(it?.purity??'')
+  ]):[];
+  return 'data:'+JSON.stringify([
+    String(c.name||r.customerName||'').trim().toLowerCase(),
+    String(c.mobile||r.mobile||'').trim(),
+    String(c.date||r.date||'').trim(),
+    String(c.bank||'').trim().toLowerCase(),
+    String(r.rate??''),
+    String(r.sanctionedLoan??r.sanctioned??r.loanAmount??''),
+    items
+  ]);
+}
+function dedupeValuations(records){
+  if(!Array.isArray(records)) return [];
+  const map=new Map();
+  records.forEach(function(r){
+    if(!r || typeof r!=='object')return;
+    const key=valuationDedupeKey(r);
+    if(!key)return;
+    // Keep the latest occurrence, which is normally the restored/current version.
+    map.set(key,r);
+  });
+  return Array.from(map.values());
+}
 function getSaved(){
 let a=[];
 try{a=JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){a=[]}
 if(!Array.isArray(a))a=[];
 if(!a.length){
-try{const old=localStorage.getItem('goldValuation');if(old){const d=JSON.parse(old);d.id=d.id||Date.now();d.customer=d.customer||{};d.customer.bank=d.customer.bank||'';a=[d];localStorage.setItem('goldValuations',JSON.stringify(a))}}catch(e){}
+try{const old=localStorage.getItem('goldValuation');if(old){const d=JSON.parse(old);d.id=d.id||Date.now();d.customer=d.customer||{};d.customer.bank=d.customer.bank||'';a=[d]}}catch(e){}
 }
-return a;
+const clean=dedupeValuations(a);
+if(JSON.stringify(clean)!==JSON.stringify(a)){
+  try{localStorage.setItem('goldValuations',JSON.stringify(clean));}catch(e){}
+}
+return clean;
 }
 let selectedBank='ALL';
 function setSavedBankFilter(bank){
@@ -1286,15 +1321,12 @@ function restoreValuationsBackup(event){
       const incoming=Array.isArray(payload)?payload:(Array.isArray(payload.valuations)?payload.valuations:[]);
       if(!incoming.length) throw new Error('No valuations found');
       const existing=getSavedValuations();
-      const key=r=>String(r.id||r.certificateNo||(
-        (r.customer&&r.customer.name)||r.customerName||''
-      ))+'|'+String(r.createdAt||r.savedAt||r.date||'');
-      const map=new Map(existing.map(r=>[key(r),r]));
-      incoming.forEach(r=>map.set(key(r),r));
-      const merged=Array.from(map.values());
+      const merged=dedupeValuations(existing.concat(incoming.filter(r=>r && typeof r==='object').map(r=>{
+        if(!r.id)r.id=Date.now()+Math.floor(Math.random()*100000);
+        return r;
+      })));
       localStorage.setItem('goldValuations',JSON.stringify(merged));
-      // Keep the current/legacy record untouched; restore is additive.
-      setBackupStatus(incoming.length+' valuation(s) restored. Existing records were kept.');
+      setBackupStatus(incoming.length+' valuation(s) processed. Duplicate records were ignored.');
       if(typeof renderSavedValuations==='function') renderSavedValuations();
       alert('Backup restored successfully. '+incoming.length+' valuation(s) added/updated.');
       event.target.value='';
@@ -2248,10 +2280,11 @@ document.addEventListener('DOMContentLoaded',()=>{
         if(Array.isArray(incoming.goldValuations)){
           let current=[];
           try{current=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(current))current=[];}catch(e){}
-          const map=new Map();
-          current.forEach(function(r,i){map.set(JSON.stringify([r?.id,r?.customer?.name||r?.customerName,r?.customer?.mobile||r?.mobile,r?.customer?.date||r?.date,r?.createdAt||r?.savedAt||i]),r);});
-          incoming.goldValuations.forEach(function(r,i){map.set(JSON.stringify([r?.id,r?.customer?.name||r?.customerName,r?.customer?.mobile||r?.mobile,r?.customer?.date||r?.date,r?.createdAt||r?.savedAt||'b'+i]),r);});
-          localStorage.setItem('goldValuations',JSON.stringify(Array.from(map.values())));
+          const merged=dedupeValuations(current.concat(incoming.goldValuations.filter(function(r){return r&&typeof r==='object';}).map(function(r){
+            if(!r.id)r.id=Date.now()+Math.floor(Math.random()*100000);
+            return r;
+          })));
+          localStorage.setItem('goldValuations',JSON.stringify(merged));
         }
 
         if(typeof window.renderSaved==='function')window.renderSaved();
@@ -2767,6 +2800,30 @@ window.toggleCustomerSummaryGroup=function(btn){
   if(!group)return;
   group.classList.toggle('customer-expanded');
 };
+</script>
+
+
+<script>
+/* STEP 46 - Remove existing duplicate valuation records once on startup */
+(function(){
+  function cleanNow(){
+    try{
+      if(typeof getSaved==='function') getSaved();
+      else {
+        const raw=localStorage.getItem('goldValuations');
+        const a=raw?JSON.parse(raw):[];
+        if(Array.isArray(a) && typeof dedupeValuations==='function'){
+          const clean=dedupeValuations(a);
+          localStorage.setItem('goldValuations',JSON.stringify(clean));
+        }
+      }
+      if(typeof renderSaved==='function')renderSaved();
+      if(typeof updateCustomerHistory==='function')updateCustomerHistory();
+      if(typeof updateCustomerGroups==='function')updateCustomerGroups();
+    }catch(e){console.warn('Duplicate cleanup skipped',e);}
+  }
+  document.addEventListener('DOMContentLoaded',cleanNow);
+})();
 </script>
 
 </body>
