@@ -595,7 +595,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <option value="MAHARASHTRA GRAMIN BANK">MAHARASHTRA GRAMIN BANK</option>
 <option value="DNYANDEEP CO-OP SOCIETY LTD">DNYANDEEP CO-OP SOCIETY LTD</option>
 <option value="Other">Other</option>
-</select><input class="itemOther" type="text" placeholder="Enter item name" style="display:none;margin-top:8px"></div>
+</select></div>
 
 <div class="field"><label>Valuation Date</label><input id="valuationDate" type="date"></div>
 <div class="field"><label>Sanctioned Loan Amount (₹)</label><input id="sanctionedLoan" type="number" inputmode="decimal" min="0" step="1" placeholder="Enter sanctioned loan amount"></div>
@@ -2882,6 +2882,72 @@ window.toggleCustomerSummaryGroup=function(btn){
         if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
       }catch(e){console.warn('Bank Management sync skipped',e);}
     },50);
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 51 FIX - Always show Bank Management banks in Valuation dropdown */
+(function(){
+  const KEY='goldValuationBanks';
+
+  function clean(v){
+    return String(v==null?'':v).trim().replace(/\s+/g,' ');
+  }
+  function esc(v){
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function managedBanks(){
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){a=[];}
+    if(!Array.isArray(a))a=[];
+    const out=[],seen=new Set();
+    a.map(clean).filter(Boolean).forEach(function(n){
+      const k=n.toLowerCase();
+      if(!seen.has(k)){seen.add(k);out.push(n);}
+    });
+    return out;
+  }
+
+  window.syncManagedBankDropdown=function(){
+    const sel=document.getElementById('bankName');
+    if(!sel)return;
+
+    const old=clean(sel.value);
+    const banks=managedBanks();
+    const def=clean(localStorage.getItem('goldValuationDefaultBank')||'');
+    sel.innerHTML='<option value="">Select Bank</option>'+
+      banks.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>';}).join('')+
+      '<option value="Other">Other</option>';
+
+    if(old==='Other') sel.value='Other';
+    else {
+      const exact=banks.find(n=>n===old);
+      const ci=banks.find(n=>n.toLowerCase()===old.toLowerCase());
+      const chosen=exact||ci||def||'';
+      if(chosen)sel.value=chosen;
+    }
+
+    const wrap=document.getElementById('otherBankWrap');
+    if(wrap)wrap.style.display=sel.value==='Other'?'block':'none';
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    window.syncManagedBankDropdown();
+    setTimeout(window.syncManagedBankDropdown,100);
+    setTimeout(window.syncManagedBankDropdown,500);
+    const sel=document.getElementById('bankName');
+    if(sel){
+      sel.addEventListener('focus',window.syncManagedBankDropdown);
+      sel.addEventListener('click',window.syncManagedBankDropdown);
+    }
+  });
+
+  // Keep the dropdown synchronized after Bank Management changes.
+  window.addEventListener('storage',function(e){
+    if(e.key===KEY || e.key==='goldValuationDefaultBank') window.syncManagedBankDropdown();
   });
 })();
 </script>
