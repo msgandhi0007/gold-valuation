@@ -41,48 +41,13 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 @page{size:A4;margin:12mm}
 .cert-signature-block{page-break-inside:avoid}
 @media print{
-  @page{size:A4 portrait;margin:0}
-  html,body{
-    margin:0!important;
-    padding:0!important;
-    width:210mm!important;
-    height:297mm!important;
-    overflow:hidden!important;
-    background:#fff!important;
-  }
-  body > *{display:none!important}
-  body > #certificate{
-    display:block!important;
-    position:relative!important;
-    width:210mm!important;
-    height:297mm!important;
-    margin:0!important;
-    padding:12mm!important;
-    box-sizing:border-box!important;
-    overflow:hidden!important;
-    page-break-after:avoid!important;
-    break-after:avoid-page!important;
-  }
-  #certificate .cert-page{
-    width:100%!important;
-    max-width:none!important;
-    height:273mm!important;
-    min-height:0!important;
-    margin:0!important;
-    padding:8mm!important;
-    box-sizing:border-box!important;
-    overflow:hidden!important;
-    page-break-after:avoid!important;
-    break-after:avoid-page!important;
-    break-inside:avoid!important;
-  }
-  #certificate .cert-signature-block{
-    page-break-inside:avoid!important;
-    break-inside:avoid!important;
-  }
+  body{background:#fff}
+  footer,.actions,.remove,.primary,.save-manager,.backup-card{display:none!important}
+  .app{display:none!important}
+  .certificate{display:block!important}
 }
 
-@media print{footer,.actions,.remove,.primary,.save-manager,.backup-card{display:none!important}.app{display:none!important;padding-bottom:0;max-width:none}}
+@media print{footer,.actions,.remove,.primary,.save-manager{display:none!important}.app{padding-bottom:0;max-width:none}}
 .save-manager{position:fixed;inset:0;background:#0008;z-index:20;display:none;padding:18px;overflow:auto}
 .save-box{max-width:520px;margin:30px auto;background:#fff;border-radius:18px;padding:16px;box-shadow:0 12px 40px #0005}
 .save-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.save-top h2{margin:0;font-size:20px}
@@ -301,16 +266,32 @@ al App Cover */
  .s33-bank-actions{width:100%}
 }
 
+/* Main menu */
+.menu-btn{position:absolute;top:18px;right:16px;width:46px;height:46px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff22;color:#fff;font-size:24px;font-weight:800}
+header{position:relative;padding-right:72px}
+.menu-overlay{display:none;position:fixed;inset:0;background:#0008;z-index:1000}
+.menu-overlay.open{display:block}
+.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;background:#fff;box-shadow:-10px 0 35px #0003;padding:18px;overflow:auto}
+.menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.menu-head h2{margin:0;font-size:20px}
+.menu-close{border:0;background:#f1eee7;border-radius:10px;padding:8px 12px;font-size:18px}
+.menu-list{display:grid;gap:9px}.menu-item{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:13px;padding:14px;font-size:15px;font-weight:750}
+.menu-item small{display:block;font-size:11px;font-weight:500;color:#777;margin-top:3px}
+.menu-only-section{display:none!important}
+body.menu-viewing .menu-only-section{display:block!important}
+body.menu-viewing #valuation-main-sections{display:none!important}
+@media print{.menu-btn,.menu-overlay{display:none!important}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
+<button class="menu-btn" type="button" aria-label="Open menu" onclick="openAppMenu()">☰</button>
 <div class="brand">Gold Valuation</div><div class="sub">Simple jewellery valuation & LTV calculator</div>
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
-<section class="card dashboard-card" id="dashboard">
+<section class="menu-only-section" class="card dashboard-card" id="dashboard">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Dashboard</h2>
@@ -330,7 +311,7 @@ al App Cover */
     <div id="dashHistory"></div>
   </div>
 </section>
-<section class="card report-card" id="reports">
+<section class="menu-only-section" class="card report-card" id="reports">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Bank & Monthly Reports</h2>
@@ -374,7 +355,7 @@ al App Cover */
   <div class="report-note">Select a bank and/or month to filter the report. Totals update automatically.</div>
 </section>
 
-<section class="card" id="bankStatementReport">
+<section class="menu-only-section" class="card" id="bankStatementReport">
   <div class="itemhead">
     <div>
       <h2>Bank-wise Customer Report</h2>
@@ -416,7 +397,7 @@ al App Cover */
 </section>
 
 
-<section class="card s32-backup-card" id="dataSafetyBackup">
+<section class="menu-only-section" class="card s32-backup-card" id="dataSafetyBackup">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Data Safety & Backup</h2>
@@ -433,7 +414,7 @@ al App Cover */
   <div class="s32-reminder">Backup includes saved valuations, customer details, bank information, sanctioned loan amounts and app settings stored by this app.</div>
 </section>
 
-<section class="card customer-history-card" id="customerHistory" style="display:block!important;visibility:visible!important">
+<section class="menu-only-section" class="card customer-history-card" id="customerHistory" style="display:block!important;visibility:visible!important">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Customer History</h2>
@@ -470,7 +451,7 @@ al App Cover */
 
 
 
-<section class="card s33-bank-card" id="bankManagement33">
+<section class="menu-only-section" class="card s33-bank-card" id="bankManagement33">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
     <div>
       <h2 style="margin:0">Bank Management</h2>
@@ -488,6 +469,7 @@ al App Cover */
   <div id="s33BankList" class="s33-bank-list"></div>
 </section>
 
+<div id="valuation-main-sections">
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
 <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
@@ -524,6 +506,7 @@ al App Cover */
 </div>
 </section>
 <section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
+</div>
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
@@ -549,6 +532,18 @@ al App Cover */
     <div id="savedList"></div>
   </div>
 </div>
+
+<div id="appMenu" class="menu-overlay" onclick="if(event.target===this)closeAppMenu()"><div class="menu-panel">
+<div class="menu-head"><h2>Menu</h2><button class="menu-close" type="button" onclick="closeAppMenu()">✕</button></div>
+<div class="menu-list">
+<button class="menu-item" onclick="showMenuSection('dashboard')">📊 Dashboard<small>Valuation overview & recent history</small></button>
+<button class="menu-item" onclick="showMenuSection('reports')">📈 Bank & Monthly Reports<small>Valuation and sanctioned-loan overview</small></button>
+<button class="menu-item" onclick="showMenuSection('bankStatementReport')">🏦 Bank-wise Customer Report<small>Customer and valuation report by bank</small></button>
+<button class="menu-item" onclick="showMenuSection('dataSafetyBackup')">🛡️ Data Safety & Backup<small>Backup and restore your app data</small></button>
+<button class="menu-item" onclick="showMenuSection('customerHistory')">👤 Customer History<small>Find previous valuations by customer</small></button>
+<button class="menu-item" onclick="showMenuSection('bankManagement33')">🏛️ Bank Management<small>Add, rename, remove and set default bank</small></button>
+<button class="menu-item" onclick="showValuationScreen()">💰 Valuation<small>Return to the main valuation screen</small></button>
+</div></div></div>
 
 <div id="certificate" class="certificate">
   <div class="cert-page">
@@ -2087,6 +2082,32 @@ document.addEventListener('DOMContentLoaded',()=>{
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
+<script>
+(function(){
+const ids=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
+window.openAppMenu=()=>document.getElementById('appMenu')?.classList.add('open');
+window.closeAppMenu=()=>document.getElementById('appMenu')?.classList.remove('open');
+window.showValuationScreen=()=>{
+ document.body.classList.remove('menu-viewing'); ids.forEach(id=>document.getElementById(id)?.classList.add('menu-only-section'));
+ closeAppMenu(); window.scrollTo({top:0,behavior:'smooth'});
+};
+window.showMenuSection=id=>{
+ ids.forEach(x=>document.getElementById(x)?.classList.add('menu-only-section'));
+ const e=document.getElementById(id); if(!e)return;
+ e.classList.remove('menu-only-section'); document.body.classList.add('menu-viewing'); closeAppMenu();
+ setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'start'}),50);
+ try{
+  if(id==='dashboard'&&typeof updateDashboard==='function')updateDashboard();
+  if(id==='reports'&&typeof updateReports==='function')updateReports();
+  if(id==='bankStatementReport'&&typeof refreshBankStatementReport==='function')refreshBankStatementReport();
+  if(id==='customerHistory'&&typeof updateCustomerHistory==='function')updateCustomerHistory();
+  if(id==='bankManagement33'&&typeof window.renderBankManagement33==='function')window.renderBankManagement33();
+ }catch(e){}
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAppMenu()});
+})();
+</script>
+
 </body></html>`;
     const w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups for the PDF report.');return;}
