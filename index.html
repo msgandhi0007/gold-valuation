@@ -285,6 +285,13 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
 #oldBackupRestore{display:none!important}
 @media print{.menu-btn,.menu-overlay{display:none!important}}
 
+
+/* STEP 42 - Back button for every menu section */
+.menu-back-btn{
+  width:100%;min-height:46px;margin:0 0 12px 0;border:1px solid var(--line);
+  border-radius:12px;background:#fff;font-size:15px;font-weight:800;
+}
+
 </style>
 </head>
 <body>
@@ -2650,6 +2657,31 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.addEventListener('DOMContentLoaded',function(){
     showValuationScreen();
   });
+})();
+</script>
+
+
+<script>
+/* STEP 42 - Add Back to Valuation button to every menu option */
+(function(){
+  const ids=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
+
+  function addBackButtons(){
+    ids.forEach(function(id){
+      const section=document.getElementById(id);
+      if(!section || section.querySelector('.menu-back-btn')) return;
+
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='menu-back-btn';
+      btn.textContent='← Back to Valuation';
+      btn.onclick=function(){ showValuationScreen(); };
+
+      section.insertBefore(btn, section.firstElementChild);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded',addBackButtons);
 })();
 </script>
 
