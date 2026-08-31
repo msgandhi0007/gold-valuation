@@ -886,7 +886,7 @@ function printCertificate(){
     document.querySelectorAll('.item').forEach(el=>{
       no++;
       const sel=el.querySelector('.itemName');
-      const n=sel ? (sel.value||'Item '+no) : 'Item '+no;
+      const n=(typeof getItemName==='function' ? getItemName(el) : (sel ? (sel.value||'Item '+no) : 'Item '+no));
       const g=num(el.querySelector('.gross')?.value);
       const s=num(el.querySelector('.stone')?.value);
       const p=num(el.querySelector('.purity')?.value);
@@ -967,7 +967,7 @@ const rate=num(document.getElementById('rate').value);let tg=0,ts=0,tn=0,tr=0,tv
 document.querySelectorAll('.item').forEach(el=>{no++;const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rate;
 tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
 el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
-rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
+rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
 document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
 document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
 }
@@ -1243,7 +1243,7 @@ window._draftCertificateNo=null;
 addItem();calculate()}
 async function shareResult(){
 let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
-document.querySelectorAll('.item').forEach((el,i)=>{const n=el.querySelector('.itemName').value||'Item '+(i+1),g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,r=Math.floor((pure+1e-9)*10)/10;t+=`${i+1}. ${n}\nGross: ${g.toFixed(2)} g\nStone: ${s.toFixed(2)} g\nNet: ${net.toFixed(2)} g\nPurity: ${p.toFixed(2)}%\nPure Gold: ${pure.toFixed(2)} g\nValue: ${money(r*num(rate.value))}\n\n`});
+document.querySelectorAll('.item').forEach((el,i)=>{const n=(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)||'Item '+(i+1),g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,r=Math.floor((pure+1e-9)*10)/10;t+=`${i+1}. ${n}\nGross: ${g.toFixed(2)} g\nStone: ${s.toFixed(2)} g\nNet: ${net.toFixed(2)} g\nPurity: ${p.toFixed(2)}%\nPure Gold: ${pure.toFixed(2)} g\nValue: ${money(r*num(rate.value))}\n\n`});
 t+='Total Value: '+tv.textContent+'\nLTV 65%: '+l65.textContent+'\nLTV 70%: '+l70.textContent;
 try{if(navigator.share)await navigator.share({title:'Gold Valuation',text:t});else if(navigator.clipboard){await navigator.clipboard.writeText(t);alert('Valuation copied. You can paste it in WhatsApp.')}else prompt('Copy this valuation:',t)}catch(e){if(e.name!=='AbortError')prompt('Copy this valuation:',t)}
 }
@@ -2662,7 +2662,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         if($('cLoan')) $('cLoan').textContent=typeof money==='function'?money(Number($('sanctionedLoan')?.value||0)):'₹'+Number($('sanctionedLoan')?.value||0);
         let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,no=0;
         document.querySelectorAll('.item').forEach(el=>{
-          no++; const n=el.querySelector('.itemName')?.value||'Item '+no;
+          no++; const n=(typeof getItemName==='function' ? getItemName(el) : (el.querySelector('.itemName')?.value||'Item '+no));
           const g=Number(el.querySelector('.gross')?.value||0), s=Number(el.querySelector('.stone')?.value||0), p=Number(el.querySelector('.purity')?.value||0);
           const net=Math.max(0,g-s), pure=net*p/100, rounded=Math.floor((pure+1e-9)*10)/10, value=rounded*rateVal;
           tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;
