@@ -2177,7 +2177,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         '<div class="s33-bank-actions">'+
         '<button type="button" data-action="default" data-bank="'+safe+'">Set Default</button>'+
         '<button type="button" data-action="rename" data-bank="'+safe+'">Rename</button>'+
-        '<button type="button" onclick="window.deleteManagedBank47('+JSON.stringify(name).replace(/</g,'\\u003c')+');return false;">Delete</button>'+
+        '<button type="button" data-action="delete" data-bank="'+safe+'">Delete</button>'+
         '</div></div>';
     }).join('');
     status();
@@ -2285,6 +2285,37 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(e){return [];}
   }
 
+
+  function deleteBank51(name){
+    name=cleanName(name);
+    if(!name)return;
+
+    const a=banks();
+    const key=name.toLowerCase();
+    const exists=a.some(x=>String(x).trim().toLowerCase()===key);
+    if(!exists){alert('Bank not found.');return;}
+
+    if(!confirm('Delete '+name+' from Bank Management? Existing saved valuations will NOT be deleted.')) return;
+
+    const next=a.filter(x=>String(x).trim().toLowerCase()!==key);
+    localStorage.setItem(KEY,JSON.stringify(next));
+
+    const def=cleanName(localStorage.getItem('goldValuationDefaultBank')||'');
+    if(def.toLowerCase()===key){
+      localStorage.setItem('goldValuationDefaultBank',next[0]||'');
+    }
+
+    render();
+
+    try{if(typeof window.setupBankDropdown==='function')window.setupBankDropdown();}catch(e){}
+    try{if(typeof window.syncAllReportBankSelectors==='function')window.syncAllReportBankSelectors();}catch(e){}
+    try{if(typeof window.refreshBankStatementReport==='function')window.refreshBankStatementReport();}catch(e){}
+    try{if(typeof renderSaved==='function')renderSaved();}catch(e){}
+    try{if(typeof updateReports==='function')updateReports();}catch(e){}
+
+    alert(name+' deleted successfully.');
+  }
+
   document.addEventListener('DOMContentLoaded',function(){
     render();
     const addBtn=document.getElementById('s33BankAddBtn');
@@ -2304,6 +2335,17 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(action==='rename')rename(name);
       if(action==='delete')remove(name);
     });
+
+  document.addEventListener('click',function(e){
+    const btn=e.target && e.target.closest ? e.target.closest('#s33BankList button[data-action="delete"]') : null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopPropagation();
+    const name=btn.getAttribute('data-bank')||'';
+    deleteBank51(name);
+  },true);
+
+
   });
 
   // Make the existing app's bank setup use the managed list.
