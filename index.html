@@ -381,6 +381,20 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
 /* STEP 47 FIX - Menu sections must not show the main valuation form */
 body.menu-viewing #valuation-main-sections{display:none!important}
 
+
+/* STEP 51 - Bank Management polish */
+.s33-bank-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.s33-bank-actions{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}
+.s33-bank-actions button{min-width:92px}
+.s33-bank-actions button[data-action="default"]{font-weight:700}
+.s33-bank-badge{display:inline-block;margin-left:8px;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:800}
+.s33-bank-name{font-weight:750;line-height:1.35}
+@media(max-width:520px){
+  .s33-bank-row{align-items:flex-start;flex-direction:column}
+  .s33-bank-actions{width:100%;justify-content:flex-start}
+  .s33-bank-actions button{flex:1 1 30%}
+}
+
 </style>
 </head>
 <body>
@@ -2598,17 +2612,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(action==='delete')remove(name);
     });
 
-  document.addEventListener('click',function(e){
-    const btn=e.target && e.target.closest ? e.target.closest('#s33BankList button[data-action="delete"]') : null;
-    if(!btn)return;
-    e.preventDefault();
-    e.stopPropagation();
-    const name=btn.getAttribute('data-bank')||'';
-    deleteBank51(name);
-  },true);
-
-
-  });
 
   // Make the existing app's bank setup use the managed list.
   const oldSetup=window.setupBankDropdown;
@@ -2864,6 +2867,22 @@ window.toggleCustomerSummaryGroup=function(btn){
     }catch(e){console.warn('Duplicate cleanup skipped',e);}
   }
   document.addEventListener('DOMContentLoaded',cleanNow);
+})();
+</script>
+
+
+<script>
+/* STEP 51 - Final bank selector synchronization */
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){
+      try{
+        if(typeof window.refreshBankManagement33==='function') window.refreshBankManagement33();
+        if(typeof window.setupBankDropdown==='function') window.setupBankDropdown();
+        if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
+      }catch(e){console.warn('Bank Management sync skipped',e);}
+    },50);
+  });
 })();
 </script>
 
