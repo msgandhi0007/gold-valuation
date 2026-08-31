@@ -317,6 +317,25 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
   font-size:11px;color:#777;margin-top:4px;font-weight:600;
 }
 
+
+/* STEP 44 FIX - Explicit clickable customer list */
+.customer-name-link{
+  display:inline-flex;align-items:center;gap:4px;
+  border:0;background:transparent;padding:0;margin:0;
+  font:inherit;font-size:17px;font-weight:850;color:#111;
+  cursor:pointer;text-align:left;
+}
+.customer-name-link::after{content:'›';font-size:24px;line-height:16px;opacity:.5}
+.customer-summary-link{
+  display:inline-flex;align-items:center;gap:4px;
+  border:0;background:transparent;padding:0;margin:0;
+  font:inherit;font-size:18px;font-weight:850;color:#111;
+  cursor:pointer;text-align:left;
+}
+.customer-summary-link::after{content:'›';font-size:24px;line-height:16px;opacity:.5}
+.customer-click-hint{font-size:11px;color:#777;margin-top:4px;font-weight:600}
+.history-row{cursor:default}
+
 </style>
 </head>
 <body>
@@ -1692,11 +1711,9 @@ function updateCustomerHistory(){
     const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
     const val=typeof dashboardValue==='function'?dashboardValue(r):0;
     const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
-    return `<div class="history-row" role="button" tabindex="0"
-      onclick="openHistoryRecord(window._historyShown[${i}])"
-      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHistoryRecord(window._historyShown[${i}])}">
+    return `<div class="history-row">
       <div class="history-top">
-        <div><div class="history-name">${name}</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
+        <div><button type="button" class="customer-name-link" onclick="openHistoryRecord(window._historyShown[${i}])">${name}</button><div class="customer-click-hint">Tap customer name to open valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
         <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
       </div>
       <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
@@ -1769,10 +1786,8 @@ function updateCustomerGroups(){
       </div>`;
     }).join('');
     return `<div class="customer-group">
-      <div class="customer-group-head" role="button" tabindex="0"
-        onclick="openHistoryRecord(window._groupRecords[${g.records[g.records.length-1].idx}])"
-        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHistoryRecord(window._groupRecords[${g.records[g.records.length-1].idx}])}">
-        <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint">Tap customer to open latest valuation</div></div>
+      <div class="customer-group-head">
+        <div><button type="button" class="customer-summary-link" onclick="openHistoryRecord(window._groupRecords[${g.records[g.records.length-1].idx}])">${esc(g.name)}</button><div class="customer-click-hint">Tap customer name to open latest valuation</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint">Tap customer to open latest valuation</div></div>
         <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}" onclick="event.stopPropagation()">📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
