@@ -648,13 +648,24 @@ function setupBankDropdown(){
 
 function makeCertificateNo(){
   const key='goldValuationNextCert';
-  let n=parseInt(localStorage.getItem(key)||'0',10)+1;
+  let n=parseInt(localStorage.getItem(key)||'0',10);
+  if(!Number.isFinite(n)||n<0)n=0;
+  n+=1;
   localStorage.setItem(key,String(n));
   return 'RJ/'+new Date().getFullYear()+'/'+String(n).padStart(5,'0');
 }
+function ensureCertificateNo(d){
+  if(!d || typeof d!=='object') return makeCertificateNo();
+
+  // A saved record keeps its original certificate number forever.
+  if(d.certificateNo) return d.certificateNo;
+
+  const no=makeCertificateNo();
+  d.certificateNo=no;
+  return no;
+}
 function getCertificateNo(d){
-  if(d && d.certificateNo) return d.certificateNo;
-  return makeCertificateNo();
+  return ensureCertificateNo(d);
 }
 
 function pdfFileName(name,date){
@@ -662,6 +673,19 @@ const safeName=String(name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').rep
 const safeDate=String(date||'').trim().replace(/[^0-9-]/g,'-');
 return (safeName||'Customer')+' - '+(safeDate||'Valuation')+'.pdf';
 }
+function persistCurrentCertificateNo(){
+  try{
+    const d=window._currentSavedRecord;
+    if(!d || !d.id || !d.certificateNo)return;
+    const a=getSaved();
+    const i=a.findIndex(r=>r && r.id===d.id);
+    if(i>=0){
+      a[i].certificateNo=d.certificateNo;
+      localStorage.setItem('goldValuations',JSON.stringify(a));
+    }
+  }catch(e){}
+}
+
 function printCertificate(){
   try{
     const $=id=>document.getElementById(id);
@@ -679,7 +703,7 @@ function printCertificate(){
 
     const rateVal=num(rateEl ? rateEl.value : 0);
     const certNoEl=$('cCertNo');
-    if(certNoEl) certNoEl.textContent=getCertificateNo(window._currentSavedRecord||null);
+    if(certNoEl){ certNoEl.textContent=getCertificateNo(window._currentSavedRecord||null); persistCurrentCertificateNo(); }
     $('cBank').textContent=selectedBankName()||'—';
     $('cName').textContent=name||'—';
     $('cMobile').textContent=customerMobileEl ? (customerMobileEl.value||'—') : '—';
@@ -865,6 +889,7 @@ if(existingIndex>=0){
 }else{
   a.push(d);
 }
+ensureCertificateNo(a);
 localStorage.setItem('goldValuations',JSON.stringify(a));
 alert(existingIndex>=0 ? 'Valuation updated successfully under '+d.customer.bank+'. Form has been reset for the next customer.' : 'Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
 resetAfterSave();
@@ -872,6 +897,20 @@ resetAfterSave();
 function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
 function closeLoad(){document.getElementById('saveManager').style.display='none'}
 function loadData(){openLoad()}
+function migrateCertificateNumbers(){
+  try{
+    const a=getSaved();
+    let changed=false;
+    a.forEach(function(r){
+      if(r && !r.certificateNo){
+        ensureCertificateNo(r);
+        changed=true;
+      }
+    });
+    if(changed)localStorage.setItem('goldValuations',JSON.stringify(a));
+  }catch(e){}
+}
+
 function renderSaved(){
   const all=getSaved();
   const q=(document.getElementById('saveSearch')?.value||'').trim().toLowerCase();
@@ -938,7 +977,9 @@ function renderSaved(){
   }).join('');
 }
 function loadSaved(i){
-const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
+const a=getSaved(),d=a[i];if(!d)return;
+ensureCertificateNo(d);
+window._currentSavedRecord=d;
 customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
   d.sanctionedLoan ?? d.sanctioned ?? d.loanAmount ?? d.customer?.sanctionedLoan ?? '';
@@ -1259,6 +1300,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
 
   document.addEventListener('DOMContentLoaded',function(){
+  try{migrateCertificateNumbers();}catch(e){}
+
     window.syncAllReportBankSelectors();
     setTimeout(function(){
       try{ if(typeof window.updateReports==='function') window.updateReports(); }catch(e){}
@@ -2391,7 +2434,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const rateVal=typeof num==='function'?num($('rate')?.value):Number($('rate')?.value||0);
       const cert=$('certificate');
       if(cert){
-        if($('cCertNo')) $('cCertNo').textContent=typeof getCertificateNo==='function'?getCertificateNo(window._currentSavedRecord||null):'';
+        if($('cCertNo')){ $('cCertNo').textContent=typeof getCertificateNo==='function'?getCertificateNo(window._currentSavedRecord||null):''; if(typeof persistCurrentCertificateNo==='function')persistCurrentCertificateNo(); }
         if($('cBank')) $('cBank').textContent=(typeof selectedBankName==='function'?selectedBankName():'')||'—';
         if($('cName')) $('cName').textContent=name||'—';
         if($('cMobile')) $('cMobile').textContent=$('customerMobile')?.value||'—';
