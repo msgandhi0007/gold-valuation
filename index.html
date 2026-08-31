@@ -266,19 +266,23 @@ al App Cover */
  .s33-bank-actions{width:100%}
 }
 
-/* Main menu */
-.menu-btn{position:absolute;top:18px;right:16px;width:46px;height:46px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff22;color:#fff;font-size:24px;font-weight:800}
+
+/* MAIN MENU - Step 41 */
+.menu-btn{position:absolute;top:18px;right:16px;width:46px;height:46px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff22;color:#fff;font-size:24px;font-weight:800;z-index:20}
 header{position:relative;padding-right:72px}
-.menu-overlay{display:none;position:fixed;inset:0;background:#0008;z-index:1000}
-.menu-overlay.open{display:block}
-.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;background:#fff;box-shadow:-10px 0 35px #0003;padding:18px;overflow:auto}
-.menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.menu-head h2{margin:0;font-size:20px}
+.menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:5000}
+.menu-overlay.open{display:block!important}
+.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;box-sizing:border-box;background:#fff;box-shadow:-10px 0 35px rgba(0,0,0,.25);padding:18px;overflow:auto}
+.menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.menu-head h2{margin:0;font-size:21px}
 .menu-close{border:0;background:#f1eee7;border-radius:10px;padding:8px 12px;font-size:18px}
-.menu-list{display:grid;gap:9px}.menu-item{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:13px;padding:14px;font-size:15px;font-weight:750}
+.menu-list{display:grid;gap:9px}
+.menu-item{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:13px;padding:14px;font-size:15px;font-weight:750}
 .menu-item small{display:block;font-size:11px;font-weight:500;color:#777;margin-top:3px}
-.menu-only-section{display:none!important}
-body.menu-viewing .menu-only-section{display:block!important}
-body.menu-viewing #valuation-main-sections{display:none!important}
+.menu-section{display:none!important}
+body.menu-viewing .menu-section.menu-active{display:block!important}
+#customerHistory.menu-section[style]{display:none!important}
+#oldBackupRestore{display:none!important}
 @media print{.menu-btn,.menu-overlay{display:none!important}}
 
 </style>
@@ -291,7 +295,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
-<section class="menu-only-section" class="card dashboard-card" id="dashboard">
+<section class="menu-section card dashboard-card" id="dashboard">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Dashboard</h2>
@@ -311,7 +315,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
     <div id="dashHistory"></div>
   </div>
 </section>
-<section class="menu-only-section" class="card report-card" id="reports">
+<section class="menu-section card report-card" id="reports">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Bank & Monthly Reports</h2>
@@ -355,7 +359,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   <div class="report-note">Select a bank and/or month to filter the report. Totals update automatically.</div>
 </section>
 
-<section class="menu-only-section" class="card" id="bankStatementReport">
+<section class="menu-section card" id="bankStatementReport">
   <div class="itemhead">
     <div>
       <h2>Bank-wise Customer Report</h2>
@@ -397,7 +401,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </section>
 
 
-<section class="menu-only-section" class="card s32-backup-card" id="dataSafetyBackup">
+<section class="menu-section card s32-backup-card" id="dataSafetyBackup">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Data Safety & Backup</h2>
@@ -414,7 +418,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   <div class="s32-reminder">Backup includes saved valuations, customer details, bank information, sanctioned loan amounts and app settings stored by this app.</div>
 </section>
 
-<section class="menu-only-section" class="card customer-history-card" id="customerHistory" style="display:block!important;visibility:visible!important">
+<section class="menu-section card customer-history-card" id="customerHistory">
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Customer History</h2>
@@ -451,7 +455,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 
 
 
-<section class="menu-only-section" class="card s33-bank-card" id="bankManagement33">
+<section class="menu-section card s33-bank-card" id="bankManagement33">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
     <div>
       <h2 style="margin:0">Bank Management</h2>
@@ -533,17 +537,24 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   </div>
 </div>
 
-<div id="appMenu" class="menu-overlay" onclick="if(event.target===this)closeAppMenu()"><div class="menu-panel">
-<div class="menu-head"><h2>Menu</h2><button class="menu-close" type="button" onclick="closeAppMenu()">✕</button></div>
-<div class="menu-list">
-<button class="menu-item" onclick="showMenuSection('dashboard')">📊 Dashboard<small>Valuation overview & recent history</small></button>
-<button class="menu-item" onclick="showMenuSection('reports')">📈 Bank & Monthly Reports<small>Valuation and sanctioned-loan overview</small></button>
-<button class="menu-item" onclick="showMenuSection('bankStatementReport')">🏦 Bank-wise Customer Report<small>Customer and valuation report by bank</small></button>
-<button class="menu-item" onclick="showMenuSection('dataSafetyBackup')">🛡️ Data Safety & Backup<small>Backup and restore your app data</small></button>
-<button class="menu-item" onclick="showMenuSection('customerHistory')">👤 Customer History<small>Find previous valuations by customer</small></button>
-<button class="menu-item" onclick="showMenuSection('bankManagement33')">🏛️ Bank Management<small>Add, rename, remove and set default bank</small></button>
-<button class="menu-item" onclick="showValuationScreen()">💰 Valuation<small>Return to the main valuation screen</small></button>
-</div></div></div>
+
+<div id="appMenu" class="menu-overlay" onclick="if(event.target===this)closeAppMenu()">
+  <div class="menu-panel">
+    <div class="menu-head">
+      <h2>Menu</h2>
+      <button class="menu-close" type="button" onclick="closeAppMenu()">✕</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item" type="button" onclick="showMenuSection('dashboard')">📊 Dashboard<small>Valuation overview & recent history</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('reports')">📈 Bank & Monthly Reports<small>Valuation and sanctioned-loan overview</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('bankStatementReport')">🏦 Bank-wise Customer Report<small>Customer and valuation report by bank</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('dataSafetyBackup')">🛡️ Data Safety & Backup<small>Backup and restore app data</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('customerHistory')">👤 Customer History<small>Find previous valuations by customer</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('bankManagement33')">🏛️ Bank Management<small>Add, rename, remove and set default bank</small></button>
+      <button class="menu-item" type="button" onclick="showValuationScreen()">💰 Valuation<small>Return to the main valuation screen</small></button>
+    </div>
+  </div>
+</div>
 
 <div id="certificate" class="certificate">
   <div class="cert-page">
@@ -590,7 +601,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </div>
 
 
-<section class="card backup-card" style="margin-top:14px">
+<section id="oldBackupRestore" class="card backup-card" style="margin-top:14px">
   <h2>Backup & Restore</h2>
   <p style="font-size:13px;opacity:.72;margin-top:-4px">
     Protect your saved valuations before changing or updating the app.
@@ -2082,32 +2093,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
-<script>
-(function(){
-const ids=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
-window.openAppMenu=()=>document.getElementById('appMenu')?.classList.add('open');
-window.closeAppMenu=()=>document.getElementById('appMenu')?.classList.remove('open');
-window.showValuationScreen=()=>{
- document.body.classList.remove('menu-viewing'); ids.forEach(id=>document.getElementById(id)?.classList.add('menu-only-section'));
- closeAppMenu(); window.scrollTo({top:0,behavior:'smooth'});
-};
-window.showMenuSection=id=>{
- ids.forEach(x=>document.getElementById(x)?.classList.add('menu-only-section'));
- const e=document.getElementById(id); if(!e)return;
- e.classList.remove('menu-only-section'); document.body.classList.add('menu-viewing'); closeAppMenu();
- setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'start'}),50);
- try{
-  if(id==='dashboard'&&typeof updateDashboard==='function')updateDashboard();
-  if(id==='reports'&&typeof updateReports==='function')updateReports();
-  if(id==='bankStatementReport'&&typeof refreshBankStatementReport==='function')refreshBankStatementReport();
-  if(id==='customerHistory'&&typeof updateCustomerHistory==='function')updateCustomerHistory();
-  if(id==='bankManagement33'&&typeof window.renderBankManagement33==='function')window.renderBankManagement33();
- }catch(e){}
-};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAppMenu()});
-})();
-</script>
-
 </body></html>`;
     const w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups for the PDF report.');return;}
@@ -2609,6 +2594,62 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAppMenu()});
     if(typeof calculate==='function')calculate(); if(typeof closeLoad==='function')closeLoad();
     await sharePdfFile();
   };
+})();
+</script>
+
+
+<script>
+/* STEP 41 - Main menu navigation */
+(function(){
+  const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
+
+  window.openAppMenu=function(){
+    const m=document.getElementById('appMenu');
+    if(m) m.classList.add('open');
+  };
+  window.closeAppMenu=function(){
+    const m=document.getElementById('appMenu');
+    if(m) m.classList.remove('open');
+  };
+
+  window.showValuationScreen=function(){
+    menuIds.forEach(function(id){
+      const el=document.getElementById(id);
+      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
+    });
+    document.body.classList.remove('menu-viewing');
+    closeAppMenu();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.showMenuSection=function(id){
+    menuIds.forEach(function(x){
+      const el=document.getElementById(x);
+      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
+    });
+    const target=document.getElementById(id);
+    if(!target) return;
+    target.classList.add('menu-section','menu-active');
+    document.body.classList.add('menu-viewing');
+    closeAppMenu();
+    setTimeout(function(){target.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    try{
+      if(id==='dashboard' && typeof updateDashboard==='function') updateDashboard();
+      if(id==='reports' && typeof updateReports==='function') updateReports();
+      if(id==='bankStatementReport' && typeof refreshBankStatementReport==='function') refreshBankStatementReport();
+      if(id==='customerHistory' && typeof updateCustomerHistory==='function') updateCustomerHistory();
+      if(id==='bankManagement33' && typeof window.renderBankManagement33==='function') window.renderBankManagement33();
+    }catch(err){}
+  };
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') closeAppMenu();
+  });
+
+  // Ensure the app starts on the valuation screen.
+  document.addEventListener('DOMContentLoaded',function(){
+    showValuationScreen();
+  });
 })();
 </script>
 
