@@ -413,6 +413,24 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 .report-table{min-width:560px}
 .report-note{margin-top:10px}
 
+
+/* STEP 57 - Mobile-friendly Bank & Monthly Reports table */
+.report-table-wrap{width:100%;overflow:hidden}
+.report-table{width:100%;table-layout:fixed;border-collapse:collapse}
+.report-table th,.report-table td{padding:9px 7px;word-break:break-word;overflow-wrap:anywhere}
+.report-table th:nth-child(1),.report-table td:nth-child(1){width:38%}
+.report-table th:nth-child(2),.report-table td:nth-child(2){width:18%;text-align:center}
+.report-table th:nth-child(3),.report-table td:nth-child(3){width:22%;text-align:right}
+.report-table th:nth-child(4),.report-table td:nth-child(4){width:22%;text-align:right}
+@media(max-width:520px){
+  .report-table{font-size:13px}
+  .report-table th,.report-table td{padding:8px 5px}
+  .report-table th:nth-child(1),.report-table td:nth-child(1){width:38%}
+  .report-table th:nth-child(2),.report-table td:nth-child(2){width:16%}
+  .report-table th:nth-child(3),.report-table td:nth-child(3){width:23%}
+  .report-table th:nth-child(4),.report-table td:nth-child(4){width:23%}
+}
+
 </style>
 </head>
 <body>
@@ -3108,6 +3126,25 @@ window.toggleCustomerSummaryGroup=function(btn){
     renderBankManagementStep52();
     setTimeout(renderBankManagementStep52,100);
     setTimeout(renderBankManagementStep52,500);
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 57 - Apply mobile report table layout to dynamically generated tables */
+(function(){
+  function fixReportTables(){
+    document.querySelectorAll('#reportTableWrap table, #reportTable table, .reports-section table').forEach(function(table){
+      table.classList.add('report-table');
+      const wrap=table.parentElement;
+      if(wrap)wrap.classList.add('report-table-wrap');
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    fixReportTables();
+    setTimeout(fixReportTables,100);
+    setTimeout(fixReportTables,500);
   });
 })();
 </script>
