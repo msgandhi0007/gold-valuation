@@ -250,6 +250,22 @@ al App Cover */
 .s32-reminder{margin-top:10px;font-size:12px;opacity:.72}
 @media(max-width:520px){.s32-actions{grid-template-columns:1fr}}
 
+
+/* STEP 33 - Bank Management */
+.s33-bank-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+.s33-bank-list{display:grid;gap:8px;margin-top:12px}
+.s33-bank-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid #e3dfd4;border-radius:12px;background:#fff}
+.s33-bank-name{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.s33-bank-badge{font-size:11px;opacity:.7;margin-left:6px}
+.s33-bank-actions{display:flex;gap:6px;flex-wrap:wrap}
+.s33-bank-actions button{padding:7px 9px;font-size:12px}
+.s33-bank-add{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+.s33-bank-status{margin-top:10px;padding:9px;border-radius:10px;background:#f4f1e9;font-size:12px}
+@media(max-width:520px){
+ .s33-bank-add{grid-template-columns:1fr}
+ .s33-bank-actions{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -417,6 +433,25 @@ al App Cover */
 </section>
 
 
+
+
+<section class="card s33-bank-card" id="bankManagement33">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <div>
+      <h2 style="margin:0">Bank Management</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Add, rename, remove and set your default bank</div>
+    </div>
+    <button type="button" id="s33BankRefresh">↻ Refresh</button>
+  </div>
+
+  <div class="s33-bank-add">
+    <input id="s33BankNewName" type="text" maxlength="80" placeholder="Enter new bank name">
+    <button type="button" class="primary" id="s33BankAddBtn">＋ Add Bank</button>
+  </div>
+
+  <div id="s33BankStatus" class="s33-bank-status">Loading banks…</div>
+  <div id="s33BankList" class="s33-bank-list"></div>
+</section>
 
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
@@ -1922,6 +1957,188 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(f)f.addEventListener('change',function(){restore(f.files&&f.files[0]);});
     status();
   });
+})();
+</script>
+
+
+<script>
+/* STEP 33 FINAL - Bank Management */
+(function(){
+  const KEY='goldValuationBanks';
+  const DEFAULTS=['SBI BANK','IDBI BANK','MAHARASHTRA GRAMIN BANK','DNYANDEEP CO-OP SOCIETY LTD'];
+
+  function cleanName(v){return String(v||'').trim().replace(/\s+/g,' ');}
+  function banks(){
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){a=[];}
+    if(!Array.isArray(a))a=[];
+    a=a.map(cleanName).filter(Boolean);
+    DEFAULTS.forEach(function(x){if(!a.includes(x))a.push(x);});
+    const seen=new Set(), out=[];
+    a.forEach(function(x){const k=x.toLowerCase();if(!seen.has(k)){seen.add(k);out.push(x);}});
+    localStorage.setItem(KEY,JSON.stringify(out));
+    return out;
+  }
+
+  function defaultBank(){
+    const a=banks(), d=cleanName(localStorage.getItem('goldValuationDefaultBank')||'');
+    return a.includes(d)?d:(a[0]||'');
+  }
+
+  function setDefaultBank(name){
+    name=cleanName(name);
+    if(!name)return;
+    localStorage.setItem('goldValuationDefaultBank',name);
+    const sel=document.getElementById('bankName');
+    if(sel && !sel.value)sel.value=name;
+    render();
+  }
+
+  function rebuildSelect(){
+    const sel=document.getElementById('bankName');
+    if(!sel)return;
+    const old=sel.value;
+    const list=banks();
+    sel.innerHTML='<option value="">Select Bank</option>'+
+      list.map(x=>'<option value="'+esc33(x)+'">'+esc33(x)+'</option>').join('')+
+      '<option value="Other">Other</option>';
+    if(old && list.includes(old))sel.value=old;
+    else if(old==='Other')sel.value='Other';
+    else if(!old){
+      const d=defaultBank();
+      if(d)sel.value=d;
+    }
+  }
+
+  function esc33(s){
+    return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function status(){
+    const el=document.getElementById('s33BankStatus');
+    if(!el)return;
+    const a=banks(), d=defaultBank();
+    el.innerHTML='<b>'+a.length+' bank(s)</b> · Default: '+esc33(d||'None');
+  }
+
+  function render(){
+    rebuildSelect();
+    const list=document.getElementById('s33BankList');
+    if(!list)return;
+    const d=defaultBank();
+    list.innerHTML=banks().map(function(name){
+      const safe=esc33(name);
+      return '<div class="s33-bank-row">'+
+        '<div class="s33-bank-name">'+safe+(name===d?'<span class="s33-bank-badge">★ Default</span>':'')+'</div>'+
+        '<div class="s33-bank-actions">'+
+        '<button type="button" data-action="default" data-bank="'+safe+'">Set Default</button>'+
+        '<button type="button" data-action="rename" data-bank="'+safe+'">Rename</button>'+
+        '<button type="button" data-action="delete" data-bank="'+safe+'">Delete</button>'+
+        '</div></div>';
+    }).join('');
+    status();
+  }
+
+  function add(){
+    const input=document.getElementById('s33BankNewName');
+    const name=cleanName(input&&input.value);
+    if(!name){alert('Please enter a bank name.');return;}
+    const a=banks();
+    if(a.some(x=>x.toLowerCase()===name.toLowerCase())){alert('This bank already exists.');return;}
+    a.push(name);
+    localStorage.setItem(KEY,JSON.stringify(a));
+    if(!localStorage.getItem('goldValuationDefaultBank'))localStorage.setItem('goldValuationDefaultBank',name);
+    if(input)input.value='';
+    render();
+    const sel=document.getElementById('bankName');if(sel)sel.value=name;
+    alert(name+' added successfully.');
+  }
+
+  function rename(oldName){
+    const next=cleanName(prompt('Enter the new name for '+oldName+':',oldName));
+    if(!next || next===oldName)return;
+    const a=banks();
+    if(a.some(x=>x.toLowerCase()===next.toLowerCase() && x!==oldName)){
+      alert('A bank with that name already exists.');return;
+    }
+    const idx=a.indexOf(oldName); if(idx<0)return;
+    a[idx]=next;
+    localStorage.setItem(KEY,JSON.stringify(a));
+
+    // Keep historical valuations and reports consistent with the renamed bank.
+    let records=[];
+    try{records=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(records))records=[];}catch(e){records=[];}
+    records.forEach(function(r){
+      if(r && r.customer && r.customer.bank===oldName)r.customer.bank=next;
+    });
+    localStorage.setItem('goldValuations',JSON.stringify(records));
+    if(localStorage.getItem('goldValuationDefaultBank')===oldName)localStorage.setItem('goldValuationDefaultBank',next);
+
+    render();
+    if(typeof renderSaved==='function')renderSaved();
+    if(typeof updateCustomerHistory==='function')updateCustomerHistory();
+    if(typeof updateCustomerGroups==='function')updateCustomerGroups();
+    if(typeof refreshBankStatementReport==='function')refreshBankStatementReport();
+    alert('Bank renamed successfully. Existing records were updated to '+next+'.');
+  }
+
+  function remove(name){
+    const a=banks();
+    const used=getSaved33().some(r=>String(r?.customer?.bank||'')===name);
+    if(used){
+      alert('This bank is used by saved valuations, so it cannot be deleted. Rename it instead to keep your records and reports safe.');
+      return;
+    }
+    if(!confirm('Remove '+name+' from the bank list?'))return;
+    const next=a.filter(x=>x!==name);
+    localStorage.setItem(KEY,JSON.stringify(next));
+    if(localStorage.getItem('goldValuationDefaultBank')===name)
+      localStorage.setItem('goldValuationDefaultBank',next[0]||'');
+    render();
+  }
+
+  function getSaved33(){
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return [];}
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    render();
+    const addBtn=document.getElementById('s33BankAddBtn');
+    const input=document.getElementById('s33BankNewName');
+    const refresh=document.getElementById('s33BankRefresh');
+    const list=document.getElementById('s33BankList');
+
+    if(addBtn)addBtn.addEventListener('click',add);
+    if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter')add();});
+    if(refresh)refresh.addEventListener('click',render);
+    if(list)list.addEventListener('click',function(e){
+      const btn=e.target.closest('button[data-action]');
+      if(!btn)return;
+      const name=btn.getAttribute('data-bank');
+      const action=btn.getAttribute('data-action');
+      if(action==='default')setDefaultBank(name);
+      if(action==='rename')rename(name);
+      if(action==='delete')remove(name);
+    });
+  });
+
+  // Make the existing app's bank setup use the managed list.
+  const oldSetup=window.setupBankDropdown;
+  window.setupBankDropdown=function(){
+    try{if(typeof oldSetup==='function')oldSetup();}catch(e){}
+    rebuildSelect();
+    const sel=document.getElementById('bankName');
+    if(sel && !sel.value){
+      const d=defaultBank();
+      if(d)sel.value=d;
+    }
+  };
+
+  // Ensure the managed bank list is refreshed whenever the form is reset/loaded.
+  window.refreshBankManagement33=render;
 })();
 </script>
 
