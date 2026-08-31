@@ -405,6 +405,14 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 /* STEP 52 - Bank Management loading-state fix */
 #s33BankList:empty::before{content:"No banks found";display:block;padding:14px;color:#666}
 
+
+/* STEP 56 - Bank & Monthly Reports */
+.report-filter-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.report-filter-actions button{min-height:44px;padding:8px 14px;border-radius:10px;font-weight:700}
+.report-table-wrap{overflow-x:auto}
+.report-table{min-width:560px}
+.report-note{margin-top:10px}
+
 </style>
 </head>
 <body>
@@ -469,6 +477,10 @@ body.menu-viewing #valuation-main-sections{display:none!important}
       <label>Month</label>
       <input id="reportMonth" type="month" onchange="updateReports()">
     </div>
+  </div>
+  <div class="report-filter-actions">
+    <button type="button" onclick="setReportCurrentMonth()">📅 Current Month</button>
+    <button type="button" onclick="clearReportFilters()">✕ Clear Filters</button>
   </div>
   <button id="reportExportBtn" type="button" onclick="printBankMonthlyReport()" style="width:100%;margin-top:10px;min-height:50px;background:#b78320;color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:800">📄 Export Selected Report as PDF</button>
 
@@ -1596,6 +1608,20 @@ function reportMonth(r){
   const d=reportDate(r);
   return d.length>=7?d.slice(0,7):'';
 }
+function setReportCurrentMonth(){
+  const m=document.getElementById('reportMonth');
+  if(!m)return;
+  const d=new Date();
+  m.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  updateReports();
+}
+function clearReportFilters(){
+  const b=document.getElementById('reportBank');
+  const m=document.getElementById('reportMonth');
+  if(b)b.value='';
+  if(m)m.value='';
+  updateReports();
+}
 function updateReports(){
   if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
   const bank=(document.getElementById('reportBank')||{}).value||'';
@@ -1642,7 +1668,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     m.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
   }
   updateReports();
-  setInterval(updateReports,2000);
+  window.addEventListener('storage',function(e){ if(e.key==='goldValuations'||e.key==='goldValuationBanks') updateReports(); });
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) updateReports(); });
 });
 
 </script>
@@ -2820,7 +2847,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     setTimeout(function(){target.scrollIntoView({behavior:'smooth',block:'start'});},80);
     try{
       if(id==='dashboard' && typeof updateDashboard==='function') updateDashboard();
-      if(id==='reports' && typeof updateReports==='function') updateReports();
+      if(id==='reports'){ if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors(); if(typeof updateReports==='function') updateReports(); }
       if(id==='bankStatementReport' && typeof refreshBankStatementReport==='function') refreshBankStatementReport();
       if(id==='customerHistory' && typeof updateCustomerHistory==='function') updateCustomerHistory();
       if(id==='bankManagement33' && typeof window.renderBankManagement33==='function') window.renderBankManagement33();
