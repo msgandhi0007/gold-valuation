@@ -434,6 +434,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </style>
 </head>
 <body>
+<!-- STEP 60: Fix Bank-wise Customer Report object rendering -->
 <div class="app">
 <header>
 <button class="menu-btn" type="button" aria-label="Open menu" onclick="openAppMenu()">☰</button>
@@ -842,14 +843,87 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 (function(){
   function getRecords(){
     const keys=['valuations','savedValuations','goldValuations','valuationRecords','saved_valuations'];
-    let data=[];
+    const containers=['valuations','records','items','data','savedValuations','saved_valuations','valuationRecords','goldValuations'];
+
+    function extract(v, depth){
+      if(depth>5 || v==null) return [];
+      if(Array.isArray(v)){
+        // If this is an array of valuation objects, use it directly.
+        if(v.some(x=>x && typeof x==='object' && !Array.isArray(x))) return v;
+        return v.flatMap(x=>extract(x,depth+1));
+      }
+      if(typeof v==='object'){
+        for(const k of containers){
+          if(v[k]!==undefined){
+            const got=extract(v[k],depth+1);
+            if(got.length)return got;
+          }
+        }
+        // Some versions store one record per object under dynamic keys.
+        const vals=Object.values(v);
+        if(vals.length && vals.every(x=>x && typeof x==='object' && !Array.isArray(x))){
+          return vals;
+        }
+      }
+      return [];
+    }
+
     for(const k of keys){
       try{
         const v=JSON.parse(localStorage.getItem(k)||'null');
-        if(Array.isArray(v)&&v.length){data=v;break;}
+        const data=extract(v,0);
+        if(data.length)return data;
       }catch(e){}
     }
-    return data;
+    // Fallback: inspect localStorage for a likely valuation array/object.
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k)continue;
+      try{
+        const v=JSON.parse(localStorage.getItem(k)||'null');
+        const data=extract(v,0);
+        if(data.length && data.some(r=>r && typeof r==='object' &&
+          (r.customerName!==undefined || r.customer!==undefined || r.name!==undefined ||
+           r.bank!==undefined || r.bankName!==undefined || r.valuation!==undefined ||
+           r.totalValuation!==undefined || r.sanctionedLoan!==undefined || r.loan!==undefined))){
+          return data;
+        }
+      }catch(e){}
+    }
+    return [];
+  }
+
+  function fieldObject(v){
+    if(v && typeof v==='object' && !Array.isArray(v)) return v;
+    return null;
+  }
+
+  function pick(o,names,def=''){
+    for(const n of names){
+      if(o && o[n]!==undefined && o[n]!==null && o[n]!==''){
+        const v=o[n];
+        if(typeof v==='object'){
+          const nested = v.value ?? v.name ?? v.label ?? v.text ?? v.display ?? '';
+          if(nested!=='') return nested;
+        }
+        return v;
+      }
+    }
+    // Also inspect common nested detail containers.
+    const nestedKeys=['customer','customerDetails','details','valuationDetails','formData'];
+    for(const nk of nestedKeys){
+      const child=fieldObject(o?.[nk]);
+      if(child){
+        for(const n of names){
+          if(child[n]!==undefined && child[n]!==null && child[n]!==''){
+            const v=child[n];
+            if(typeof v==='object') return v.value ?? v.name ?? v.label ?? '';
+            return v;
+          }
+        }
+      }
+    }
+    return def;
   }
   function pick(o,names,def=''){
     for(const n of names) if(o && o[n]!==undefined && o[n]!==null && o[n]!=='') return o[n];
@@ -878,9 +952,12 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 
     const groups=new Map();
     filtered.forEach(r=>{
-      const name=pick(r,['customerName','customer','name','customer_name','Customer Name'],'Unknown Customer');
-      const mobile=pick(r,['mobile','mobileNumber','mobileNo','phone','Mobile Number'],'');
-      const bank=pick(r,['bank','bankName','bank_name','Bank Name'],'');
+      let name=pick(r,['customerName','customer','name','customer_name','Customer Name'],'Unknown Customer');
+      let mobile=pick(r,['mobile','mobileNumber','mobileNo','phone','Mobile Number'],'');
+      let bank=pick(r,['bank','bankName','bank_name','Bank Name'],'');
+      if(name && typeof name==='object') name=name.name ?? name.value ?? name.label ?? 'Unknown Customer';
+      if(mobile && typeof mobile==='object') mobile=mobile.number ?? mobile.value ?? mobile.label ?? '';
+      if(bank && typeof bank==='object') bank=bank.name ?? bank.value ?? bank.label ?? '';
       const key=(name+'|'+mobile+'|'+bank).toLowerCase();
       if(!groups.has(key))groups.set(key,{name,mobile,bank,records:[]});
       groups.get(key).records.push(r);
@@ -3489,13 +3566,17 @@ window.toggleCustomerSummaryGroup=function(btn){
     if(!r || typeof r!=='object')return JSON.stringify(r);
     const id=r.id ?? r.recordId ?? r.valuationId ?? r.uuid;
     if(id!==undefined && id!==null && String(id)!=='')return 'id:'+id;
-    const name=r.customerName??r.customer??r.name??'';
-    const mobile=r.mobile??r.mobileNumber??r.mobileNo??r.phone??'';
-    const bank=r.bank??r.bankName??'';
-    const date=r.valuationDate??r.date??'';
-    const cert=r.certificateNo??r.certificate??r.certificateNumber??'';
-    const value=r.valuation??r.valuationTotal??r.totalValuation??'';
-    const loan=r.sanctionedLoan??r.loan??r.loanAmount??'';
+    const val=(x)=>{
+      if(x && typeof x==='object') return x.value ?? x.name ?? x.label ?? x.number ?? '';
+      return x ?? '';
+    };
+    const name=val(r.customerName??r.customer??r.name??'');
+    const mobile=val(r.mobile??r.mobileNumber??r.mobileNo??r.phone??'');
+    const bank=val(r.bank??r.bankName??'');
+    const date=val(r.valuationDate??r.date??'');
+    const cert=val(r.certificateNo??r.certificate??r.certificateNumber??'');
+    const value=val(r.valuation??r.valuationTotal??r.totalValuation??'');
+    const loan=val(r.sanctionedLoan??r.loan??r.loanAmount??'');
     return [name,mobile,bank,date,cert,value,loan].map(x=>String(x)).join('|').toLowerCase();
   }
 
