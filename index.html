@@ -773,11 +773,2744 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 
 
 <!-- STEP 58: Bank-wise Customer Report -->
+<section id="bankwiseCustomerReport" class="step58-report-card" aria-label="Bank-wise Customer Report">
+  <div class="step58-head">
+    <div>
+      <h2>Bank-wise Customer Report</h2>
+      <p>Customers and valuation overview by bank</p>
+    </div>
+    <button type="button" class="step58-btn step58-refresh" onclick="step58RenderBankCustomers()">↻ Refresh</button>
+  </div>
+
+  <button type="button" class="step58-back" onclick="step58BackToValuation()">← Back to Valuation</button>
+
+  <label class="step58-label" for="step58BankFilter">Bank</label>
+  <select id="step58BankFilter" class="step58-select" onchange="step58RenderBankCustomers()">
+    <option value="">All Banks</option>
+  </select>
+
+  <div class="step58-actions">
+    <button type="button" class="step58-btn step58-primary" onclick="step58ExportBankCustomerReport()">📄 Export PDF</button>
+    <button type="button" class="step58-btn" onclick="step58ClearBankFilter()">✕ Clear Filter</button>
+  </div>
+
+  <div id="step58CustomerCount" class="step58-count">Loading customers...</div>
+  <div id="step58CustomerList" class="step58-list"></div>
+</section>
+
+<style>
+.step58-report-card{margin:24px auto;padding:22px;max-width:760px;background:#fffdf7;border:1px solid #e4dfd3;border-radius:26px;box-sizing:border-box}
+.step58-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.step58-head h2{margin:0;font-size:28px;line-height:1.15;color:#242424}
+.step58-head p{margin:7px 0 0;color:#6d6d6d;font-size:16px}
+.step58-btn,.step58-back,.step58-select{font:inherit}
+.step58-btn{min-height:52px;padding:10px 18px;border:1px solid #999;border-radius:12px;background:#fff;cursor:pointer;font-weight:600}
+.step58-btn:active,.step58-back:active{transform:scale(.98)}
+.step58-primary{background:#c98a00;color:#fff;border-color:#c98a00}
+.step58-refresh{white-space:nowrap}
+.step58-back{width:100%;margin:18px 0;padding:14px;border:1px solid #ddd7ca;border-radius:16px;background:#fff;font-size:18px;font-weight:700;cursor:pointer}
+.step58-label{display:block;margin:4px 0 8px;color:#6d6d6d;font-size:16px}
+.step58-select{width:100%;min-height:52px;padding:8px 12px;border:2px solid #222;border-radius:10px;background:#fff}
+.step58-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.step58-count{margin:10px 0 14px;font-size:16px;color:#555}
+.step58-list{display:flex;flex-direction:column;gap:14px}
+.step58-customer{border:1px solid #e1ddd4;border-radius:20px;background:#fff;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.step58-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.step58-name{font-size:23px;font-weight:750;color:#222}
+.step58-arrow{color:#777;font-size:22px}
+.step58-value{font-size:22px;font-weight:750;white-space:nowrap}
+.step58-meta{margin-top:7px;color:#666;font-size:16px;line-height:1.35}
+.step58-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.step58-stat{padding:11px 12px;border:1px solid #e6e2d9;border-radius:13px;background:#fcfbf7}
+.step58-stat span{display:block;color:#777;font-size:14px}
+.step58-stat strong{display:block;margin-top:3px;font-size:18px}
+.step58-customer-open{width:100%;margin-top:14px;padding:12px;border:1px solid #999;border-radius:12px;background:#fff;font-size:17px;font-weight:650;cursor:pointer}
+.step58-empty{padding:28px 10px;text-align:center;color:#777;font-size:18px}
+@media(max-width:520px){
+  .step58-report-card{margin:18px 16px;padding:18px;border-radius:22px}
+  .step58-head h2{font-size:24px}
+  .step58-head p{font-size:14px}
+  .step58-btn{min-height:48px;padding:9px 12px}
+  .step58-actions{grid-template-columns:1fr}
+  .step58-name{font-size:21px}
+  .step58-value{font-size:20px}
+  .step58-stats{grid-template-columns:1fr 1fr}
+}
+</style>
+
+<script>
+(function(){
+  function getRecords(){
+    const keys=['valuations','savedValuations','goldValuations','valuationRecords','saved_valuations'];
+    let data=[];
+    for(const k of keys){
+      try{
+        const v=JSON.parse(localStorage.getItem(k)||'null');
+        if(Array.isArray(v)&&v.length){data=v;break;}
+      }catch(e){}
+    }
+    return data;
+  }
+  function pick(o,names,def=''){
+    for(const n of names) if(o && o[n]!==undefined && o[n]!==null && o[n]!=='') return o[n];
+    return def;
+  }
+  function num(v){ return Number(String(v??0).replace(/[₹,\s]/g,''))||0; }
+  function money(v){
+    return '₹'+Math.round(num(v)).toLocaleString('en-IN');
+  }
+  function esc(v){
+    return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  window.step58RenderBankCustomers=function(){
+    const records=getRecords();
+    const filter=document.getElementById('step58BankFilter');
+    if(!filter)return;
+
+    const banks=[...new Set(records.map(r=>pick(r,['bank','bankName','bank_name','Bank Name'],'')).filter(Boolean))].sort();
+    const old=filter.value;
+    filter.innerHTML='<option value="">All Banks</option>'+banks.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join('');
+    if(banks.includes(old))filter.value=old;
+
+    const selected=filter.value;
+    const filtered=records.filter(r=>!selected || pick(r,['bank','bankName','bank_name','Bank Name'],'')===selected);
+
+    const groups=new Map();
+    filtered.forEach(r=>{
+      const name=pick(r,['customerName','customer','name','customer_name','Customer Name'],'Unknown Customer');
+      const mobile=pick(r,['mobile','mobileNumber','mobileNo','phone','Mobile Number'],'');
+      const bank=pick(r,['bank','bankName','bank_name','Bank Name'],'');
+      const key=(name+'|'+mobile+'|'+bank).toLowerCase();
+      if(!groups.has(key))groups.set(key,{name,mobile,bank,records:[]});
+      groups.get(key).records.push(r);
+    });
+
+    const list=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name));
+    document.getElementById('step58CustomerCount').textContent=
+      list.length+' customer(s) found · '+filtered.length+' valuation(s)';
+
+    const box=document.getElementById('step58CustomerList');
+    if(!list.length){box.innerHTML='<div class="step58-empty">No customers found.</div>';return;}
+
+    box.innerHTML=list.map((g,i)=>{
+      const total=g.records.reduce((s,r)=>s+num(pick(r,['valuation','valuationTotal','totalValuation','total_value','Value'],0)),0);
+      const loan=g.records.reduce((s,r)=>s+num(pick(r,['sanctionedLoan','loan','loanAmount','sanctioned_loan','Sanctioned Loan'],0)),0);
+      return `<article class="step58-customer" data-step58-index="${i}">
+        <div class="step58-row">
+          <div><div class="step58-name">${esc(g.name)} <span class="step58-arrow">›</span></div>
+          <div class="step58-meta">📱 ${esc(g.mobile||'—')} · 🏦 ${esc(g.bank||'—')}</div></div>
+          <div class="step58-value">${money(total)}</div>
+        </div>
+        <div class="step58-stats">
+          <div class="step58-stat"><span>Valuations</span><strong>${g.records.length}</strong></div>
+          <div class="step58-stat"><span>Total Sanctioned Loan</span><strong>${money(loan)}</strong></div>
+        </div>
+        <button class="step58-customer-open" type="button" onclick="step58OpenCustomer(${i})">View Customer Details</button>
+      </article>`;
+    }).join('');
+
+    window.__step58Groups=list;
+  };
+
+  window.step58OpenCustomer=function(i){
+    const g=(window.__step58Groups||[])[i];
+    if(!g)return;
+    const details=g.records.map(r=>{
+      const date=pick(r,['valuationDate','date','valuation_date','Valuation Date'],'');
+      const value=money(pick(r,['valuation','valuationTotal','totalValuation','total_value','Value'],0));
+      const loan=money(pick(r,['sanctionedLoan','loan','loanAmount','sanctioned_loan','Sanctioned Loan'],0));
+      return (date||'—')+' · '+value+' · Loan '+loan;
+    }).join('\n');
+    alert(g.name+'\n'+(g.mobile||'')+'\n'+(g.bank||'')+'\n\n'+details);
+  };
+
+  window.step58ClearBankFilter=function(){
+    const f=document.getElementById('step58BankFilter'); if(f){f.value='';step58RenderBankCustomers();}
+  };
+  window.step58BackToValuation=function(){
+    const el=document.getElementById('valuation')||document.getElementById('valuationScreen')||document.querySelector('[data-screen="valuation"]');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); else window.scrollTo({top:0,behavior:'smooth'});
+  };
+  window.step58ExportBankCustomerReport=function(){
+    window.print();
+  };
+  document.addEventListener('DOMContentLoaded',step58RenderBankCustomers);
+  setTimeout(step58RenderBankCustomers,500);
+})();
+</script>
+
+<footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
+
+<script>
+let count=0;
+document.getElementById('valuationDate').value=new Date().toISOString().slice(0,10);
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+const num=n=>Number(n||0);
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+
+
+function shareCurrentPdf(){
+  // Android Chrome's print sheet lets you choose "Save as PDF" and then share the PDF.
+  printCertificate();
+}
+function shareSavedPdf(i){
+  const a=getSaved(),d=a[i];if(!d)return;
+  ensureCertificateNo(d);
+  window._currentSavedRecord=d;
+  localStorage.setItem('goldValuations',JSON.stringify(a));
+  customerName.value=d.customer?.name||'';
+  customerMobile.value=d.customer?.mobile||'';
+  setBankValue(d.customer?.bank||'');
+  valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
+  rate.value=d.rate||0;
+  ltv1.value=d.ltv1??65;
+  loanRate.value=d.loanRate??0;
+  sanctionedLoan.value=d.sanctionedLoan||0;
+  items.innerHTML='';count=0;
+  (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
+  calculate();closeLoad();
+  setTimeout(()=>printCertificate(),100);
+}
 
 
 
 
+function setBankValue(v){
+  const sel=document.getElementById('bankName');
+  if(!sel)return;
+  const exists=[...sel.options].some(o=>o.value===v);
+  if(exists){sel.value=v;}
+  else{sel.value='';}
+}
 
+
+function setupItemNameDropdown(el){
+  const other=el.querySelector('.itemOther');
+  const sel=el.querySelector('.itemName');
+  if(!sel)return;
+  const update=()=>{
+    const isOther=sel.value==='Other';
+    if(other){
+      other.style.display=isOther?'block':'none';
+      other.disabled=!isOther;
+      if(isOther){
+        other.focus();
+        other.select();
+      }else{
+        other.value='';
+      }
+    }
+  };
+  sel.addEventListener('change',update);
+  update();
+}
+function getItemName(el){
+  const sel=el.querySelector('.itemName');
+  const other=el.querySelector('.itemOther');
+  return sel && sel.value==='Other' ? ((other&&other.value)||'Other') : ((sel&&sel.value)||'');
+}
+
+function selectedBankName(){
+  const sel=document.getElementById('bankName');
+  if(sel && sel.value==='Other') return '';
+  return sel ? sel.value : '';
+}
+function setupBankDropdown(){
+  const sel=document.getElementById('bankName');
+  const wrap=document.getElementById('otherBankWrap');
+  if(!sel)return;
+  sel.addEventListener('change',()=>{
+    if(wrap)wrap.style.display=sel.value==='Other'?'block':'none';
+  });
+}
+
+function makeCertificateNo(){
+  const key='goldValuationNextCert';
+  let n=parseInt(localStorage.getItem(key)||'0',10);
+  if(!Number.isFinite(n)||n<0)n=0;
+  n+=1;
+  localStorage.setItem(key,String(n));
+  return 'RJ/'+new Date().getFullYear()+'/'+String(n).padStart(5,'0');
+}
+function ensureCertificateNo(d){
+  if(!d || typeof d!=='object') return '';
+  if(d.certificateNo) return d.certificateNo;
+  d.certificateNo=makeCertificateNo();
+  return d.certificateNo;
+}
+function getActiveCertificateNo(){
+  // Step 58: Print/Share may set an explicit certificate number for the
+  // selected saved record. Never generate a new number during PDF creation.
+  if(window._activeCertificateNoOverride){
+    return String(window._activeCertificateNoOverride);
+  }
+  // Defensive recovery: some legacy handlers may leave only {id}.
+  if(window._currentSavedRecord && window._currentSavedRecord.id && !window._currentSavedRecord.customer){
+    try{
+      const a=getSaved();
+      const full=a.find(r=>String(r.id)===String(window._currentSavedRecord.id));
+      if(full) window._currentSavedRecord=full;
+    }catch(e){}
+  }
+  // Saved valuation: always use the number stored on that exact record.
+  if(window._currentSavedRecord){
+    return ensureCertificateNo(window._currentSavedRecord);
+  }
+  // New/unsaved valuation: generate once and keep it in the current draft.
+  if(!window._draftCertificateNo){
+    window._draftCertificateNo=makeCertificateNo();
+  }
+  return window._draftCertificateNo;
+}
+function getCertificateNo(d){
+  if(d && typeof d==='object') return ensureCertificateNo(d);
+  return getActiveCertificateNo();
+}
+
+function pdfFileName(name,date){
+const safeName=String(name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\\s+/g,' ');
+const safeDate=String(date||'').trim().replace(/[^0-9-]/g,'-');
+return (safeName||'Customer')+' - '+(safeDate||'Valuation')+'.pdf';
+}
+function persistCurrentCertificateNo(){
+  try{
+    const d=window._currentSavedRecord;
+    if(!d || !d.id || !d.certificateNo)return;
+    const a=getSaved();
+    const i=a.findIndex(r=>r && r.id===d.id);
+    if(i>=0){
+      a[i].certificateNo=d.certificateNo;
+      localStorage.setItem('goldValuations',JSON.stringify(a));
+    }
+  }catch(e){}
+}
+
+function printCertificate(){
+  try{
+    const $=id=>document.getElementById(id);
+    const customerNameEl=$('customerName');
+    const customerMobileEl=$('customerMobile');
+    const valuationDateEl=$('valuationDate');
+    const rateEl=$('rate');
+    const sanctionedLoanEl=$('sanctionedLoan');
+    const cert=$('certificate');
+    if(!cert) throw new Error('Certificate section not found');
+
+    const name=customerNameEl ? customerNameEl.value : '';
+    const date=valuationDateEl ? valuationDateEl.value : '';
+    document.title=pdfFileName(name,date);
+
+    const rateVal=num(rateEl ? rateEl.value : 0);
+    const certNoEl=$('cCertNo');
+    if(certNoEl){ certNoEl.textContent=getActiveCertificateNo(); persistCurrentCertificateNo(); }
+    $('cBank').textContent=selectedBankName()||'—';
+    $('cName').textContent=name||'—';
+    $('cMobile').textContent=customerMobileEl ? (customerMobileEl.value||'—') : '—';
+    $('cDate').textContent=date||'—';
+    $('cRate').textContent=money(rateVal)+'/g';
+    $('cLoan').textContent=money(num(sanctionedLoanEl ? sanctionedLoanEl.value : 0));
+
+    let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,no=0;
+    document.querySelectorAll('.item').forEach(el=>{
+      no++;
+      const sel=el.querySelector('.itemName');
+      const n=(typeof getItemName==='function' ? getItemName(el) : (sel ? (sel.value||'Item '+no) : 'Item '+no));
+      const g=num(el.querySelector('.gross')?.value);
+      const s=num(el.querySelector('.stone')?.value);
+      const p=num(el.querySelector('.purity')?.value);
+      const net=Math.max(0,g-s),pure=net*p/100;
+      const rounded=Math.floor((pure+1e-9)*10)/10;
+      const value=rounded*rateVal;
+      tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
+      rows+=`<tr><td>${no}</td><td>${esc(n)}</td><td>${g.toFixed(2)}</td><td>${s.toFixed(2)}</td><td>${p.toFixed(2)}%</td><td>${rounded.toFixed(2)}</td><td>${money(value)}</td></tr>`;
+    });
+
+    $('cRows').innerHTML=rows||'<tr><td colspan="7">No items</td></tr>';
+    $('cGross').textContent=tg.toFixed(2);
+    $('cStone').textContent=ts.toFixed(2);
+    $('cPurity').textContent=(tn?wp/tn:0).toFixed(2)+'%';
+    $('cRounded').textContent=tr.toFixed(2);
+    $('cValue').textContent=money(tv);
+    $('cTotal').textContent=money(tv);
+    $('cLoanTotal').textContent=money(num(sanctionedLoanEl ? sanctionedLoanEl.value : 0));
+
+    cert.style.display='block';
+    setTimeout(()=>{ try{ window.focus(); window.print(); }catch(e){ alert("Please use the browser menu → Print/Share to save the certificate as PDF."); } },250);
+  }catch(err){
+    console.error(err);
+    alert('Unable to open the valuation certificate. Please reload the app and try again.');
+  }
+}
+
+function addItem(data={name:'',gross:0,stone:0,purity:80}){
+count++;const d=document.createElement('div');d.className='item';d.id='item'+count;
+d.innerHTML=`<div class="itemhead"><span>Item ${count}</span><button class="remove" onclick="removeItem(${count})">Remove</button></div>
+<div class="field" style="margin-bottom:10px"><label>Jewellery Item Name</label>
+<select class="itemName">
+<option value="">Select Gold Item</option>
+<option value="Chain">Chain</option>
+<option value="Ring">Ring</option>
+<option value="Necklace/long haar">Necklace/long haar</option>
+<option value="Bangle">Bangle</option>
+<option value="Bracelet">Bracelet</option>
+<option value="Kada">Kada</option>
+<option value="Pendant">Pendant</option>
+<option value="Earrings">Earrings</option>
+<option value="Tops">Tops</option>
+<option value="L.Mangalsutra">L.Mangalsutra</option>
+<option value="S.Mangalsutra">S.Mangalsutra</option>
+<option value="Mala">Mala</option>
+<option value="Other">Other</option>
+</select>
+<input class="itemOther" type="text" placeholder="Enter gold item name" autocomplete="off"
+  style="display:none;margin-top:8px" oninput="calculate()">
+</div>
+<div class="grid"><div class="field"><label>Gross Weight (g)</label><input class="gross" type="number" step="0.01" inputmode="decimal" value="${data.gross}" oninput="calculate()"></div>
+<div class="field"><label>Stone Weight (g)</label><input class="stone" type="number" step="0.01" inputmode="decimal" value="${data.stone}" oninput="calculate()"></div>
+<div class="field"><label>Purity (%)</label><input class="purity" type="number" step="0.01" inputmode="decimal" value="${data.purity}" oninput="calculate()"></div></div>
+<div class="calc"><div class="metric"><small>Net Weight</small><b class="net">0.00 g</b></div><div class="metric"><small>Pure Gold</small><b class="pure">0.00 g</b></div><div class="metric"><small>Value</small><b class="value">₹0</b></div></div>`;
+document.getElementById('items').appendChild(d);
+const itemSelect=d.querySelector('.itemName');
+if(itemSelect){
+  const savedName=String(data.name||'');
+  const option=[...itemSelect.options].find(o=>o.value===savedName);
+  if(option){itemSelect.value=savedName;}
+  else if(savedName){
+    itemSelect.value='Other';
+    const other=d.querySelector('.itemOther');
+    if(other){other.value=savedName;}
+  }
+}
+setupItemNameDropdown(items.lastElementChild);
+if(itemSelect && itemSelect.value==='Other'){
+  const other=d.querySelector('.itemOther');
+  if(other){other.style.display='block';other.disabled=false;}
+}
+calculate();
+}
+function removeItem(id){document.getElementById('item'+id)?.remove();renumber();calculate()}
+function renumber(){[...document.querySelectorAll('.item')].forEach((x,i)=>x.querySelector('.itemhead span').textContent='Item '+(i+1))}
+function calculate(){
+const rate=num(document.getElementById('rate').value);let tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,rows='',no=0;
+document.querySelectorAll('.item').forEach(el=>{no++;const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rate;
+tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
+el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
+rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
+document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
+document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
+}
+function currentData(){
+return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||window._draftCertificateNo||'',
+customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
+rate:rate.value,
+sanctionedLoan:String(document.getElementById('sanctionedLoan')?.value??''),
+ltv1:String(document.getElementById('ltv1')?.value??'65'),
+loanRate:String(document.getElementById('loanRate')?.value??'0'),
+items:[...document.querySelectorAll('.item')].map(x=>({name:getItemName(x),gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}
+}
+
+function exportBackup(){
+  const records=getSaved();
+  const payload={
+    app:"Gold Valuation",
+    version:18,
+    exportedAt:new Date().toISOString(),
+    records:records
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const d=new Date();
+  const stamp=d.toISOString().slice(0,10);
+  a.href=url;
+  a.download="Gold-Valuation-Backup-"+stamp+".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  alert("Backup created successfully. Keep this file in a safe place.");
+}
+function importBackup(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const payload=JSON.parse(reader.result);
+      const incoming=Array.isArray(payload)?payload:(Array.isArray(payload.records)?payload.records:null);
+      if(!incoming)throw new Error("Invalid backup");
+      const existing=getSaved();
+      const merged=dedupeValuations(existing.concat(incoming.filter(x=>x && typeof x==="object").map(x=>{
+        if(!x.id)x.id=Date.now()+Math.floor(Math.random()*100000);
+        return x;
+      })));
+      localStorage.setItem("goldValuations",JSON.stringify(merged));
+      alert("Restore completed. "+incoming.length+" valuation record(s) processed. Duplicate records were ignored.");
+      if(typeof renderSaved==="function")renderSaved();
+      if(typeof openLoad==="function")openLoad();
+    }catch(e){
+      alert("Restore failed. Please select a valid Gold Valuation backup file.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function valuationDedupeKey(r){
+  if(!r || typeof r!=='object') return '';
+  // Certificate number is the strongest identity for a saved valuation.
+  if(r.certificateNo) return 'cert:'+String(r.certificateNo).trim().toLowerCase();
+  if(r.id) return 'id:'+String(r.id);
+  const c=r.customer||{};
+  const items=Array.isArray(r.items)?r.items.map(it=>[
+    String(it?.name||'').trim().toLowerCase(),
+    String(it?.gross??''),
+    String(it?.stone??''),
+    String(it?.purity??'')
+  ]):[];
+  return 'data:'+JSON.stringify([
+    String(c.name||r.customerName||'').trim().toLowerCase(),
+    String(c.mobile||r.mobile||'').trim(),
+    String(c.date||r.date||'').trim(),
+    String(c.bank||'').trim().toLowerCase(),
+    String(r.rate??''),
+    String(r.sanctionedLoan??r.sanctioned??r.loanAmount??''),
+    items
+  ]);
+}
+function dedupeValuations(records){
+  if(!Array.isArray(records)) return [];
+  const map=new Map();
+  records.forEach(function(r){
+    if(!r || typeof r!=='object')return;
+    const key=valuationDedupeKey(r);
+    if(!key)return;
+    // Keep the latest occurrence, which is normally the restored/current version.
+    map.set(key,r);
+  });
+  return Array.from(map.values());
+}
+function getSaved(){
+let a=[];
+try{a=JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){a=[]}
+if(!Array.isArray(a))a=[];
+if(!a.length){
+try{const old=localStorage.getItem('goldValuation');if(old){const d=JSON.parse(old);d.id=d.id||Date.now();d.customer=d.customer||{};d.customer.bank=d.customer.bank||'';a=[d]}}catch(e){}
+}
+const clean=dedupeValuations(a);
+if(JSON.stringify(clean)!==JSON.stringify(a)){
+  try{localStorage.setItem('goldValuations',JSON.stringify(clean));}catch(e){}
+}
+return clean;
+}
+let selectedBank='ALL';
+function setSavedBankFilter(bank){
+  selectedBank=bank;
+  renderSaved();
+}
+function resetAfterSave(){
+document.getElementById('customerName').value='';
+document.getElementById('customerMobile').value='';
+if(document.getElementById('bankName')) document.getElementById('bankName').value='';
+if(document.getElementById('valuationDate')) document.getElementById('valuationDate').value=new Date().toISOString().slice(0,10);
+if(document.getElementById('rate')) document.getElementById('rate').value=0;
+if(document.getElementById('ltv1')) document.getElementById('ltv1').value=65;
+if(document.getElementById('loanRate')) document.getElementById('loanRate').value=0;
+if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=0;
+document.getElementById('items').innerHTML='';
+count=0;
+window._currentSavedRecord=null;
+window._draftCertificateNo=null;
+if(typeof addItem==='function') addItem();
+if(typeof calculate==='function') calculate();
+}
+function saveData(){
+const d=currentData();let a=getSaved();
+d.customer.bank=d.customer.bank||'Other / Not specified';
+const existingIndex=a.findIndex(x=>String(x.id)===String(d.id));
+if(existingIndex>=0){
+  a[existingIndex]=d;
+}else{
+  a.push(d);
+}
+ensureCertificateNo(d);
+localStorage.setItem('goldValuations',JSON.stringify(a));
+alert(existingIndex>=0 ? 'Valuation updated successfully under '+d.customer.bank+'. Form has been reset for the next customer.' : 'Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
+resetAfterSave();
+}
+function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
+function closeLoad(){document.getElementById('saveManager').style.display='none'}
+function loadData(){openLoad()}
+function migrateCertificateNumbers(){
+  try{
+    const a=getSaved();
+    let changed=false;
+    a.forEach(function(r){
+      if(r && !r.certificateNo){
+        ensureCertificateNo(r);
+        changed=true;
+      }
+    });
+    if(changed)localStorage.setItem('goldValuations',JSON.stringify(a));
+  }catch(e){}
+}
+
+function renderSaved(){
+  const all=getSaved();
+  const q=(document.getElementById('saveSearch')?.value||'').trim().toLowerCase();
+  const sort=document.getElementById('saveSort')?.value||'newest';
+  const banks=[...new Set(all.map(x=>x.customer?.bank||'').filter(Boolean))];
+  const tabNames=['ALL',...banks];
+  const tabs=document.getElementById('bankTabs');
+  tabs.innerHTML=tabNames.map(b=>`<button class="${selectedBank===b?'active':''}" onclick='setSavedBankFilter(${JSON.stringify(b)})'>${esc(b==='ALL'?'All Banks':b)}</button>`).join('');
+
+  let rows=all.map((x,i)=>({x,i})).filter(({x})=>{
+    const bank=x.customer?.bank||'';
+    if(selectedBank!=='ALL' && bank!==selectedBank)return false;
+    if(!q)return true;
+    const hay=[
+      x.customer?.name,x.customer?.mobile,x.customer?.bank,
+      x.customer?.date,x.certificateNo,x.sanctionedLoan
+    ].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+
+  const valueOf=({x})=>{
+    if(typeof x.totalValue==='number')return x.totalValue;
+    if(typeof x.value==='number')return x.value;
+    let total=0;
+    const rate=num(x.rate);
+    (x.items||[]).forEach(it=>{
+      const net=Math.max(0,num(it.gross)-num(it.stone));
+      const rounded=Math.floor((net*num(it.purity)/100+1e-9)*10)/10;
+      total+=rounded*rate;
+    });
+    return total;
+  };
+
+  rows.sort((a,b)=>{
+    if(sort==='oldest') return String(a.x.customer?.date||'').localeCompare(String(b.x.customer?.date||'')) || a.i-b.i;
+    if(sort==='name') return String(a.x.customer?.name||'').localeCompare(String(b.x.customer?.name||''),undefined,{sensitivity:'base'});
+    if(sort==='valueHigh') return valueOf(b)-valueOf(a);
+    if(sort==='valueLow') return valueOf(a)-valueOf(b);
+    return String(b.x.customer?.date||'').localeCompare(String(a.x.customer?.date||'')) || b.i-a.i;
+  });
+
+  const list=document.getElementById('savedList');
+  if(!rows.length){
+    list.innerHTML='<div style="padding:20px;text-align:center;color:#777">No saved valuations found.</div>';
+    return;
+  }
+
+  list.innerHTML=rows.map(({x,i})=>{
+    const val=valueOf({x});
+    const loan=num(x.sanctionedLoan);
+    return `<div class="saved-card">
+      <div class="saved-main">
+        <div class="saved-name">${esc(x.customer?.name||'Unnamed Customer')}</div>
+        <div class="saved-meta">${esc(x.customer?.bank||'—')} • ${esc(x.customer?.mobile||'—')} • ${esc(x.customer?.date||'—')}</div>
+        <div style="font-size:11px;color:#777;margin-top:3px">Certificate: ${esc(x.certificateNo||'—')} • Items: ${(x.items||[]).length} • Value: ${money(val)} • Loan: ${money(loan)}</div>
+      </div>
+      <div class="saved-actions">
+        <button class="load-btn" onclick="loadSaved(${i})">Open</button>
+        <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
+        <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
+        <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function loadSaved(i){
+const a=getSaved(),d=a[i];if(!d)return;
+ensureCertificateNo(d);
+window._currentSavedRecord=d;
+localStorage.setItem('goldValuations',JSON.stringify(a));
+customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
+if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
+  d.sanctionedLoan ?? d.sanctioned ?? d.loanAmount ?? d.customer?.sanctionedLoan ?? '';
+if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
+  d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
+if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
+  d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
+items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
+}
+function printSaved(i){
+const a=getSaved(),d=a[i];if(!d)return;
+ensureCertificateNo(d);
+window._currentSavedRecord=d;
+window._activeCertificateNoOverride=String(d.certificateNo);
+localStorage.setItem('goldValuations',JSON.stringify(a));
+customerName.value=d.customer?.name||'';
+customerMobile.value=d.customer?.mobile||'';
+setBankValue(d.customer?.bank||'');
+valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
+rate.value=d.rate||0;
+if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
+  d.sanctionedLoan ?? d.sanctioned ?? d.loanAmount ?? d.customer?.sanctionedLoan ?? 0;
+if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
+  d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
+if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
+  d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
+items.innerHTML='';count=0;
+(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
+calculate();closeLoad();
+setTimeout(()=>printCertificate(),100);
+}
+
+function deleteSaved(i){
+  const a=getSaved(),d=a[i];if(!d)return;
+  const name=d.customer?.name||'this valuation';
+  if(!confirm('Delete saved valuation for '+name+'? This cannot be undone.'))return;
+  a.splice(i,1);
+  localStorage.setItem('goldValuations',JSON.stringify(a));
+  renderSaved();
+}
+window._currentSavedRecord=null;
+function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';bankName.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;setupBankDropdown();
+document.querySelectorAll('.item').forEach(setupItemNameDropdown);
+window._currentSavedRecord=null;
+window._draftCertificateNo=null;
+addItem();calculate()}
+async function shareResult(){
+let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
+document.querySelectorAll('.item').forEach((el,i)=>{const n=(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)||'Item '+(i+1),g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,r=Math.floor((pure+1e-9)*10)/10;t+=`${i+1}. ${n}\nGross: ${g.toFixed(2)} g\nStone: ${s.toFixed(2)} g\nNet: ${net.toFixed(2)} g\nPurity: ${p.toFixed(2)}%\nPure Gold: ${pure.toFixed(2)} g\nValue: ${money(r*num(rate.value))}\n\n`});
+t+='Total Value: '+tv.textContent+'\nLTV 65%: '+l65.textContent+'\nLTV 70%: '+l70.textContent;
+try{if(navigator.share)await navigator.share({title:'Gold Valuation',text:t});else if(navigator.clipboard){await navigator.clipboard.writeText(t);alert('Valuation copied. You can paste it in WhatsApp.')}else prompt('Copy this valuation:',t)}catch(e){if(e.name!=='AbortError')prompt('Copy this valuation:',t)}
+}
+addItem();
+</script>
+
+
+<script>
+function enterValuationApp(){
+  const cover=document.getElementById('appCover');
+  if(!cover)return;
+  cover.classList.add('hidden');
+  document.body.style.overflow='';
+  document.body.classList.add('app-started');
+  window.scrollTo(0,0);
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  const cover=document.getElementById('appCover');
+  if(cover){
+    // Cover is shown on every fresh page load; saved valuations remain untouched.
+    document.body.style.overflow='hidden';
+  }
+});
+
+
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  const b=document.getElementById('installAppBtn');
+  if(b)b.style.display='block';
+});
+async function installApp(){
+  if(!deferredInstallPrompt){
+    alert('If INSTALL APP is not available, open the browser menu and choose "Add to Home screen" or "Install app".');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  try{ await deferredInstallPrompt.userChoice; }catch(e){}
+  deferredInstallPrompt=null;
+  const b=document.getElementById('installAppBtn');
+  if(b)b.style.display='none';
+}
+window.addEventListener('appinstalled',()=>{
+  const b=document.getElementById('installAppBtn');
+  if(b)b.style.display='none';
+});
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker registration failed',err));
+  });
+}
+</script>
+
+<script>
+
+/* Step 23 - Backup & Restore Protection */
+function getSavedValuations(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(Array.isArray(parsed)) return parsed;
+    }
+    const legacy=localStorage.getItem('goldValuation');
+    if(legacy){
+      const one=JSON.parse(legacy);
+      if(one) return [one];
+    }
+  }catch(e){}
+  return [];
+}
+function setBackupStatus(msg,ok=true){
+  const el=document.getElementById('backupStatus');
+  if(el){el.textContent=msg;el.style.color=ok?'#087f5b':'#b42318';}
+}
+function exportValuationsBackup(){
+  try{
+    const records=getSavedValuations();
+    if(!records.length){
+      alert('No saved valuations found to back up.');
+      return;
+    }
+    const payload={
+      app:'Rajendra Jewellers – Gold Valuation',
+      backupVersion:1,
+      exportedAt:new Date().toISOString(),
+      valuations:records
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const d=new Date();
+    const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    a.href=url;
+    a.download='Gold-Valuation-Backup-'+stamp+'.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setBackupStatus(records.length+' valuation(s) backed up successfully.');
+  }catch(e){
+    console.error(e);
+    alert('Backup could not be created.');
+  }
+}
+function restoreValuationsBackup(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const payload=JSON.parse(reader.result);
+      const incoming=Array.isArray(payload)?payload:(Array.isArray(payload.valuations)?payload.valuations:[]);
+      if(!incoming.length) throw new Error('No valuations found');
+      const existing=getSavedValuations();
+      const merged=dedupeValuations(existing.concat(incoming.filter(r=>r && typeof r==='object').map(r=>{
+        if(!r.id)r.id=Date.now()+Math.floor(Math.random()*100000);
+        return r;
+      })));
+      localStorage.setItem('goldValuations',JSON.stringify(merged));
+      setBackupStatus(incoming.length+' valuation(s) processed. Duplicate records were ignored.');
+      if(typeof renderSavedValuations==='function') renderSavedValuations();
+      alert('Backup restored successfully. '+incoming.length+' valuation(s) added/updated.');
+      event.target.value='';
+    }catch(e){
+      console.error(e);
+      alert('Invalid backup file. Please select a Gold Valuation backup JSON file.');
+      event.target.value='';
+    }
+  };
+  reader.readAsText(file);
+}
+
+</script>
+
+<script>
+
+/* Step 24 dashboard */
+function dashboardRecords(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const a=raw?JSON.parse(raw):[];
+    return Array.isArray(a)?a:[];
+  }catch(e){return[]}
+}
+function dashboardValue(r){
+  const rate=num(r?.rate);
+  return (Array.isArray(r?.items)?r.items:[]).reduce((sum,it)=>{
+    const g=num(it.gross), s=num(it.stone), p=num(it.purity);
+    const net=Math.max(0,g-s), pure=net*p/100;
+    const rounded=Math.floor((pure+1e-9)*10)/10;
+    return sum+rounded*rate;
+  },0);
+}
+function dashboardDate(r){
+  return String(r?.customer?.date||r?.date||'').slice(0,10);
+}
+function updateDashboard(){
+  const records=dashboardRecords();
+  const total=records.reduce((s,r)=>s+dashboardValue(r),0);
+  const loanTotal=records.reduce((s,r)=>s+num(r?.sanctionedLoan),0);
+  const now=new Date();
+  const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const monthPrefix=today.slice(0,7);
+  const todayRecords=records.filter(r=>dashboardDate(r)===today);
+  const monthRecords=records.filter(r=>dashboardDate(r).slice(0,7)===monthPrefix);
+  const monthTotal=monthRecords.reduce((s,r)=>s+dashboardValue(r),0);
+  const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
+  const countEl=document.getElementById('dashCount');
+  const totalEl=document.getElementById('dashTotal');
+  const loanEl=document.getElementById('dashLoan');
+  const todayEl=document.getElementById('dashToday');
+  const custEl=document.getElementById('dashCustomers');
+  const monthEl=document.getElementById('dashMonthTotal');
+  if(countEl)countEl.textContent=records.length;
+  if(totalEl)totalEl.textContent=money(total);
+  if(loanEl)loanEl.textContent=money(loanTotal);
+  if(todayEl)todayEl.textContent=todayRecords.length;
+  if(custEl)custEl.textContent=customers.size;
+  if(monthEl)monthEl.textContent=money(monthTotal);
+
+  const bankMap={};
+  records.forEach(r=>{
+    const bank=String(r?.customer?.bank||'Other / Not specified');
+    if(!bankMap[bank])bankMap[bank]={count:0,value:0,loan:0};
+    bankMap[bank].count++;
+    bankMap[bank].value+=dashboardValue(r);
+    bankMap[bank].loan+=num(r?.sanctionedLoan);
+  });
+  const banks=document.getElementById('dashBanks');
+  if(banks){
+    banks.innerHTML=Object.keys(bankMap).sort().map(b=>{
+      const x=bankMap[b];
+      return `<div class="bank-pill"><b>${esc(b)}</b><span>${x.count} valuation${x.count===1?'':'s'}</span><small>${money(x.value)} · Loan ${money(x.loan)}</small></div>`;
+    }).join('')||'<div style="opacity:.6;font-size:12px">No bank-wise valuations yet</div>';
+  }
+
+  const history=document.getElementById('dashHistory');
+  if(history){
+    const recent=[...records].sort((a,b)=>Number(b.id||0)-Number(a.id||0)).slice(0,5);
+    history.innerHTML=recent.map(r=>{
+      const name=esc(r?.customer?.name||'Unnamed');
+      const bank=esc(r?.customer?.bank||'Other / Not specified');
+      const date=esc(dashboardDate(r)||'—');
+      const cert=esc(r?.certificateNo||'—');
+      return `<div class="dashboard-history-row"><div><b>${name}</b><br><span style="opacity:.65">${bank}</span></div><div>${date}<br><span style="opacity:.6">${cert}</span></div><div style="text-align:right;font-weight:800">${money(dashboardValue(r))}</div></div>`;
+    }).join('')||'<div style="font-size:12px;opacity:.6">No saved valuations yet.</div>';
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const sm=document.getElementById('statementModal');
+  if(sm)sm.addEventListener('click',e=>{if(e.target===sm)closeCustomerStatement();});
+
+  updateDashboard();
+  setInterval(updateDashboard,2000);
+});
+
+</script>
+
+<script>
+/* STEP 47 - Robust report-bank synchronization */
+(function(){
+  function esc47(v){
+    return String(v==null?'':v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function reportBankNames47(){
+    const names=[];
+    function add(v){
+      const n=String(v==null?'':v).trim().replace(/\s+/g,' ');
+      if(n && !names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
+    }
+
+    // Bank Management list.
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');
+      if(Array.isArray(a)) a.forEach(add);
+    }catch(e){}
+
+    // Banks used by saved valuations. This guarantees existing banks such as
+    // Bank of Baroda remain reportable even after being removed from management.
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      if(Array.isArray(a)) a.forEach(r=>add(r?.customer?.bank));
+    }catch(e){}
+
+    return names;
+  }
+
+  function syncOne47(id){
+    const sel=document.getElementById(id);
+    if(!sel)return;
+
+    const old=String(sel.value||'').trim();
+    const names=reportBankNames47();
+
+    sel.innerHTML='<option value="">All Banks</option>'+
+      names.map(function(n){
+        const e=esc47(n);
+        return '<option value="'+e+'">'+e+'</option>';
+      }).join('');
+
+    let match=names.find(n=>n===old);
+    if(!match && old) match=names.find(n=>n.toLowerCase()===old.toLowerCase());
+
+    // Legacy compatibility.
+    if(!match && old==='SBI BANK')
+      match=names.find(n=>n.toLowerCase()==='state bank of india');
+
+    sel.value=match||'';
+  }
+
+  window.syncAllReportBankSelectors=function(){
+    syncOne47('reportBank');
+    syncOne47('bankStatementSelect');
+  };
+
+  // Called by Bank-wise Customer Report itself.
+  window.syncBankWiseCustomerReport47=function(){
+    syncOne47('bankStatementSelect');
+    if(typeof window.refreshBankStatementReport==='function'){
+      window.refreshBankStatementReport();
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+  try{migrateCertificateNumbers();}catch(e){}
+
+    window.syncAllReportBankSelectors();
+    setTimeout(function(){
+      try{ if(typeof window.updateReports==='function') window.updateReports(); }catch(e){}
+      try{ if(typeof window.refreshBankStatementReport==='function') window.refreshBankStatementReport(); }catch(e){}
+    },100);
+  });
+})();
+</script>
+
+
+<script>
+/* Step 25 reports */
+function reportRecords(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const a=raw?JSON.parse(raw):[];
+    return Array.isArray(a)?a:[];
+  }catch(e){return[]}
+}
+function reportLoanAmount(r){
+  return num(r?.customer?.sanctionedLoan||r?.sanctionedLoan||r?.loanAmount||0);
+}
+function reportDate(r){
+  return String(r?.customer?.date||r?.date||'').slice(0,10);
+}
+function reportMonth(r){
+  const d=reportDate(r);
+  return d.length>=7?d.slice(0,7):'';
+}
+function setReportCurrentMonth(){
+  const m=document.getElementById('reportMonth');
+  if(!m)return;
+  const d=new Date();
+  m.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  updateReports();
+}
+function clearReportFilters(){
+  const b=document.getElementById('reportBank');
+  const m=document.getElementById('reportMonth');
+  if(b)b.value='';
+  if(m)m.value='';
+  updateReports();
+}
+function updateReports(){
+  if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
+  const bank=(document.getElementById('reportBank')||{}).value||'';
+  const month=(document.getElementById('reportMonth')||{}).value||'';
+  const all=reportRecords();
+  const records=all.filter(r=>{
+    const rb=String(r?.customer?.bank||'');
+    return (!bank || rb===bank) && (!month || reportMonth(r)===month);
+  });
+
+  const value=records.reduce((s,r)=>s+dashboardValue(r),0);
+  const loan=records.reduce((s,r)=>s+reportLoanAmount(r),0);
+  const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
+
+  const c=document.getElementById('reportCount');
+  const v=document.getElementById('reportValue');
+  const l=document.getElementById('reportLoan');
+  const cu=document.getElementById('reportCustomers');
+  if(c)c.textContent=records.length;
+  if(v)v.textContent=money(value);
+  if(l)l.textContent=money(loan);
+  if(cu)cu.textContent=customers.size;
+
+  const map={};
+  records.forEach(r=>{
+    const b=String(r?.customer?.bank||'Other / Not specified');
+    if(!map[b])map[b]={count:0,value:0,loan:0};
+    map[b].count++;
+    map[b].value+=dashboardValue(r);
+    map[b].loan+=reportLoanAmount(r);
+  });
+  const rows=document.getElementById('reportRows');
+  if(rows){
+    const entries=Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0]));
+    rows.innerHTML=entries.map(([b,x])=>
+      `<tr><td>${esc(b)}</td><td>${x.count}</td><td>${money(x.value)}</td><td>${money(x.loan)}</td></tr>`
+    ).join('') || '<tr><td colspan="4" style="text-align:center;opacity:.6">No valuations for this selection.</td></tr>';
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const m=document.getElementById('reportMonth');
+  if(m && !m.value){
+    const d=new Date();
+    m.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  }
+  updateReports();
+  window.addEventListener('storage',function(e){ if(e.key==='goldValuations'||e.key==='goldValuationBanks') updateReports(); });
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) updateReports(); });
+});
+
+</script>
+
+<div id="bankMonthlyPrint"></div>
+
+
+<script>
+
+/* Step 26 - Bank & Monthly Report PDF */
+function reportFilteredRecords(){
+  if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
+  const bank=(document.getElementById('reportBank')||{}).value||'';
+  const month=(document.getElementById('reportMonth')||{}).value||'';
+  return reportRecords().filter(r=>{
+    const rb=String(r?.customer?.bank||'');
+    return (!bank||rb===bank)&&(!month||reportMonth(r)===month);
+  });
+}
+function printBankMonthlyReport(){
+  try{
+    const records=reportFilteredRecords();
+    const bank=(document.getElementById('reportBank')||{}).value||'All Banks';
+    const month=(document.getElementById('reportMonth')||{}).value||'All Months';
+    const esc2=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const money2=n=>typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+    const totalValue=records.reduce((s,r)=>s+dashboardValue(r),0);
+    const totalLoan=records.reduce((s,r)=>s+reportLoanAmount(r),0);
+    const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
+    const rows=records.map((r,i)=>{
+      const c=r?.customer||{};
+      return `<tr>
+        <td>${i+1}</td>
+        <td>${esc2(c.name||'')}</td>
+        <td>${esc2(c.bank||'')}</td>
+        <td>${esc2(reportDate(r)||'')}</td>
+        <td style="text-align:right">${money2(dashboardValue(r))}</td>
+        <td style="text-align:right">${money2(reportLoanAmount(r))}</td>
+      </tr>`;
+    }).join('');
+    const el=document.getElementById('bankMonthlyPrint');
+    el.innerHTML=`
+      <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:12px">
+        <div style="font-size:25px;font-weight:800;letter-spacing:.4px">RAJENDRA JEWELLERS</div>
+        <div style="font-size:18px;font-weight:700;margin-top:5px">GOLD VALUATION REPORT</div>
+        <div style="font-size:12px;margin-top:5px">Bank-wise / Monthly Report</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;font-size:13px">
+        <div><b>Bank:</b> ${esc2(bank)}</div>
+        <div><b>Month:</b> ${esc2(month)}</div>
+        <div><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
+        <div><b>Valuer:</b> MAHENDRA SHANTILAL GANDHI</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
+        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Valuations</b><br><span style="font-size:20px">${records.length}</span></div>
+        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Total Valuation</b><br><span style="font-size:20px">${money2(totalValue)}</span></div>
+        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Sanctioned Loan</b><br><span style="font-size:20px">${money2(totalLoan)}</span></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:#f1eee7">
+          <th style="border:1px solid #ccc;padding:7px">#</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:left">Customer</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:left">Bank</th>
+          <th style="border:1px solid #ccc;padding:7px">Date</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:right">Valuation ₹</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:right">Loan ₹</th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:12px;text-align:center">No valuations found for this selection.</td></tr>'}</tbody>
+        <tfoot><tr>
+          <td colspan="4" style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">TOTAL</td>
+          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalValue)}</td>
+          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalLoan)}</td>
+        </tr></tfoot>
+      </table>
+      <div style="margin-top:35px;font-size:12px">
+        <div style="font-weight:800">REGISTERED GOLD APPRAISER</div>
+        <div>MAHENDRA SHANTILAL GANDHI</div>
+        <div>PPDC/GA/2026/244642</div>
+      </div>`;
+    document.body.classList.add('report-printing');
+    setTimeout(()=>{
+      window.print();
+      setTimeout(()=>document.body.classList.remove('report-printing'),700);
+    },100);
+  }catch(e){
+    console.error(e);
+    alert('Report PDF could not be prepared.');
+  }
+}
+
+</script>
+
+<script>
+
+/* Step 27 - Customer-wise History */
+function historyRecords(){
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const a=raw?JSON.parse(raw):[];
+    return Array.isArray(a)?a:[];
+  }catch(e){return[]}
+}
+function historyCustomer(r){
+  return r?.customer||{};
+}
+function historyMobile(r){
+  const c=historyCustomer(r);
+  return String(c.mobile||r?.mobile||'').trim();
+}
+function historyName(r){
+  const c=historyCustomer(r);
+  return String(c.name||r?.customerName||'').trim();
+}
+function openHistoryRecord(record){
+  try{
+    // Restore the selected saved valuation using the app's normal load flow.
+    const c=historyCustomer(record);
+    if(document.getElementById('customerName'))document.getElementById('customerName').value=c.name||'';
+    if(document.getElementById('customerMobile'))document.getElementById('customerMobile').value=c.mobile||'';
+    if(document.getElementById('valuationDate'))document.getElementById('valuationDate').value=c.date||record.date||'';
+    if(document.getElementById('bankName'))document.getElementById('bankName').value=c.bank||'';
+    if(document.getElementById('sanctionedLoan'))document.getElementById('sanctionedLoan').value=c.sanctionedLoan||record.sanctionedLoan||'';
+    if(document.getElementById('rate'))document.getElementById('rate').value=record.rate||'';
+    if(document.getElementById('ltvRate'))document.getElementById('ltvRate').value=record.ltvRate||'';
+    if(document.getElementById('loanRatePerGram'))document.getElementById('loanRatePerGram').value=record.loanRatePerGram||'';
+
+    const items=document.getElementById('items');
+    if(items && Array.isArray(record.items)){
+      items.innerHTML='';
+      if(typeof count!=='undefined') count=0;
+      record.items.forEach(it=>{
+        if(typeof addItem==='function') addItem(it);
+      });
+    }
+    if(typeof calculate==='function')calculate();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){
+    console.error(e);
+    alert('This saved valuation could not be opened.');
+  }
+}
+function printHistoryRecord(record){
+  try{
+    ensureCertificateNo(record); window._currentSavedRecord=record; window._activeCertificateNoOverride=String(record.certificateNo);
+    if(typeof printSavedCertificate==='function'){
+      printSavedCertificate(record);
+    }else if(typeof printCertificate==='function'){
+      openHistoryRecord(record);
+      setTimeout(()=>printCertificate(),100);
+    }else{
+      alert('Certificate print function is not available.');
+    }
+  }catch(e){
+    console.error(e);
+    alert('Certificate could not be prepared.');
+  }
+}
+function shareHistoryRecord(record){
+  try{
+    ensureCertificateNo(record); window._currentSavedRecord=record;
+    if(typeof shareSavedPdf==='function'){
+      const all=historyRecords();
+      const i=all.indexOf(record);
+      if(i>=0)shareSavedPdf(i);
+      else alert('Saved valuation could not be found.');
+    }else{
+      alert('Share PDF function is not available.');
+    }
+  }catch(e){
+    console.error(e);
+    alert('Share PDF could not be prepared.');
+  }
+}
+function updateCustomerHistory(){
+  const q=String(document.getElementById('historySearch')?.value||'').trim().toLowerCase();
+  const rows=document.getElementById('customerHistoryRows');
+  const summary=document.getElementById('historySummary');
+  if(!rows)return;
+
+  let records=historyRecords();
+  if(q){
+    records=records.filter(r=>{
+      const n=historyName(r).toLowerCase();
+      const m=historyMobile(r).toLowerCase();
+      const b=String(historyCustomer(r).bank||'').toLowerCase();
+      return n.includes(q)||m.includes(q)||b.includes(q);
+    });
+  }
+
+  const totalValue=records.reduce((s,r)=>s+(typeof dashboardValue==='function'?dashboardValue(r):0),0);
+  const totalLoan=records.reduce((s,r)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(r):0),0);
+  if(summary){
+    summary.textContent=records.length+' valuation(s) found · Valuation '+(typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN'))+' · Loan '+(typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN'));
+  }
+
+  if(!records.length){
+    rows.innerHTML='<div class="history-empty">No customer valuations found.</div>';
+    return;
+  }
+
+  window._historyShown=records;
+  rows.innerHTML=records.map((r,i)=>{
+    const c=historyCustomer(r);
+    const name=esc(historyName(r)||'Unnamed Customer');
+    const mobile=esc(historyMobile(r)||'No mobile');
+    const bank=esc(c.bank||'');
+    const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
+    const val=typeof dashboardValue==='function'?dashboardValue(r):0;
+    const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
+    return `<div class="history-row">
+      <div class="history-top">
+        <div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to open valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
+        <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
+      </div>
+      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
+      <div class="history-actions">
+        <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">Open</button>
+        <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
+        <button type="button" onclick="event.stopPropagation();shareHistoryRecord(window._historyShown[${i}])">↗ Share PDF</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  updateCustomerHistory();
+  setInterval(updateCustomerHistory,2000);
+});
+
+</script>
+
+<script>
+
+/* Step 28 FIX - Customer Grouping */
+function updateCustomerGroups(){
+  const q=String(document.getElementById('groupSearch')?.value||'').trim().toLowerCase();
+  const rows=document.getElementById('customerGroupRows');
+  const summary=document.getElementById('groupSummary');
+  if(!rows)return;
+  let all=[];
+  try{
+    const raw=localStorage.getItem('goldValuations');
+    const parsed=raw?JSON.parse(raw):[];
+    all=Array.isArray(parsed)?parsed:[];
+  }catch(e){all=[]}
+
+  const map=new Map();
+  all.forEach((r,idx)=>{
+    const c=r?.customer||{};
+    const name=String(c.name||r?.customerName||'').trim();
+    const mobile=String(c.mobile||r?.mobile||'').trim();
+    const bank=String(c.bank||'').trim();
+    const hay=(name+' '+mobile+' '+bank).toLowerCase();
+    if(q && !hay.includes(q))return;
+    const key=name.toLowerCase()+'|'+mobile;
+    if(!map.has(key))map.set(key,{name:name||'Unnamed Customer',mobile,records:[]});
+    map.get(key).records.push({r,idx});
+  });
+
+  const groups=[...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  if(summary)summary.textContent=groups.length+' customer group(s) found';
+  if(!groups.length){
+    rows.innerHTML='<div class="history-empty">No customers found.</div>';
+    return;
+  }
+  window._customerGroups=groups;
+  rows.innerHTML=groups.map((g,gi)=>{
+    const totalValue=g.records.reduce((s,x)=>s+(typeof dashboardValue==='function'?dashboardValue(x.r):0),0);
+    const totalLoan=g.records.reduce((s,x)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(x.r):0),0);
+    const banks=[...new Set(g.records.map(x=>String(x.r?.customer?.bank||'').trim()).filter(Boolean))].join(', ');
+    const entries=g.records.map(x=>{
+      const r=x.r,c=r?.customer||{};
+      const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
+      const bank=esc(c.bank||'');
+      const value=typeof dashboardValue==='function'?dashboardValue(r):0;
+      const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
+      return `<div class="customer-group-entry">
+        <div><b>${date}</b>${bank?' · '+bank:''}<br><span style="font-size:12px;opacity:.7">Valuation ${typeof money==='function'?money(value):'₹'+value.toLocaleString('en-IN')} · Loan ${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</span></div>
+        <div class="customer-group-actions">
+          <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._groupRecords[${x.idx}])">Open</button>
+          <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._groupRecords[${x.idx}])">📄 PDF</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="customer-group">
+      <div class="customer-group-head">
+        <div><button type="button" class="customer-summary-link" onclick="toggleCustomerSummaryGroup(this)">${esc(g.name)}</button><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint collapsed-hint">Tap customer name to view details</div></div>
+        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}" onclick="event.stopPropagation()">📄 Statement</button></div>
+      </div>
+      <div class="customer-group-stats">
+        <div class="customer-group-stat"><span>Total Valuation</span><b>${typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN')}</b></div>
+        <div class="customer-group-stat"><span>Total Sanctioned Loan</span><b>${typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN')}</b></div>
+        <div class="customer-group-stat"><span>Valuations</span><b>${g.records.length}</b></div>
+      </div>
+      <div class="customer-group-history"><div style="font-weight:800;font-size:13px;margin-bottom:2px">Previous Valuations</div>${entries}</div>
+    </div>`;
+  }).join('');
+  window._groupRecords=all;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  updateCustomerGroups();
+});
+
+</script>
+
+<div id="statementModal" class="statement-modal">
+  <div class="statement-box">
+    <div class="statement-head">
+      <div><h2 style="margin:0">Customer Statement</h2><div style="font-size:12px;opacity:.65;margin-top:3px">Complete valuation history</div></div>
+      <button type="button" aria-label="Close customer statement" onclick="closeCustomerStatement()" style="font-size:22px;padding:7px 12px">×</button>
+    </div>
+    <div id="statementPreview" class="statement-preview"></div>
+    <div class="statement-actions">
+      <button id="statementPrintButton" type="button">📄 Print / Save PDF</button>
+      <button id="statementShareButton" type="button">↗ Share Statement</button>
+    </div>
+  </div>
+</div>
+<div id="statementPrintArea" style="display:none"></div>
+
+
+<script>
+/* STEP 30 - Professional A4 Customer Statement */
+(function(){
+  function s(v){return String(v==null?'':v);}
+  function esc(v){return s(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function money(n){return '₹'+(Number(n||0)).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function saved(){
+    try{const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}
+  }
+  function val(r){
+    try{if(typeof window.dashboardValue==='function')return Number(window.dashboardValue(r))||0;}catch(e){}
+    return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0;
+  }
+  function loan(r){
+    try{if(typeof window.reportLoanAmount==='function')return Number(window.reportLoanAmount(r))||0;}catch(e){}
+    const c=r?.customer||{};
+    return Number(c.sanctionedLoanAmount||c.loanAmount||r?.sanctionedLoanAmount||r?.loanAmount||0)||0;
+  }
+  function recordsFor(name,mobile){
+    const n=s(name).trim().toLowerCase(),m=s(mobile).trim();
+    return saved().filter(r=>{
+      const c=r?.customer||{};
+      return s(c.name||r?.customerName).trim().toLowerCase()===n &&
+             s(c.mobile||r?.mobile).trim()===m;
+    });
+  }
+  function build(name,mobile){
+    const records=recordsFor(name,mobile);
+    const tv=records.reduce((a,r)=>a+val(r),0);
+    const tl=records.reduce((a,r)=>a+loan(r),0);
+    const ti=records.reduce((a,r)=>a+(Array.isArray(r.items)?r.items.length:0),0);
+    const banks=[...new Set(records.map(r=>s(r?.customer?.bank).trim()).filter(Boolean))].join(', ')||'—';
+    const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const rows=records.map((r,i)=>{
+      const c=r?.customer||{};
+      const d=s(c.date||r.date).slice(0,10)||'—';
+      const b=s(c.bank)||'—';
+      const items=Array.isArray(r.items)?r.items.length:0;
+      return `<tr>
+        <td class="center">${i+1}</td>
+        <td>${esc(d)}</td>
+        <td>${esc(b)}</td>
+        <td class="num">${money(val(r))}</td>
+        <td class="num">${money(loan(r))}</td>
+        <td class="center">${items}</td>
+      </tr>`;
+    }).join('');
+    return `
+      <div class="s30-paper">
+        <div class="s30-brand">
+          <div class="s30-brand-title">RAJENDRA JEWELLERS</div>
+          <div class="s30-brand-sub">CUSTOMER VALUATION STATEMENT</div>
+        </div>
+
+        <div class="s30-meta">
+          <div><b>Customer Name:</b> ${esc(name)}</div>
+          <div><b>Mobile Number:</b> ${esc(mobile)}</div>
+          <div><b>Bank(s):</b> ${esc(banks)}</div>
+          <div><b>Statement Date:</b> ${esc(today)}</div>
+        </div>
+
+        <div class="s30-summary">
+          <div class="s30-box"><span>Total Valuations</span><b>${records.length}</b></div>
+          <div class="s30-box"><span>Total Valuation</span><b>${money(tv)}</b></div>
+          <div class="s30-box"><span>Total Sanctioned Loan</span><b>${money(tl)}</b></div>
+        </div>
+
+        <div style="margin-top:19px;font-size:14px;font-weight:800">VALUATION HISTORY</div>
+        <table class="s30-table">
+          <thead><tr>
+            <th class="center">#</th><th>Date</th><th>Bank</th>
+            <th class="num">Valuation</th><th class="num">Sanctioned Loan</th><th class="center">Items</th>
+          </tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" class="center">No valuations found.</td></tr>'}</tbody>
+          <tfoot><tr>
+            <td colspan="3" class="num"><b>TOTAL</b></td>
+            <td class="num"><b>${money(tv)}</b></td>
+            <td class="num"><b>${money(tl)}</b></td>
+            <td class="center"><b>${ti}</b></td>
+          </tr></tfoot>
+        </table>
+
+        <div class="s30-footer">
+          <div class="s30-sign">
+            <b>AUTHORISED SIGNATORY</b><br><br>
+            Signature: ______________________
+          </div>
+          <div class="s30-sign">
+            <b>VALUER DETAILS</b><br>
+            REGISTERED GOLD APPRAISER<br>
+            MAHENDRA SHANTILAL GANDHI
+          </div>
+        </div>
+
+        <div class="s30-note">
+          This statement is a summary of valuations saved in the Gold Valuation App.
+        </div>
+      </div>`;
+  }
+
+  window.showCustomerStatement=function(name,mobile){
+    const modal=document.getElementById('statementModal');
+    const preview=document.getElementById('statementPreview');
+    if(!modal||!preview){alert('Customer Statement screen is missing. Please upload the Step 30 index.html.');return;}
+    const content=build(name,mobile);
+    preview.innerHTML=content;
+    modal.style.display='flex';
+    document.body.style.overflow='hidden';
+
+    const print=document.getElementById('statementPrintButton');
+    const share=document.getElementById('statementShareButton');
+
+    if(print)print.onclick=function(){
+      const area=document.getElementById('statementPrintArea');
+      if(area)area.innerHTML=content;
+      document.body.classList.add('statement-printing');
+      if(area)area.style.display='block';
+      setTimeout(function(){
+        window.print();
+        setTimeout(function(){
+          document.body.classList.remove('statement-printing');
+          if(area)area.style.display='none';
+        },800);
+      },120);
+    };
+
+    if(share)share.onclick=function(){
+      const records=recordsFor(name,mobile);
+      const tv=records.reduce((a,r)=>a+val(r),0);
+      const tl=records.reduce((a,r)=>a+loan(r),0);
+      const text='Customer Valuation Statement\nRAJENDRA JEWELLERS\nCustomer: '+name+'\nMobile: '+mobile+'\nValuations: '+records.length+'\nTotal Valuation: '+money(tv)+'\nTotal Sanctioned Loan: '+money(tl);
+      if(navigator.share){navigator.share({title:'Customer Valuation Statement - '+name,text:text}).catch(function(){});}
+      else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){alert('Statement details copied.');});}
+      else alert(text);
+    };
+  };
+
+  window.closeCustomerStatement=function(){
+    const modal=document.getElementById('statementModal');
+    if(modal)modal.style.display='none';
+    document.body.style.overflow='';
+  };
+
+  window.openCustomerStatementByIndex=function(index){
+    const g=(window._customerGroups||[])[Number(index)];
+    if(!g){alert('Customer statement could not be found. Tap Refresh in Customer Summary and try again.');return;}
+    showCustomerStatement(g.name,g.mobile);
+  };
+
+  function wire(){
+    document.querySelectorAll('[data-statement-index]').forEach(function(b){
+      if(b.dataset.statementWired)return;
+      b.dataset.statementWired='1';
+      b.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        openCustomerStatementByIndex(b.getAttribute('data-statement-index'));
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(wire,150);
+    const modal=document.getElementById('statementModal');
+    if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeCustomerStatement();});
+  });
+})();
+</script>
+
+<script>
+/* STEP 31 - Bank-wise Customer Report */
+(function(){
+  const BANKS=[
+    'SBI BANK',
+    'IDBI BANK',
+    'MAHARASHTRA GRAMIN BANK',
+    'DNYANDEEP CO-OP SOCIETY LTD'
+  ];
+
+  function saved31(){
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return[];}
+  }
+  function value31(r){
+    try{if(typeof window.dashboardValue==='function')return Number(window.dashboardValue(r))||0;}catch(e){}
+    return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0;
+  }
+  function loan31(r){
+    try{if(typeof window.reportLoanAmount==='function')return Number(window.reportLoanAmount(r))||0;}catch(e){}
+    const c=r?.customer||{};
+    return Number(c.sanctionedLoanAmount||c.loanAmount||r?.sanctionedLoanAmount||r?.loanAmount||0)||0;
+  }
+  function money31(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function esc31(v){
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function syncBankStatementSelect(){
+    const select=document.getElementById('bankStatementSelect');
+    if(!select)return;
+    const current=String(select.value||'').trim();
+
+    let managed=[];
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');
+      if(Array.isArray(a)) managed=a.map(x=>String(x||'').trim()).filter(Boolean);
+    }catch(e){}
+
+    const saved=saved31().map(r=>String(r?.customer?.bank||'').trim()).filter(Boolean);
+    const names=[...new Set([...managed,...saved])];
+
+    select.innerHTML='<option value="">All Banks</option>'+
+      names.map(b=>'<option value="'+esc31(b)+'">'+esc31(b)+'</option>').join('');
+
+    if(names.includes(current)){
+      select.value=current;
+    }else if(current==='SBI BANK' && names.includes('State Bank Of India')){
+      select.value='State Bank Of India';
+    }else if(current==='IDBI BANK' && names.includes('IDBI BANK')){
+      select.value='IDBI BANK';
+    }else if(current){
+      select.value='';
+    }
+  }
+
+  window.refreshBankStatementReport=function(){
+    if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
+    syncBankStatementSelect();
+    const select=document.getElementById('bankStatementSelect');
+    const stats=document.getElementById('bankReportStats');
+    const tbody=document.querySelector('#bankReportTable tbody');
+    if(!select||!stats||!tbody)return;
+
+    const bank=String(select.value||'').trim();
+    const normBank=function(v){
+      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ').toLowerCase();
+      if(n==='sbi bank') return 'state bank of india';
+      return n;
+    };
+    const wanted=normBank(bank);
+    const records=saved31().filter(r=>{
+      const b=normBank(r?.customer?.bank);
+      return !wanted || b===wanted;
+    });
+
+    const groups=new Map();
+    records.forEach(r=>{
+      const c=r?.customer||{};
+      const name=String(c.name||r?.customerName||'Unnamed').trim()||'Unnamed';
+      const mobile=String(c.mobile||r?.mobile||'').trim();
+      const key=name.toLowerCase()+'|'+mobile;
+      if(!groups.has(key))groups.set(key,{name,mobile,count:0,value:0,loan:0});
+      const g=groups.get(key);
+      g.count++;
+      g.value+=value31(r);
+      g.loan+=loan31(r);
+    });
+
+    const gs=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name));
+    const totalV=records.reduce((s,r)=>s+value31(r),0);
+    const totalL=records.reduce((s,r)=>s+loan31(r),0);
+
+    stats.innerHTML=`
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Customers</span><br>
+        <b style="font-size:20px">${gs.length}</b>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Valuations</span><br>
+        <b style="font-size:20px">${records.length}</b>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Total Valuation</span><br>
+        <b style="font-size:18px">${money31(totalV)}</b>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:12px;padding:11px">
+        <span style="font-size:12px;opacity:.65">Total Sanctioned Loan</span><br>
+        <b style="font-size:18px">${money31(totalL)}</b>
+      </div>`;
+
+    tbody.innerHTML=gs.length?gs.map(g=>`
+      <tr>
+        <td style="border:1px solid #ddd;padding:8px">
+          <b>${esc31(g.name)}</b>${g.mobile?'<br><span style="opacity:.65">'+esc31(g.mobile)+'</span>':''}
+        </td>
+        <td style="border:1px solid #ddd;padding:8px;text-align:center">${g.count}</td>
+        <td style="border:1px solid #ddd;padding:8px;text-align:right">${money31(g.value)}</td>
+        <td style="border:1px solid #ddd;padding:8px;text-align:right">${money31(g.loan)}</td>
+      </tr>`).join('') :
+      '<tr><td colspan="4" style="padding:14px;text-align:center">No valuations found.</td></tr>';
+  };
+
+  window.exportBankStatementPDF=function(){
+    syncBankStatementSelect();
+    const select=document.getElementById('bankStatementSelect');
+    const bank=String(select?.value||'').trim()||'All Banks';
+    const normBank=function(v){
+      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ').toLowerCase();
+      if(n==='sbi bank') return 'state bank of india';
+      return n;
+    };
+    const wanted=normBank(select?.value||'');
+    const records=saved31().filter(r=>!wanted || normBank(r?.customer?.bank)===wanted);
+    const groups=new Map();
+    records.forEach(r=>{
+      const c=r?.customer||{},name=String(c.name||r?.customerName||'Unnamed').trim()||'Unnamed';
+      const mobile=String(c.mobile||r?.mobile||'').trim();
+      const key=name.toLowerCase()+'|'+mobile;
+      if(!groups.has(key))groups.set(key,{name,mobile,count:0,value:0,loan:0});
+      const g=groups.get(key);g.count++;g.value+=value31(r);g.loan+=loan31(r);
+    });
+    const gs=[...groups.values()];
+    const tv=records.reduce((s,r)=>s+value31(r),0),tl=records.reduce((s,r)=>s+loan31(r),0);
+    const rows=gs.map((g,i)=>`<tr><td>${i+1}</td><td>${esc31(g.name)}${g.mobile?'<br>'+esc31(g.mobile):''}</td><td>${g.count}</td><td>${money31(g.value)}</td><td>${money31(g.loan)}</td></tr>`).join('');
+    const doc=`<!doctype html><html><head><title>Bank-wise Customer Report</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#111}h1,h2{margin:0}.head{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}.meta{margin:16px 0;line-height:1.7}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.box{border:1px solid #ccc;padding:10px}.box span{font-size:11px;color:#666}.box b{font-size:17px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th,td{border:1px solid #ccc;padding:8px}th{background:#f1eee6}td:nth-child(1),td:nth-child(3){text-align:center}td:nth-child(4),td:nth-child(5){text-align:right}.sign{margin-top:35px;border-top:1px solid #777;padding-top:8px;font-size:12px}</style></head><body>
+      <div class="head"><h1>RAJENDRA JEWELLERS</h1><h2>BANK-WISE CUSTOMER REPORT</h2></div>
+      <div class="meta"><b>Bank:</b> ${esc31(bank)}<br><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
+      <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
+      <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
+      <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
+      
+</body></html>`;
+    const w=window.open('','_blank');
+    if(!w){alert('Please allow pop-ups for the PDF report.');return;}
+    w.document.open();w.document.write(doc);w.document.close();
+    setTimeout(()=>{w.focus();w.print();},350);
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(refreshBankStatementReport,150);
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 32 FINAL - Data Safety & Backup */
+(function(){
+  function getData(){
+    const data={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k) continue;
+      const raw=localStorage.getItem(k);
+      try{data[k]=JSON.parse(raw);}catch(e){data[k]=raw;}
+    }
+    return data;
+  }
+
+  function status(){
+    const el=document.getElementById('s32BackupStatus');
+    if(!el)return;
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(a))a=[];}catch(e){}
+    const customers=new Set(a.map(r=>String(r?.customer?.name||r?.customerName||'').trim().toLowerCase()).filter(Boolean));
+    const last=localStorage.getItem('s32LastBackup');
+    el.innerHTML='<b>'+a.length+' saved valuation(s)</b> · '+customers.size+' customer(s)'+
+      (last?'<br>Last backup: '+new Date(last).toLocaleString('en-IN'):'<br>No backup created yet.');
+  }
+
+  function backup(){
+    try{
+      const payload={app:'Gold Valuation App',backupVersion:32,createdAt:new Date().toISOString(),data:getData()};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      const d=new Date(),p=n=>String(n).padStart(2,'0');
+      a.href=url;
+      a.download='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
+      a.style.display='none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){a.remove();URL.revokeObjectURL(url);},3000);
+      localStorage.setItem('s32LastBackup',new Date().toISOString());
+      status();
+      setTimeout(function(){alert('Backup created successfully. Check your Downloads folder.');},150);
+    }catch(e){
+      console.error(e);
+      alert('Backup failed: '+(e.message||'Unknown error'));
+    }
+  }
+
+  function restore(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+      try{
+        const payload=JSON.parse(reader.result);
+        const incoming=payload&&payload.data?payload.data:payload;
+        if(!incoming||typeof incoming!=='object'||Array.isArray(incoming))throw new Error('Invalid backup');
+
+        // Restore ordinary settings/data first.
+        Object.keys(incoming).forEach(function(k){
+          if(k==='goldValuations')return;
+          try{localStorage.setItem(k,typeof incoming[k]==='string'?incoming[k]:JSON.stringify(incoming[k]));}catch(e){}
+        });
+
+        // Merge valuations so existing records are not deleted.
+        if(Array.isArray(incoming.goldValuations)){
+          let current=[];
+          try{current=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(current))current=[];}catch(e){}
+          const merged=dedupeValuations(current.concat(incoming.goldValuations.filter(function(r){return r&&typeof r==='object';}).map(function(r){
+            if(!r.id)r.id=Date.now()+Math.floor(Math.random()*100000);
+            return r;
+          })));
+          localStorage.setItem('goldValuations',JSON.stringify(merged));
+        }
+
+        if(typeof window.renderSaved==='function')window.renderSaved();
+        if(typeof window.renderSavedValuations==='function')window.renderSavedValuations();
+        if(typeof window.updateCustomerHistory==='function')window.updateCustomerHistory();
+        if(typeof window.updateCustomerGroups==='function')window.updateCustomerGroups();
+        if(typeof window.refreshBankStatementReport==='function')window.refreshBankStatementReport();
+        status();
+        document.getElementById('s32RestoreFile').value='';
+        alert('Backup restored successfully. Existing valuations were kept.');
+      }catch(e){
+        console.error(e);
+        alert('Restore failed. Please select a valid Gold Valuation backup file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    const b=document.getElementById('s32BackupBtn');
+    const r=document.getElementById('s32RestoreBtn');
+    const f=document.getElementById('s32RestoreFile');
+    const ref=document.getElementById('s32RefreshBtn');
+    if(b)b.addEventListener('click',backup);
+    if(ref)ref.addEventListener('click',status);
+    if(r&&f)r.addEventListener('click',function(){f.click();});
+    if(f)f.addEventListener('change',function(){restore(f.files&&f.files[0]);});
+    status();
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 33 FINAL - Bank Management */
+(function(){
+  const KEY='goldValuationBanks';
+  const DEFAULTS=['SBI BANK','IDBI BANK','MAHARASHTRA GRAMIN BANK','DNYANDEEP CO-OP SOCIETY LTD'];
+
+  function cleanName(v){return String(v||'').trim().replace(/\s+/g,' ');}
+  function banks(){
+    let raw=localStorage.getItem(KEY);
+    let a=[];
+    try{a=raw===null?[]:JSON.parse(raw||'[]');}catch(e){a=[];}
+    if(!Array.isArray(a))a=[];
+    a=a.map(cleanName).filter(Boolean);
+
+    // Only seed the original default banks on first installation.
+    // Do NOT re-add them after the user deletes one.
+    if(raw===null){
+      a=DEFAULTS.slice();
+      localStorage.setItem(KEY,JSON.stringify(a));
+    }
+
+    const seen=new Set(), out=[];
+    a.forEach(function(x){
+      const k=x.toLowerCase();
+      if(!seen.has(k)){seen.add(k);out.push(x);}
+    });
+    if(raw!==null) localStorage.setItem(KEY,JSON.stringify(out));
+    return out;
+  }
+
+  function defaultBank(){
+    const a=banks(), d=cleanName(localStorage.getItem('goldValuationDefaultBank')||'');
+    return a.includes(d)?d:(a[0]||'');
+  }
+
+  function setDefaultBank(name){
+    name=cleanName(name);
+    if(!name)return;
+    localStorage.setItem('goldValuationDefaultBank',name);
+    const sel=document.getElementById('bankName');
+    if(sel && !sel.value)sel.value=name;
+    render();
+  }
+
+  function rebuildSelect(){
+    const sel=document.getElementById('bankName');
+    if(!sel)return;
+    const old=sel.value;
+    const list=banks();
+    sel.innerHTML='<option value="">Select Bank</option>'+
+      list.map(x=>'<option value="'+esc33(x)+'">'+esc33(x)+'</option>').join('')+
+      '<option value="Other">Other</option>';
+    if(old && list.includes(old))sel.value=old;
+    else if(old==='Other')sel.value='Other';
+    else if(!old){
+      const d=defaultBank();
+      if(d)sel.value=d;
+    }
+  }
+
+  function esc33(s){
+    return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function status(){
+    const el=document.getElementById('s33BankStatus');
+    if(!el)return;
+    const a=banks(), d=defaultBank();
+    el.innerHTML='<b>'+a.length+' bank(s)</b> · Default: '+esc33(d||'None');
+  }
+
+  function render(){
+    rebuildSelect();
+    const list=document.getElementById('s33BankList');
+    if(!list)return;
+    const d=defaultBank();
+    list.innerHTML=banks().map(function(name){
+      const safe=esc33(name);
+      return '<div class="s33-bank-row">'+
+        '<div class="s33-bank-name">'+safe+(name===d?'<span class="s33-bank-badge">★ Default</span>':'')+'</div>'+
+        '<div class="s33-bank-actions">'+
+        '<button type="button" data-action="default" data-bank="'+safe+'">Set Default</button>'+
+        '<button type="button" data-action="rename" data-bank="'+safe+'">Rename</button>'+
+        '<button type="button" data-action="delete" data-bank="'+safe+'">Delete</button>'+
+        '</div></div>';
+    }).join('');
+    status();
+  }
+
+  function add(){
+    const input=document.getElementById('s33BankNewName');
+    const name=cleanName(input&&input.value);
+    if(!name){alert('Please enter a bank name.');return;}
+    const a=banks();
+    if(a.some(x=>x.toLowerCase()===name.toLowerCase())){alert('This bank already exists.');return;}
+    a.push(name);
+    localStorage.setItem(KEY,JSON.stringify(a));
+    if(!localStorage.getItem('goldValuationDefaultBank'))localStorage.setItem('goldValuationDefaultBank',name);
+    if(input)input.value='';
+    render();
+    const sel=document.getElementById('bankName');if(sel)sel.value=name;
+    alert(name+' added successfully.');
+  }
+
+  function rename(oldName){
+    const next=cleanName(prompt('Enter the new name for '+oldName+':',oldName));
+    if(!next || next===oldName)return;
+    const a=banks();
+    if(a.some(x=>x.toLowerCase()===next.toLowerCase() && x!==oldName)){
+      alert('A bank with that name already exists.');return;
+    }
+    const idx=a.indexOf(oldName); if(idx<0)return;
+    a[idx]=next;
+    localStorage.setItem(KEY,JSON.stringify(a));
+
+    // Keep historical valuations and reports consistent with the renamed bank.
+    let records=[];
+    try{records=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(records))records=[];}catch(e){records=[];}
+    records.forEach(function(r){
+      if(r && r.customer && r.customer.bank===oldName)r.customer.bank=next;
+    });
+    localStorage.setItem('goldValuations',JSON.stringify(records));
+    if(localStorage.getItem('goldValuationDefaultBank')===oldName)localStorage.setItem('goldValuationDefaultBank',next);
+
+    render();
+    if(typeof renderSaved==='function')renderSaved();
+    if(typeof updateCustomerHistory==='function')updateCustomerHistory();
+    if(typeof updateCustomerGroups==='function')updateCustomerGroups();
+    if(typeof refreshBankStatementReport==='function')refreshBankStatementReport();
+    alert('Bank renamed successfully. Existing records were updated to '+next+'.');
+  }
+
+  window.deleteManagedBank47=function(name){
+    name=cleanName(name);
+    if(!name)return;
+
+    const a=banks();
+    const exists=a.some(function(x){
+      return String(x).trim().toLowerCase()===name.toLowerCase();
+    });
+    if(!exists){
+      alert('Bank not found in Bank Management.');
+      render();
+      return;
+    }
+
+    const used=getSaved33().some(function(r){
+      return String(r?.customer?.bank||'').trim().replace(/\\s+/g,' ').toLowerCase()===name.toLowerCase();
+    });
+
+    const msg=used
+      ? 'Delete '+name+' from Bank Management? Existing saved valuations will NOT be deleted.'
+      : 'Delete '+name+' from Bank Management?';
+
+    if(!confirm(msg))return;
+
+    const next=a.filter(function(x){
+      return String(x).trim().toLowerCase()!==name.toLowerCase();
+    });
+
+    localStorage.setItem(KEY,JSON.stringify(next));
+
+    const currentDefault=String(localStorage.getItem('goldValuationDefaultBank')||'').trim().toLowerCase();
+    if(currentDefault===name.toLowerCase()){
+      localStorage.setItem('goldValuationDefaultBank',next[0]||'');
+    }
+
+    // Force all dependent controls to refresh after deletion.
+    render();
+    try{ if(typeof window.setupBankDropdown==='function')window.setupBankDropdown(); }catch(e){}
+    try{ if(typeof renderSaved==='function')renderSaved(); }catch(e){}
+    try{ if(typeof updateCustomerHistory==='function')updateCustomerHistory(); }catch(e){}
+    try{ if(typeof updateCustomerGroups==='function')updateCustomerGroups(); }catch(e){}
+    try{ if(typeof updateReports==='function')updateReports(); }catch(e){}
+    try{ if(typeof window.syncAllReportBankSelectors==='function')window.syncAllReportBankSelectors(); }catch(e){}
+    try{ if(typeof refreshBankStatementReport==='function')refreshBankStatementReport(); }catch(e){}
+
+    alert(name+' deleted successfully from Bank Management.');
+  };
+
+  function remove(name){
+    window.deleteManagedBank47(name);
+  }
+
+  function getSaved33(){
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return [];}
+  }
+
+
+  function deleteBank51(name){
+    name=cleanName(name);
+    if(!name)return;
+
+    const a=banks();
+    const key=name.toLowerCase();
+    const exists=a.some(x=>String(x).trim().toLowerCase()===key);
+    if(!exists){alert('Bank not found.');return;}
+
+    if(!confirm('Delete '+name+' from Bank Management? Existing saved valuations will NOT be deleted.')) return;
+
+    const next=a.filter(x=>String(x).trim().toLowerCase()!==key);
+    localStorage.setItem(KEY,JSON.stringify(next));
+
+    const def=cleanName(localStorage.getItem('goldValuationDefaultBank')||'');
+    if(def.toLowerCase()===key){
+      localStorage.setItem('goldValuationDefaultBank',next[0]||'');
+    }
+
+    render();
+
+    try{if(typeof window.setupBankDropdown==='function')window.setupBankDropdown();}catch(e){}
+    try{if(typeof window.syncAllReportBankSelectors==='function')window.syncAllReportBankSelectors();}catch(e){}
+    try{if(typeof window.refreshBankStatementReport==='function')window.refreshBankStatementReport();}catch(e){}
+    try{if(typeof renderSaved==='function')renderSaved();}catch(e){}
+    try{if(typeof updateReports==='function')updateReports();}catch(e){}
+
+    alert(name+' deleted successfully.');
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    render();
+    const addBtn=document.getElementById('s33BankAddBtn');
+    const input=document.getElementById('s33BankNewName');
+    const refresh=document.getElementById('s33BankRefresh');
+    const list=document.getElementById('s33BankList');
+
+    if(addBtn)addBtn.addEventListener('click',add);
+    if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter')add();});
+    if(refresh)refresh.addEventListener('click',render);
+    if(list)list.addEventListener('click',function(e){
+      const btn=e.target.closest('button[data-action]');
+      if(!btn)return;
+      const name=btn.getAttribute('data-bank');
+      const action=btn.getAttribute('data-action');
+      if(action==='default')setDefaultBank(name);
+      if(action==='rename')rename(name);
+      if(action==='delete')remove(name);
+    });
+
+
+  // Make the existing app's bank setup use the managed list.
+  const oldSetup=window.setupBankDropdown;
+  window.setupBankDropdown=function(){
+    try{if(typeof oldSetup==='function')oldSetup();}catch(e){}
+    rebuildSelect();
+    const sel=document.getElementById('bankName');
+    if(sel && !sel.value){
+      const d=defaultBank();
+      if(d)sel.value=d;
+    }
+  };
+
+  // Ensure the managed bank list is refreshed whenever the form is reset/loaded.
+  window.refreshBankManagement33=render;
+  });
+})();
+</script>
+
+
+<!-- Step 40A: PDF file sharing support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  function shareText(){
+    const name=document.getElementById('customerName')?.value||'Customer';
+    const bank=(typeof selectedBankName==='function'?selectedBankName():'')||'';
+    const date=document.getElementById('valuationDate')?.value||'';
+    const total=document.getElementById('cTotal')?.textContent||document.getElementById('tv')?.textContent||'';
+    return 'Gold Valuation\nRAJENDRA JEWELLERS\nCustomer: '+name+(bank?'\nBank: '+bank:'')+(date?'\nValuation Date: '+date:'')+(total?'\nTotal Value: '+total:'');
+  }
+
+  async function buildCertificatePdf(){
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+      throw new Error('PDF library is not ready.');
+    }
+    if(typeof printCertificate==='function'){
+      // Populate the certificate without opening the print dialog.
+      const $=id=>document.getElementById(id);
+      const name=$('customerName')?.value||'';
+      const date=$('valuationDate')?.value||'';
+      const rateVal=typeof num==='function'?num($('rate')?.value):Number($('rate')?.value||0);
+      const cert=$('certificate');
+      if(cert){
+        if($('cCertNo')){ $('cCertNo').textContent=typeof getCertificateNo==='function'?getCertificateNo(window._currentSavedRecord||null):''; if(typeof persistCurrentCertificateNo==='function')persistCurrentCertificateNo(); }
+        if($('cBank')) $('cBank').textContent=(typeof selectedBankName==='function'?selectedBankName():'')||'—';
+        if($('cName')) $('cName').textContent=name||'—';
+        if($('cMobile')) $('cMobile').textContent=$('customerMobile')?.value||'—';
+        if($('cDate')) $('cDate').textContent=date||'—';
+        if($('cRate')) $('cRate').textContent=(typeof money==='function'?money(rateVal):'₹'+rateVal)+'/g';
+        if($('cLoan')) $('cLoan').textContent=typeof money==='function'?money(Number($('sanctionedLoan')?.value||0)):'₹'+Number($('sanctionedLoan')?.value||0);
+        let rows='',tg=0,ts=0,tn=0,tr=0,tv=0,no=0;
+        document.querySelectorAll('.item').forEach(el=>{
+          no++; const n=(typeof getItemName==='function' ? getItemName(el) : (el.querySelector('.itemName')?.value||'Item '+no));
+          const g=Number(el.querySelector('.gross')?.value||0), s=Number(el.querySelector('.stone')?.value||0), p=Number(el.querySelector('.purity')?.value||0);
+          const net=Math.max(0,g-s), pure=net*p/100, rounded=Math.floor((pure+1e-9)*10)/10, value=rounded*rateVal;
+          tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;
+          rows+='<tr><td>'+no+'</td><td>'+esc(n)+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+p.toFixed(2)+'%</td><td>'+rounded.toFixed(2)+'</td><td>'+money(value)+'</td></tr>';
+        });
+        if($('cRows')) $('cRows').innerHTML=rows||'<tr><td colspan="7">No items</td></tr>';
+        if($('cGross')) $('cGross').textContent=tg.toFixed(2);
+        if($('cStone')) $('cStone').textContent=ts.toFixed(2);
+        if($('cPurity')) $('cPurity').textContent=(tn?document.querySelectorAll('.item').length?document.querySelectorAll('.item').length:0:0);
+        // Use the same weighted-purity display as the existing certificate.
+        let wp=0; document.querySelectorAll('.item').forEach(el=>{const g=Number(el.querySelector('.gross')?.value||0),s=Number(el.querySelector('.stone')?.value||0),p=Number(el.querySelector('.purity')?.value||0);wp+=Math.max(0,g-s)*p;});
+        if($('cPurity')) $('cPurity').textContent=(tn?wp/tn:0).toFixed(2)+'%';
+        if($('cRounded')) $('cRounded').textContent=tr.toFixed(2);
+        if($('cValue')) $('cValue').textContent=money(tv);
+        if($('cTotal')) $('cTotal').textContent=money(tv);
+        if($('cLoanTotal')) $('cLoanTotal').textContent=money(Number($('sanctionedLoan')?.value||0));
+      }
+    }
+
+    const cert=document.getElementById('certificate');
+    if(!cert) throw new Error('Certificate section not found.');
+    const old={display:cert.style.display,position:cert.style.position,left:cert.style.left,top:cert.style.top,width:cert.style.width,zIndex:cert.style.zIndex};
+    cert.style.setProperty('display','block','important');
+    cert.style.position='absolute'; cert.style.left='0'; cert.style.top='0'; cert.style.width='780px'; cert.style.zIndex='-1';
+    await new Promise(r=>setTimeout(r,120));
+    const canvas=await html2canvas(cert,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    const pageW=210, pageH=297, margin=8;
+    const imgW=pageW-margin*2;
+    const imgH=canvas.height*imgW/canvas.width;
+    const maxH=pageH-margin*2;
+    const drawH=Math.min(imgH,maxH);
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,drawH,undefined,'FAST');
+    const name=document.getElementById('customerName')?.value||'Customer';
+    const date=document.getElementById('valuationDate')?.value||'Valuation';
+    const filename=(typeof pdfFileName==='function'?pdfFileName(name,date):(name+' - '+date+'.pdf'));
+    const blob=pdf.output('blob');
+    Object.assign(cert.style,old);
+    return {blob,filename};
+  }
+
+  async function sharePdfFile(){
+    try{
+      const result=await buildCertificatePdf();
+      const file=new File([result.blob],result.filename,{type:'application/pdf'});
+      const text=shareText();
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({title:'Gold Valuation Certificate',text:text,files:[file]});
+        return;
+      }
+      // Browser does not support file sharing: download the PDF and offer the normal Android share route.
+      const url=URL.createObjectURL(result.blob);
+      const a=document.createElement('a'); a.href=url; a.download=result.filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),30000);
+      alert('PDF saved. Open the PDF and tap Share to send it to WhatsApp or Email.');
+    }catch(e){
+      console.error(e);
+      alert('Direct PDF sharing is not supported by this browser. Please use Valuation Certificate / PDF, then Share.');
+    }
+  }
+
+  // Replace the old print-only sharing with real PDF file sharing.
+  window.shareCurrentPdf=sharePdfFile;
+  window.shareResult=sharePdfFile;
+  window.shareSavedPdf=async function(i){
+    const a=typeof getSaved==='function'?getSaved():[], d=a[i]; if(!d)return;
+    ensureCertificateNo(d); window._currentSavedRecord=d; window._activeCertificateNoOverride=String(d.certificateNo); localStorage.setItem('goldValuations',JSON.stringify(a));
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+    set('customerName',d.customer?.name||''); set('customerMobile',d.customer?.mobile||'');
+    if(typeof setBankValue==='function')setBankValue(d.customer?.bank||'');
+    set('valuationDate',d.customer?.date||new Date().toISOString().slice(0,10));
+    set('rate',d.rate||0); set('ltv1',d.ltv1??65); set('loanRate',d.loanRate??0); set('sanctionedLoan',d.sanctionedLoan||0);
+    const itemsEl=document.getElementById('items'); if(itemsEl){itemsEl.innerHTML=''; count=0; (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));}
+    if(typeof calculate==='function')calculate(); if(typeof closeLoad==='function')closeLoad();
+    await sharePdfFile();
+  };
+})();
+</script>
+
+
+<script>
+/* STEP 41 - Main menu navigation */
+(function(){
+  const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
+
+  window.openAppMenu=function(){
+    const m=document.getElementById('appMenu');
+    if(m) m.classList.add('open');
+  };
+  window.closeAppMenu=function(){
+    const m=document.getElementById('appMenu');
+    if(m) m.classList.remove('open');
+  };
+
+  window.showValuationScreen=function(){
+    menuIds.forEach(function(id){
+      const el=document.getElementById(id);
+      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
+    });
+    document.body.classList.remove('menu-viewing');
+    closeAppMenu();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  window.showMenuSection=function(id){
+    const valuation=document.getElementById('valuation-main-sections');
+    if(valuation) valuation.style.display='none';
+
+    menuIds.forEach(function(x){
+      const el=document.getElementById(x);
+      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
+    });
+    const target=document.getElementById(id);
+    if(!target) return;
+    target.classList.add('menu-section','menu-active');
+    document.body.classList.add('menu-viewing');
+    closeAppMenu();
+    setTimeout(function(){target.scrollIntoView({behavior:'smooth',block:'start'});},80);
+    try{
+      if(id==='dashboard' && typeof updateDashboard==='function') updateDashboard();
+      if(id==='reports'){ if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors(); if(typeof updateReports==='function') updateReports(); }
+      if(id==='bankStatementReport' && typeof refreshBankStatementReport==='function') refreshBankStatementReport();
+      if(id==='customerHistory' && typeof updateCustomerHistory==='function') updateCustomerHistory();
+      if(id==='bankManagement33' && typeof window.renderBankManagement33==='function') window.renderBankManagement33();
+    }catch(err){}
+  };
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') closeAppMenu();
+  });
+
+  // Ensure the app starts on the valuation screen.
+  document.addEventListener('DOMContentLoaded',function(){
+    showValuationScreen();
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 42 - Add Back to Valuation button to every menu option */
+(function(){
+  const ids=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
+
+  function addBackButtons(){
+    ids.forEach(function(id){
+      const section=document.getElementById(id);
+      if(!section || section.querySelector('.menu-back-btn')) return;
+
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='menu-back-btn';
+      btn.textContent='← Back to Valuation';
+      btn.onclick=function(){ showValuationScreen(); };
+
+      section.insertBefore(btn, section.firstElementChild);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded',addBackButtons);
+})();
+</script>
+
+
+<script>
+/* STEP 45 - Customer click reveals actions */
+window.toggleCustomerHistoryRow=function(i, btn){
+  const row=btn.closest('.history-row');
+  if(!row)return;
+  row.classList.toggle('customer-expanded');
+};
+
+window.toggleCustomerSummaryGroup=function(btn){
+  const group=btn.closest('.customer-group');
+  if(!group)return;
+  group.classList.toggle('customer-expanded');
+};
+</script>
+
+
+<script>
+/* STEP 46 - Remove existing duplicate valuation records once on startup */
+(function(){
+  function cleanNow(){
+    try{
+      if(typeof getSaved==='function') getSaved();
+      else {
+        const raw=localStorage.getItem('goldValuations');
+        const a=raw?JSON.parse(raw):[];
+        if(Array.isArray(a) && typeof dedupeValuations==='function'){
+          const clean=dedupeValuations(a);
+          localStorage.setItem('goldValuations',JSON.stringify(clean));
+        }
+      }
+      if(typeof renderSaved==='function')renderSaved();
+      if(typeof updateCustomerHistory==='function')updateCustomerHistory();
+      if(typeof updateCustomerGroups==='function')updateCustomerGroups();
+    }catch(e){console.warn('Duplicate cleanup skipped',e);}
+  }
+  document.addEventListener('DOMContentLoaded',cleanNow);
+})();
+</script>
+
+
+<script>
+/* STEP 51 - Final bank selector synchronization */
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){
+      try{
+        if(typeof window.refreshBankManagement33==='function') window.refreshBankManagement33();
+        if(typeof window.setupBankDropdown==='function') window.setupBankDropdown();
+        if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
+      }catch(e){console.warn('Bank Management sync skipped',e);}
+    },50);
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 51 FIX - Always show Bank Management banks in Valuation dropdown */
+(function(){
+  const KEY='goldValuationBanks';
+
+  function clean(v){
+    return String(v==null?'':v).trim().replace(/\s+/g,' ');
+  }
+  function esc(v){
+    return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function managedBanks(){
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){a=[];}
+    if(!Array.isArray(a))a=[];
+    const out=[],seen=new Set();
+    a.map(clean).filter(Boolean).forEach(function(n){
+      const k=n.toLowerCase();
+      if(!seen.has(k)){seen.add(k);out.push(n);}
+    });
+    return out;
+  }
+
+  window.syncManagedBankDropdown=function(){
+    const sel=document.getElementById('bankName');
+    if(!sel)return;
+
+    const old=clean(sel.value);
+    const banks=managedBanks();
+    const def=clean(localStorage.getItem('goldValuationDefaultBank')||'');
+    sel.innerHTML='<option value="">Select Bank</option>'+
+      banks.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>';}).join('')+
+      '<option value="Other">Other</option>';
+
+    if(old==='Other') sel.value='Other';
+    else {
+      const exact=banks.find(n=>n===old);
+      const ci=banks.find(n=>n.toLowerCase()===old.toLowerCase());
+      const chosen=exact||ci||def||'';
+      if(chosen)sel.value=chosen;
+    }
+
+    const wrap=document.getElementById('otherBankWrap');
+    if(wrap)wrap.style.display=sel.value==='Other'?'block':'none';
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    window.syncManagedBankDropdown();
+    setTimeout(window.syncManagedBankDropdown,100);
+    setTimeout(window.syncManagedBankDropdown,500);
+    const sel=document.getElementById('bankName');
+    if(sel){
+      sel.addEventListener('focus',window.syncManagedBankDropdown);
+      sel.addEventListener('click',window.syncManagedBankDropdown);
+    }
+  });
+
+  // Keep the dropdown synchronized after Bank Management changes.
+  window.addEventListener('storage',function(e){
+    if(e.key===KEY || e.key==='goldValuationDefaultBank') window.syncManagedBankDropdown();
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 52 - Robust Bank Management renderer */
+(function(){
+  const BANK_KEY='goldValuationBanks';
+  const DEFAULT_KEY='goldValuationDefaultBank';
+  const FALLBACK=['SBI BANK','IDBI BANK','MAHARASHTRA GRAMIN BANK','DNYANDEEP CO-OP SOCIETY LTD'];
+
+  function readBanks(){
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem(BANK_KEY)||'[]');}catch(e){a=[];}
+    if(!Array.isArray(a))a=[];
+    a=a.map(x=>String(x||'').trim()).filter(Boolean);
+    if(!a.length){
+      a=FALLBACK.slice();
+      try{localStorage.setItem(BANK_KEY,JSON.stringify(a));}catch(e){}
+    }
+    return [...new Set(a)];
+  }
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  window.renderBankManagementStep52=function(){
+    const list=document.getElementById('s33BankList');
+    if(!list)return;
+    const banks=readBanks();
+    const def=String(localStorage.getItem(DEFAULT_KEY)||banks[0]||'').trim();
+    if(!localStorage.getItem(DEFAULT_KEY) && def){
+      try{localStorage.setItem(DEFAULT_KEY,def);}catch(e){}
+    }
+    list.innerHTML=banks.map(function(name){
+      const isDef=name===def;
+      return '<div class="s33-bank-row" style="padding:12px 0;border-bottom:1px solid #eee">'+
+        '<div><span class="s33-bank-name">'+esc(name)+'</span>'+
+        (isDef?'<span class="s33-bank-badge">★ Default</span>':'')+'</div>'+
+        '<div class="s33-bank-actions">'+
+        '<button type="button" data-action="default" data-bank="'+esc(name)+'">Set Default</button>'+
+        '<button type="button" data-action="rename" data-bank="'+esc(name)+'">Rename</button>'+
+        '<button type="button" data-action="delete" data-bank="'+esc(name)+'"'+
+        (banks.length<=1?' disabled':'')+'>Delete</button>'+
+        '</div></div>';
+    }).join('');
+    if(typeof window.syncManagedBankDropdown==='function') window.syncManagedBankDropdown();
+  };
+
+  document.addEventListener('click',function(e){
+    const b=e.target.closest && e.target.closest('#s33BankList button[data-action]');
+    if(!b)return;
+    const action=b.dataset.action, old=b.dataset.bank;
+    let banks=readBanks();
+    if(action==='default'){
+      localStorage.setItem(DEFAULT_KEY,old);
+    }else if(action==='rename'){
+      const n=prompt('Enter new bank name',old);
+      if(!n)return;
+      const name=n.trim();
+      if(!name)return alert('Please enter a bank name.');
+      if(banks.some(x=>x.toLowerCase()===name.toLowerCase() && x!==old))
+        return alert('This bank already exists.');
+      banks=banks.map(x=>x===old?name:x);
+      localStorage.setItem(BANK_KEY,JSON.stringify(banks));
+      if(localStorage.getItem(DEFAULT_KEY)===old)localStorage.setItem(DEFAULT_KEY,name);
+    }else if(action==='delete'){
+      if(banks.length<=1)return alert('At least one bank must remain.');
+      if(!confirm('Delete "'+old+'"? Existing valuation records will not be deleted.'))return;
+      banks=banks.filter(x=>x!==old);
+      localStorage.setItem(BANK_KEY,JSON.stringify(banks));
+      if(localStorage.getItem(DEFAULT_KEY)===old)localStorage.setItem(DEFAULT_KEY,banks[0]);
+    }
+    renderBankManagementStep52();
+  });
+
+  const oldAdd=document.querySelector('#s33AddBank');
+  if(oldAdd){
+    oldAdd.addEventListener('click',function(){
+      const input=document.querySelector('#s33NewBank');
+      if(!input)return;
+      const name=input.value.trim();
+      if(!name)return alert('Please enter a bank name.');
+      const banks=readBanks();
+      if(banks.some(x=>x.toLowerCase()===name.toLowerCase()))
+        return alert('This bank already exists.');
+      banks.push(name);
+      localStorage.setItem(BANK_KEY,JSON.stringify(banks));
+      if(!localStorage.getItem(DEFAULT_KEY))localStorage.setItem(DEFAULT_KEY,name);
+      input.value='';
+      renderBankManagementStep52();
+    },true);
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    renderBankManagementStep52();
+    setTimeout(renderBankManagementStep52,100);
+    setTimeout(renderBankManagementStep52,500);
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 57 - Apply mobile report table layout to dynamically generated tables */
+(function(){
+  function fixReportTables(){
+    document.querySelectorAll('#reportTableWrap table, #reportTable table, .reports-section table').forEach(function(table){
+      table.classList.add('report-table');
+      const wrap=table.parentElement;
+      if(wrap)wrap.classList.add('report-table-wrap');
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    fixReportTables();
+    setTimeout(fixReportTables,100);
+    setTimeout(fixReportTables,500);
+  });
+})();
+</script>
+
+
+<!-- STEP 59: Data Safety & Backup -->
+<section id="dataSafetyBackup" class="step59-report-card" aria-label="Data Safety and Backup">
+  <div class="step59-head">
+    <div>
+      <h2>Data Safety & Backup</h2>
+      <p>Protect your saved valuation records</p>
+    </div>
+    <button type="button" class="step59-btn step59-refresh" onclick="step59Refresh()">↻ Refresh</button>
+  </div>
+
+  <button type="button" class="step59-back" onclick="step59BackToValuation()">← Back to Valuation</button>
+
+  <div class="step59-status">
+    <div class="step59-status-title">🔒 Your data stays on this device</div>
+    <div class="step59-status-text">Create a backup file regularly so your saved valuations can be restored after an update or device change.</div>
+  </div>
+
+  <div class="step59-stats">
+    <div class="step59-stat"><span>Saved Valuations</span><strong id="step59Count">0</strong></div>
+    <div class="step59-stat"><span>Last Backup</span><strong id="step59LastBackup">Not recorded</strong></div>
+  </div>
+
+  <div class="step59-actions">
+    <button type="button" class="step59-action step59-primary" onclick="step59Backup()">💾 Backup All Data</button>
+    <button type="button" class="step59-action" onclick="step59Restore()">📥 Restore Backup</button>
+  </div>
+
+  <div class="step59-note">
+    <strong>Backup</strong> creates a file containing your saved valuations and app data.<br>
+    <strong>Restore</strong> merges backup records safely and avoids creating duplicate valuations.
+  </div>
+
+  <input id="step59File" type="file" accept=".json,application/json" hidden onchange="step59HandleRestore(event)">
+</section>
+
+<style>
+.step59-report-card{margin:24px auto;padding:22px;max-width:760px;background:#fffdf7;border:1px solid #e4dfd3;border-radius:26px;box-sizing:border-box}
+.step59-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.step59-head h2{margin:0;font-size:28px;line-height:1.15;color:#242424}
+.step59-head p{margin:7px 0 0;color:#6d6d6d;font-size:16px}
+.step59-btn,.step59-back,.step59-action{font:inherit}
+.step59-btn{min-height:52px;padding:10px 18px;border:1px solid #999;border-radius:12px;background:#fff;cursor:pointer;font-weight:600}
+.step59-refresh{white-space:nowrap}
+.step59-back{width:100%;margin:18px 0;padding:14px;border:1px solid #ddd7ca;border-radius:16px;background:#fff;font-size:18px;font-weight:700;cursor:pointer}
+.step59-status{padding:18px;border-radius:18px;background:#f7f2e6;border:1px solid #e7dfcf}
+.step59-status-title{font-size:20px;font-weight:750}
+.step59-status-text{margin-top:7px;color:#666;line-height:1.45}
+.step59-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.step59-stat{padding:16px;border:1px solid #e3ded4;border-radius:17px;background:#fff}
+.step59-stat span{display:block;color:#777;font-size:15px}
+.step59-stat strong{display:block;margin-top:5px;font-size:23px}
+.step59-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.step59-action{min-height:58px;border:1px solid #999;border-radius:14px;background:#fff;cursor:pointer;font-size:18px;font-weight:700}
+.step59-primary{background:#c98a00;color:#fff;border-color:#c98a00}
+.step59-note{margin-top:16px;padding:15px;border-top:1px solid #e5e0d7;color:#666;line-height:1.55;font-size:15px}
+@media(max-width:520px){
+  .step59-report-card{margin:18px 16px;padding:18px;border-radius:22px}
+  .step59-head h2{font-size:24px}
+  .step59-head p{font-size:14px}
+  .step59-stats,.step59-actions{grid-template-columns:1fr}
+  .step59-btn{min-height:48px;padding:9px 12px}
+}
+</style>
+
+<script>
+(function(){
+  const step59Keys=['valuations','savedValuations','goldValuations','valuationRecords','saved_valuations'];
+
+  function readRecords(){
+    for(const k of step59Keys){
+      try{
+        const v=JSON.parse(localStorage.getItem(k)||'null');
+        if(Array.isArray(v)) return v;
+      }catch(e){}
+    }
+    return [];
+  }
+
+  function backupPayload(){
+    const data={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k){
+        try{ data[k]=JSON.parse(localStorage.getItem(k)); }
+        catch(e){ data[k]=localStorage.getItem(k); }
+      }
+    }
+    return {
+      app:'Gold Valuation',
+      backupVersion:1,
+      createdAt:new Date().toISOString(),
+      localStorage:data
+    };
+  }
+
+  window.step59Refresh=function(){
+    const c=document.getElementById('step59Count');
+    if(c)c.textContent=readRecords().length;
+    const d=localStorage.getItem('goldValuationLastBackup');
+    const el=document.getElementById('step59LastBackup');
+    if(el)el.textContent=d ? new Date(d).toLocaleDateString('en-IN') : 'Not recorded';
+  };
+
+  window.step59Backup=function(){
+    try{
+      const payload=backupPayload();
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='gold-valuation-backup-'+new Date().toISOString().slice(0,10)+'.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+      localStorage.setItem('goldValuationLastBackup',new Date().toISOString());
+      step59Refresh();
+      alert('Backup created successfully. Keep this file in a safe place.');
+    }catch(e){ alert('Backup could not be created.'); }
+  };
+
+  window.step59Restore=function(){
+    const f=document.getElementById('step59File');
+    if(f){f.value='';f.click();}
+  };
+
+  window.step59HandleRestore=function(event){
+    const file=event.target.files && event.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+      try{
+        const backup=JSON.parse(reader.result);
+        const source=backup.localStorage && typeof backup.localStorage==='object'
+          ? backup.localStorage : backup;
+
+        let changed=0;
+        Object.keys(source).forEach(k=>{
+          if(k==='goldValuationLastBackup')return;
+          let incoming=source[k];
+
+          // For valuation arrays, merge by stable identity instead of blindly
+          // appending, preventing duplicate entries on repeated restores.
+          if(step59Keys.includes(k) && Array.isArray(incoming)){
+            const current=readRecords();
+            const currentKeySet=new Set(current.map(step59RecordKey));
+            const merged=current.slice();
+            incoming.forEach(r=>{
+              const key=step59RecordKey(r);
+              if(!currentKeySet.has(key)){merged.push(r);currentKeySet.add(key);}
+            });
+            localStorage.setItem(k,JSON.stringify(merged));
+            changed++;
+          }else{
+            try{localStorage.setItem(k,JSON.stringify(incoming));}
+            catch(e){localStorage.setItem(k,String(incoming));}
+            changed++;
+          }
+        });
+        alert('Restore completed. Duplicate valuation records were skipped.');
+        step59Refresh();
+        // Refresh any existing app views if their functions are available.
+        ['renderSavedValuations','refreshSavedValuations','updateDashboard','renderDashboard','refreshAll']
+          .forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]();}catch(e){}});
+      }catch(e){ alert('Invalid backup file. Please select a Gold Valuation backup.'); }
+    };
+    reader.readAsText(file);
+  };
+
+  function step59RecordKey(r){
+    if(!r || typeof r!=='object')return JSON.stringify(r);
+    const id=r.id ?? r.recordId ?? r.valuationId ?? r.uuid;
+    if(id!==undefined && id!==null && String(id)!=='')return 'id:'+id;
+    const name=r.customerName??r.customer??r.name??'';
+    const mobile=r.mobile??r.mobileNumber??r.mobileNo??r.phone??'';
+    const bank=r.bank??r.bankName??'';
+    const date=r.valuationDate??r.date??'';
+    const cert=r.certificateNo??r.certificate??r.certificateNumber??'';
+    const value=r.valuation??r.valuationTotal??r.totalValuation??'';
+    const loan=r.sanctionedLoan??r.loan??r.loanAmount??'';
+    return [name,mobile,bank,date,cert,value,loan].map(x=>String(x)).join('|').toLowerCase();
+  }
+
+  window.step59BackToValuation=function(){
+    const el=document.getElementById('valuation')||document.getElementById('valuationScreen')||document.querySelector('[data-screen="valuation"]');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    else window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  document.addEventListener('DOMContentLoaded',step59Refresh);
+  setTimeout(step59Refresh,500);
+})();
+</script>
 
 </body>
 </html>
