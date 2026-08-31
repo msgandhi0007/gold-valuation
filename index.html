@@ -589,7 +589,10 @@ function shareCurrentPdf(){
   printCertificate();
 }
 function shareSavedPdf(i){
-  const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
+  const a=getSaved(),d=a[i];if(!d)return;
+  ensureCertificateNo(d);
+  window._currentSavedRecord=d;
+  localStorage.setItem('goldValuations',JSON.stringify(a));
   customerName.value=d.customer?.name||'';
   customerMobile.value=d.customer?.mobile||'';
   setBankValue(d.customer?.bank||'');
@@ -655,17 +658,25 @@ function makeCertificateNo(){
   return 'RJ/'+new Date().getFullYear()+'/'+String(n).padStart(5,'0');
 }
 function ensureCertificateNo(d){
-  if(!d || typeof d!=='object') return makeCertificateNo();
-
-  // A saved record keeps its original certificate number forever.
+  if(!d || typeof d!=='object') return '';
   if(d.certificateNo) return d.certificateNo;
-
-  const no=makeCertificateNo();
-  d.certificateNo=no;
-  return no;
+  d.certificateNo=makeCertificateNo();
+  return d.certificateNo;
+}
+function getActiveCertificateNo(){
+  // Saved valuation: always use the number stored on that exact record.
+  if(window._currentSavedRecord){
+    return ensureCertificateNo(window._currentSavedRecord);
+  }
+  // New/unsaved valuation: generate once and keep it in the current draft.
+  if(!window._draftCertificateNo){
+    window._draftCertificateNo=makeCertificateNo();
+  }
+  return window._draftCertificateNo;
 }
 function getCertificateNo(d){
-  return ensureCertificateNo(d);
+  if(d && typeof d==='object') return ensureCertificateNo(d);
+  return getActiveCertificateNo();
 }
 
 function pdfFileName(name,date){
@@ -703,7 +714,7 @@ function printCertificate(){
 
     const rateVal=num(rateEl ? rateEl.value : 0);
     const certNoEl=$('cCertNo');
-    if(certNoEl){ certNoEl.textContent=getCertificateNo(window._currentSavedRecord||null); persistCurrentCertificateNo(); }
+    if(certNoEl){ certNoEl.textContent=getActiveCertificateNo(); persistCurrentCertificateNo(); }
     $('cBank').textContent=selectedBankName()||'—';
     $('cName').textContent=name||'—';
     $('cMobile').textContent=customerMobileEl ? (customerMobileEl.value||'—') : '—';
@@ -794,7 +805,7 @@ document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" styl
 document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
 }
 function currentData(){
-return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||'',
+return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||window._draftCertificateNo||'',
 customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
 rate:rate.value,
 sanctionedLoan:String(document.getElementById('sanctionedLoan')?.value??''),
@@ -877,7 +888,7 @@ if(document.getElementById('sanctionedLoan')) document.getElementById('sanctione
 document.getElementById('items').innerHTML='';
 count=0;
 window._currentSavedRecord=null;
-window._currentSavedRecord=null;
+window._draftCertificateNo=null;
 if(typeof addItem==='function') addItem();
 if(typeof calculate==='function') calculate();
 }
@@ -1024,6 +1035,8 @@ function deleteSaved(i){
 window._currentSavedRecord=null;
 function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.value='';customerMobile.value='';bankName.value='';valuationDate.value=new Date().toISOString().slice(0,10);rate.value=0;items.innerHTML='';count=0;setupBankDropdown();
 document.querySelectorAll('.item').forEach(setupItemNameDropdown);
+window._currentSavedRecord=null;
+window._draftCertificateNo=null;
 addItem();calculate()}
 async function shareResult(){
 let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
