@@ -395,6 +395,10 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   .s33-bank-actions button{flex:1 1 30%}
 }
 
+
+/* STEP 52 - Bank Management loading-state fix */
+#s33BankList:empty::before{content:"No banks found";display:block;padding:14px;color:#666}
+
 </style>
 </head>
 <body>
@@ -2948,6 +2952,106 @@ window.toggleCustomerSummaryGroup=function(btn){
   // Keep the dropdown synchronized after Bank Management changes.
   window.addEventListener('storage',function(e){
     if(e.key===KEY || e.key==='goldValuationDefaultBank') window.syncManagedBankDropdown();
+  });
+})();
+</script>
+
+
+<script>
+/* STEP 52 - Robust Bank Management renderer */
+(function(){
+  const BANK_KEY='goldValuationBanks';
+  const DEFAULT_KEY='goldValuationDefaultBank';
+  const FALLBACK=['SBI BANK','IDBI BANK','MAHARASHTRA GRAMIN BANK','DNYANDEEP CO-OP SOCIETY LTD'];
+
+  function readBanks(){
+    let a=[];
+    try{a=JSON.parse(localStorage.getItem(BANK_KEY)||'[]');}catch(e){a=[];}
+    if(!Array.isArray(a))a=[];
+    a=a.map(x=>String(x||'').trim()).filter(Boolean);
+    if(!a.length){
+      a=FALLBACK.slice();
+      try{localStorage.setItem(BANK_KEY,JSON.stringify(a));}catch(e){}
+    }
+    return [...new Set(a)];
+  }
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  window.renderBankManagementStep52=function(){
+    const list=document.getElementById('s33BankList');
+    if(!list)return;
+    const banks=readBanks();
+    const def=String(localStorage.getItem(DEFAULT_KEY)||banks[0]||'').trim();
+    if(!localStorage.getItem(DEFAULT_KEY) && def){
+      try{localStorage.setItem(DEFAULT_KEY,def);}catch(e){}
+    }
+    list.innerHTML=banks.map(function(name){
+      const isDef=name===def;
+      return '<div class="s33-bank-row" style="padding:12px 0;border-bottom:1px solid #eee">'+
+        '<div><span class="s33-bank-name">'+esc(name)+'</span>'+
+        (isDef?'<span class="s33-bank-badge">★ Default</span>':'')+'</div>'+
+        '<div class="s33-bank-actions">'+
+        '<button type="button" data-action="default" data-bank="'+esc(name)+'">Set Default</button>'+
+        '<button type="button" data-action="rename" data-bank="'+esc(name)+'">Rename</button>'+
+        '<button type="button" data-action="delete" data-bank="'+esc(name)+'"'+
+        (banks.length<=1?' disabled':'')+'>Delete</button>'+
+        '</div></div>';
+    }).join('');
+    if(typeof window.syncManagedBankDropdown==='function') window.syncManagedBankDropdown();
+  };
+
+  document.addEventListener('click',function(e){
+    const b=e.target.closest && e.target.closest('#s33BankList button[data-action]');
+    if(!b)return;
+    const action=b.dataset.action, old=b.dataset.bank;
+    let banks=readBanks();
+    if(action==='default'){
+      localStorage.setItem(DEFAULT_KEY,old);
+    }else if(action==='rename'){
+      const n=prompt('Enter new bank name',old);
+      if(!n)return;
+      const name=n.trim();
+      if(!name)return alert('Please enter a bank name.');
+      if(banks.some(x=>x.toLowerCase()===name.toLowerCase() && x!==old))
+        return alert('This bank already exists.');
+      banks=banks.map(x=>x===old?name:x);
+      localStorage.setItem(BANK_KEY,JSON.stringify(banks));
+      if(localStorage.getItem(DEFAULT_KEY)===old)localStorage.setItem(DEFAULT_KEY,name);
+    }else if(action==='delete'){
+      if(banks.length<=1)return alert('At least one bank must remain.');
+      if(!confirm('Delete "'+old+'"? Existing valuation records will not be deleted.'))return;
+      banks=banks.filter(x=>x!==old);
+      localStorage.setItem(BANK_KEY,JSON.stringify(banks));
+      if(localStorage.getItem(DEFAULT_KEY)===old)localStorage.setItem(DEFAULT_KEY,banks[0]);
+    }
+    renderBankManagementStep52();
+  });
+
+  const oldAdd=document.querySelector('#s33AddBank');
+  if(oldAdd){
+    oldAdd.addEventListener('click',function(){
+      const input=document.querySelector('#s33NewBank');
+      if(!input)return;
+      const name=input.value.trim();
+      if(!name)return alert('Please enter a bank name.');
+      const banks=readBanks();
+      if(banks.some(x=>x.toLowerCase()===name.toLowerCase()))
+        return alert('This bank already exists.');
+      banks.push(name);
+      localStorage.setItem(BANK_KEY,JSON.stringify(banks));
+      if(!localStorage.getItem(DEFAULT_KEY))localStorage.setItem(DEFAULT_KEY,name);
+      input.value='';
+      renderBankManagementStep52();
+    },true);
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    renderBankManagementStep52();
+    setTimeout(renderBankManagementStep52,100);
+    setTimeout(renderBankManagementStep52,500);
   });
 })();
 </script>
