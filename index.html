@@ -138,6 +138,12 @@ al App Cover */
 .dashboard-history-row{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:8px;padding:9px 0;border-bottom:1px solid #eee;font-size:12px}
 .dashboard-history-row:last-child{border-bottom:0}
 @media(max-width:650px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
+.dashboard-stat.wide-stat{min-height:82px}
+.dashboard-bank .bank-pill{display:flex;flex-direction:column;gap:2px}
+.dashboard-bank .bank-pill small{opacity:.65}
+.dashboard-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.dashboard-quick button{min-height:46px}
+@media(max-width:520px){.dashboard-quick{grid-template-columns:1fr 1fr}}
 
 
 /* Step 25 - Bank-wise & Monthly Reports */
@@ -419,14 +425,21 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   </div>
   <div class="dashboard-grid">
     <div class="dashboard-stat"><div class="label">Saved Valuations</div><div class="num" id="dashCount">0</div></div>
-    <div class="dashboard-stat"><div class="label">Total Valuation</div><div class="num" id="dashTotal">₹0</div></div>
-    <div class="dashboard-stat"><div class="label">Today's Valuations</div><div class="num" id="dashToday">0</div></div>
     <div class="dashboard-stat"><div class="label">Customers</div><div class="num" id="dashCustomers">0</div></div>
+    <div class="dashboard-stat wide-stat"><div class="label">Total Valuation</div><div class="num" id="dashTotal">₹0</div></div>
+    <div class="dashboard-stat wide-stat"><div class="label">Total Sanctioned Loan</div><div class="num" id="dashLoan">₹0</div></div>
+    <div class="dashboard-stat"><div class="label">Today's Valuations</div><div class="num" id="dashToday">0</div></div>
+    <div class="dashboard-stat wide-stat"><div class="label">This Month Valuation</div><div class="num" id="dashMonthTotal">₹0</div></div>
   </div>
+  <div style="font-weight:800;margin-top:14px">Bank-wise Summary</div>
   <div class="dashboard-bank" id="dashBanks"></div>
   <div class="dashboard-history">
     <div style="font-weight:800;margin-bottom:5px">Recent Valuations</div>
     <div id="dashHistory"></div>
+  </div>
+  <div class="dashboard-quick">
+    <button type="button" onclick="showMenuSection('customerHistory')">👤 Customer History</button>
+    <button type="button" onclick="showMenuSection('reports')">📈 Reports</button>
   </div>
 </section>
 <section class="menu-section card report-card" id="reports">
@@ -1422,26 +1435,41 @@ function dashboardDate(r){
 function updateDashboard(){
   const records=dashboardRecords();
   const total=records.reduce((s,r)=>s+dashboardValue(r),0);
-  const today=new Date().toISOString().slice(0,10);
+  const loanTotal=records.reduce((s,r)=>s+num(r?.customer?.sanctionedLoan),0);
+  const now=new Date();
+  const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const monthPrefix=today.slice(0,7);
   const todayRecords=records.filter(r=>dashboardDate(r)===today);
+  const monthRecords=records.filter(r=>dashboardDate(r).slice(0,7)===monthPrefix);
+  const monthTotal=monthRecords.reduce((s,r)=>s+dashboardValue(r),0);
   const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
   const countEl=document.getElementById('dashCount');
   const totalEl=document.getElementById('dashTotal');
+  const loanEl=document.getElementById('dashLoan');
   const todayEl=document.getElementById('dashToday');
   const custEl=document.getElementById('dashCustomers');
+  const monthEl=document.getElementById('dashMonthTotal');
   if(countEl)countEl.textContent=records.length;
   if(totalEl)totalEl.textContent=money(total);
+  if(loanEl)loanEl.textContent=money(loanTotal);
   if(todayEl)todayEl.textContent=todayRecords.length;
   if(custEl)custEl.textContent=customers.size;
+  if(monthEl)monthEl.textContent=money(monthTotal);
 
   const bankMap={};
   records.forEach(r=>{
-    const bank=r?.customer?.bank||'Other / Not specified';
-    bankMap[bank]=(bankMap[bank]||0)+dashboardValue(r);
+    const bank=String(r?.customer?.bank||'Other / Not specified');
+    if(!bankMap[bank])bankMap[bank]={count:0,value:0,loan:0};
+    bankMap[bank].count++;
+    bankMap[bank].value+=dashboardValue(r);
+    bankMap[bank].loan+=num(r?.customer?.sanctionedLoan);
   });
   const banks=document.getElementById('dashBanks');
   if(banks){
-    banks.innerHTML=Object.keys(bankMap).sort().map(b=>`<div class="bank-pill"><b>${esc(b)}</b> · ${money(bankMap[b])}</div>`).join('')||'<div style="opacity:.6;font-size:12px">No bank-wise valuations yet</div>';
+    banks.innerHTML=Object.keys(bankMap).sort().map(b=>{
+      const x=bankMap[b];
+      return `<div class="bank-pill"><b>${esc(b)}</b><span>${x.count} valuation${x.count===1?'':'s'}</span><small>${money(x.value)} · Loan ${money(x.loan)}</small></div>`;
+    }).join('')||'<div style="opacity:.6;font-size:12px">No bank-wise valuations yet</div>';
   }
 
   const history=document.getElementById('dashHistory');
@@ -1451,7 +1479,8 @@ function updateDashboard(){
       const name=esc(r?.customer?.name||'Unnamed');
       const bank=esc(r?.customer?.bank||'Other / Not specified');
       const date=esc(dashboardDate(r)||'—');
-      return `<div class="dashboard-history-row"><div><b>${name}</b><br><span style="opacity:.65">${bank}</span></div><div>${date}</div><div style="text-align:right;font-weight:800">${money(dashboardValue(r))}</div></div>`;
+      const cert=esc(r?.certificateNo||'—');
+      return `<div class="dashboard-history-row"><div><b>${name}</b><br><span style="opacity:.65">${bank}</span></div><div>${date}<br><span style="opacity:.6">${cert}</span></div><div style="text-align:right;font-weight:800">${money(dashboardValue(r))}</div></div>`;
     }).join('')||'<div style="font-size:12px;opacity:.6">No saved valuations yet.</div>';
   }
 }
