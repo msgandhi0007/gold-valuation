@@ -292,6 +292,31 @@ body.menu-viewing .menu-section.menu-active{display:block!important}
   border-radius:12px;background:#fff;font-size:15px;font-weight:800;
 }
 
+
+/* STEP 44 - Clickable Customer History & Summary */
+.history-row{
+  cursor:pointer;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.history-row:active{transform:scale(.99)}
+.history-row .history-name{color:#111}
+.history-row .history-name::after{
+  content:'  ›';font-weight:900;opacity:.45;
+}
+.customer-group{transition:box-shadow .12s ease}
+.customer-group-head{
+  cursor:pointer;
+  border-radius:12px;
+  padding:4px;
+}
+.customer-group-head:active{background:#f7f3ea}
+.customer-group-name::after{
+  content:'  ›';font-weight:900;opacity:.45;
+}
+.customer-click-hint{
+  font-size:11px;color:#777;margin-top:4px;font-weight:600;
+}
+
 </style>
 </head>
 <body>
@@ -1667,16 +1692,18 @@ function updateCustomerHistory(){
     const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
     const val=typeof dashboardValue==='function'?dashboardValue(r):0;
     const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
-    return `<div class="history-row">
+    return `<div class="history-row" role="button" tabindex="0"
+      onclick="openHistoryRecord(window._historyShown[${i}])"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHistoryRecord(window._historyShown[${i}])}">
       <div class="history-top">
         <div><div class="history-name">${name}</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
         <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
       </div>
       <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
       <div class="history-actions">
-        <button type="button" onclick="openHistoryRecord(window._historyShown[${i}])">Open</button>
-        <button type="button" onclick="printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
-        <button type="button" onclick="shareHistoryRecord(window._historyShown[${i}])">↗ Share PDF</button>
+        <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">Open</button>
+        <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
+        <button type="button" onclick="event.stopPropagation();shareHistoryRecord(window._historyShown[${i}])">↗ Share PDF</button>
       </div>
     </div>`;
   }).join('');
@@ -1736,15 +1763,17 @@ function updateCustomerGroups(){
       return `<div class="customer-group-entry">
         <div><b>${date}</b>${bank?' · '+bank:''}<br><span style="font-size:12px;opacity:.7">Valuation ${typeof money==='function'?money(value):'₹'+value.toLocaleString('en-IN')} · Loan ${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</span></div>
         <div class="customer-group-actions">
-          <button type="button" onclick="openHistoryRecord(window._groupRecords[${x.idx}])">Open</button>
-          <button type="button" onclick="printHistoryRecord(window._groupRecords[${x.idx}])">📄 PDF</button>
+          <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._groupRecords[${x.idx}])">Open</button>
+          <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._groupRecords[${x.idx}])">📄 PDF</button>
         </div>
       </div>`;
     }).join('');
     return `<div class="customer-group">
-      <div class="customer-group-head">
-        <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div></div>
-        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}">📄 Statement</button></div>
+      <div class="customer-group-head" role="button" tabindex="0"
+        onclick="openHistoryRecord(window._groupRecords[${g.records[g.records.length-1].idx}])"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openHistoryRecord(window._groupRecords[${g.records[g.records.length-1].idx}])}">
+        <div><div class="customer-group-name">${esc(g.name)}</div><div class="customer-group-contact">📱 ${esc(g.mobile||'No mobile')}${banks?' · 🏦 '+esc(banks):''}</div><div class="customer-click-hint">Tap customer to open latest valuation</div></div>
+        <div style="text-align:right"><div style="font-weight:850">${g.records.length} valuation${g.records.length===1?'':'s'}</div><button type="button" style="margin-top:7px;padding:7px 10px" data-statement-index="${gi}" onclick="event.stopPropagation()">📄 Statement</button></div>
       </div>
       <div class="customer-group-stats">
         <div class="customer-group-stat"><span>Total Valuation</span><b>${typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN')}</b></div>
