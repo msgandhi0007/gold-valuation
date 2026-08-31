@@ -1771,7 +1771,49 @@ document.addEventListener('DOMContentLoaded',()=>{
     return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function syncBankStatementSelect(){
+    const select=document.getElementById('bankStatementSelect');
+    if(!select)return;
+
+    const current=String(select.value||'').trim();
+    const names=[];
+    const addName=(v)=>{
+      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ');
+      if(!n)return;
+      if(!names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
+    };
+
+    // 1) Banks created/renamed in Bank Management.
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');
+      if(Array.isArray(a)) a.forEach(addName);
+    }catch(e){}
+
+    // 2) Every bank actually present in saved valuations.
+    saved31().forEach(r=>addName(r?.customer?.bank));
+
+    // 3) Keep any bank already present in the HTML as a fallback.
+    [...select.options].forEach(o=>{
+      if(o.value) addName(o.value);
+    });
+
+    select.innerHTML='<option value="">All Banks</option>'+
+      names.map(b=>'<option value="'+esc31(b)+'">'+esc31(b)+'</option>').join('');
+
+    let match=names.find(x=>x===current);
+    if(!match && current){
+      // Case-insensitive match for renamed/case differences.
+      match=names.find(x=>x.toLowerCase()===current.toLowerCase());
+    }
+    if(!match && current==='SBI BANK'){
+      match=names.find(x=>x.toLowerCase()==='state bank of india');
+    }
+
+    select.value=match||'';
+  }
+
   window.refreshBankStatementReport=function(){
+    syncBankStatementSelect();
     const select=document.getElementById('bankStatementSelect');
     const stats=document.getElementById('bankReportStats');
     const tbody=document.querySelector('#bankReportTable tbody');
@@ -1831,6 +1873,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
 
   window.exportBankStatementPDF=function(){
+    syncBankStatementSelect();
     const select=document.getElementById('bankStatementSelect');
     const bank=String(select?.value||'').trim()||'All Banks';
     const records=saved31().filter(r=>!select?.value || String(r?.customer?.bank||'').trim()===select.value);
@@ -2379,6 +2422,17 @@ document.addEventListener('DOMContentLoaded',()=>{
     await sharePdfFile();
   };
 })();
+</script>
+
+<script>
+/* STEP 45 - Always refresh Bank-wise Customer Report bank list */
+document.addEventListener('DOMContentLoaded',function(){
+  try{
+    if(typeof window.refreshBankStatementReport==='function'){
+      window.refreshBankStatementReport();
+    }
+  }catch(e){console.error(e);}
+});
 </script>
 
 </body>
