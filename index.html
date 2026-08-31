@@ -3149,5 +3149,169 @@ window.toggleCustomerSummaryGroup=function(btn){
 })();
 </script>
 
+
+<!-- STEP 58: BANK-WISE CUSTOMER REPORT -->
+<section id="bankwiseCustomerReportStep58" class="s58-card">
+  <div class="s58-head">
+    <div>
+      <h2>Bank-wise Customer Report</h2>
+      <p>Customer, valuation and sanctioned-loan overview by bank</p>
+    </div>
+    <button class="s58-btn" onclick="s58Refresh()">↻ Refresh</button>
+  </div>
+
+  <button class="s58-back" onclick="s58Back()">← Back to Valuation</button>
+
+  <label class="s58-label">Bank</label>
+  <select id="s58Bank" class="s58-select" onchange="s58Render()">
+    <option value="">All Banks</option>
+  </select>
+
+  <div class="s58-actions">
+    <button class="s58-primary" onclick="s58Export()">📄 Export Bank Report as PDF</button>
+  </div>
+
+  <div class="s58-summary">
+    <div><span>Customers</span><strong id="s58Customers">0</strong></div>
+    <div><span>Valuations</span><strong id="s58Valuations">0</strong></div>
+    <div><span>Total Valuation</span><strong id="s58Value">₹0</strong></div>
+    <div><span>Total Sanctioned Loan</span><strong id="s58Loan">₹0</strong></div>
+  </div>
+
+  <div id="s58List" class="s58-list"></div>
+</section>
+
+<style>
+.s58-card{margin:24px auto;padding:22px;max-width:760px;background:#fffdf7;border:1px solid #e4dfd3;border-radius:26px;box-sizing:border-box}
+.s58-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.s58-head h2{margin:0;font-size:28px;line-height:1.15}
+.s58-head p{margin:7px 0 0;color:#6d6d6d;font-size:16px}
+.s58-btn,.s58-back,.s58-select,.s58-primary{font:inherit}
+.s58-btn{min-height:50px;padding:10px 17px;border:1px solid #999;border-radius:12px;background:#fff;font-weight:600}
+.s58-back{width:100%;margin:18px 0;padding:14px;border:1px solid #ddd7ca;border-radius:16px;background:#fff;font-size:18px;font-weight:700}
+.s58-label{display:block;margin:5px 0 8px;color:#666}
+.s58-select{width:100%;min-height:52px;padding:8px 12px;border:2px solid #222;border-radius:10px;background:#fff}
+.s58-actions{margin:16px 0}
+.s58-primary{width:100%;min-height:56px;padding:12px;border:0;border-radius:14px;background:#c98a00;color:#fff;font-size:18px;font-weight:700}
+.s58-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.s58-summary div{padding:16px;border:1px solid #e3ded4;border-radius:17px;background:#fff}
+.s58-summary span{display:block;color:#777;font-size:15px}
+.s58-summary strong{display:block;margin-top:5px;font-size:23px}
+.s58-list{display:flex;flex-direction:column;gap:14px}
+.s58-customer{padding:18px;border:1px solid #dfdbd2;border-radius:20px;background:#fff;cursor:pointer}
+.s58-top{display:flex;justify-content:space-between;gap:12px}
+.s58-name{font-size:22px;font-weight:750}
+.s58-arrow{color:#777;font-size:23px}
+.s58-total{font-size:21px;font-weight:750;white-space:nowrap}
+.s58-meta{margin-top:7px;color:#666;font-size:16px;line-height:1.35}
+.s58-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.s58-stat{padding:11px 12px;border:1px solid #e6e2d9;border-radius:13px;background:#fcfbf7}
+.s58-stat span{display:block;color:#777;font-size:14px}
+.s58-stat strong{display:block;margin-top:3px;font-size:18px}
+.s58-details{display:none;margin-top:15px;padding-top:14px;border-top:1px solid #e5e1d9}
+.s58-customer.open .s58-details{display:block}
+.s58-detail{padding:10px 0;border-bottom:1px solid #eee9df}
+.s58-detail:last-child{border-bottom:0}
+.s58-empty{text-align:center;padding:28px;color:#777;font-size:18px}
+@media(max-width:520px){
+ .s58-card{margin:18px 16px;padding:18px;border-radius:22px}
+ .s58-head h2{font-size:24px}.s58-head p{font-size:14px}
+ .s58-summary{grid-template-columns:1fr 1fr}
+ .s58-name{font-size:20px}.s58-total{font-size:19px}
+}
+</style>
+
+<script>
+(function(){
+  const keys=['valuations','savedValuations','goldValuations','valuationRecords','saved_valuations'];
+
+  function records(){
+    for(const k of keys){
+      try{
+        const v=JSON.parse(localStorage.getItem(k)||'null');
+        if(Array.isArray(v)) return v;
+      }catch(e){}
+    }
+    return [];
+  }
+  function pick(r,names,def=''){
+    for(const n of names) if(r && r[n]!==undefined && r[n]!==null && r[n]!=='') return r[n];
+    return def;
+  }
+  function n(v){return Number(String(v??0).replace(/[₹,\s]/g,''))||0}
+  function money(v){return '₹'+Math.round(n(v)).toLocaleString('en-IN')}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
+
+  window.s58Render=function(){
+    const rs=records(), sel=document.getElementById('s58Bank');
+    if(!sel)return;
+    const current=sel.value;
+    const banks=[...new Set(rs.map(r=>pick(r,['bank','bankName','bank_name','Bank Name'],'')).filter(Boolean))].sort();
+    sel.innerHTML='<option value="">All Banks</option>'+banks.map(b=>'<option>'+esc(b)+'</option>').join('');
+    if(banks.includes(current))sel.value=current;
+
+    const bank=sel.value;
+    const filtered=rs.filter(r=>!bank||pick(r,['bank','bankName','bank_name','Bank Name'],'')===bank);
+    const groups=new Map();
+
+    filtered.forEach(r=>{
+      const name=pick(r,['customerName','customer','name','customer_name','Customer Name'],'Unknown Customer');
+      const mobile=pick(r,['mobile','mobileNumber','mobileNo','phone','Mobile Number'],'');
+      const b=pick(r,['bank','bankName','bank_name','Bank Name'],'');
+      const key=(name+'|'+mobile+'|'+b).toLowerCase();
+      if(!groups.has(key))groups.set(key,{name,mobile,bank:b,rs:[]});
+      groups.get(key).rs.push(r);
+    });
+
+    let total=0,loan=0;
+    filtered.forEach(r=>{
+      total+=n(pick(r,['valuation','valuationTotal','totalValuation','total_value','Value'],0));
+      loan+=n(pick(r,['sanctionedLoan','loan','loanAmount','sanctioned_loan','Sanctioned Loan'],0));
+    });
+    document.getElementById('s58Customers').textContent=groups.size;
+    document.getElementById('s58Valuations').textContent=filtered.length;
+    document.getElementById('s58Value').textContent=money(total);
+    document.getElementById('s58Loan').textContent=money(loan);
+
+    const list=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name));
+    const box=document.getElementById('s58List');
+    if(!list.length){box.innerHTML='<div class="s58-empty">No customers found.</div>';return}
+
+    box.innerHTML=list.map((g,i)=>{
+      const tv=g.rs.reduce((s,r)=>s+n(pick(r,['valuation','valuationTotal','totalValuation','total_value','Value'],0)),0);
+      const tl=g.rs.reduce((s,r)=>s+n(pick(r,['sanctionedLoan','loan','loanAmount','sanctioned_loan','Sanctioned Loan'],0)),0);
+      const details=g.rs.map(r=>{
+        const d=pick(r,['valuationDate','date','valuation_date','Valuation Date'],'');
+        const v=money(pick(r,['valuation','valuationTotal','totalValuation','total_value','Value'],0));
+        const l=money(pick(r,['sanctionedLoan','loan','loanAmount','sanctioned_loan','Sanctioned Loan'],0));
+        return '<div class="s58-detail">'+esc(d||'—')+' · Valuation '+v+' · Loan '+l+'</div>';
+      }).join('');
+      return '<article class="s58-customer" onclick="s58Toggle(this)">'+
+        '<div class="s58-top"><div><div class="s58-name">'+esc(g.name)+' <span class="s58-arrow">›</span></div>'+
+        '<div class="s58-meta">📱 '+esc(g.mobile||'—')+' · 🏦 '+esc(g.bank||'—')+'</div></div>'+
+        '<div class="s58-total">'+money(tv)+'</div></div>'+
+        '<div class="s58-stats"><div class="s58-stat"><span>Valuations</span><strong>'+g.rs.length+'</strong></div>'+
+        '<div class="s58-stat"><span>Total Sanctioned Loan</span><strong>'+money(tl)+'</strong></div></div>'+
+        '<div class="s58-meta">Tap customer name to view details</div>'+
+        '<div class="s58-details">'+details+'</div></article>';
+    }).join('');
+  };
+
+  window.s58Toggle=function(el){
+    document.querySelectorAll('#s58List .s58-customer.open').forEach(x=>{if(x!==el)x.classList.remove('open')});
+    el.classList.toggle('open');
+  };
+  window.s58Refresh=function(){s58Render()};
+  window.s58Back=function(){
+    const el=document.getElementById('valuation')||document.getElementById('valuationScreen')||document.querySelector('[data-screen="valuation"]');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});else window.scrollTo({top:0,behavior:'smooth'});
+  };
+  window.s58Export=function(){window.print()};
+
+  document.addEventListener('DOMContentLoaded',s58Render);
+  setTimeout(s58Render,500);
+})();
+</script>
+
 </body>
 </html>
