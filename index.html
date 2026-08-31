@@ -350,7 +350,7 @@ al App Cover */
 
   <div style="margin-top:14px">
     <label>Bank</label>
-    <select id="bankStatementSelect" onchange="refreshBankStatementReport()" style="width:100%">
+    <select id="bankStatementSelect" onchange="syncBankWiseCustomerReport47()" style="width:100%">
       <option value="">All Banks</option>
       <option value="SBI BANK">SBI BANK</option>
       <option value="IDBI BANK">IDBI BANK</option>
@@ -1189,22 +1189,31 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <script>
-/* STEP 46 - Sync every report bank selector with Bank Management + saved valuations */
+/* STEP 47 - Robust report-bank synchronization */
 (function(){
-  function reportBankNames46(){
-    const names=[];
-    const add=(v)=>{
-      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ');
-      if(n && !names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
-    };
+  function esc47(v){
+    return String(v==null?'':v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
 
-    // Banks managed in Step 33.
+  function reportBankNames47(){
+    const names=[];
+    function add(v){
+      const n=String(v==null?'':v).trim().replace(/\s+/g,' ');
+      if(n && !names.some(x=>x.toLowerCase()===n.toLowerCase())) names.push(n);
+    }
+
+    // Bank Management list.
     try{
       const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');
       if(Array.isArray(a)) a.forEach(add);
     }catch(e){}
 
-    // Banks actually used by saved valuations.
+    // Banks used by saved valuations. This guarantees existing banks such as
+    // Bank of Baroda remain reportable even after being removed from management.
     try{
       const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
       if(Array.isArray(a)) a.forEach(r=>add(r?.customer?.bank));
@@ -1213,24 +1222,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     return names;
   }
 
-  function syncReportSelect46(id){
+  function syncOne47(id){
     const sel=document.getElementById(id);
     if(!sel)return;
 
     const old=String(sel.value||'').trim();
-    const names=reportBankNames46();
+    const names=reportBankNames47();
 
     sel.innerHTML='<option value="">All Banks</option>'+
-      names.map(n=>'<option value="'+
-        String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')+
-        '">'+
-        String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')+
-        '</option>').join('');
+      names.map(function(n){
+        const e=esc47(n);
+        return '<option value="'+e+'">'+e+'</option>';
+      }).join('');
 
     let match=names.find(n=>n===old);
     if(!match && old) match=names.find(n=>n.toLowerCase()===old.toLowerCase());
 
-    // Preserve compatibility with the original legacy label.
+    // Legacy compatibility.
     if(!match && old==='SBI BANK')
       match=names.find(n=>n.toLowerCase()==='state bank of india');
 
@@ -1238,17 +1246,28 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   window.syncAllReportBankSelectors=function(){
-    syncReportSelect46('reportBank');
-    syncReportSelect46('bankStatementSelect');
+    syncOne47('reportBank');
+    syncOne47('bankStatementSelect');
+  };
+
+  // Called by Bank-wise Customer Report itself.
+  window.syncBankWiseCustomerReport47=function(){
+    syncOne47('bankStatementSelect');
+    if(typeof window.refreshBankStatementReport==='function'){
+      window.refreshBankStatementReport();
+    }
   };
 
   document.addEventListener('DOMContentLoaded',function(){
     window.syncAllReportBankSelectors();
-    if(typeof window.updateReports==='function') window.updateReports();
-    if(typeof window.refreshBankStatementReport==='function') window.refreshBankStatementReport();
+    setTimeout(function(){
+      try{ if(typeof window.updateReports==='function') window.updateReports(); }catch(e){}
+      try{ if(typeof window.refreshBankStatementReport==='function') window.refreshBankStatementReport(); }catch(e){}
+    },100);
   });
 })();
 </script>
+
 
 <script>
 /* Step 25 reports */
@@ -2301,17 +2320,28 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function remove(name){
     const a=banks();
-    const used=getSaved33().some(r=>String(r?.customer?.bank||'')===name);
-    if(used){
-      alert('This bank is used by saved valuations, so it cannot be deleted. Rename it instead to keep your records and reports safe.');
-      return;
-    }
-    if(!confirm('Remove '+name+' from the bank list?'))return;
-    const next=a.filter(x=>x!==name);
+    const used=getSaved33().some(r=>String(r?.customer?.bank||'').trim().toLowerCase()===String(name).trim().toLowerCase());
+    const msg=used
+      ? 'Delete '+name+' from Bank Management? Existing saved valuations will be kept and will still appear in reports.'
+      : 'Remove '+name+' from the bank list?';
+    if(!confirm(msg))return;
+
+    const next=a.filter(x=>String(x).trim().toLowerCase()!==String(name).trim().toLowerCase());
     localStorage.setItem(KEY,JSON.stringify(next));
-    if(localStorage.getItem('goldValuationDefaultBank')===name)
+
+    if(String(localStorage.getItem('goldValuationDefaultBank')||'').trim().toLowerCase()===String(name).trim().toLowerCase())
       localStorage.setItem('goldValuationDefaultBank',next[0]||'');
+
     render();
+
+    // Refresh every dependent UI without touching historical valuation data.
+    try{ if(typeof renderSaved==='function')renderSaved(); }catch(e){}
+    try{ if(typeof updateCustomerHistory==='function')updateCustomerHistory(); }catch(e){}
+    try{ if(typeof updateCustomerGroups==='function')updateCustomerGroups(); }catch(e){}
+    try{ if(typeof updateReports==='function')updateReports(); }catch(e){}
+    try{ if(typeof refreshBankStatementReport==='function')refreshBankStatementReport(); }catch(e){}
+
+    alert(name+' deleted from Bank Management. Existing saved valuations were kept.');
   }
 
   function getSaved33(){
