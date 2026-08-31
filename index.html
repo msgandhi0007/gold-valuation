@@ -794,7 +794,8 @@ document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" styl
 document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
 }
 function currentData(){
-return{id:window._currentSavedRecord?.id||Date.now(),customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
+return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||'',
+customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
 rate:rate.value,
 sanctionedLoan:String(document.getElementById('sanctionedLoan')?.value??''),
 ltv1:String(document.getElementById('ltv1')?.value??'65'),
@@ -889,7 +890,7 @@ if(existingIndex>=0){
 }else{
   a.push(d);
 }
-ensureCertificateNo(a);
+ensureCertificateNo(d);
 localStorage.setItem('goldValuations',JSON.stringify(a));
 alert(existingIndex>=0 ? 'Valuation updated successfully under '+d.customer.bank+'. Form has been reset for the next customer.' : 'Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
 resetAfterSave();
@@ -980,6 +981,7 @@ function loadSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
 ensureCertificateNo(d);
 window._currentSavedRecord=d;
+localStorage.setItem('goldValuations',JSON.stringify(a));
 customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
   d.sanctionedLoan ?? d.sanctioned ?? d.loanAmount ?? d.customer?.sanctionedLoan ?? '';
@@ -990,7 +992,10 @@ if(document.getElementById('loanRate')) document.getElementById('loanRate').valu
 items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
 }
 function printSaved(i){
-const a=getSaved(),d=a[i];if(!d)return; window._currentSavedRecord={id:d.id};
+const a=getSaved(),d=a[i];if(!d)return;
+ensureCertificateNo(d);
+window._currentSavedRecord=d;
+localStorage.setItem('goldValuations',JSON.stringify(a));
 customerName.value=d.customer?.name||'';
 customerMobile.value=d.customer?.mobile||'';
 setBankValue(d.customer?.bank||'');
