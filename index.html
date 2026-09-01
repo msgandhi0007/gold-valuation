@@ -749,6 +749,18 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <option value="valueLow">Lowest valuation</option>
 </select>
 </div>
+<div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+<label style="font-size:12px;font-weight:700">Date:</label>
+<select id="saveDateFilter" onchange="renderSaved()" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--line);border-radius:10px">
+<option value="all">All dates</option>
+<option value="today">Today</option>
+<option value="month">This month</option>
+<option value="older">Older valuations</option>
+</select>
+<button class="secondary" type="button" onclick="refreshSavedManager84()">↻ Refresh</button>
+<button class="secondary" type="button" onclick="syncSavedManager84()">🔄 Sync</button>
+</div>
+<div id="savedManagerStatus84" style="font-size:11px;color:#777;margin:2px 0 8px"></div>
     <div id="bankTabs" class="bank-tabs"></div>
     <div id="savedList"></div>
   </div>
@@ -1525,7 +1537,7 @@ async function saveData(){
   window.openLoad=function(){if(typeof oldOpenLoad==='function')oldOpenLoad();setTimeout(()=>refreshFiles63(true),100);};
 })();
 
-function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
+function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';if(document.getElementById('saveDateFilter'))document.getElementById('saveDateFilter').value='all';selectedBank='ALL';renderSaved();if(typeof refreshSavedManager84==='function')refreshSavedManager84(true)}
 function closeLoad(){document.getElementById('saveManager').style.display='none'}
 function loadData(){openLoad()}
 function migrateCertificateNumbers(){
@@ -1554,6 +1566,14 @@ function renderSaved(){
   let rows=all.map((x,i)=>({x,i})).filter(({x})=>{
     const bank=x.customer?.bank||'';
     if(selectedBank!=='ALL' && bank!==selectedBank)return false;
+    const df=document.getElementById('saveDateFilter')?.value||'all';
+    const d=String(x.customer?.date||x.date||'').slice(0,10);
+    const now=new Date();
+    const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const month=today.slice(0,7);
+    if(df==='today' && d!==today)return false;
+    if(df==='month' && !d.startsWith(month))return false;
+    if(df==='older' && (!d || d.startsWith(month)))return false;
     if(!q)return true;
     const hay=[
       x.customer?.name,x.customer?.mobile,x.customer?.bank,
@@ -1585,7 +1605,11 @@ function renderSaved(){
 
   const list=document.getElementById('savedList');
   const countEl=document.getElementById('savedSearchCount');
-  if(countEl) countEl.textContent = rows.length + ' valuation' + (rows.length===1?'':'s') + ' found' + (q?' for “'+q+'”':'');
+  if(countEl) {
+    const df=document.getElementById('saveDateFilter')?.value||'all';
+    const dlabel=df==='today'?' today':df==='month'?' this month':df==='older'?' older':'';
+    countEl.textContent = rows.length + ' valuation' + (rows.length===1?'':'s') + ' found' + dlabel + (q?' for “'+q+'”':'');
+  }
   if(!rows.length){
     list.innerHTML='<div style="padding:20px;text-align:center;color:#777">No saved valuations found.</div>';
     return;
@@ -3986,6 +4010,59 @@ document.addEventListener('DOMContentLoaded',function(){
   setupLoanLimit();
   window.validateSanctionedLoan(false);
 });
+</script>
+
+<script>
+/* STEP 84 - Saved Valuation Manager: date filters, refresh and safe sync bridge */
+(function(){
+  function status84(msg,ok=true){
+    const el=document.getElementById('savedManagerStatus84');
+    if(el){el.textContent=msg;el.style.color=ok?'#1769aa':'#b42318';}
+  }
+  window.refreshSavedManager84=function(silent){
+    try{
+      // Re-read the authoritative local copy and remove any duplicate records.
+      const raw=localStorage.getItem('goldValuations')||'[]';
+      let a=[]; try{a=JSON.parse(raw);}catch(e){a=[];}
+      if(!Array.isArray(a))a=[];
+      if(typeof dedupeValuations==='function')a=dedupeValuations(a);
+      localStorage.setItem('goldValuations',JSON.stringify(a));
+      if(typeof renderSaved==='function')renderSaved();
+      // Also refresh the physical Valuations folder when available.
+      if(typeof window.refreshValuationFiles63==='function'){
+        Promise.resolve(window.refreshValuationFiles63(true)).then(function(){
+          if(typeof renderSaved==='function')renderSaved();
+          status84(a.length+' saved valuation(s) loaded · folder refreshed.');
+        }).catch(function(){status84(a.length+' saved valuation(s) loaded · folder refresh unavailable.',false);});
+      }else{
+        status84(a.length+' saved valuation(s) loaded.');
+      }
+    }catch(e){
+      console.error(e); status84('Refresh failed: '+(e.message||'Unknown error'),false);
+    }
+  };
+  window.syncSavedManager84=async function(){
+    try{
+      if(typeof window.syncValuationFiles64!=='function'){
+        status84('Sync is not available in this build.',false);
+        return;
+      }
+      status84('Syncing app records with the selected Valuations folder…');
+      await window.syncValuationFiles64();
+      if(typeof renderSaved==='function')renderSaved();
+      if(typeof window.refreshValuationFiles63==='function')await window.refreshValuationFiles63(true);
+      if(typeof renderSaved==='function')renderSaved();
+      const a=typeof getSaved==='function'?getSaved():[];
+      status84('Sync finished · '+a.length+' saved valuation(s) available.');
+    }catch(e){
+      console.error(e); status84('Sync failed: '+(e.message||'Unknown error'),false);
+    }
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    const df=document.getElementById('saveDateFilter');
+    if(df)df.addEventListener('change',function(){if(typeof renderSaved==='function')renderSaved();});
+  });
+})();
 </script>
 </body>
 </html>
