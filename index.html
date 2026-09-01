@@ -722,6 +722,16 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </select>
 </div>
     <div id="bankTabs" class="bank-tabs"></div>
+<div style="margin:10px 0 6px;padding-top:10px;border-top:1px solid var(--line)">
+  <div style="font-weight:800;margin-bottom:6px">📂 Valuation Files in Selected Folder</div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap">
+    <input id="valuationFileSearch" class="search" type="search" placeholder="Search valuation files..." style="margin:0;flex:1;min-width:170px">
+    <select id="valuationFileDate" style="padding:9px;border:1px solid var(--line);border-radius:10px"><option value="">All dates</option></select>
+    <button id="valuationFileRefreshBtn" type="button" class="secondary">↻ Refresh Files</button>
+  </div>
+  <div id="valuationFileStatus" style="font-size:12px;margin-top:6px;color:#087f5b"></div>
+  <div id="valuationFileList"></div>
+</div>
     <div id="savedList"></div>
   </div>
 </div>
@@ -1221,6 +1231,142 @@ async function saveData(){
     alert('Valuation could not be saved: '+(e.message||'Unknown error'));
   }
 }
+
+/* STEP 63 - Valuation File Management */
+(function(){
+  let valuationFiles=[];
+  let fileFilterDate='';
+  window._valuationFiles=[];
+
+  function esc63(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function norm63(v){return String(v||'').trim().toLowerCase();}
+  function getLocal63(){
+    try{const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}
+  }
+  function mergeLocal63(records){
+    const all=getLocal63().concat(records||[]);
+    let clean;
+    try{clean=typeof dedupeValuations==='function'?dedupeValuations(all):all;}catch(e){clean=all;}
+    localStorage.setItem('goldValuations',JSON.stringify(clean));
+    try{if(typeof renderSaved==='function')renderSaved();}catch(e){}
+    try{if(typeof updateReports==='function')updateReports();}catch(e){}
+    try{if(typeof updateCustomerHistory==='function')updateCustomerHistory();}catch(e){}
+    try{if(typeof updateCustomerGroups==='function')updateCustomerGroups();}catch(e){}
+    try{if(typeof refreshBankStatementReport==='function')refreshBankStatementReport();}catch(e){}
+    return clean;
+  }
+  function fileDate63(d){return String(d?.customer?.date||d?.date||'').slice(0,10);}
+  function fileBank63(d){return String(d?.customer?.bank||'').trim();}
+  function fileName63(d){
+    const name=String(d?.customer?.name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+    const date=fileDate63(d).replace(/[^0-9-]/g,'-')||'Valuation';
+    const cert=String(d?.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+    return (name||'Customer')+' - '+date+(cert?' - '+cert:'')+'.json';
+  }
+  function setFileStatus63(msg,ok=true){
+    const el=document.getElementById('valuationFileStatus');
+    if(el){el.textContent=msg;el.style.color=ok?'#087f5b':'#b42318';}
+  }
+  function renderFileDates63(){
+    const sel=document.getElementById('valuationFileDate'); if(!sel)return;
+    const dates=[...new Set(valuationFiles.map(x=>fileDate63(x.data)).filter(Boolean))].sort().reverse();
+    const old=fileFilterDate;
+    sel.innerHTML='<option value="">All dates</option>'+dates.map(d=>'<option value="'+esc63(d)+'">'+esc63(d)+'</option>').join('');
+    if(dates.includes(old)){sel.value=old;}else{fileFilterDate='';sel.value='';}
+  }
+  function matches63(x){
+    const q=norm63(document.getElementById('valuationFileSearch')?.value||document.getElementById('saveSearch')?.value||'');
+    const d=x.data||{};
+    if(q){const hay=[d?.customer?.name,d?.customer?.mobile,d?.customer?.bank,d?.certificateNo,x.name].map(norm63).join(' ');if(!hay.includes(q))return false;}
+    if(fileFilterDate && fileDate63(d)!==fileFilterDate)return false;
+    if(typeof selectedBank!=='undefined' && selectedBank && selectedBank!=='ALL' && norm63(fileBank63(d))!==norm63(selectedBank))return false;
+    return true;
+  }
+  function renderFiles63(){
+    const list=document.getElementById('valuationFileList');if(!list)return;
+    const rows=valuationFiles.filter(matches63);
+    if(!rows.length){list.innerHTML='<div style="padding:14px;text-align:center;color:#777">No valuation files found in the selected folder.</div>';return;}
+    list.innerHTML=rows.map((x)=>{
+      const d=x.data||{}; const idx=valuationFiles.indexOf(x);
+      return '<div class="saved-row" style="margin-top:8px">'+
+        '<div class="saved-row-top"><div><div class="saved-name">'+esc63(d?.customer?.name||'Unnamed Customer')+'</div>'+ 
+        '<div class="saved-meta">'+esc63(fileBank63(d)||'—')+' • '+esc63(d?.customer?.mobile||'—')+' • '+esc63(fileDate63(d)||'—')+'</div>'+ 
+        '<div style="font-size:11px;color:#777;margin-top:3px;word-break:break-word">📄 '+esc63(x.name)+'</div></div></div>'+ 
+        '<div class="saved-actions">'+
+        '<button type="button" class="load-btn" onclick="loadValuationFile63('+idx+')">Open</button>'+
+        '<button type="button" class="delete-btn" onclick="deleteValuationFile63('+idx+')">Delete file</button>'+
+        '</div></div>';
+    }).join('');
+  }
+  async function refreshFiles63(silent){
+    if(!window.getStorageFolderHandle){setFileStatus63('Storage folder feature is not available.',false);return;}
+    const h=await window.getStorageFolderHandle();
+    if(!h){valuationFiles=[];window._valuationFiles=[];renderFileDates63();renderFiles63();setFileStatus63('No selected storage folder. Choose a folder in Settings first.',false);return;}
+    try{
+      const dir=await h.getDirectoryHandle('Valuations',{create:true});
+      const found=[]; const imported=[];
+      for await (const [name,entry] of dir.entries()){
+        if(entry.kind!=='file' || !name.toLowerCase().endsWith('.json'))continue;
+        try{
+          const file=await entry.getFile(); const text=await file.text(); const data=JSON.parse(text);
+          if(data && typeof data==='object' && !Array.isArray(data)){
+            found.push({name,data}); imported.push(data);
+          }
+        }catch(e){console.warn('Could not read valuation file',name,e);}
+      }
+      valuationFiles=found.sort((a,b)=>String(fileDate63(b.data)).localeCompare(String(fileDate63(a.data)))||a.name.localeCompare(b.name));
+      window._valuationFiles=valuationFiles;
+      if(imported.length){
+        mergeLocal63(imported);
+        setFileStatus63(found.length+' valuation file(s) found. App records synchronized.');
+      }else{
+        setFileStatus63('No valuation files found in the selected folder.');
+      }
+      renderFileDates63();renderFiles63();
+    }catch(e){console.error(e);setFileStatus63('Could not read the Valuations folder: '+(e.message||'Unknown error'),false);}
+  }
+  window.refreshValuationFiles63=refreshFiles63;
+  window.loadValuationFile63=async function(index){
+    const x=valuationFiles[index];if(!x)return; const d=x.data;
+    try{
+      const a=getLocal63(); const id=d.id||('file-'+Date.now()); d.id=id;
+      const i=a.findIndex(r=>String(r.id)===String(id)); if(i>=0)a[i]=d;else a.push(d);
+      localStorage.setItem('goldValuations',JSON.stringify(typeof dedupeValuations==='function'?dedupeValuations(a):a));
+      if(typeof window._currentSavedRecord!=='undefined')window._currentSavedRecord=d;
+      if(typeof customerName!=='undefined')customerName.value=d.customer?.name||'';
+      if(typeof customerMobile!=='undefined')customerMobile.value=d.customer?.mobile||'';
+      if(typeof setBankValue==='function')setBankValue(d.customer?.bank||'');
+      if(typeof valuationDate!=='undefined')valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
+      if(typeof rate!=='undefined')rate.value=d.rate||0;
+      const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+      set('ltv1',d.ltv1??65);set('loanRate',d.loanRate??0);set('sanctionedLoan',d.sanctionedLoan??0);
+      const itemsEl=document.getElementById('items'); if(itemsEl){itemsEl.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));}
+      if(typeof calculate==='function')calculate();
+      closeLoad(); alert('Valuation opened from the selected storage folder.');
+    }catch(e){console.error(e);alert('Could not open valuation file: '+(e.message||'Unknown error'));}
+  };
+  window.deleteValuationFile63=async function(index){
+    const x=valuationFiles[index];if(!x)return;
+    if(!confirm('Delete this valuation file from the selected storage folder? The app/local valuation record will NOT be deleted.'))return;
+    try{
+      const h=await window.getStorageFolderHandle(); if(!h)throw new Error('Selected storage folder is not available.');
+      const dir=await h.getDirectoryHandle('Valuations',{create:false}); await dir.removeEntry(x.name);
+      valuationFiles.splice(index,1);window._valuationFiles=valuationFiles;renderFileDates63();renderFiles63();
+      setFileStatus63('Valuation file deleted. The app/local record was kept.');
+    }catch(e){console.error(e);alert('Could not delete valuation file: '+(e.message||'Unknown error'));}
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    const box=document.getElementById('valuationFileSearch'); if(box)box.addEventListener('input',renderFiles63);
+    const ds=document.getElementById('valuationFileDate'); if(ds)ds.addEventListener('change',function(){fileFilterDate=this.value;renderFiles63();});
+    const rb=document.getElementById('valuationFileRefreshBtn'); if(rb)rb.addEventListener('click',function(){refreshFiles63(false);});
+    setTimeout(()=>refreshFiles63(true),700);
+  });
+  const oldSetSavedBankFilter=window.setSavedBankFilter;
+  window.setSavedBankFilter=function(bank){if(typeof oldSetSavedBankFilter==='function')oldSetSavedBankFilter(bank);else{selectedBank=bank;try{renderSaved();}catch(e){}}renderFiles63();};
+  const oldOpenLoad=window.openLoad;
+  window.openLoad=function(){if(typeof oldOpenLoad==='function')oldOpenLoad();setTimeout(()=>refreshFiles63(true),100);};
+})();
+
 function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
 function closeLoad(){document.getElementById('saveManager').style.display='none'}
 function loadData(){openLoad()}
