@@ -590,6 +590,23 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   <div id="storageFolderStatus" class="storage-folder-status">No storage folder selected. The browser's normal Downloads location will continue to be used.</div><div style="font-size:12px;margin-top:8px;color:#777">Files will be organized automatically into <b>Valuations</b>, <b>Reports</b>, <b>Certificates</b> and <b>Backups</b>.</div>
 </section>
 
+<section class="menu-section card storage-management-card" id="storageManagement61">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Storage Management</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Check and manage the folder used by this app</div>
+    </div>
+  </div>
+  <div id="storageManagementStatus" class="storage-folder-status">Checking storage status…</div>
+  <div class="storage-management-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+    <button type="button" id="storageChangeFolderBtn" class="storage-folder-btn">🔄 Change Storage Folder</button>
+    <button type="button" id="storageRefreshBtn" class="storage-folder-btn" style="background:#555">↻ Refresh Status</button>
+    <button type="button" id="storageClearSelectionBtn" class="storage-folder-btn" style="background:#777;grid-column:1/-1">🗑️ Clear Folder Selection</button>
+  </div>
+  <div style="font-size:12px;margin-top:10px;color:#777">Clearing the selection does <b>not</b> delete any files. It only makes the app forget the selected folder. Existing files remain safely in the folder.</div>
+  <div id="storageSubfoldersStatus" style="margin-top:12px;font-size:13px;line-height:1.7"></div>
+</section>
+
 <section class="menu-section card customer-history-card" id="customerHistory">
   <div class="itemhead">
     <div>
@@ -724,6 +741,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
       <button class="menu-item" type="button" onclick="showMenuSection('customerHistory')">👤 Customer History<small>Find previous valuations by customer</small></button>
       <button class="menu-item" type="button" onclick="showMenuSection('bankManagement33')">🏛️ Bank Management<small>Add, rename, remove and set default bank</small></button>
       <button class="menu-item" type="button" onclick="showMenuSection('settings59')">⚙️ Settings<small>Choose storage folder and app preferences</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('storageManagement61')">📁 Storage Management<small>Check, change or clear the selected storage folder</small></button>
       <button class="menu-item" type="button" onclick="showValuationScreen()">💰 Valuation<small>Return to the main valuation screen</small></button>
     </div>
   </div>
@@ -2312,7 +2330,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     const gs=[...groups.values()];
     const tv=records.reduce((s,r)=>s+value31(r),0),tl=records.reduce((s,r)=>s+loan31(r),0);
     const rows=gs.map((g,i)=>`<tr><td>${i+1}</td><td>${esc31(g.name)}${g.mobile?'<br>'+esc31(g.mobile):''}</td><td>${g.count}</td><td>${money31(g.value)}</td><td>${money31(g.loan)}</td></tr>`).join('');
-    const doc=`<!doctype html><html><head><title>Bank-wise Customer Report</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#111}h1,h2{margin:0}.head{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}.meta{margin:16px 0;line-height:1.7}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.box{border:1px solid #ccc;padding:10px}.box span{font-size:11px;color:#666}.box b{font-size:17px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th,td{border:1px solid #ccc;padding:8px}th{background:#f1eee6}td:nth-child(1),td:nth-child(3){text-align:center}td:nth-child(4),td:nth-child(5){text-align:right}.sign{margin-top:35px;border-top:1px solid #777;padding-top:8px;font-size:12px}</style></head><body>
+    const doc=`<!doctype html><html><head><title>Bank-wise Customer Report</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#111}h1,h2{margin:0}.head{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}.meta{margin:16px 0;line-height:1.7}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.box{border:1px solid #ccc;padding:10px}.box span{font-size:11px;color:#666}.box b{font-size:17px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th,td{border:1px solid #ccc;padding:8px}th{background:#f1eee6}td:nth-child(1),td:nth-child(3){text-align:center}td:nth-child(4),td:nth-child(5){text-align:right}.sign{margin-top:35px;border-top:1px solid #777;padding-top:8px;font-size:12px}
+/* STEP 61 - Storage Management */
+.storage-management-card .storage-folder-status{margin-top:8px}
+.storage-management-card button{box-sizing:border-box}
+@media(max-width:520px){
+  .storage-management-grid{grid-template-columns:1fr !important}
+  .storage-management-grid button{grid-column:auto !important}
+}
+</style></head><body>
       <div class="head"><h1>RAJENDRA JEWELLERS</h1><h2>BANK-WISE CUSTOMER REPORT</h2></div>
       <div class="meta"><b>Bank:</b> ${esc31(bank)}<br><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
       <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
@@ -2471,6 +2497,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       tx.onerror=function(){db.close();reject(tx.error||new Error('Could not save folder.'));};
     });
   }
+  window._storeStorageFolderHandle=putHandle;
   async function getHandle(){
     const db=await openDB();
     return new Promise(function(resolve,reject){
@@ -2546,6 +2573,121 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(b)b.addEventListener('click',choose);
     refresh();
   });
+})();
+</script>
+
+<script>
+/* STEP 61 - Storage Management */
+(function(){
+  const DB='GoldValuationSettingsDB', STORE='settings', KEY='storageFolderHandle';
+  function openDB(){
+    return new Promise(function(resolve,reject){
+      if(!('indexedDB' in window)){reject(new Error('IndexedDB is not supported.'));return;}
+      const req=indexedDB.open(DB,1);
+      req.onupgradeneeded=function(){
+        if(!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE);
+      };
+      req.onsuccess=function(){resolve(req.result);};
+      req.onerror=function(){reject(req.error||new Error('Could not open settings storage.'));};
+    });
+  }
+  async function getHandle(){
+    try{
+      const db=await openDB();
+      return await new Promise(function(resolve,reject){
+        const tx=db.transaction(STORE,'readonly'), req=tx.objectStore(STORE).get(KEY);
+        req.onsuccess=function(){const v=req.result;db.close();resolve(v||null);};
+        req.onerror=function(){db.close();reject(req.error||new Error('Could not read folder.'));};
+      });
+    }catch(e){return null;}
+  }
+  async function clearHandle(){
+    const db=await openDB();
+    return await new Promise(function(resolve,reject){
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).delete(KEY);
+      tx.oncomplete=function(){db.close();resolve();};
+      tx.onerror=function(){db.close();reject(tx.error||new Error('Could not clear folder selection.'));};
+    });
+  }
+  function setText(id,text){const el=document.getElementById(id);if(el)el.textContent=text;}
+  function setHtml(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+  async function inspect(){
+    const status=document.getElementById('storageManagementStatus');
+    const sub=document.getElementById('storageSubfoldersStatus');
+    if(!status)return;
+    if(!('showDirectoryPicker' in window)){
+      status.textContent='⚠️ Folder selection is not supported by this browser.';
+      if(sub)sub.textContent='Use a supported Android browser such as Chrome or Edge.';
+      return;
+    }
+    const h=await getHandle();
+    if(!h){
+      status.textContent='⚪ No storage folder selected.';
+      if(sub)sub.innerHTML='<b>Storage folders:</b> Not available until a folder is selected.';
+      return;
+    }
+    let permission='prompt';
+    try{permission=await h.queryPermission({mode:'readwrite'});}catch(e){}
+    if(permission!=='granted' && h.requestPermission){
+      try{permission=await h.requestPermission({mode:'readwrite'});}catch(e){}
+    }
+    if(permission!=='granted'){
+      status.textContent='⚠️ '+(h.name||'Selected folder')+' — permission is not granted.';
+      if(sub)sub.innerHTML='<b>Storage folders:</b> Permission required. Tap “Change Storage Folder” and select the folder again.';
+      return;
+    }
+    status.textContent='✅ '+(h.name||'Selected folder')+' — ready for app storage.';
+    let html='<b>Storage folders:</b><br>📂 Valuations — valuation data<br>📂 Reports — customer, bank & monthly reports<br>📂 Certificates — valuation certificate PDFs<br>📂 Backups — backup files';
+    try{
+      for(const name of ['Valuations','Reports','Certificates','Backups']) await h.getDirectoryHandle(name,{create:true});
+      html+='<br><span style="color:#087f5b">✓ All four app folders are ready.</span>';
+    }catch(e){
+      html+='<br><span style="color:#b42318">⚠️ Could not verify/create all folders. Select the storage folder again.</span>';
+    }
+    if(sub)sub.innerHTML=html;
+  }
+  async function changeFolder(){
+    if(typeof window.showDirectoryPicker!=='undefined' || 'showDirectoryPicker' in window){
+      try{
+        const h=await window.showDirectoryPicker({mode:'readwrite'});
+        // Reuse Step 59's stored handle writer when available.
+        if(window._storeStorageFolderHandle) await window._storeStorageFolderHandle(h);
+        else{
+          const db=await openDB();
+          await new Promise(function(resolve,reject){
+            const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(h,KEY);
+            tx.oncomplete=function(){db.close();resolve();};tx.onerror=function(){db.close();reject(tx.error);};
+          });
+        }
+        if(typeof window.refreshStorageFolderStatus==='function')await window.refreshStorageFolderStatus();
+        await inspect();
+        alert('Storage folder changed successfully.');
+      }catch(e){
+        if(e&&e.name==='AbortError')return;
+        console.error(e);alert('Could not change the storage folder. Please try again.');
+      }
+    }else alert('Your browser does not support choosing a storage folder.');
+  }
+  async function clearSelection(){
+    if(!confirm('Forget the selected storage folder? No files will be deleted.'))return;
+    try{
+      await clearHandle();
+      if(typeof window.refreshStorageFolderStatus==='function')await window.refreshStorageFolderStatus();
+      await inspect();
+      alert('Storage folder selection cleared. Your existing files were not deleted.');
+    }catch(e){console.error(e);alert('Could not clear the folder selection.');}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    const c=document.getElementById('storageChangeFolderBtn');
+    const r=document.getElementById('storageRefreshBtn');
+    const x=document.getElementById('storageClearSelectionBtn');
+    if(c)c.addEventListener('click',changeFolder);
+    if(r)r.addEventListener('click',inspect);
+    if(x)x.addEventListener('click',clearSelection);
+    setTimeout(inspect,200);
+  });
+  window.refreshStorageManagement61=inspect;
 })();
 </script>
 
@@ -2965,7 +3107,7 @@ window.saveCurrentCertificatePdf = async function(){
 <script>
 /* STEP 41 - Main menu navigation */
 (function(){
-  const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33','settings59'];
+  const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33','settings59','storageManagement61'];
 
   window.openAppMenu=function(){
     const m=document.getElementById('appMenu');
@@ -3007,6 +3149,7 @@ window.saveCurrentCertificatePdf = async function(){
       if(id==='customerHistory' && typeof updateCustomerHistory==='function') updateCustomerHistory();
       if(id==='bankManagement33' && typeof window.renderBankManagement33==='function') window.renderBankManagement33();
       if(id==='settings59' && typeof window.refreshStorageFolderStatus==='function') window.refreshStorageFolderStatus();
+      if(id==='storageManagement61' && typeof window.refreshStorageManagement61==='function') window.refreshStorageManagement61();
     }catch(err){}
   };
 
