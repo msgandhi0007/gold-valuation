@@ -1,3 +1,4 @@
+<!-- STEP 82 - Save protection: required customer/valuation details and LTV limit -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1294,36 +1295,81 @@ if(typeof calculate==='function') calculate();
 async function validateValuationBeforeSave(){
   const nameEl=document.getElementById('customerName');
   const rateEl=document.getElementById('rate');
+  const loanEl=document.getElementById('sanctionedLoan');
+  const ltvEl=document.getElementById('ltv1');
   const name=String(nameEl?.value||'').trim();
   if(!name){
-    alert('Customer Name is required. Please enter the customer name before saving.');
-    nameEl?.focus();
-    return false;
+    alert('Cannot save valuation. Customer Name is required.');
+    nameEl?.focus(); return false;
   }
+
   const rateValue=num(rateEl?.value);
   if(!(rateValue>0)){
-    alert('Market Rate / gram is required. Please enter the market rate before saving.');
-    rateEl?.focus();
-    return false;
+    alert('Cannot save valuation. Enter Market Rate / gram greater than 0.');
+    rateEl?.focus(); return false;
   }
+
   const itemEls=[...document.querySelectorAll('#items .item')];
   if(!itemEls.length){
-    alert('Valuation details are required. Please add at least one Jewellery Item before saving.');
+    alert('Cannot save valuation. Add at least one Jewellery Item.');
     return false;
   }
-  const valid=itemEls.some(el=>{
-    const itemName=typeof getItemName==='function'?getItemName(el):(el.querySelector('.itemName')?.value||'');
+
+  // Every displayed jewellery item must be complete before saving.
+  for(let i=0;i<itemEls.length;i++){
+    const el=itemEls[i];
+    const itemNo=i+1;
+    const itemName=typeof getItemName==='function' ? getItemName(el) : (el.querySelector('.itemName')?.value||'');
     const gross=num(el.querySelector('.gross')?.value);
+    const stone=num(el.querySelector('.stone')?.value);
     const purity=num(el.querySelector('.purity')?.value);
-    return String(itemName||'').trim() && gross>0 && purity>0;
+    if(!String(itemName||'').trim()){
+      alert('Cannot save valuation. Select a Jewellery Item Name for Item '+itemNo+'.');
+      el.querySelector('.itemName')?.focus(); return false;
+    }
+    if(!(gross>0)){
+      alert('Cannot save valuation. Enter Gross Weight greater than 0 for Item '+itemNo+'.');
+      el.querySelector('.gross')?.focus(); return false;
+    }
+    if(stone<0 || stone>gross){
+      alert('Cannot save valuation. Stone Weight must be between 0 and Gross Weight for Item '+itemNo+'.');
+      el.querySelector('.stone')?.focus(); return false;
+    }
+    if(!(purity>0 && purity<=100)){
+      alert('Cannot save valuation. Purity must be greater than 0 and not more than 100% for Item '+itemNo+'.');
+      el.querySelector('.purity')?.focus(); return false;
+    }
+  }
+
+  // Use the same rounded-pure-gold calculation as the app's valuation logic.
+  let marketValue=0;
+  itemEls.forEach(el=>{
+    const gross=num(el.querySelector('.gross')?.value);
+    const stone=num(el.querySelector('.stone')?.value);
+    const purity=num(el.querySelector('.purity')?.value);
+    const net=Math.max(0,gross-stone);
+    const rounded=Math.floor((net*purity/100+1e-9)*10)/10;
+    marketValue += rounded*rateValue;
   });
-  if(!valid){
-    alert('Valuation details are required. Enter a Jewellery Item Name, Gross Weight and Purity before saving.');
+  if(!(marketValue>0)){
+    alert('Cannot save valuation. Total Market Value must be greater than ₹0.');
     return false;
+  }
+
+  const ltv=Math.max(0,Math.min(100,num(ltvEl?.value)));
+  const maxLoan=marketValue*ltv/100;
+  const loan=num(loanEl?.value);
+  if(loan<0){
+    alert('Cannot save valuation. Sanctioned Loan Amount cannot be negative.');
+    loanEl?.focus(); return false;
+  }
+  if(loan>maxLoan+0.005){
+    alert('Cannot save valuation. Sanctioned Loan Amount cannot be more than the entered LTV limit ('+
+      ltv.toFixed(2)+'%). Maximum allowed: '+money(maxLoan)+'.');
+    loanEl?.focus(); return false;
   }
   return true;
 }
-
 async function saveData(){
   try{
     if(!(await validateValuationBeforeSave())) return;
