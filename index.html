@@ -677,7 +677,12 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </section>
 
 <div id="valuation-main-sections">
-<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
+<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div>
+<div id="editValuationBanner" style="display:none;margin:10px 0 0;padding:10px 12px;border:1px solid #d99a00;border-radius:10px;background:#fff8e6;font-size:13px;font-weight:700">
+  ✏️ Editing Saved Valuation
+  <button type="button" onclick="cancelValuationEdit()" style="float:right;padding:5px 9px;border:1px solid #bbb;border-radius:8px;background:#fff">Cancel Edit</button>
+  <div id="editValuationFile" style="font-size:11px;font-weight:500;opacity:.72;margin-top:4px"></div>
+</div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
 <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
 <div class="field"><label>Bank Name</label>
@@ -1180,9 +1185,32 @@ if(JSON.stringify(clean)!==JSON.stringify(a)){
 return clean;
 }
 let selectedBank='ALL';
+window._editingValuationId=null;
+window._editingValuationOriginalFilename=null;
 function setSavedBankFilter(bank){
   selectedBank=bank;
   renderSaved();
+}
+function setValuationEditMode(record, originalFilename){
+  window._editingValuationId=record?.id||null;
+  window._editingValuationOriginalFilename=originalFilename||window._editingValuationOriginalFilename||null;
+  const banner=document.getElementById('editValuationBanner');
+  const fileEl=document.getElementById('editValuationFile');
+  if(banner)banner.style.display=record?'block':'none';
+  if(fileEl)fileEl.textContent=record ? ('File: '+(window._editingValuationOriginalFilename||'Existing valuation file')) : '';
+}
+function clearValuationEditMode(){
+  window._editingValuationId=null;
+  window._editingValuationOriginalFilename=null;
+  const banner=document.getElementById('editValuationBanner');
+  const fileEl=document.getElementById('editValuationFile');
+  if(banner)banner.style.display='none';
+  if(fileEl)fileEl.textContent='';
+}
+function cancelValuationEdit(){
+  clearValuationEditMode();
+  resetAfterSave();
+  if(typeof showValuationScreen==='function')showValuationScreen();
 }
 function resetAfterSave(){
 document.getElementById('customerName').value='';
@@ -1197,6 +1225,7 @@ document.getElementById('items').innerHTML='';
 count=0;
 window._currentSavedRecord=null;
 window._draftCertificateNo=null;
+clearValuationEditMode();
 if(typeof addItem==='function') addItem();
 if(typeof calculate==='function') calculate();
 }
@@ -1221,7 +1250,10 @@ async function saveData(){
         .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
       const safeDate=String(d.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
       const cert=String(d.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
-      valuationFilename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+      const generatedFilename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+      // Step 69: when editing an existing valuation, keep the original physical
+      // filename so changing the customer/date does not create a second file.
+      valuationFilename=window._editingValuationOriginalFilename || generatedFilename;
       const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
       try{ fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
 
@@ -1351,6 +1383,7 @@ async function saveData(){
       const i=a.findIndex(r=>String(r.id)===String(id)); if(i>=0)a[i]=d;else a.push(d);
       localStorage.setItem('goldValuations',JSON.stringify(typeof dedupeValuations==='function'?dedupeValuations(a):a));
       if(typeof window._currentSavedRecord!=='undefined')window._currentSavedRecord=d;
+      setValuationEditMode(d, x.name);
       if(typeof customerName!=='undefined')customerName.value=d.customer?.name||'';
       if(typeof customerMobile!=='undefined')customerMobile.value=d.customer?.mobile||'';
       if(typeof setBankValue==='function')setBankValue(d.customer?.bank||'');
@@ -1473,6 +1506,7 @@ function loadSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
 ensureCertificateNo(d);
 window._currentSavedRecord=d;
+setValuationEditMode(d, typeof fileName63==='function' ? fileName63(d) : null);
 localStorage.setItem('goldValuations',JSON.stringify(a));
 customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
@@ -1519,6 +1553,7 @@ function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.val
 document.querySelectorAll('.item').forEach(setupItemNameDropdown);
 window._currentSavedRecord=null;
 window._draftCertificateNo=null;
+clearValuationEditMode();
 addItem();calculate()}
 async function shareResult(){
 let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
@@ -1999,6 +2034,8 @@ function openHistoryRecord(record){
   try{
     // Restore the selected saved valuation using the app's normal load flow.
     const c=historyCustomer(record);
+    window._currentSavedRecord=record;
+    setValuationEditMode(record, (typeof fileName63==='function'?fileName63(record):null));
     if(document.getElementById('customerName'))document.getElementById('customerName').value=c.name||'';
     if(document.getElementById('customerMobile'))document.getElementById('customerMobile').value=c.mobile||'';
     if(document.getElementById('valuationDate'))document.getElementById('valuationDate').value=c.date||record.date||'';
