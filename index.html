@@ -1352,8 +1352,18 @@ async function saveData(){
     let a=getSaved();
     d.customer.bank=d.customer.bank||'Other / Not specified';
     ensureCertificateNo(d);
+    const nowIso=new Date().toISOString();
     const existingIndex=a.findIndex(x=>String(x.id)===String(d.id));
-    if(existingIndex>=0){ a[existingIndex]=d; } else { a.push(d); }
+    if(existingIndex>=0){
+      const oldRecord=a[existingIndex]||{};
+      d.createdAt=oldRecord.createdAt || nowIso;
+      d.modifiedAt=nowIso;
+      d.auditStatus='Edited';
+      a[existingIndex]=d;
+    } else {
+      d.createdAt=nowIso; d.modifiedAt=nowIso; d.auditStatus='Created';
+      a.push(d);
+    }
 
     // Keep the fast local copy for the app UI.
     localStorage.setItem('goldValuations',JSON.stringify(a));
@@ -1459,7 +1469,8 @@ async function saveData(){
       return '<div class="saved-row" style="margin-top:8px">'+
         '<div class="saved-row-top"><div><div class="saved-name">'+esc63(d?.customer?.name||'Unnamed Customer')+'</div>'+ 
         '<div class="saved-meta">'+esc63(fileBank63(d)||'—')+' • '+esc63(d?.customer?.mobile||'—')+' • '+esc63(fileDate63(d)||'—')+'</div>'+ 
-        '<div style="font-size:11px;color:#777;margin-top:3px;word-break:break-word">📄 '+esc63(x.name)+'</div></div></div>'+ 
+        '<div style="font-size:11px;color:#777;margin-top:3px;word-break:break-word">📄 '+esc63(x.name)+'</div>'+
+        '<div style="font-size:11px;color:#555;margin-top:4px;line-height:1.5">🕒 Created: '+esc63(formatAuditDate86(d.createdAt))+'<br>✏️ Modified: '+esc63(formatAuditDate86(d.modifiedAt))+'</div></div></div>'+ 
         '<div class="saved-actions">'+
         '<button type="button" class="load-btn" onclick="loadValuationFile63('+idx+')">Open</button>'+
         '<button type="button" class="delete-btn" onclick="deleteValuationFile63('+idx+')">Delete file</button>'+
@@ -2151,13 +2162,32 @@ function printBankMonthlyReport(){
 <script>
 
 /* Step 27 - Customer-wise History */
+function formatAuditDate86(v){
+  if(!v)return '—';
+  try{return new Date(v).toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return String(v);}
+}
+function ensureAuditTimestamps86(r){
+  if(!r)return r;
+  if(!r.createdAt){
+    const d=r.customer&&r.customer.date?String(r.customer.date):'';
+    r.createdAt=d?new Date(d+'T00:00:00').toISOString():new Date().toISOString();
+  }
+  if(!r.modifiedAt)r.modifiedAt=r.createdAt;
+  if(!r.auditStatus)r.auditStatus='Created';
+  return r;
+}
 function historyRecords(){
   try{
     const raw=localStorage.getItem('goldValuations');
     const a=raw?JSON.parse(raw):[];
-    return Array.isArray(a)?a:[];
+    if(!Array.isArray(a))return[];
+    let changed=false;
+    a.forEach(r=>{const before=JSON.stringify([r.createdAt,r.modifiedAt,r.auditStatus]);ensureAuditTimestamps86(r);if(before!==JSON.stringify([r.createdAt,r.modifiedAt,r.auditStatus]))changed=true;});
+    if(changed)localStorage.setItem('goldValuations',JSON.stringify(a));
+    return a;
   }catch(e){return[]}
 }
+
 function historyCustomer(r){
   return r?.customer||{};
 }
@@ -2274,6 +2304,7 @@ function updateCustomerHistory(){
         <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
       </div>
       <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
+      <div style="font-size:11px;margin-top:7px;line-height:1.6;background:#f8f9fa;border-radius:9px;padding:7px 9px">🕒 <b>Created:</b> ${esc(formatAuditDate86(r.createdAt))}<br>✏️ <b>Last modified:</b> ${esc(formatAuditDate86(r.modifiedAt))}<br>📝 <b>Status:</b> ${esc(r.auditStatus||'Created')}</div>
       <div class="history-actions">
         <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">Open</button>
         <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
@@ -4076,6 +4107,8 @@ document.addEventListener('DOMContentLoaded',function(){
       const copy=JSON.parse(JSON.stringify(source));
       copy.id=Date.now()+Math.floor(Math.random()*1000);
       copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo():'';
+      copy.createdAt=new Date().toISOString(); copy.modifiedAt=copy.createdAt;
+      copy.auditStatus='Duplicated'; copy.duplicatedFromId=source.id||null;
       // A duplicate is a new draft: it must not overwrite the source record.
       window._currentSavedRecord=null;
       window._activeCertificateNoOverride=null;
