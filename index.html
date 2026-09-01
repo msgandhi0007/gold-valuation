@@ -2795,8 +2795,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
       const holder=document.createElement('div');
       holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;padding:20px;z-index:-1;';
-      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('
-</body>'));
+      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('</body>'));
       document.body.appendChild(holder);
       const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
       const {jsPDF}=window.jspdf;
