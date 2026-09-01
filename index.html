@@ -583,11 +583,11 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   <div class="itemhead">
     <div>
       <h2 style="margin:0">Settings</h2>
-      <div style="font-size:12px;opacity:.68;margin-top:4px">Choose where app backup files should be stored</div>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Choose where valuations, reports and backups should be stored</div>
     </div>
   </div>
   <button type="button" id="chooseStorageFolderBtn" class="storage-folder-btn">📁 Choose Storage Folder</button>
-  <div id="storageFolderStatus" class="storage-folder-status">No storage folder selected. The browser's normal Downloads location will continue to be used.</div>
+  <div id="storageFolderStatus" class="storage-folder-status">No storage folder selected. The browser's normal Downloads location will continue to be used.</div><div style="font-size:12px;margin-top:8px;color:#777">Files will be organized automatically into <b>Valuations</b>, <b>Reports</b> and <b>Backups</b>.</div>
 </section>
 
 <section class="menu-section card customer-history-card" id="customerHistory">
@@ -1065,7 +1065,7 @@ async function exportBackup(){
   const stamp=new Date().toISOString().slice(0,10);
   const filename="Gold-Valuation-Backup-"+stamp+".json";
   try{
-    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob)){
+    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Backups')){
       alert("Backup saved in your selected Storage Folder.");
       return;
     }
@@ -1401,7 +1401,7 @@ async function exportValuationsBackup(){
     const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     const stamp=new Date().toISOString().slice(0,10);
     const filename='Gold-Valuation-Backup-'+stamp+'.json';
-    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob)){
+    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Backups')){
       setBackupStatus(records.length+' valuation(s) saved in the selected Storage Folder.');
       return;
     }
@@ -2375,7 +2375,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
       const d=new Date(),p=n=>String(n).padStart(2,'0');
       const filename='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
-      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob)){
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Backups')){
         localStorage.setItem('s32LastBackup',new Date().toISOString());status();
         setTimeout(function(){alert('Backup saved successfully in your selected Storage Folder.');},100);
         return;
@@ -2520,10 +2520,15 @@ document.addEventListener('DOMContentLoaded',()=>{
       return h;
     }catch(e){console.warn(e);return null;}
   };
-  window.saveBlobToStorageFolder=async function(filename,blob){
+  window.saveBlobToStorageFolder=async function(filename,blob,subfolder){
     const h=await window.getStorageFolderHandle();
     if(!h)return false;
-    const fh=await h.getFileHandle(filename,{create:true});
+    let dir=h;
+    if(subfolder){
+      const parts=String(subfolder).split('/').filter(Boolean);
+      for(const part of parts) dir=await dir.getDirectoryHandle(part,{create:true});
+    }
+    const fh=await dir.getFileHandle(filename,{create:true});
     const w=await fh.createWritable();
     await w.write(blob);
     await w.close();
@@ -2876,9 +2881,17 @@ document.addEventListener('DOMContentLoaded',()=>{
     return {blob,filename};
   }
 
+  async function saveCertificatePdfToReports(result){
+    try{
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(result.filename,result.blob,'Reports')) return true;
+    }catch(e){ console.warn('Report save to selected folder failed',e); }
+    return false;
+  }
+
   async function sharePdfFile(){
     try{
       const result=await buildCertificatePdf();
+      const savedToFolder=await saveCertificatePdfToReports(result);
       const file=new File([result.blob],result.filename,{type:'application/pdf'});
       const text=shareText();
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
@@ -2889,7 +2902,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const url=URL.createObjectURL(result.blob);
       const a=document.createElement('a'); a.href=url; a.download=result.filename; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),30000);
-      alert('PDF saved. Open the PDF and tap Share to send it to WhatsApp or Email.');
+      alert(savedToFolder ? 'PDF saved in the Reports folder. Open the PDF and tap Share to send it to WhatsApp or Email.' : 'PDF saved to Downloads. Open the PDF and tap Share to send it to WhatsApp or Email.');
     }catch(e){
       console.error(e);
       alert('Direct PDF sharing is not supported by this browser. Please use Valuation Certificate / PDF, then Share.');
