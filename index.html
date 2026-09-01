@@ -1626,6 +1626,7 @@ function renderSaved(){
       </div>
       <div class="saved-actions">
         <button class="load-btn" onclick="loadSaved(${i})">Open</button>
+        <button class="secondary" type="button" onclick="duplicateSaved(${i})">📋 Duplicate</button>
         <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
         <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
         <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
@@ -4062,6 +4063,42 @@ document.addEventListener('DOMContentLoaded',function(){
     const df=document.getElementById('saveDateFilter');
     if(df)df.addEventListener('change',function(){if(typeof renderSaved==='function')renderSaved();});
   });
+})();
+</script>
+<script>
+/* STEP 85 - Duplicate Saved Valuation as a New Draft */
+(function(){
+  window.duplicateSaved=function(i){
+    try{
+      const a=typeof getSaved==='function'?getSaved():[];
+      const source=a[i];
+      if(!source){ alert('Saved valuation not found.'); return; }
+      const copy=JSON.parse(JSON.stringify(source));
+      copy.id=Date.now()+Math.floor(Math.random()*1000);
+      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo():'';
+      // A duplicate is a new draft: it must not overwrite the source record.
+      window._currentSavedRecord=null;
+      window._activeCertificateNoOverride=null;
+      window._draftCertificateNo=copy.certificateNo;
+      if(typeof clearValuationEditMode==='function') clearValuationEditMode();
+      const set=(id,v)=>{const el=document.getElementById(id); if(el) el.value=v??'';};
+      set('customerName',copy.customer?.name||'');
+      set('customerMobile',copy.customer?.mobile||'');
+      if(typeof setBankValue==='function') setBankValue(copy.customer?.bank||''); else set('bankName',copy.customer?.bank||'');
+      set('valuationDate',new Date().toISOString().slice(0,10));
+      set('rate',copy.rate||0);
+      set('ltv1',copy.ltv1??65);
+      set('loanRate',copy.loanRate??0);
+      set('sanctionedLoan',copy.sanctionedLoan??'');
+      const itemsEl=document.getElementById('items');
+      if(itemsEl){ itemsEl.innerHTML=''; count=0; (copy.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80})); }
+      if(typeof calculate==='function') calculate();
+      if(typeof closeLoad==='function') closeLoad();
+      if(typeof showValuationScreen==='function') showValuationScreen();
+      window.scrollTo({top:0,behavior:'smooth'});
+      alert('Valuation duplicated as a new draft. Review the details and tap Save to create the new valuation.');
+    }catch(e){ console.error('duplicateSaved:',e); alert('Unable to duplicate this valuation.'); }
+  };
 })();
 </script>
 </body>
