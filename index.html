@@ -605,6 +605,19 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   </div>
   <div style="font-size:12px;margin-top:10px;color:#777">Clearing the selection does <b>not</b> delete any files. It only makes the app forget the selected folder. Existing files remain safely in the folder.</div>
   <div id="storageSubfoldersStatus" style="margin-top:12px;font-size:13px;line-height:1.7"></div>
+  <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+    <div style="font-weight:800;margin-bottom:6px">📂 Valuation Files in Selected Folder</div>
+    <div style="font-size:12px;color:#777;margin-bottom:8px">Manage the physical valuation files stored in the selected <b>Valuations</b> folder. This list is separate from Saved Valuations to avoid duplicate entries.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="valuationFileSearch" class="search" type="search" placeholder="Search valuation files..." style="margin:0;flex:1;min-width:170px">
+      <select id="valuationFileDate" style="padding:9px;border:1px solid var(--line);border-radius:10px"><option value="">All dates</option></select>
+      <button id="valuationFileRefreshBtn" type="button" class="secondary">↻ Refresh Files</button>
+      <button id="valuationSyncBtn" type="button" class="secondary">🔄 Sync Now</button>
+    </div>
+    <div id="valuationFileStatus" style="font-size:12px;margin-top:6px;color:#087f5b"></div>
+    <div id="valuationSyncStatus" style="font-size:12px;margin-top:6px;color:#1769aa"></div>
+    <div id="valuationFileList"></div>
+  </div>
 </section>
 
 <section class="menu-section card customer-history-card" id="customerHistory">
@@ -722,20 +735,6 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </select>
 </div>
     <div id="bankTabs" class="bank-tabs"></div>
-<div style="margin:10px 0 6px;padding-top:10px;border-top:1px solid var(--line)">
-  <div style="font-weight:800;margin-bottom:6px">📂 Valuation Files in Selected Folder</div>
-  <div style="display:flex;gap:7px;flex-wrap:wrap">
-    <input id="valuationFileSearch" class="search" type="search" placeholder="Search valuation files..." style="margin:0;flex:1;min-width:170px">
-    <select id="valuationFileDate" style="padding:9px;border:1px solid var(--line);border-radius:10px"><option value="">All dates</option></select>
-    <button id="valuationFileRefreshBtn" type="button" class="secondary">↻ Refresh Files</button>
-  </div>
-  <div id="valuationFileStatus" style="font-size:12px;margin-top:6px;color:#087f5b"></div>
-  <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:7px">
-    <button id="valuationSyncBtn" type="button" class="secondary">🔄 Sync Now</button>
-  </div>
-  <div id="valuationSyncStatus" style="font-size:12px;margin-top:6px;color:#1769aa"></div>
-  <div id="valuationFileList"></div>
-</div>
     <div id="savedList"></div>
   </div>
 </div>
