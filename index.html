@@ -1058,27 +1058,24 @@ loanRate:String(document.getElementById('loanRate')?.value??'0'),
 items:[...document.querySelectorAll('.item')].map(x=>({name:getItemName(x),gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}
 }
 
-function exportBackup(){
+async function exportBackup(){
   const records=getSaved();
-  const payload={
-    app:"Gold Valuation",
-    version:18,
-    exportedAt:new Date().toISOString(),
-    records:records
-  };
+  const payload={app:"Gold Valuation",version:18,exportedAt:new Date().toISOString(),records:records};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const stamp=new Date().toISOString().slice(0,10);
+  const filename="Gold-Valuation-Backup-"+stamp+".json";
+  try{
+    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob)){
+      alert("Backup saved in your selected Storage Folder.");
+      return;
+    }
+  }catch(e){console.warn("Selected folder save failed; using Downloads fallback",e);}
   const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  const d=new Date();
-  const stamp=d.toISOString().slice(0,10);
-  a.href=url;
-  a.download="Gold-Valuation-Backup-"+stamp+".json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  alert("Backup created successfully. Keep this file in a safe place.");
+  const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  alert("Backup created in Downloads because the selected folder could not be used.");
 }
+
 function importBackup(file){
   if(!file)return;
   const reader=new FileReader();
@@ -1396,36 +1393,23 @@ function setBackupStatus(msg,ok=true){
   const el=document.getElementById('backupStatus');
   if(el){el.textContent=msg;el.style.color=ok?'#087f5b':'#b42318';}
 }
-function exportValuationsBackup(){
+async function exportValuationsBackup(){
   try{
     const records=getSavedValuations();
-    if(!records.length){
-      alert('No saved valuations found to back up.');
+    if(!records.length){alert('No saved valuations found to back up.');return;}
+    const payload={app:'Rajendra Jewellers – Gold Valuation',backupVersion:1,exportedAt:new Date().toISOString(),valuations:records};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const stamp=new Date().toISOString().slice(0,10);
+    const filename='Gold-Valuation-Backup-'+stamp+'.json';
+    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob)){
+      setBackupStatus(records.length+' valuation(s) saved in the selected Storage Folder.');
       return;
     }
-    const payload={
-      app:'Rajendra Jewellers – Gold Valuation',
-      backupVersion:1,
-      exportedAt:new Date().toISOString(),
-      valuations:records
-    };
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    const d=new Date();
-    const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    a.href=url;
-    a.download='Gold-Valuation-Backup-'+stamp+'.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-    setBackupStatus(records.length+' valuation(s) backed up successfully.');
-  }catch(e){
-    console.error(e);
-    alert('Backup could not be created.');
-  }
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setBackupStatus(records.length+' valuation(s) backed up to Downloads because the selected folder could not be used.');
+  }catch(e){console.error(e);alert('Backup could not be created.');}
 }
+
 function restoreValuationsBackup(event){
   const file=event.target.files && event.target.files[0];
   if(!file)return;
@@ -2385,26 +2369,21 @@ document.addEventListener('DOMContentLoaded',()=>{
       (last?'<br>Last backup: '+new Date(last).toLocaleString('en-IN'):'<br>No backup created yet.');
   }
 
-  function backup(){
+  async function backup(){
     try{
       const payload={app:'Gold Valuation App',backupVersion:32,createdAt:new Date().toISOString(),data:getData()};
       const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
       const d=new Date(),p=n=>String(n).padStart(2,'0');
-      a.href=url;
-      a.download='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
-      a.style.display='none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function(){a.remove();URL.revokeObjectURL(url);},3000);
-      localStorage.setItem('s32LastBackup',new Date().toISOString());
-      status();
-      setTimeout(function(){alert('Backup created successfully. Check your Downloads folder.');},150);
-    }catch(e){
-      console.error(e);
-      alert('Backup failed: '+(e.message||'Unknown error'));
-    }
+      const filename='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob)){
+        localStorage.setItem('s32LastBackup',new Date().toISOString());status();
+        setTimeout(function(){alert('Backup saved successfully in your selected Storage Folder.');},100);
+        return;
+      }
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},3000);
+      localStorage.setItem('s32LastBackup',new Date().toISOString());status();
+      setTimeout(function(){alert('Backup saved to Downloads because the selected Storage Folder could not be used.');},150);
+    }catch(e){console.error(e);alert('Backup failed: '+(e.message||'Unknown error'));}
   }
 
   function restore(file){
@@ -2540,6 +2519,15 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
       return h;
     }catch(e){console.warn(e);return null;}
+  };
+  window.saveBlobToStorageFolder=async function(filename,blob){
+    const h=await window.getStorageFolderHandle();
+    if(!h)return false;
+    const fh=await h.getFileHandle(filename,{create:true});
+    const w=await fh.createWritable();
+    await w.write(blob);
+    await w.close();
+    return true;
   };
   window.refreshStorageFolderStatus=refresh;
   document.addEventListener('DOMContentLoaded',function(){
