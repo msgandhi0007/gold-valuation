@@ -1088,7 +1088,41 @@ tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
 el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
 rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
 document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
-document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
+document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);if(typeof window.validateSanctionedLoan==='function')window.validateSanctionedLoan(false);
+}
+function getCurrentMarketValueForLoan(){
+  const rateValue=num(document.getElementById('rate')?.value); let total=0;
+  document.querySelectorAll('.item').forEach(el=>{
+    const g=num(el.querySelector('.gross')?.value), s=num(el.querySelector('.stone')?.value), p=num(el.querySelector('.purity')?.value);
+    const net=Math.max(0,g-s); const pure=net*p/100; const rounded=Math.floor((pure+1e-9)*10)/10;
+    total += rounded*rateValue;
+  });
+  return Math.max(0,total);
+}
+window.getCurrentLtvLoanLimit=function(){
+  const marketValue=getCurrentMarketValueForLoan();
+  const ltv=Math.max(0,Math.min(100,num(document.getElementById('ltv1')?.value)));
+  return marketValue*ltv/100;
+};
+window.validateSanctionedLoan=function(showMessage=true){
+  const el=document.getElementById('sanctionedLoan'); if(!el)return true;
+  const marketValue=getCurrentMarketValueForLoan();
+  const ltv=Math.max(0,Math.min(100,num(document.getElementById('ltv1')?.value)));
+  const max=marketValue*ltv/100;
+  const loan=Math.max(0,num(el.value));
+  el.max=max.toFixed(2);
+  if(loan>max){
+    el.value=max.toFixed(2);
+    if(showMessage)alert('Sanctioned Loan Amount cannot be greater than the entered LTV value. Maximum allowed at '+ltv.toFixed(2)+'% LTV: '+money(max));
+    return false;
+  }
+  return true;
+};
+function setupLoanLimit(){
+  const el=document.getElementById('sanctionedLoan'); if(!el || el.dataset.loanLimitReady==='1')return;
+  el.dataset.loanLimitReady='1';
+  el.addEventListener('input',function(){window.validateSanctionedLoan(true);});
+  el.addEventListener('change',function(){window.validateSanctionedLoan(true);}); const ltv=document.getElementById('ltv1'); if(ltv){ ltv.addEventListener('input',function(){if(typeof calculate==='function')calculate();}); ltv.addEventListener('change',function(){if(typeof calculate==='function')calculate();}); }
 }
 function currentData(){
 return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||window._draftCertificateNo||'',
@@ -1192,25 +1226,48 @@ return clean;
 let selectedBank='ALL';
 window._editingValuationId=null;
 window._editingValuationOriginalFilename=null;
+window._editUnlocked=false;
 function setSavedBankFilter(bank){
   selectedBank=bank;
   renderSaved();
 }
+function applyValuationEditLock(locked){
+  const ids=['customerName','customerMobile','bankName','valuationDate','sanctionedLoan','rate','ltv1','loanRate'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!!locked;});
+  document.querySelectorAll('#items input,#items select,#items button').forEach(el=>el.disabled=!!locked);
+  const add=document.querySelector('#valuation-main-sections > .card:nth-of-type(2) > button.primary');
+  if(add)add.disabled=!!locked;
+}
 function setValuationEditMode(record, originalFilename){
   window._editingValuationId=record?.id||null;
   window._editingValuationOriginalFilename=originalFilename||window._editingValuationOriginalFilename||null;
+  window._editUnlocked=false;
   const banner=document.getElementById('editValuationBanner');
   const fileEl=document.getElementById('editValuationFile');
+  const editBtn=document.getElementById('editValuationEditButton');
+  const cancelBtn=document.getElementById('editValuationCancelButton');
   if(banner)banner.style.display=record?'block':'none';
   if(fileEl)fileEl.textContent=record ? ('File: '+(window._editingValuationOriginalFilename||'Existing valuation file')) : '';
+  if(editBtn){editBtn.style.display=record?'inline-block':'none';editBtn.textContent='✏️ Edit';editBtn.onclick=function(){
+    window._editUnlocked=true; applyValuationEditLock(false);
+    editBtn.style.display='none'; if(cancelBtn)cancelBtn.style.display='inline-block';
+  };}
+  if(cancelBtn)cancelBtn.style.display='none';
+  applyValuationEditLock(!!record);
 }
 function clearValuationEditMode(){
   window._editingValuationId=null;
   window._editingValuationOriginalFilename=null;
+  window._editUnlocked=false;
+  applyValuationEditLock(false);
   const banner=document.getElementById('editValuationBanner');
   const fileEl=document.getElementById('editValuationFile');
+  const editBtn=document.getElementById('editValuationEditButton');
+  const cancelBtn=document.getElementById('editValuationCancelButton');
   if(banner)banner.style.display='none';
   if(fileEl)fileEl.textContent='';
+  if(editBtn)editBtn.style.display='none';
+  if(cancelBtn)cancelBtn.style.display='none';
 }
 function cancelValuationEdit(){
   clearValuationEditMode();
@@ -1236,6 +1293,11 @@ if(typeof calculate==='function') calculate();
 }
 async function saveData(){
   try{
+    if(window._editingValuationId && !window._editUnlocked){
+      alert('This saved valuation is locked. Tap ✏️ Edit before saving changes.');
+      return;
+    }
+    window.validateSanctionedLoan(false);
     const d=currentData();
     let a=getSaved();
     d.customer.bank=d.customer.bank||'Other / Not specified';
@@ -3870,6 +3932,12 @@ window.toggleCustomerSummaryGroup=function(btn){
     return !!window.saveBlobToStorageFolder;
   };
 })();
+
+// Step 76 initialization
+document.addEventListener('DOMContentLoaded',function(){
+  setupLoanLimit();
+  window.validateSanctionedLoan(false);
+});
 </script>
 </body>
 </html>
