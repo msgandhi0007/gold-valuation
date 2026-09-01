@@ -730,6 +730,10 @@ body.menu-viewing #valuation-main-sections{display:none!important}
     <button id="valuationFileRefreshBtn" type="button" class="secondary">↻ Refresh Files</button>
   </div>
   <div id="valuationFileStatus" style="font-size:12px;margin-top:6px;color:#087f5b"></div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:7px">
+    <button id="valuationSyncBtn" type="button" class="secondary">🔄 Sync Now</button>
+  </div>
+  <div id="valuationSyncStatus" style="font-size:12px;margin-top:6px;color:#1769aa"></div>
   <div id="valuationFileList"></div>
 </div>
     <div id="savedList"></div>
@@ -1317,8 +1321,7 @@ async function saveData(){
       valuationFiles=found.sort((a,b)=>String(fileDate63(b.data)).localeCompare(String(fileDate63(a.data)))||a.name.localeCompare(b.name));
       window._valuationFiles=valuationFiles;
       if(imported.length){
-        mergeLocal63(imported);
-        setFileStatus63(found.length+' valuation file(s) found. App records synchronized.');
+        setFileStatus63(found.length+' valuation file(s) found in the selected folder.');
       }else{
         setFileStatus63('No valuation files found in the selected folder.');
       }
@@ -2859,6 +2862,64 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <script>
+/* STEP 64 - Safe Valuation Sync & Recovery */
+(function(){
+  function localRecords64(){
+    try{const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}
+  }
+  function key64(d){
+    return String(d?.id||d?.certificateNo||((d?.customer?.name||'')+'|'+(d?.customer?.date||'')+'|'+(d?.customer?.mobile||''))).trim().toLowerCase();
+  }
+  function name64(d){return String(d?.customer?.name||'Customer').trim();}
+  function setSync64(msg,ok=true){const e=document.getElementById('valuationSyncStatus');if(e){e.textContent=msg;e.style.color=ok?'#1769aa':'#b42318';}}
+  function syncSummary64(folder,local){
+    const fm=new Map(folder.map(x=>[key64(x.data),x])); const lm=new Map(local.map(x=>[key64(x),x]));
+    let folderOnly=[],appOnly=[],synced=[],conflicts=[];
+    fm.forEach((x,k)=>{if(lm.has(k)) synced.push(x);else folderOnly.push(x);});
+    lm.forEach((x,k)=>{if(!fm.has(k)) appOnly.push(x);});
+    // Same id/certificate means synced; differing content with same identity is a conflict.
+    folder.forEach(x=>{const l=lm.get(key64(x.data));if(l){const a=JSON.stringify(x.data),b=JSON.stringify(l);if(a!==b)conflicts.push({folder:x,local:l});}});
+    return {folderOnly,appOnly,synced,conflicts};
+  }
+  window.syncValuationFiles64=async function(){
+    try{
+      if(typeof window.refreshValuationFiles63==='function') await window.refreshValuationFiles63(true);
+      const folder=Array.isArray(window._valuationFiles)?window._valuationFiles.slice():[];
+      const local=localRecords64();
+      const r=syncSummary64(folder,local);
+      setSync64('Sync status: '+r.synced.length+' synced · '+r.folderOnly.length+' folder-only · '+r.appOnly.length+' app-only · '+r.conflicts.length+' conflict(s).');
+      let changed=false;
+      if(r.folderOnly.length){
+        if(confirm(r.folderOnly.length+' valuation file(s) exist in the folder but not in the app. Restore them to the app now?')){
+          const merged=local.concat(r.folderOnly.map(x=>x.data));
+          localStorage.setItem('goldValuations',JSON.stringify(typeof dedupeValuations==='function'?dedupeValuations(merged):merged));
+          changed=true;
+        }
+      }
+      if(r.appOnly.length){
+        if(confirm(r.appOnly.length+' valuation(s) exist in the app but have no folder file. Save them to the selected Valuations folder now?')){
+          if(!window.saveBlobToStorageFolder)throw new Error('Storage folder saving is not available.');
+          let saved=0;
+          for(const d of r.appOnly){
+            const safeName=String(d?.customer?.name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+            const safeDate=String(d?.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
+            const cert=String(d?.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+            const fn=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+            const ok=await window.saveBlobToStorageFolder(fn,new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'Valuations'); if(ok)saved++;
+          }
+          setSync64('Sync completed: '+saved+' app-only valuation(s) saved to the folder.');
+          changed=true;
+        }
+      }
+      if(r.conflicts.length){
+        alert(r.conflicts.length+' conflict(s) detected. Nothing was overwritten automatically. Open the matching records/files and decide which copy to keep.');
+      }
+      if(changed && typeof window.refreshValuationFiles63==='function') await window.refreshValuationFiles63(true);
+    }catch(e){console.error(e);setSync64('Sync failed: '+(e.message||'Unknown error'),false);}
+  };
+  document.addEventListener('DOMContentLoaded',function(){const b=document.getElementById('valuationSyncBtn');if(b)b.addEventListener('click',window.syncValuationFiles64);});
+})();
+
 /* STEP 60 - Save valuation certificate PDF into selected Certificates folder */
 window.saveCurrentCertificatePdf = async function(){
   try{
