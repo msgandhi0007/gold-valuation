@@ -1481,7 +1481,7 @@ if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
   d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
 if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
   d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
-items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();if(typeof showValuationScreen==='function')showValuationScreen();window.scrollTo({top:0,behavior:'smooth'});
+items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();if(typeof showValuationScreen==='function'){showValuationScreen();setTimeout(function(){showValuationScreen();},60);}window.scrollTo({top:0,behavior:'smooth'});
 }
 function printSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
@@ -3378,13 +3378,32 @@ window.saveCurrentCertificatePdf = async function(){
   };
 
   window.showValuationScreen=function(){
-    menuIds.forEach(function(id){
-      const el=document.getElementById(id);
-      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
-    });
-    document.body.classList.remove('menu-viewing');
-    closeAppMenu();
-    window.scrollTo({top:0,behavior:'smooth'});
+    try{
+      const valuation=document.getElementById('valuation-main-sections');
+      // Force the valuation area visible even if a previous menu section applied
+      // an inline/CSS hidden state. This is important when opening a saved record.
+      if(valuation){
+        valuation.classList.remove('menu-section','menu-active');
+        valuation.style.setProperty('display','block','important');
+        valuation.style.visibility='visible';
+      }
+      menuIds.forEach(function(id){
+        const el=document.getElementById(id);
+        if(el){
+          el.classList.add('menu-section');
+          el.classList.remove('menu-active');
+          el.style.removeProperty('display');
+        }
+      });
+      document.body.classList.remove('menu-viewing');
+      closeAppMenu();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){
+      console.error('showValuationScreen:',e);
+      const v=document.getElementById('valuation-main-sections');
+      if(v){v.classList.remove('menu-section','menu-active');v.style.setProperty('display','block','important');}
+      document.body.classList.remove('menu-viewing');
+    }
   };
 
   window.showMenuSection=function(id){
