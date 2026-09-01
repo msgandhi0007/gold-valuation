@@ -280,7 +280,7 @@ al App Cover */
 /* MAIN MENU - Step 41 */
 .menu-btn{position:absolute;top:18px;right:16px;width:46px;height:46px;border:1px solid #ffffff55;border-radius:13px;background:#ffffff22;color:#fff;font-size:24px;font-weight:800;z-index:20}
 header{position:relative;padding-right:72px}
-.menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:5000}
+.menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:5000;pointer-events:none}.menu-overlay.open{pointer-events:auto}
 .menu-overlay.open{display:block!important}
 .menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;box-sizing:border-box;background:#fff;box-shadow:-10px 0 35px rgba(0,0,0,.25);padding:18px;overflow:auto;z-index:5001!important;visibility:visible!important;opacity:1!important}
 .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -3646,6 +3646,8 @@ window.saveCurrentCertificatePdf = async function(){
         m.style.setProperty('visibility','visible','important');
         m.style.setProperty('opacity','1','important');
         m.style.setProperty('z-index','5000','important');
+        m.style.setProperty('pointer-events','auto','important');
+        m.setAttribute('aria-hidden','false');
         m.classList.add('open');
       }
       if(panel){
@@ -3658,7 +3660,17 @@ window.saveCurrentCertificatePdf = async function(){
   };
   window.closeAppMenu=function(){
     const m=document.getElementById('appMenu');
-    if(m){m.classList.remove('open');m.style.removeProperty('display');m.style.removeProperty('visibility');m.style.removeProperty('opacity');m.style.removeProperty('z-index');}
+    if(m){
+      m.classList.remove('open');
+      // Force-hide the overlay immediately.  This prevents the menu from
+      // remaining over a report section on mobile browsers after navigation.
+      m.style.setProperty('display','none','important');
+      m.style.setProperty('visibility','hidden','important');
+      m.style.setProperty('opacity','0','important');
+      m.style.setProperty('pointer-events','none','important');
+      m.setAttribute('aria-hidden','true');
+    }
+    document.body.classList.remove('menu-open');
   };
 
   window.showValuationScreen=function(){
@@ -3691,30 +3703,54 @@ window.saveCurrentCertificatePdf = async function(){
   };
 
   window.showMenuSection=function(id){
-    const valuation=document.getElementById('valuation-main-sections');
-    if(valuation) valuation.style.display='none';
-
-    menuIds.forEach(function(x){
-      const el=document.getElementById(x);
-      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
-    });
-    const target=document.getElementById(id);
-    if(!target) return;
-    target.classList.add('menu-section','menu-active');
-    document.body.classList.add('menu-viewing');
-    closeAppMenu();
-    setTimeout(function(){target.scrollIntoView({behavior:'smooth',block:'start'});},80);
     try{
+      // Close the menu FIRST so it can never remain on top of the destination.
+      closeAppMenu();
+
+      const valuation=document.getElementById('valuation-main-sections');
+      if(valuation){
+        valuation.style.setProperty('display','none','important');
+        valuation.style.visibility='hidden';
+      }
+
+      menuIds.forEach(function(x){
+        const el=document.getElementById(x);
+        if(el){
+          el.classList.add('menu-section');
+          el.classList.remove('menu-active');
+          el.style.removeProperty('display');
+        }
+      });
+
+      const target=document.getElementById(id);
+      if(!target) return;
+      target.classList.add('menu-section','menu-active');
+      target.style.setProperty('display','block','important');
+      target.style.visibility='visible';
+      document.body.classList.add('menu-viewing');
+
+      // Let the browser apply the layout before scrolling to the section.
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          target.scrollIntoView({behavior:'smooth',block:'start'});
+        });
+      });
+
       if(id==='dashboard' && typeof updateDashboard==='function') updateDashboard();
-      if(id==='reports'){ if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors(); if(typeof updateReports==='function') updateReports(); }
+      if(id==='reports'){
+        if(typeof window.syncAllReportBankSelectors==='function') window.syncAllReportBankSelectors();
+        if(typeof updateReports==='function') updateReports();
+      }
       if(id==='bankStatementReport' && typeof refreshBankStatementReport==='function') refreshBankStatementReport();
       if(id==='customerHistory' && typeof updateCustomerHistory==='function') updateCustomerHistory();
       if(id==='bankManagement33' && typeof window.renderBankManagement33==='function') window.renderBankManagement33();
       if(id==='settings59' && typeof window.refreshStorageFolderStatus==='function') window.refreshStorageFolderStatus();
       if(id==='storageManagement61' && typeof window.refreshStorageManagement61==='function') window.refreshStorageManagement61();
-    }catch(err){}
+    }catch(err){
+      console.error('showMenuSection:',err);
+      closeAppMenu();
+    }
   };
-
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape') closeAppMenu();
   });
