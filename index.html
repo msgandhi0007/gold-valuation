@@ -1,4 +1,3 @@
-<!-- STEP 82 - Save protection: required customer/valuation details and LTV limit -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -735,7 +734,11 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <button class="secondary" onclick="document.getElementById('backupFile').click()">📥 Restore</button>
 <input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0])">
 </div><button class="close" onclick="closeLoad()">✕</button></div>
-    <input id="saveSearch" class="search" type="search" placeholder="Search customer name, mobile, bank or certificate no..." oninput="renderSaved()">
+    <div style="display:flex;gap:8px;align-items:center;margin:8px 0 6px;flex-wrap:wrap">
+      <input id="saveSearch" class="search" type="search" placeholder="Search customer, mobile, bank, date or certificate..." oninput="renderSaved()" style="flex:1;min-width:220px">
+      <button class="secondary" type="button" onclick="clearSavedSearch()">✕ Clear</button>
+    </div>
+    <div id="savedSearchCount" style="font-size:11px;color:#777;margin:0 0 8px"></div>
 <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
 <label style="font-size:12px;font-weight:700">Sort:</label>
 <select id="saveSort" onchange="renderSaved()" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--line);border-radius:10px">
@@ -1295,81 +1298,36 @@ if(typeof calculate==='function') calculate();
 async function validateValuationBeforeSave(){
   const nameEl=document.getElementById('customerName');
   const rateEl=document.getElementById('rate');
-  const loanEl=document.getElementById('sanctionedLoan');
-  const ltvEl=document.getElementById('ltv1');
   const name=String(nameEl?.value||'').trim();
   if(!name){
-    alert('Cannot save valuation. Customer Name is required.');
-    nameEl?.focus(); return false;
+    alert('Customer Name is required. Please enter the customer name before saving.');
+    nameEl?.focus();
+    return false;
   }
-
   const rateValue=num(rateEl?.value);
   if(!(rateValue>0)){
-    alert('Cannot save valuation. Enter Market Rate / gram greater than 0.');
-    rateEl?.focus(); return false;
+    alert('Market Rate / gram is required. Please enter the market rate before saving.');
+    rateEl?.focus();
+    return false;
   }
-
   const itemEls=[...document.querySelectorAll('#items .item')];
   if(!itemEls.length){
-    alert('Cannot save valuation. Add at least one Jewellery Item.');
+    alert('Valuation details are required. Please add at least one Jewellery Item before saving.');
     return false;
   }
-
-  // Every displayed jewellery item must be complete before saving.
-  for(let i=0;i<itemEls.length;i++){
-    const el=itemEls[i];
-    const itemNo=i+1;
-    const itemName=typeof getItemName==='function' ? getItemName(el) : (el.querySelector('.itemName')?.value||'');
+  const valid=itemEls.some(el=>{
+    const itemName=typeof getItemName==='function'?getItemName(el):(el.querySelector('.itemName')?.value||'');
     const gross=num(el.querySelector('.gross')?.value);
-    const stone=num(el.querySelector('.stone')?.value);
     const purity=num(el.querySelector('.purity')?.value);
-    if(!String(itemName||'').trim()){
-      alert('Cannot save valuation. Select a Jewellery Item Name for Item '+itemNo+'.');
-      el.querySelector('.itemName')?.focus(); return false;
-    }
-    if(!(gross>0)){
-      alert('Cannot save valuation. Enter Gross Weight greater than 0 for Item '+itemNo+'.');
-      el.querySelector('.gross')?.focus(); return false;
-    }
-    if(stone<0 || stone>gross){
-      alert('Cannot save valuation. Stone Weight must be between 0 and Gross Weight for Item '+itemNo+'.');
-      el.querySelector('.stone')?.focus(); return false;
-    }
-    if(!(purity>0 && purity<=100)){
-      alert('Cannot save valuation. Purity must be greater than 0 and not more than 100% for Item '+itemNo+'.');
-      el.querySelector('.purity')?.focus(); return false;
-    }
-  }
-
-  // Use the same rounded-pure-gold calculation as the app's valuation logic.
-  let marketValue=0;
-  itemEls.forEach(el=>{
-    const gross=num(el.querySelector('.gross')?.value);
-    const stone=num(el.querySelector('.stone')?.value);
-    const purity=num(el.querySelector('.purity')?.value);
-    const net=Math.max(0,gross-stone);
-    const rounded=Math.floor((net*purity/100+1e-9)*10)/10;
-    marketValue += rounded*rateValue;
+    return String(itemName||'').trim() && gross>0 && purity>0;
   });
-  if(!(marketValue>0)){
-    alert('Cannot save valuation. Total Market Value must be greater than ₹0.');
+  if(!valid){
+    alert('Valuation details are required. Enter a Jewellery Item Name, Gross Weight and Purity before saving.');
     return false;
-  }
-
-  const ltv=Math.max(0,Math.min(100,num(ltvEl?.value)));
-  const maxLoan=marketValue*ltv/100;
-  const loan=num(loanEl?.value);
-  if(loan<0){
-    alert('Cannot save valuation. Sanctioned Loan Amount cannot be negative.');
-    loanEl?.focus(); return false;
-  }
-  if(loan>maxLoan+0.005){
-    alert('Cannot save valuation. Sanctioned Loan Amount cannot be more than the entered LTV limit ('+
-      ltv.toFixed(2)+'%). Maximum allowed: '+money(maxLoan)+'.');
-    loanEl?.focus(); return false;
   }
   return true;
 }
+
 async function saveData(){
   try{
     if(!(await validateValuationBeforeSave())) return;
@@ -1626,6 +1584,8 @@ function renderSaved(){
   });
 
   const list=document.getElementById('savedList');
+  const countEl=document.getElementById('savedSearchCount');
+  if(countEl) countEl.textContent = rows.length + ' valuation' + (rows.length===1?'':'s') + ' found' + (q?' for “'+q+'”':'');
   if(!rows.length){
     list.innerHTML='<div style="padding:20px;text-align:center;color:#777">No saved valuations found.</div>';
     return;
@@ -1649,6 +1609,12 @@ function renderSaved(){
     </div>`;
   }).join('');
 }
+function clearSavedSearch(){
+  const el=document.getElementById('saveSearch');
+  if(el){el.value='';el.focus();}
+  renderSaved();
+}
+
 function loadSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
 ensureCertificateNo(d);
@@ -4080,236 +4046,5 @@ document.addEventListener('DOMContentLoaded',function(){
       e.preventDefault();e.stopPropagation();window.unlockSavedValuation();
     }
   },true);
-})();
-</script>
-
-
-<!-- STEP 81 - Loan Eligibility + Reliable Edit Controls -->
-<script>
-(function(){
-  'use strict';
-
-  function n(v){
-    const x=Number(String(v??'').replace(/,/g,''));
-    return Number.isFinite(x)?x:0;
-  }
-  function money81(v){
-    try{
-      if(typeof money==='function') return money(v);
-    }catch(e){}
-    return '₹'+Math.round(n(v)).toLocaleString('en-IN');
-  }
-
-  /* ---------- Step 81 visual panel ---------- */
-  function installStep81Style(){
-    if(document.getElementById('step81Style')) return;
-    const st=document.createElement('style');
-    st.id='step81Style';
-    st.textContent=`
-      #step81LoanCheck{
-        margin-top:12px;padding:12px;border:1px solid #d7b45a;border-radius:13px;
-        background:linear-gradient(180deg,#fffaf0,#fff);
-      }
-      #step81LoanCheck .s81-title{font-weight:850;font-size:14px;margin-bottom:8px;color:#222}
-      #step81LoanCheck .s81-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-      #step81LoanCheck .s81-box{border:1px solid #e4dfd4;border-radius:10px;padding:9px;background:#fff;color:#222}
-      #step81LoanCheck .s81-box small{display:block;color:#666;font-size:10px;margin-bottom:3px}
-      #step81LoanCheck .s81-box b{font-size:16px;color:#222;display:block}
-      #step81LoanCheck .s81-status{margin-top:9px;padding:9px;border-radius:9px;font-weight:800;font-size:12px}
-      #step81LoanCheck .ok{background:#eaf8f0;color:#167a48}
-      #step81LoanCheck .bad{background:#fff0f0;color:#b42318}
-      #step81EditButton{
-        display:none;margin-top:7px;padding:8px 12px;border:1px solid #b88600;
-        border-radius:9px;background:#fff;color:#8a5a00;font-weight:850;font-size:13px;
-      }
-      @media(max-width:380px){
-        #step81LoanCheck .s81-grid{grid-template-columns:1fr}
-      }
-    `;
-    document.head.appendChild(st);
-  }
-
-  function installLoanPanel(){
-    const ltv=document.querySelector('.summary .ltv');
-    if(!ltv || document.getElementById('step81LoanCheck')) return;
-    const panel=document.createElement('div');
-    panel.id='step81LoanCheck';
-    panel.innerHTML=`
-      <div class="s81-title">Loan Eligibility</div>
-      <div class="s81-grid">
-        <div class="s81-box"><small>Total Market Value</small><b id="s81MarketValue">₹0</b></div>
-        <div class="s81-box"><small>Maximum Eligible Loan</small><b id="s81MaxLoan">₹0</b></div>
-        <div class="s81-box"><small>Sanctioned Loan</small><b id="s81SanctionedLoan">₹0</b></div>
-        <div class="s81-box"><small>Entered LTV</small><b id="s81Ltv">0%</b></div>
-      </div>
-      <div id="s81LoanStatus" class="s81-status ok">Enter valuation details to calculate eligibility.</div>
-    `;
-    ltv.insertAdjacentElement('afterend',panel);
-  }
-
-  function updateLoanPanel(){
-    const rate=n(document.getElementById('rate')?.value);
-    let market=0;
-    document.querySelectorAll('#items .item').forEach(el=>{
-      const g=n(el.querySelector('.gross')?.value);
-      const st=n(el.querySelector('.stone')?.value);
-      const purity=Math.max(0,n(el.querySelector('.purity')?.value));
-      const net=Math.max(0,g-st);
-      const pure=net*purity/100;
-      const rounded=Math.floor((pure+1e-9)*10)/10;
-      market += rounded*rate;
-    });
-    const ltv=Math.max(0,Math.min(100,n(document.getElementById('ltv1')?.value)));
-    const maxLoan=market*ltv/100;
-    const loanEl=document.getElementById('sanctionedLoan');
-    const loan=n(loanEl?.value);
-
-    const mv=document.getElementById('s81MarketValue');
-    const mx=document.getElementById('s81MaxLoan');
-    const sl=document.getElementById('s81SanctionedLoan');
-    const lp=document.getElementById('s81Ltv');
-    const status=document.getElementById('s81LoanStatus');
-    if(mv)mv.textContent=money81(market);
-    if(mx)mx.textContent=money81(maxLoan);
-    if(sl)sl.textContent=money81(loan);
-    if(lp)lp.textContent=ltv.toFixed(2)+'%';
-
-    if(!status) return;
-    if(loan > maxLoan + 0.005){
-      status.className='s81-status bad';
-      status.textContent='⚠️ Sanctioned Loan exceeds the maximum eligible loan. It will not be allowed.';
-    }else if(maxLoan>0){
-      status.className='s81-status ok';
-      status.textContent='✓ Sanctioned Loan is within the allowed LTV limit.';
-    }else{
-      status.className='s81-status ok';
-      status.textContent='Enter market rate and jewellery details to calculate the maximum loan.';
-    }
-  }
-
-  /* ---------- Strong loan validation ---------- */
-  window.validateSanctionedLoan81=function(showMessage){
-    const el=document.getElementById('sanctionedLoan');
-    if(!el){updateLoanPanel();return true;}
-    const rate=n(document.getElementById('rate')?.value);
-    let market=0;
-    document.querySelectorAll('#items .item').forEach(item=>{
-      const g=n(item.querySelector('.gross')?.value);
-      const st=n(item.querySelector('.stone')?.value);
-      const p=Math.max(0,n(item.querySelector('.purity')?.value));
-      const rounded=Math.floor((Math.max(0,g-st)*p/100+1e-9)*10)/10;
-      market+=rounded*rate;
-    });
-    const ltv=Math.max(0,Math.min(100,n(document.getElementById('ltv1')?.value)));
-    const maxLoan=market*ltv/100;
-    const loan=n(el.value);
-
-    el.max=maxLoan.toFixed(2);
-
-    if(loan>maxLoan+0.005){
-      el.value=maxLoan.toFixed(2);
-      if(showMessage!==false){
-        alert('Sanctioned Loan Amount cannot be more than the maximum eligible loan at the entered LTV ('+
-          ltv.toFixed(2)+'%). Maximum allowed: '+money81(maxLoan));
-      }
-      updateLoanPanel();
-      return false;
-    }
-    updateLoanPanel();
-    return true;
-  };
-
-  /* ---------- Reliable visible Edit button ---------- */
-  function installEditButton(){
-    const banner=document.getElementById('editValuationBanner');
-    if(!banner || document.getElementById('step81EditButton')) return;
-    const b=document.createElement('button');
-    b.id='step81EditButton';
-    b.type='button';
-    b.textContent='✏️ Edit Valuation';
-    b.onclick=function(e){
-      e.preventDefault();e.stopPropagation();
-      if(typeof window.unlockSavedValuation==='function') window.unlockSavedValuation();
-      else{
-        window._editUnlocked=true;
-        if(typeof window.applyValuationEditLock==='function') window.applyValuationEditLock(false);
-      }
-      syncEditButton();
-    };
-    const file=document.getElementById('editValuationFile');
-    (file||banner).insertAdjacentElement('afterend',b);
-  }
-
-  function syncEditButton(){
-    const b=document.getElementById('step81EditButton');
-    if(!b)return;
-    const editing=!!window._editingValuationId;
-    const unlocked=!!window._editUnlocked;
-    b.style.display=(editing&&!unlocked)?'inline-block':'none';
-  }
-
-  function wrapEditMode(){
-    if(typeof window.setValuationEditMode!=='function' || window.setValuationEditMode._s81wrapped) return;
-    const old=window.setValuationEditMode;
-    const wrapped=function(record,filename){
-      const r=old.apply(this,arguments);
-      setTimeout(function(){installEditButton();syncEditButton();},0);
-      return r;
-    };
-    wrapped._s81wrapped=true;
-    window.setValuationEditMode=wrapped;
-  }
-
-  /* ---------- Prevent invalid save even if input was loaded programmatically ---------- */
-  function wrapSaveValidation(){
-    if(typeof window.validateValuationBeforeSave==='function' && !window.validateValuationBeforeSave._s81wrapped){
-      const old=window.validateValuationBeforeSave;
-      const wrapped=async function(){
-        const base=await old.apply(this,arguments);
-        if(!base)return false;
-        return window.validateSanctionedLoan81(false);
-      };
-      wrapped._s81wrapped=true;
-      window.validateValuationBeforeSave=wrapped;
-    }
-  }
-
-  function wire(){
-    installStep81Style();
-    installLoanPanel();
-    installEditButton();
-    wrapEditMode();
-    wrapSaveValidation();
-    updateLoanPanel();
-
-    const ids=['rate','ltv1','loanRate','sanctionedLoan'];
-    ids.forEach(id=>{
-      const el=document.getElementById(id);
-      if(el && !el.dataset.s81wired){
-        el.dataset.s81wired='1';
-        el.addEventListener('input',function(){
-          if(id==='sanctionedLoan') window.validateSanctionedLoan81(true);
-          else updateLoanPanel();
-        });
-        el.addEventListener('change',function(){
-          if(id==='sanctionedLoan') window.validateSanctionedLoan81(true);
-          else updateLoanPanel();
-        });
-      }
-    });
-    document.addEventListener('input',function(e){
-      if(e.target && e.target.closest && e.target.closest('#items')) setTimeout(updateLoanPanel,0);
-    });
-    document.addEventListener('change',function(e){
-      if(e.target && e.target.closest && e.target.closest('#items')) setTimeout(updateLoanPanel,0);
-    });
-    setInterval(function(){
-      syncEditButton();
-      updateLoanPanel();
-    },500);
-  }
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire);
-  else wire();
 })();
 </script>
