@@ -2749,6 +2749,143 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 })();
 <\/script>
+
+<script>
+/* STEP 74 - Safe Edit Mode + Strict Sanctioned Loan Limit */
+(function(){
+  function valuationMarketValue(){
+    const rate=Number(document.getElementById('rate')?.value||0);
+    let total=0;
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(el){
+      const gross=Number(el.querySelector('.gross')?.value||0);
+      const stone=Number(el.querySelector('.stone')?.value||0);
+      const purity=Number(el.querySelector('.purity')?.value||0);
+      const net=Math.max(0,gross-stone);
+      const rounded=Math.floor((net*purity/100+1e-9)*10)/10;
+      total += rounded*rate;
+    });
+    return Math.max(0,total);
+  }
+
+  function enforceLoanLimit(showAlert){
+    const loan=document.getElementById('sanctionedLoan');
+    if(!loan)return true;
+    const max=valuationMarketValue();
+    loan.max=String(max);
+    const entered=Number(loan.value||0);
+    if(max>0 && entered>max){
+      loan.value=String(Math.round(max*100)/100);
+      loan.setCustomValidity('Sanctioned loan cannot exceed total market value of '+(typeof money==='function'?money(max):'₹'+max.toLocaleString('en-IN'))+'.');
+      if(showAlert)alert('Sanctioned Loan Amount cannot be greater than Total Market Value. Maximum allowed: '+(typeof money==='function'?money(max):'₹'+max.toLocaleString('en-IN')));
+      return false;
+    }
+    loan.setCustomValidity('');
+    return true;
+  }
+
+  function setFormLocked(locked){
+    const root=document.getElementById('valuation-main-sections');
+    if(!root)return;
+    root.querySelectorAll('input,select,textarea').forEach(function(el){
+      if(el.id==='editValuationEditButton' || el.id==='editValuationCancelButton')return;
+      el.disabled=!!locked;
+    });
+    root.querySelectorAll('button').forEach(function(btn){
+      const id=btn.id||'';
+      const text=(btn.textContent||'').trim();
+      const keep=(id==='editValuationEditButton'||id==='editValuationCancelButton'||text==='📂 Saved'||text==='📜 Valuation Certificate / PDF');
+      if(!keep)btn.disabled=!!locked;
+    });
+    root.querySelectorAll('.item button').forEach(function(btn){btn.disabled=!!locked;});
+  }
+
+  window.setValuationEditMode=function(record, originalFilename){
+    window._editingValuationId=record?.id||null;
+    window._editingValuationOriginalFilename=originalFilename||window._editingValuationOriginalFilename||null;
+    const banner=document.getElementById('editValuationBanner');
+    const fileEl=document.getElementById('editValuationFile');
+    const editBtn=document.getElementById('editValuationEditButton');
+    const cancelBtn=document.getElementById('editValuationCancelButton');
+    if(banner)banner.style.display=record?'block':'none';
+    if(fileEl)fileEl.textContent=record ? ('File: '+(window._editingValuationOriginalFilename||'Existing valuation file')) : '';
+    if(record){
+      if(editBtn){editBtn.style.display='inline-block';editBtn.disabled=false;editBtn.onclick=function(){
+        window._valuationEditUnlocked=true;
+        setFormLocked(false);
+        editBtn.style.display='none';
+        if(cancelBtn){cancelBtn.style.display='inline-block';cancelBtn.disabled=false;}
+        const loan=document.getElementById('sanctionedLoan'); if(loan)loan.focus();
+      };}
+      if(cancelBtn){cancelBtn.style.display='none';cancelBtn.disabled=false;}
+      window._valuationEditUnlocked=false;
+      setFormLocked(true);
+      setTimeout(function(){setFormLocked(!window._valuationEditUnlocked);enforceLoanLimit(false);},80);
+    }else{
+      window._valuationEditUnlocked=true;
+      setFormLocked(false);
+      if(editBtn)editBtn.style.display='none';
+      if(cancelBtn)cancelBtn.style.display='none';
+    }
+  };
+
+  window.clearValuationEditMode=function(){
+    window._editingValuationId=null;
+    window._editingValuationOriginalFilename=null;
+    window._valuationEditUnlocked=true;
+    const banner=document.getElementById('editValuationBanner');
+    const fileEl=document.getElementById('editValuationFile');
+    const editBtn=document.getElementById('editValuationEditButton');
+    const cancelBtn=document.getElementById('editValuationCancelButton');
+    if(banner)banner.style.display='none';
+    if(fileEl)fileEl.textContent='';
+    if(editBtn)editBtn.style.display='none';
+    if(cancelBtn)cancelBtn.style.display='none';
+    setFormLocked(false);
+  };
+
+  window.cancelValuationEdit=function(){
+    if(typeof clearValuationEditMode==='function')clearValuationEditMode();
+    if(typeof resetAfterSave==='function')resetAfterSave();
+    if(typeof showValuationScreen==='function')showValuationScreen();
+  };
+
+  /* Recalculate first, then strictly clamp the sanctioned loan to market value. */
+  const originalCalculate=window.calculate;
+  if(typeof originalCalculate==='function'){
+    window.calculate=function(){
+      const result=originalCalculate.apply(this,arguments);
+      enforceLoanLimit(false);
+      return result;
+    };
+  }
+  window.validateSanctionedLoan=function(showAlert){return enforceLoanLimit(showAlert!==false);};
+
+  /* Final save guard: a value above market can never be written to localStorage/files. */
+  const originalSaveData=window.saveData;
+  if(typeof originalSaveData==='function'){
+    window.saveData=async function(){
+      if(window._editingValuationId && !window._valuationEditUnlocked){
+        alert('This saved valuation is locked. Tap ✏️ Edit before making changes.');
+        return;
+      }
+      if(!enforceLoanLimit(true))return;
+      return await originalSaveData.apply(this,arguments);
+    };
+  }
+
+  document.addEventListener('input',function(e){
+    if(e.target && e.target.id==='sanctionedLoan')enforceLoanLimit(true);
+  },true);
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){
+      if(window._editingValuationId && !window._valuationEditUnlocked)setFormLocked(true);
+      enforceLoanLimit(false);
+    },150);
+  });
+})();
+</script>
+
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
