@@ -3530,28 +3530,39 @@ window.saveCurrentCertificatePdf = async function(){
   }
 
   async function sharePdfFile(){
+    let result=null;
     try{
-      const result=await buildCertificatePdf();
-      const savedToFolder=await saveCertificatePdfToCertificates(result);
+      // Sharing a valuation must NOT depend on the selected Storage Folder.
+      // Folder saving is optional; the PDF can always be shared directly.
+      result=await buildCertificatePdf();
       const file=new File([result.blob],result.filename,{type:'application/pdf'});
       const text=shareText();
-      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-        await navigator.share({title:'Gold Valuation Certificate',text:text,files:[file]});
-        return;
+      if(navigator.share){
+        let canShareFile=true;
+        try{ canShareFile=!navigator.canShare || navigator.canShare({files:[file]}); }catch(_){ canShareFile=false; }
+        if(canShareFile){
+          try{
+            await navigator.share({title:'Gold Valuation Certificate',text:text,files:[file]});
+            return;
+          }catch(e){
+            // User cancellation must not show a storage-folder error.
+            if(e && e.name==='AbortError') return;
+            console.warn('Direct PDF share failed; using download fallback.',e);
+          }
+        }
       }
-      // IMPORTANT: never create a second browser download when the selected folder save succeeded.
-      // Android may route that download to Documents/Downloads, which would create a duplicate.
-      if(savedToFolder){
-        alert('PDF saved in your selected Storage Folder → Certificates.');
-        return;
-      }
+
+      // If direct file sharing is unavailable, save a copy to Downloads.
       const url=URL.createObjectURL(result.blob);
-      const a=document.createElement('a'); a.href=url; a.download=result.filename; document.body.appendChild(a); a.click(); a.remove();
+      const a=document.createElement('a');
+      a.href=url; a.download=result.filename;
+      document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),30000);
-      alert('PDF saved to Downloads because the selected Storage Folder could not be used.');
+      alert('PDF created successfully. You can share the downloaded PDF.');
     }catch(e){
-      console.error(e);
-      alert('PDF could not be exported. Please select the Storage Folder again in Settings.');
+      console.error('sharePdfFile:',e);
+      if(e && e.name==='AbortError') return;
+      alert('PDF could not be created. Please try again.');
     }
   }
 
