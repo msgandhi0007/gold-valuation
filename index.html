@@ -1324,9 +1324,9 @@ async function validateValuationBeforeSave(){
   return true;
 }
 
-function saveData(){
+async function saveData(){
   try{
-    if(!validateValuationBeforeSave()) return;
+    if(!(await validateValuationBeforeSave())) return;
     if(window._editingValuationId && !window._editUnlocked){
       alert('This saved valuation is locked. Tap ✏️ Edit before saving changes.');
       return;
@@ -1710,6 +1710,7 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker registration failed',err));
   });
+}
 </script>
 
 <script>
@@ -3371,6 +3372,7 @@ window.saveCurrentCertificatePdf = async function(){
 
   // Ensure the managed bank list is refreshed whenever the form is reset/loaded.
   window.refreshBankManagement33=render;
+  });
 })();
 </script>
 
