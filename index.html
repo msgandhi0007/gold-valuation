@@ -605,6 +605,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   </div>
   <div style="font-size:12px;margin-top:10px;color:#777">Clearing the selection does <b>not</b> delete any files. It only makes the app forget the selected folder. Existing files remain safely in the folder.</div>
   <div id="storageSubfoldersStatus" style="margin-top:12px;font-size:13px;line-height:1.7"></div>
+  <div id="storageProtectionStatus" style="margin-top:10px;padding:10px;border-radius:10px;background:#f7f5ef;font-size:13px;line-height:1.6">🛡️ Checking automatic valuation backup status…</div>
   <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
     <div style="font-weight:800;margin-bottom:6px">📂 Valuation Files in Selected Folder</div>
     <div style="font-size:12px;color:#777;margin-bottom:8px">Manage the physical valuation files stored in the selected <b>Valuations</b> folder. This list is separate from Saved Valuations to avoid duplicate entries.</div>
@@ -1214,20 +1215,35 @@ async function saveData(){
     // Step 62: also save this valuation as an individual JSON file in the
     // user-selected Storage Folder -> Valuations. The local copy above is
     // retained so Load/Reports continue to work even when folder access is unavailable.
-    let fileSaved=false;
+    let fileSaved=false, backupSaved=false, valuationFilename='';
     if(window.saveBlobToStorageFolder){
       const safeName=String(d.customer?.name||'Customer').trim()
         .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
       const safeDate=String(d.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
       const cert=String(d.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
-      const filename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+      valuationFilename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
       const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-      try{ fileSaved=await window.saveBlobToStorageFolder(filename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
+      try{ fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
+
+      // Step 65: keep a protected copy in Selected Storage Folder -> Backups.
+      // This is an automatic per-valuation backup and is overwritten only for
+      // the same valuation filename when that valuation is updated.
+      if(fileSaved){
+        try{
+          const backupName='Valuation Backup - '+valuationFilename;
+          backupSaved=await window.saveBlobToStorageFolder(backupName,blob,'Backups');
+          if(backupSaved){
+            localStorage.setItem('goldValuationLastAutoBackup',new Date().toISOString());
+            localStorage.setItem('goldValuationLastAutoBackupFile',backupName);
+          }
+        }catch(e){ console.warn('Automatic valuation backup failed:',e); }
+      }
     }
 
     const action=existingIndex>=0?'updated':'saved';
     const location=fileSaved ? ' It was also saved in your selected Storage Folder → Valuations.' : ' The app copy is saved, but the selected Storage Folder is not available.';
-    alert('Valuation '+action+' successfully under '+d.customer.bank+'.'+location+' Form has been reset for the next customer.');
+    const backupMsg=backupSaved ? ' A protected backup copy was also saved in → Backups.' : '';
+    alert('Valuation '+action+' successfully under '+d.customer.bank+'.'+location+backupMsg+' Form has been reset for the next customer.');
     resetAfterSave();
   }catch(e){
     console.error(e);
@@ -2809,8 +2825,21 @@ document.addEventListener('DOMContentLoaded',()=>{
     status.textContent='✅ '+(h.name||'Selected folder')+' — ready for app storage.';
     let html='<b>Storage folders:</b><br>📂 Valuations — valuation data<br>📂 Reports — customer, bank & monthly reports<br>📂 Certificates — valuation certificate PDFs<br>📂 Backups — backup files';
     try{
-      for(const name of ['Valuations','Reports','Certificates','Backups']) await h.getDirectoryHandle(name,{create:true});
+      const counts={};
+      for(const name of ['Valuations','Reports','Certificates','Backups']){
+        const dir=await h.getDirectoryHandle(name,{create:true});
+        let n=0;
+        if(dir.values){ for await (const entry of dir.values()){ if(entry.kind==='file') n++; } }
+        counts[name]=n;
+      }
       html+='<br><span style="color:#087f5b">✓ All four app folders are ready.</span>';
+      html+='<br>📊 Files: Valuations <b>'+counts.Valuations+'</b> · Reports <b>'+counts.Reports+'</b> · Certificates <b>'+counts.Certificates+'</b> · Backups <b>'+counts.Backups+'</b>';
+      const last=localStorage.getItem('goldValuationLastAutoBackup');
+      const lastFile=localStorage.getItem('goldValuationLastAutoBackupFile')||'';
+      const prot=document.getElementById('storageProtectionStatus');
+      if(prot){
+        prot.innerHTML=last ? '🛡️ <b>Automatic valuation backup:</b> Active<br>Last backup: '+new Date(last).toLocaleString('en-IN')+(lastFile?'<br>File: '+lastFile:'')+'<br>Backup copies are stored in <b>Backups</b>.' : '🛡️ <b>Automatic valuation backup:</b> Ready. Save a valuation once to create the first protected backup.';
+      }
     }catch(e){
       html+='<br><span style="color:#b42318">⚠️ Could not verify/create all folders. Select the storage folder again.</span>';
     }
