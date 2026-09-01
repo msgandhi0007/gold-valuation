@@ -1708,90 +1708,63 @@ function reportFilteredRecords(){
   });
 }
 function printBankMonthlyReport(){
-  try{
-    const records=reportFilteredRecords();
-    const bank=(document.getElementById('reportBank')||{}).value||'All Banks';
-    const month=(document.getElementById('reportMonth')||{}).value||'All Months';
-    const esc2=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const money2=n=>typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
-    const totalValue=records.reduce((s,r)=>s+dashboardValue(r),0);
-    const totalLoan=records.reduce((s,r)=>s+reportLoanAmount(r),0);
-    const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
-    const rows=records.map((r,i)=>{
-      const c=r?.customer||{};
-      return `<tr>
-        <td>${i+1}</td>
-        <td>${esc2(c.name||'')}</td>
-        <td>${esc2(c.bank||'')}</td>
-        <td>${esc2(reportDate(r)||'')}</td>
-        <td style="text-align:right">${money2(dashboardValue(r))}</td>
-        <td style="text-align:right">${money2(reportLoanAmount(r))}</td>
-      </tr>`;
-    }).join('');
-    const el=document.getElementById('bankMonthlyPrint');
-    el.innerHTML=`
-      <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:12px">
-        <div style="font-size:25px;font-weight:800;letter-spacing:.4px">RAJENDRA JEWELLERS</div>
-        <div style="font-size:18px;font-weight:700;margin-top:5px">GOLD VALUATION REPORT</div>
-        <div style="font-size:12px;margin-top:5px">Bank-wise / Monthly Report</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;font-size:13px">
-        <div><b>Bank:</b> ${esc2(bank)}</div>
-        <div><b>Month:</b> ${esc2(month)}</div>
-        <div><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
-        <div><b>Valuer:</b> MAHENDRA SHANTILAL GANDHI</div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
-        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Valuations</b><br><span style="font-size:20px">${records.length}</span></div>
-        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Total Valuation</b><br><span style="font-size:20px">${money2(totalValue)}</span></div>
-        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Sanctioned Loan</b><br><span style="font-size:20px">${money2(totalLoan)}</span></div>
-      </div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px">
-        <thead><tr style="background:#f1eee7">
-          <th style="border:1px solid #ccc;padding:7px">#</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:left">Customer</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:left">Bank</th>
-          <th style="border:1px solid #ccc;padding:7px">Date</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:right">Valuation ₹</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:right">Loan ₹</th>
-        </tr></thead>
-        <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:12px;text-align:center">No valuations found for this selection.</td></tr>'}</tbody>
-        <tfoot><tr>
-          <td colspan="4" style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">TOTAL</td>
-          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalValue)}</td>
-          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalLoan)}</td>
-        </tr></tfoot>
-      </table>
-      <div style="margin-top:35px;font-size:12px">
-        <div style="font-weight:800">REGISTERED GOLD APPRAISER</div>
-        <div>MAHENDRA SHANTILAL GANDHI</div>
-        <div>PPDC/GA/2026/244642</div>
-      </div>`;
-    document.body.classList.add('report-printing');
-    setTimeout(async ()=>{
-      try{
-        if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
-        const canvas=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
-        const {jsPDF}=window.jspdf;
-        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-        const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
-        pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+  (async function(){
+    try{
+      const records=reportFilteredRecords();
+      const bank=(document.getElementById('reportBank')||{}).value||'All Banks';
+      const month=(document.getElementById('reportMonth')||{}).value||'All Months';
+      const esc2=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const money2=n=>typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+      const totalValue=records.reduce((sum,r)=>sum+dashboardValue(r),0);
+      const totalLoan=records.reduce((sum,r)=>sum+reportLoanAmount(r),0);
+      const el=document.getElementById('bankMonthlyPrint');
+      if(!el) throw new Error('Report area not found.');
+      const rows=records.map((r,i)=>{
+        const c=r?.customer||{};
+        return `<tr><td>${i+1}</td><td>${esc2(c.name||'')}</td><td>${esc2(c.bank||'')}</td><td>${esc2(reportDate(r)||'')}</td><td style="text-align:right">${money2(dashboardValue(r))}</td><td style="text-align:right">${money2(reportLoanAmount(r))}</td></tr>`;
+      }).join('');
+      el.innerHTML=`
+        <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:12px">
+          <div style="font-size:25px;font-weight:800;letter-spacing:.4px">RAJENDRA JEWELLERS</div>
+          <div style="font-size:18px;font-weight:700;margin-top:5px">GOLD VALUATION REPORT</div>
+          <div style="font-size:12px;margin-top:5px">Bank-wise / Monthly Report</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;font-size:13px">
+          <div><b>Bank:</b> ${esc2(bank)}</div><div><b>Month:</b> ${esc2(month)}</div>
+          <div><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div><div><b>Valuer:</b> MAHENDRA SHANTILAL GANDHI</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
+          <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Valuations</b><br><span style="font-size:20px">${records.length}</span></div>
+          <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Total Valuation</b><br><span style="font-size:20px">${money2(totalValue)}</span></div>
+          <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Sanctioned Loan</b><br><span style="font-size:20px">${money2(totalLoan)}</span></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr style="background:#f1eee7"><th style="border:1px solid #ccc;padding:7px">#</th><th style="border:1px solid #ccc;padding:7px;text-align:left">Customer</th><th style="border:1px solid #ccc;padding:7px;text-align:left">Bank</th><th style="border:1px solid #ccc;padding:7px">Date</th><th style="border:1px solid #ccc;padding:7px;text-align:right">Valuation ₹</th><th style="border:1px solid #ccc;padding:7px;text-align:right">Loan ₹</th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:12px;text-align:center">No valuations found for this selection.</td></tr>'}</tbody>
+          <tfoot><tr><td colspan="4" style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">TOTAL</td><td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalValue)}</td><td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalLoan)}</td></tr></tfoot>
+        </table>
+        <div style="margin-top:35px;font-size:12px"><div style="font-weight:800">REGISTERED GOLD APPRAISER</div><div>MAHENDRA SHANTILAL GANDHI</div><div>PPDC/GA/2026/244642</div></div>`;
+
+      // Do not use the old print route. Clone the report into a real off-screen
+      // rendering surface with a fixed width so html2canvas always gets valid
+      // dimensions on Android, then save the resulting PDF to Reports.
+      if(typeof window.saveReportElement==='function'){
         const safeBank=String(bank||'All-Banks').replace(/[^a-z0-9_-]+/gi,'_');
         const safeMonth=String(month||'All-Months').replace(/[^a-z0-9_-]+/gi,'_');
-        const blob=pdf.output('blob');
         const filename='Gold-Valuation-Report-'+safeBank+'-'+safeMonth+'.pdf';
+        const blob=await window.saveReportElement(el,filename);
         if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports')){
           alert('Report PDF saved in your selected Storage Folder → Reports.');
-        }else{
-          alert('Report PDF could not be saved to the selected Storage Folder. Please select the folder again in Settings.');
+          return;
         }
-      }catch(e){ console.error(e); alert('Report PDF could not be exported: '+(e.message||'Unknown error')); }
-      finally{ document.body.classList.remove('report-printing'); }
-    },100);
-  }catch(e){
-    console.error(e);
-    alert('Report PDF could not be prepared.');
-  }
+        throw new Error('Storage folder permission is not available.');
+      }
+      throw new Error('Report PDF exporter is not ready.');
+    }catch(e){
+      console.error(e);
+      alert('Report PDF could not be exported: '+(e.message||'Unknown error'));
+    }
+  })();
 }
 
 </script>
@@ -3341,6 +3314,8 @@ window.toggleCustomerSummaryGroup=function(btn){
       return pdf.output('blob');
     }finally{holder.remove();}
   }
+
+  window.saveReportElement=saveReportElement;
 
   async function saveToReports(blob,filename){
     if(!window.saveBlobToStorageFolder) return false;
