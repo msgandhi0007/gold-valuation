@@ -1186,19 +1186,40 @@ window._draftCertificateNo=null;
 if(typeof addItem==='function') addItem();
 if(typeof calculate==='function') calculate();
 }
-function saveData(){
-const d=currentData();let a=getSaved();
-d.customer.bank=d.customer.bank||'Other / Not specified';
-const existingIndex=a.findIndex(x=>String(x.id)===String(d.id));
-if(existingIndex>=0){
-  a[existingIndex]=d;
-}else{
-  a.push(d);
-}
-ensureCertificateNo(d);
-localStorage.setItem('goldValuations',JSON.stringify(a));
-alert(existingIndex>=0 ? 'Valuation updated successfully under '+d.customer.bank+'. Form has been reset for the next customer.' : 'Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
-resetAfterSave();
+async function saveData(){
+  try{
+    const d=currentData();
+    let a=getSaved();
+    d.customer.bank=d.customer.bank||'Other / Not specified';
+    ensureCertificateNo(d);
+    const existingIndex=a.findIndex(x=>String(x.id)===String(d.id));
+    if(existingIndex>=0){ a[existingIndex]=d; } else { a.push(d); }
+
+    // Keep the fast local copy for the app UI.
+    localStorage.setItem('goldValuations',JSON.stringify(a));
+
+    // Step 62: also save this valuation as an individual JSON file in the
+    // user-selected Storage Folder -> Valuations. The local copy above is
+    // retained so Load/Reports continue to work even when folder access is unavailable.
+    let fileSaved=false;
+    if(window.saveBlobToStorageFolder){
+      const safeName=String(d.customer?.name||'Customer').trim()
+        .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+      const safeDate=String(d.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
+      const cert=String(d.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+      const filename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+      const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+      try{ fileSaved=await window.saveBlobToStorageFolder(filename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
+    }
+
+    const action=existingIndex>=0?'updated':'saved';
+    const location=fileSaved ? ' It was also saved in your selected Storage Folder → Valuations.' : ' The app copy is saved, but the selected Storage Folder is not available.';
+    alert('Valuation '+action+' successfully under '+d.customer.bank+'.'+location+' Form has been reset for the next customer.');
+    resetAfterSave();
+  }catch(e){
+    console.error(e);
+    alert('Valuation could not be saved: '+(e.message||'Unknown error'));
+  }
 }
 function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
 function closeLoad(){document.getElementById('saveManager').style.display='none'}
