@@ -1768,9 +1768,25 @@ function printBankMonthlyReport(){
         <div>PPDC/GA/2026/244642</div>
       </div>`;
     document.body.classList.add('report-printing');
-    setTimeout(()=>{
-      window.print();
-      setTimeout(()=>document.body.classList.remove('report-printing'),700);
+    setTimeout(async ()=>{
+      try{
+        if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
+        const canvas=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+        const {jsPDF}=window.jspdf;
+        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+        const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+        pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+        const safeBank=String(bank||'All-Banks').replace(/[^a-z0-9_-]+/gi,'_');
+        const safeMonth=String(month||'All-Months').replace(/[^a-z0-9_-]+/gi,'_');
+        const blob=pdf.output('blob');
+        const filename='Gold-Valuation-Report-'+safeBank+'-'+safeMonth+'.pdf';
+        if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports')){
+          alert('Report PDF saved in your selected Storage Folder → Reports.');
+        }else{
+          alert('Report PDF could not be saved to the selected Storage Folder. Please select the folder again in Settings.');
+        }
+      }catch(e){ console.error(e); alert('Report PDF could not be exported: '+(e.message||'Unknown error')); }
+      finally{ document.body.classList.remove('report-printing'); }
     },100);
   }catch(e){
     console.error(e);
@@ -2301,7 +2317,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       '<tr><td colspan="4" style="padding:14px;text-align:center">No valuations found.</td></tr>';
   };
 
-  window.exportBankStatementPDF=function(){
+  window.exportBankStatementPDF=async function(){
     syncBankStatementSelect();
     const select=document.getElementById('bankStatementSelect');
     const bank=String(select?.value||'').trim()||'All Banks';
@@ -2331,10 +2347,27 @@ document.addEventListener('DOMContentLoaded',()=>{
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
 </body></html>`;
-    const w=window.open('','_blank');
-    if(!w){alert('Please allow pop-ups for the PDF report.');return;}
-    w.document.open();w.document.write(doc);w.document.close();
-    setTimeout(()=>{w.focus();w.print();},350);
+    try{
+      if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
+      const holder=document.createElement('div');
+      holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;padding:20px;z-index:-1;';
+      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('</body>'));
+      document.body.appendChild(holder);
+      const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+      const blob=pdf.output('blob');
+      const safe=String(bank||'All-Banks').replace(/[^a-z0-9_-]+/gi,'_');
+      const filename='Bank-Wise-Customer-Report-'+safe+'.pdf';
+      holder.remove();
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports')){
+        alert('Bank Report PDF saved in your selected Storage Folder → Reports.');
+      }else{
+        alert('Bank Report PDF could not be saved to the selected Storage Folder. Please select the folder again in Settings.');
+      }
+    }catch(e){ console.error(e); alert('Bank Report PDF could not be exported: '+(e.message||'Unknown error')); }
   };
 
   document.addEventListener('DOMContentLoaded',function(){
@@ -2921,14 +2954,19 @@ window.saveCurrentCertificatePdf = async function(){
         await navigator.share({title:'Gold Valuation Certificate',text:text,files:[file]});
         return;
       }
-      // Browser does not support file sharing: download the PDF and offer the normal Android share route.
+      // IMPORTANT: never create a second browser download when the selected folder save succeeded.
+      // Android may route that download to Documents/Downloads, which would create a duplicate.
+      if(savedToFolder){
+        alert('PDF saved in your selected Storage Folder → Reports.');
+        return;
+      }
       const url=URL.createObjectURL(result.blob);
       const a=document.createElement('a'); a.href=url; a.download=result.filename; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),30000);
-      alert(savedToFolder ? 'PDF saved in the Reports folder. Open the PDF and tap Share to send it to WhatsApp or Email.' : 'PDF saved to Downloads. Open the PDF and tap Share to send it to WhatsApp or Email.');
+      alert('PDF saved to Downloads because the selected Storage Folder could not be used.');
     }catch(e){
       console.error(e);
-      alert('Direct PDF sharing is not supported by this browser. Please use Valuation Certificate / PDF, then Share.');
+      alert('PDF could not be exported. Please select the Storage Folder again in Settings.');
     }
   }
 
