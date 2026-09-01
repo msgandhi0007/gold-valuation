@@ -282,7 +282,7 @@ al App Cover */
 header{position:relative;padding-right:72px}
 .menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:5000}
 .menu-overlay.open{display:block!important}
-.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;box-sizing:border-box;background:#fff;box-shadow:-10px 0 35px rgba(0,0,0,.25);padding:18px;overflow:auto}
+.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;box-sizing:border-box;background:#fff;box-shadow:-10px 0 35px rgba(0,0,0,.25);padding:18px;overflow:auto;z-index:5001!important;visibility:visible!important;opacity:1!important}
 .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .menu-head h2{margin:0;font-size:21px}
 .menu-close{border:0;background:#f1eee7;border-radius:10px;padding:8px 12px;font-size:18px}
@@ -2741,7 +2741,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     loanValidation(false);
   });
 })();
-</script>
+<\/script>
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
@@ -3578,12 +3578,30 @@ window.saveCurrentCertificatePdf = async function(){
   const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33','settings59','storageManagement61'];
 
   window.openAppMenu=function(){
-    const m=document.getElementById('appMenu');
-    if(m) m.classList.add('open');
+    try{
+      const m=document.getElementById('appMenu');
+      const panel=m?m.querySelector('.menu-panel'):null;
+      // Close any other full-screen UI first so it cannot cover the menu.
+      const statement=document.getElementById('statementModal');
+      if(statement) statement.style.display='none';
+      if(m){
+        m.style.setProperty('display','block','important');
+        m.style.setProperty('visibility','visible','important');
+        m.style.setProperty('opacity','1','important');
+        m.style.setProperty('z-index','5000','important');
+        m.classList.add('open');
+      }
+      if(panel){
+        panel.style.setProperty('display','block','important');
+        panel.style.setProperty('visibility','visible','important');
+        panel.style.setProperty('opacity','1','important');
+        panel.style.setProperty('z-index','5001','important');
+      }
+    }catch(e){console.error('openAppMenu:',e);}
   };
   window.closeAppMenu=function(){
     const m=document.getElementById('appMenu');
-    if(m) m.classList.remove('open');
+    if(m){m.classList.remove('open');m.style.removeProperty('display');m.style.removeProperty('visibility');m.style.removeProperty('opacity');m.style.removeProperty('z-index');}
   };
 
   window.showValuationScreen=function(){
