@@ -679,8 +679,13 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <div id="valuation-main-sections">
 <section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div>
 <div id="editValuationBanner" style="display:none;margin:10px 0 0;padding:10px 12px;border:1px solid #d99a00;border-radius:10px;background:#fff8e6;font-size:13px;font-weight:700">
-  ✏️ Editing Saved Valuation
-  <button type="button" onclick="cancelValuationEdit()" style="float:right;padding:5px 9px;border:1px solid #bbb;border-radius:8px;background:#fff">Cancel Edit</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+    <span>✏️ Editing Saved Valuation</span>
+    <span style="display:flex;gap:6px;align-items:center">
+      <button id="editValuationEditButton" type="button" style="display:none;padding:7px 12px;border:1px solid #b88600;border-radius:8px;background:#fff;color:#8a5a00;font-weight:800">✏️ Edit</button>
+      <button id="editValuationCancelButton" type="button" onclick="cancelValuationEdit()" style="display:none;padding:7px 12px;border:1px solid #bbb;border-radius:8px;background:#fff">Cancel Edit</button>
+    </span>
+  </div>
   <div id="editValuationFile" style="font-size:11px;font-weight:500;opacity:.72;margin-top:4px"></div>
 </div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
@@ -1515,7 +1520,7 @@ if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
   d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
 if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
   d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
-items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();if(typeof showValuationScreen==='function'){showValuationScreen();setTimeout(function(){showValuationScreen();},60);}window.scrollTo({top:0,behavior:'smooth'});
+items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();if(typeof window.validateSanctionedLoan==='function')window.validateSanctionedLoan(false);closeLoad();if(typeof showValuationScreen==='function'){showValuationScreen();setTimeout(function(){showValuationScreen();},60);}window.scrollTo({top:0,behavior:'smooth'});
 }
 function printSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
@@ -2601,28 +2606,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   function ensureEditButtons(){
     const banner=document.getElementById('editValuationBanner');
     if(!banner)return;
-    let edit=document.getElementById('editValuationEditButton');
-    if(!edit){
-      edit=document.createElement('button');
-      edit.id='editValuationEditButton';
-      edit.type='button';
-      edit.textContent='✏️ Edit';
-      edit.style.cssText='float:right;margin-right:8px;padding:5px 12px;border:1px solid #b88600;border-radius:8px;background:#fff;color:#8a5a00;font-weight:800';
+    const edit=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    if(edit){
       edit.onclick=function(){
         window._valuationEditUnlocked=true;
         applyEditLock(false);
-        edit.style.display='none';
-        const cancel=document.getElementById('editValuationCancelButton');
+        edit.style.display='inline-block';
+        edit.textContent='✓ Editing';
+        edit.disabled=true;
+        edit.style.opacity='.7';
         if(cancel)cancel.style.display='inline-block';
-        const banner2=document.getElementById('editValuationBanner');
-        if(banner2){banner2.style.background='#eefaf0';banner2.style.borderColor='#58a66a';}
+        banner.style.background='#eefaf0';
+        banner.style.borderColor='#58a66a';
+        const loanEl=document.getElementById('sanctionedLoan');
+        if(loanEl)loanValidation(false);
       };
-      banner.insertBefore(edit,banner.firstElementChild);
-    }
-    let cancel=document.getElementById('editValuationCancelButton');
-    if(!cancel){
-      cancel=banner.querySelector('button[onclick="cancelValuationEdit()"]');
-      if(cancel){ cancel.id='editValuationCancelButton'; }
     }
     if(cancel){
       cancel.onclick=function(){ if(typeof window.cancelValuationEdit==='function')window.cancelValuationEdit(); };
@@ -2634,14 +2633,20 @@ document.addEventListener('DOMContentLoaded',()=>{
     window._valuationEditUnlocked=!record;
     const banner=document.getElementById('editValuationBanner');
     const fileEl=document.getElementById('editValuationFile');
+    const edit=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
     if(banner)banner.style.display=record?'block':'none';
     if(fileEl)fileEl.textContent=record?('File: '+(window._editingValuationOriginalFilename||'Existing valuation file')):'';
     ensureEditButtons();
-    const edit=document.getElementById('editValuationEditButton');
-    const cancel=document.getElementById('editValuationCancelButton');
-    if(edit)edit.style.display=record?'inline-block':'none';
-    if(cancel)cancel.style.display=record?'none':'none';
-    applyEditLock(!!record);
+    if(record){
+      if(edit){edit.style.display='inline-block';edit.disabled=false;edit.textContent='✏️ Edit';edit.style.opacity='1';}
+      if(cancel)cancel.style.display='none';
+      if(banner){banner.style.background='#fff8e6';banner.style.borderColor='#d99a00';}
+    }else{
+      if(edit)edit.style.display='none';
+      if(cancel)cancel.style.display='none';
+    }
+    applyEditLock(!!record && !window._valuationEditUnlocked);
   }
   function clearMode(){
     window._editingValuationId=null;
@@ -2700,7 +2705,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(loanEl){
         const total=marketValue();
         loanEl.max=String(Math.max(0,total));
-        if(Number(loanEl.value||0)>total){
+        const currentLoan=Number(loanEl.value||0);
+        if(currentLoan>total){
           loanEl.value=total.toFixed(0);
           oldCalculate.apply(this,arguments);
         }
@@ -2726,6 +2732,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         alert('This saved valuation is locked. Click ✏️ Edit before changing or saving it.');
         return;
       }
+      if(typeof window.calculate==='function')window.calculate();
       if(!loanValidation(true))return;
       return oldSave.apply(this,arguments);
     };
