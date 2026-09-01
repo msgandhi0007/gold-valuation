@@ -179,6 +179,7 @@ al App Cover */
 .history-actions button{min-height:42px}
 .history-empty{padding:18px;text-align:center;opacity:.6}
 @media(max-width:520px){.history-actions{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.history-filter-grid{grid-template-columns:1fr!important}}
 
 
 /* Step 28 FIX - embedded customer grouping */
@@ -638,10 +639,12 @@ body.menu-viewing #valuation-main-sections{display:none!important}
     <button type="button" onclick="updateCustomerHistory()" style="padding:8px 12px">↻ Refresh</button>
   </div>
 
-  <input id="historySearch" type="search"
-    placeholder="Search customer name or mobile number..."
-    oninput="updateCustomerHistory()"
-    style="width:100%;margin-top:12px">
+  <div class="history-filter-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+    <input id="historySearch" type="search" placeholder="🔎 Customer name / mobile..." oninput="updateCustomerHistory()" style="width:100%">
+    <select id="historyBankFilter" onchange="updateCustomerHistory()" style="width:100%"><option value="">All Banks</option></select>
+    <select id="historyDateFilter" onchange="updateCustomerHistory()" style="width:100%"><option value="">All Dates</option></select>
+    <button type="button" onclick="clearCustomerHistoryFilters()" style="padding:10px">✕ Clear Filters</button>
+  </div>
 
   <div id="historySummary" style="font-size:13px;margin-top:10px;opacity:.75"></div>
   <div id="customerHistoryRows" style="margin-top:8px"></div>
@@ -2309,61 +2312,72 @@ function shareHistoryRecord(record){
     alert('Share PDF could not be prepared.');
   }
 }
+function populateCustomerHistoryFilters(records){
+  const bankEl=document.getElementById('historyBankFilter');
+  const dateEl=document.getElementById('historyDateFilter');
+  if(!bankEl||!dateEl)return;
+  const bankCurrent=bankEl.value, dateCurrent=dateEl.value;
+  const banks=[...new Set(records.map(r=>String(historyCustomer(r).bank||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const dates=[...new Set(records.map(r=>String(historyCustomer(r).date||r.date||'').slice(0,10)).filter(Boolean))].sort().reverse();
+  bankEl.innerHTML='<option value="">All Banks</option>'+banks.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join('');
+  dateEl.innerHTML='<option value="">All Dates</option>'+dates.map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');
+  if(banks.includes(bankCurrent))bankEl.value=bankCurrent;
+  if(dates.includes(dateCurrent))dateEl.value=dateCurrent;
+}
+function clearCustomerHistoryFilters(){
+  const q=document.getElementById('historySearch'),b=document.getElementById('historyBankFilter'),d=document.getElementById('historyDateFilter');
+  if(q)q.value=''; if(b)b.value=''; if(d)d.value=''; updateCustomerHistory();
+}
+function deleteHistoryRecord(record){
+  try{
+    const a=getSaved();
+    let idx=a.findIndex(x=>x===record);
+    if(idx<0 && record?.certificateNo) idx=a.findIndex(x=>String(x.certificateNo)===String(record.certificateNo));
+    if(idx<0){alert('Saved valuation could not be found.');return;}
+    const name=historyName(a[idx])||'this valuation';
+    const date=String(historyCustomer(a[idx]).date||a[idx].date||'').slice(0,10);
+    if(!confirm('Delete valuation for '+name+(date?' dated '+date:'')+'?\n\nThis cannot be undone.'))return;
+    a.splice(idx,1);
+    localStorage.setItem('goldValuations',JSON.stringify(a));
+    if(window._currentSavedRecord===record)window._currentSavedRecord=null;
+    if(typeof renderSaved==='function')renderSaved();
+    updateCustomerHistory();
+    if(typeof updateCustomerGroups==='function')updateCustomerGroups();
+    if(typeof updateDashboard==='function')updateDashboard();
+    alert('Valuation deleted successfully.');
+  }catch(e){console.error(e);alert('Valuation could not be deleted: '+(e.message||'Unknown error'));}
+}
 function updateCustomerHistory(){
   const q=String(document.getElementById('historySearch')?.value||'').trim().toLowerCase();
+  const bankFilter=String(document.getElementById('historyBankFilter')?.value||'').trim().toLowerCase();
+  const dateFilter=String(document.getElementById('historyDateFilter')?.value||'').trim();
   const rows=document.getElementById('customerHistoryRows');
   const summary=document.getElementById('historySummary');
   if(!rows)return;
 
-  let records=historyRecords();
-  if(q){
-    records=records.filter(r=>{
-      const n=historyName(r).toLowerCase();
-      const m=historyMobile(r).toLowerCase();
-      const b=String(historyCustomer(r).bank||'').toLowerCase();
-      return n.includes(q)||m.includes(q)||b.includes(q);
-    });
-  }
+  const all=historyRecords();
+  populateCustomerHistoryFilters(all);
+  let records=all.filter(r=>{
+    const c=historyCustomer(r), n=historyName(r).toLowerCase(), m=historyMobile(r).toLowerCase();
+    const b=String(c.bank||'').toLowerCase(), d=String(c.date||r.date||'').slice(0,10);
+    return (!q || n.includes(q)||m.includes(q)||b.includes(q)) && (!bankFilter || b===bankFilter) && (!dateFilter || d===dateFilter);
+  });
+  records.sort((a,b)=>String(b.modifiedAt||b.createdAt||b.customer?.date||'').localeCompare(String(a.modifiedAt||a.createdAt||a.customer?.date||'')));
 
   const totalValue=records.reduce((s,r)=>s+(typeof dashboardValue==='function'?dashboardValue(r):0),0);
   const totalLoan=records.reduce((s,r)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(r):0),0);
-  if(summary){
-    summary.textContent=records.length+' valuation(s) found · Valuation '+(typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN'))+' · Loan '+(typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN'));
-  }
-
-  if(!records.length){
-    rows.innerHTML='<div class="history-empty">No customer valuations found.</div>';
-    return;
-  }
+  if(summary)summary.textContent=records.length+' valuation(s) found · Valuation '+(typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN'))+' · Loan '+(typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN'));
+  if(!records.length){window._historyShown=[];rows.innerHTML='<div class="history-empty">No customer valuations found for the selected filters.</div>';return;}
 
   window._historyShown=records;
   rows.innerHTML=records.map((r,i)=>{
-    const c=historyCustomer(r);
-    const name=esc(historyName(r)||'Unnamed Customer');
-    const mobile=esc(historyMobile(r)||'No mobile');
-    const bank=esc(c.bank||'');
+    const c=historyCustomer(r), name=esc(historyName(r)||'Unnamed Customer'), mobile=esc(historyMobile(r)||'No mobile'), bank=esc(c.bank||'');
     const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
-    const val=typeof dashboardValue==='function'?dashboardValue(r):0;
-    const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
-    return `<div class="history-row">
-      <div class="history-top">
-        <div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to open valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
-        <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
-      </div>
-      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
-      <div style="font-size:11px;margin-top:7px;line-height:1.6;background:#f8f9fa;border-radius:9px;padding:7px 9px">🕒 <b>Created:</b> ${esc(formatAuditDate86(r.createdAt))}<br>✏️ <b>Last modified:</b> ${esc(formatAuditDate86(r.modifiedAt))}<br>📝 <b>Status:</b> ${esc(r.auditStatus||'Created')}</div>
-      <div class="history-actions">
-        <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">Open</button>
-        <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
-        <button type="button" onclick="event.stopPropagation();shareHistoryRecord(window._historyShown[${i}])">↗ Share PDF</button>
-      </div>
-    </div>`;
+    const val=typeof dashboardValue==='function'?dashboardValue(r):0, loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
+    return `<div class="history-row">\n      <div class="history-top"><div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to view valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div><div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div></div>\n      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>\n      <div style="font-size:11px;margin-top:7px;line-height:1.6;background:#f8f9fa;border-radius:9px;padding:7px 9px">🕒 <b>Created:</b> ${esc(formatAuditDate86(r.createdAt))}<br>✏️ <b>Last modified:</b> ${esc(formatAuditDate86(r.modifiedAt))}<br>📝 <b>Status:</b> ${esc(r.auditStatus||'Created')}</div>\n      <div class="history-actions"><button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">✏️ Edit / Open</button><button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 PDF</button><button type="button" onclick="event.stopPropagation();deleteHistoryRecord(window._historyShown[${i}])" style="color:#b42318">🗑️ Delete</button></div>\n    </div>`;
   }).join('');
 }
-document.addEventListener('DOMContentLoaded',()=>{
-  updateCustomerHistory();
-  setInterval(updateCustomerHistory,2000);
-});
+document.addEventListener('DOMContentLoaded',()=>{updateCustomerHistory();setInterval(updateCustomerHistory,2000);});
 
 </script>
 
