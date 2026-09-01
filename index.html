@@ -681,7 +681,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   </div>
 </div>
 </section>
-<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
+<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="saveCurrentCertificatePdf()">📜 Valuation Certificate / PDF</button></div></section>
 </div>
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
@@ -1298,7 +1298,7 @@ if(document.getElementById('loanRate')) document.getElementById('loanRate').valu
 items.innerHTML='';count=0;
 (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
 calculate();closeLoad();
-setTimeout(()=>printCertificate(),100);
+setTimeout(()=>saveCurrentCertificatePdf(),100);
 }
 
 function deleteSaved(i){
@@ -1836,7 +1836,7 @@ function printHistoryRecord(record){
       printSavedCertificate(record);
     }else if(typeof printCertificate==='function'){
       openHistoryRecord(record);
-      setTimeout(()=>printCertificate(),100);
+      setTimeout(()=>saveCurrentCertificatePdf(),100);
     }else{
       alert('Certificate print function is not available.');
     }
@@ -2330,6 +2330,29 @@ document.addEventListener('DOMContentLoaded',()=>{
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
+
+<script>
+/* STEP 60 FIX - Save valuation PDFs into the selected Reports folder */
+window.saveCurrentCertificatePdf = async function(){
+  try{
+    if(!window.buildCertificatePdf || !window.saveCertificatePdfToReports){
+      throw new Error('PDF storage functions are not ready.');
+    }
+    const result=await window.buildCertificatePdf();
+    const saved=await window.saveCertificatePdfToReports(result);
+    if(saved){
+      alert('PDF saved successfully in your selected Storage Folder → Reports.');
+      return true;
+    }
+    alert('The selected Storage Folder is not available. Please go to Settings → Choose Storage Folder and select the folder again.');
+    return false;
+  }catch(e){
+    console.error('Certificate PDF save failed',e);
+    alert('PDF could not be saved to the selected Storage Folder. Please select the storage folder again in Settings.');
+    return false;
+  }
+};
+</script>
 </body></html>`;
     const w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups for the PDF report.');return;}
@@ -2817,7 +2840,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     return 'Gold Valuation\nRAJENDRA JEWELLERS\nCustomer: '+name+(bank?'\nBank: '+bank:'')+(date?'\nValuation Date: '+date:'')+(total?'\nTotal Value: '+total:'');
   }
 
-  async function buildCertificatePdf(){
+  window.buildCertificatePdf=async function buildCertificatePdf(){
     if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
       throw new Error('PDF library is not ready.');
     }
@@ -2881,7 +2904,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     return {blob,filename};
   }
 
-  async function saveCertificatePdfToReports(result){
+  window.saveCertificatePdfToReports=async function saveCertificatePdfToReports(result){
     try{
       if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(result.filename,result.blob,'Reports')) return true;
     }catch(e){ console.warn('Report save to selected folder failed',e); }
