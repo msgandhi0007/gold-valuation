@@ -1291,8 +1291,42 @@ clearValuationEditMode();
 if(typeof addItem==='function') addItem();
 if(typeof calculate==='function') calculate();
 }
-async function saveData(){
+async function validateValuationBeforeSave(){
+  const nameEl=document.getElementById('customerName');
+  const rateEl=document.getElementById('rate');
+  const name=String(nameEl?.value||'').trim();
+  if(!name){
+    alert('Customer Name is required. Please enter the customer name before saving.');
+    nameEl?.focus();
+    return false;
+  }
+  const rateValue=num(rateEl?.value);
+  if(!(rateValue>0)){
+    alert('Market Rate / gram is required. Please enter the market rate before saving.');
+    rateEl?.focus();
+    return false;
+  }
+  const itemEls=[...document.querySelectorAll('#items .item')];
+  if(!itemEls.length){
+    alert('Valuation details are required. Please add at least one Jewellery Item before saving.');
+    return false;
+  }
+  const valid=itemEls.some(el=>{
+    const itemName=typeof getItemName==='function'?getItemName(el):(el.querySelector('.itemName')?.value||'');
+    const gross=num(el.querySelector('.gross')?.value);
+    const purity=num(el.querySelector('.purity')?.value);
+    return String(itemName||'').trim() && gross>0 && purity>0;
+  });
+  if(!valid){
+    alert('Valuation details are required. Enter a Jewellery Item Name, Gross Weight and Purity before saving.');
+    return false;
+  }
+  return true;
+}
+
+function saveData(){
   try{
+    if(!validateValuationBeforeSave()) return;
     if(window._editingValuationId && !window._editUnlocked){
       alert('This saved valuation is locked. Tap ✏️ Edit before saving changes.');
       return;
