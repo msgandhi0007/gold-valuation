@@ -3975,3 +3975,62 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 </body>
 </html>
+
+<script>
+/* STEP 79 - Reliable Saved Valuation Edit Control */
+(function(){
+  function setEditLock79(locked){
+    if(typeof applyValuationEditLock==='function') applyValuationEditLock(!!locked);
+    const btn=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    const banner=document.getElementById('editValuationBanner');
+    if(banner) banner.style.display=(window._editingValuationId && !window._editUnlocked)?'block':(window._editingValuationId?'block':'none');
+    if(btn){btn.disabled=false;btn.style.display=(window._editingValuationId && !window._editUnlocked)?'inline-block':'none';btn.style.pointerEvents='auto';btn.style.position='relative';btn.style.zIndex='10';}
+    if(cancel){cancel.disabled=false;cancel.style.display=(window._editingValuationId && window._editUnlocked)?'inline-block':'none';}
+  }
+  window.unlockSavedValuation=function(){
+    if(!window._editingValuationId)return;
+    window._editUnlocked=true;
+    if(typeof applyValuationEditLock==='function') applyValuationEditLock(false);
+    const btn=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    if(btn)btn.style.display='none';
+    if(cancel)cancel.style.display='inline-block';
+    const banner=document.getElementById('editValuationBanner');
+    if(banner)banner.style.display='block';
+  };
+  window.setValuationEditMode=function(record, originalFilename){
+    window._editingValuationId=record?.id||null;
+    window._editingValuationOriginalFilename=originalFilename||null;
+    window._editUnlocked=false;
+    const banner=document.getElementById('editValuationBanner');
+    const fileEl=document.getElementById('editValuationFile');
+    const btn=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    if(banner)banner.style.display=record?'block':'none';
+    if(fileEl)fileEl.textContent=record?'File: '+(originalFilename||'Existing valuation file'):'';
+    if(btn){
+      btn.textContent='✏️ Edit';
+      btn.disabled=false;
+      btn.onclick=function(ev){if(ev)ev.preventDefault();window.unlockSavedValuation();};
+    }
+    if(cancel){cancel.onclick=function(ev){if(ev)ev.preventDefault();if(typeof cancelValuationEdit==='function')cancelValuationEdit();};}
+    setEditLock79(!!record);
+  };
+  window.clearValuationEditMode=(function(oldClear){
+    return function(){
+      if(typeof oldClear==='function')oldClear();
+      window._editingValuationId=null;
+      window._editingValuationOriginalFilename=null;
+      window._editUnlocked=false;
+      setEditLock79(false);
+    };
+  })(window.clearValuationEditMode);
+  document.addEventListener('click',function(e){
+    const btn=e.target&&e.target.closest?e.target.closest('#editValuationEditButton'):null;
+    if(btn && window._editingValuationId && !window._editUnlocked){
+      e.preventDefault();e.stopPropagation();window.unlockSavedValuation();
+    }
+  },true);
+})();
+</script>
