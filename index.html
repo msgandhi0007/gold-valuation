@@ -4215,6 +4215,134 @@ document.addEventListener('DOMContentLoaded',function(){
   window.openBackupRestoreCenter=window.gv89ShowBackupCenter;
 })();
 </script>
+
+<script>
+/* STEP 94 - FINAL BANK & MONTHLY REPORT FIX
+   Robust bank-name matching, date handling, refresh, and filtering. */
+(function(){
+  function nBank(v){
+    let s=String(v==null?'':v).trim().replace(/\s+/g,' ').toLowerCase();
+    const aliases={
+      'sbi':'sbi bank',
+      'sbi bank':'sbi bank',
+      'state bank of india':'sbi bank',
+      'state bank':'sbi bank'
+    };
+    return aliases[s]||s;
+  }
+  function bankOf(r){
+    return String(r?.customer?.bank ?? r?.bank ?? r?.bankName ?? '').trim();
+  }
+  function dateOf(r){
+    const c=r?.customer||{};
+    const candidates=[c.date,c.valuationDate,r?.date,r?.valuationDate,r?.createdAt,r?.createdDate,r?.createdDateTime];
+    for(const v of candidates){
+      if(!v) continue;
+      const s=String(v).trim();
+      let m=s.match(/(20\d{2})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+      if(m) return m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');
+      m=s.match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](20\d{2})/);
+      if(m) return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+    }
+    return '';
+  }
+  function monthOf(r){ return dateOf(r).slice(0,7); }
+  function allRecords(){
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){ return []; }
+  }
+  function selected(){
+    const bank=String(document.getElementById('reportBank')?.value||'').trim();
+    const month=String(document.getElementById('reportMonth')?.value||'').trim();
+    const nb=nBank(bank);
+    return allRecords().filter(r=>{
+      const rb=nBank(bankOf(r));
+      return (!nb || rb===nb) && (!month || monthOf(r)===month);
+    });
+  }
+  function val(r){
+    try{ if(typeof window.dashboardValue==='function') return Number(window.dashboardValue(r))||0; }catch(e){}
+    return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0;
+  }
+  function loan(r){
+    try{ if(typeof window.reportLoanAmount==='function') return Number(window.reportLoanAmount(r))||0; }catch(e){}
+    const c=r?.customer||{};
+    return Number(c.sanctionedLoanAmount??c.sanctionedLoan??c.loanAmount??r?.sanctionedLoanAmount??r?.loanAmount??0)||0;
+  }
+  function money(n){
+    try{ if(typeof window.money==='function') return window.money(n); }catch(e){}
+    return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  }
+  function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  window.updateReports=function(){
+    const bankSel=document.getElementById('reportBank');
+    const monthSel=document.getElementById('reportMonth');
+    const bank=String(bankSel?.value||'').trim();
+    const month=String(monthSel?.value||'').trim();
+    const records=selected();
+    const totalV=records.reduce((s,r)=>s+val(r),0);
+    const totalL=records.reduce((s,r)=>s+loan(r),0);
+    const customers=new Set(records.map(r=>String(r?.customer?.name??r?.customerName??'').trim().toLowerCase()).filter(Boolean));
+    const c=document.getElementById('reportCount'),v=document.getElementById('reportValue'),l=document.getElementById('reportLoan'),cu=document.getElementById('reportCustomers');
+    if(c)c.textContent=records.length;if(v)v.textContent=money(totalV);if(l)l.textContent=money(totalL);if(cu)cu.textContent=customers.size;
+    const map={};
+    records.forEach(r=>{const b=bankOf(r)||'Other / Not specified';const k=nBank(b);if(!map[k])map[k]={name:b,count:0,value:0,loan:0};map[k].count++;map[k].value+=val(r);map[k].loan+=loan(r);});
+    const rows=document.getElementById('reportRows');
+    if(rows){
+      const entries=Object.values(map).sort((a,b)=>a.name.localeCompare(b.name));
+      rows.innerHTML=entries.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.count}</td><td>${money(x.value)}</td><td>${money(x.loan)}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;opacity:.6;padding:14px">No valuations for this selection.</td></tr>';
+    }
+  };
+
+  window.reportFilteredRecords=function(){ return selected(); };
+
+  // Populate the bank selector from both Bank Management and saved valuations.
+  function syncReportBank(){
+    const sel=document.getElementById('reportBank'); if(!sel)return;
+    const old=String(sel.value||'').trim(); const names=[];
+    function add(v){const s=String(v==null?'':v).trim().replace(/\s+/g,' ');if(s&&!names.some(x=>nBank(x)===nBank(s)))names.push(s);}
+    try{const a=JSON.parse(localStorage.getItem('goldValuationBanks')||'[]');if(Array.isArray(a))a.forEach(add);}catch(e){}
+    allRecords().forEach(r=>add(bankOf(r)));
+    sel.innerHTML='<option value="">All Banks</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    if(old){const match=names.find(n=>nBank(n)===nBank(old));if(match)sel.value=match;}
+  }
+
+  window.printBankMonthlyReport=async function(){
+    try{
+      const records=selected();
+      const bank=String(document.getElementById('reportBank')?.value||'').trim()||'All Banks';
+      const month=String(document.getElementById('reportMonth')?.value||'').trim()||'All Months';
+      const safeMonth=month==='All Months'?month:month;
+      const rows=records.map((r,i)=>{const c=r?.customer||{};return `<tr><td>${i+1}</td><td>${esc(c.name||r?.customerName||'')}</td><td>${esc(bankOf(r))}</td><td>${esc(dateOf(r))}</td><td style="text-align:right">${money(val(r))}</td><td style="text-align:right">${money(loan(r))}</td></tr>`}).join('');
+      const tv=records.reduce((s,r)=>s+val(r),0),tl=records.reduce((s,r)=>s+loan(r),0);
+      const el=document.getElementById('bankMonthlyPrint');if(!el)throw new Error('Report area not found.');
+      el.innerHTML=`<div style="font-family:Arial;color:#111;background:#fff;width:760px;padding:22px"><h1 style="text-align:center;margin:0">RAJENDRA JEWELLERS</h1><h2 style="text-align:center">BANK & MONTHLY VALUATION REPORT</h2><hr><p><b>Bank:</b> ${esc(bank)}<br><b>Month:</b> ${esc(safeMonth)}</p><p><b>Valuations:</b> ${records.length} &nbsp; <b>Total Valuation:</b> ${money(tv)} &nbsp; <b>Total Loan:</b> ${money(tl)}</p><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="border:1px solid #ccc;padding:7px">#</th><th style="border:1px solid #ccc;padding:7px">Customer</th><th style="border:1px solid #ccc;padding:7px">Bank</th><th style="border:1px solid #ccc;padding:7px">Date</th><th style="border:1px solid #ccc;padding:7px">Valuation ₹</th><th style="border:1px solid #ccc;padding:7px">Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="6" style="padding:12px;text-align:center">No valuations found.</td></tr>'}</tbody></table><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>`;
+      if(!window.html2canvas||!window.jspdf?.jsPDF)throw new Error('PDF library is not ready.');
+      document.body.appendChild(el);el.style.position='fixed';el.style.left='-10000px';el.style.top='0';
+      const canvas=await html2canvas(el,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,w=210-margin*2,h=canvas.height*w/canvas.width;pdf.addImage(canvas.toDataURL('image/jpeg',.95),'JPEG',margin,margin,w,Math.min(h,297-margin*2),undefined,'FAST');
+      const blob=pdf.output('blob'),safe=bank.replace(/[^a-z0-9_-]+/gi,'_');
+      if(window.saveBlobToStorageFolder&&await window.saveBlobToStorageFolder('Bank-Monthly-Report-'+safe+'-'+(month||'All')+'.pdf',blob,'Reports'))alert('Bank & Monthly Report PDF saved in Reports.');else alert('Report PDF could not be saved. Please select the Storage Folder again in Settings.');
+      el.innerHTML='';
+    }catch(e){console.error(e);alert('Bank & Monthly Report could not be exported: '+(e.message||'Unknown error'));}
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    syncReportBank();
+    const m=document.getElementById('reportMonth');
+    // Do not force a month on the user: blank means all months.
+    if(m && !m.value)m.value='';
+    window.updateReports();
+    setTimeout(window.updateReports,300);
+    window.addEventListener('storage',function(e){if(e.key==='goldValuations'||e.key==='goldValuationBanks') {syncReportBank();window.updateReports();}});
+  });
+  window.addEventListener('focus',function(){syncReportBank();window.updateReports();});
+})();
+</script>
 </body>
 </html>
 
