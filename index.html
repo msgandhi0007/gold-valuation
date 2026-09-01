@@ -431,6 +431,50 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   .report-table th:nth-child(4),.report-table td:nth-child(4){width:23%}
 }
 
+
+/* IMAGE 1 UI THEME - premium dark navy + gold */
+:root{--gold:#d8a83e;--gold2:#f3c45b;--bg:#050b12;--card:#0b141e;--text:#f5f5f5;--muted:#aeb6bf;--line:#263442;--green:#21a36a}
+html,body{background:#050b12!important;color:var(--text)!important}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.app{max-width:520px;background:linear-gradient(180deg,#050b12,#07111b);min-height:100vh;padding-bottom:88px}
+header{background:#050b12!important;border-bottom:1px solid #9b7020;border-radius:0!important;padding:14px 18px 16px;text-align:center;position:relative}
+header .menu-btn{position:absolute;left:14px;top:18px;background:none!important;color:var(--gold2)!important;border:0!important;font-size:26px!important}
+header .brand{font-family:Georgia,serif;color:var(--gold2);font-size:24px;letter-spacing:1.5px;text-transform:uppercase}
+header .sub{color:#fff;opacity:.8;letter-spacing:1px}
+header .rate{margin-top:14px;background:linear-gradient(145deg,#111f2c,#09121b)!important;border:1px solid #7e5d20!important;border-radius:18px!important;text-align:left}
+header .rate label{color:#d8b260}
+header .rate input{color:#fff!important}
+main{padding:12px;background:#050b12}
+.card{background:linear-gradient(145deg,#0c1722,#08111a)!important;border:1px solid #253443!important;color:#fff!important;box-shadow:0 8px 22px #0005}
+.card h2{color:#fff!important}
+input,select{background:#07111a!important;color:#fff!important;border:1px solid #344352!important}
+button{font-family:inherit}
+.primary{background:linear-gradient(180deg,#f1bd4d,#c88e19)!important;color:#080b0f!important;border:0!important;box-shadow:0 5px 14px #b7832038}
+.secondary{background:#0b151f!important;color:#fff!important;border:1px solid #2b3b4a!important}
+.summary{background:linear-gradient(145deg,#171717,#0e0e0e)!important;border:1px solid #333!important}
+.loan{background:#fff!important;color:#222!important}
+footer{background:#06101a!important;border-top:1px solid #273746!important}
+footer button{background:#0c1722!important;color:#fff!important;border:1px solid #1e2e3c!important}
+/* Hide old home header/rate on the redesigned home screen */
+body.image1-home header{display:none}
+body.image1-home #valuation-main-sections{display:none!important}
+body.image1-home .menu-section{display:none!important}
+body.image1-home .image1-dashboard{display:block}
+.image1-dashboard{display:none;padding:0 12px 18px}
+.i1-top{padding:20px 4px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.i1-welcome{display:flex;align-items:center;gap:10px}.i1-avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f0c258,#7d5411);border:1px solid #d7a63b;color:#111;font-size:22px}.i1-welcome small{display:block;color:#fff;opacity:.8;font-size:12px}.i1-welcome b{display:block;color:#f2c65c;font-size:15px;margin-top:2px}.i1-bell{font-size:23px;color:#f2c65c}
+.i1-summary{border:1px solid #71541e;border-radius:18px;padding:15px;background:linear-gradient(145deg,#111e29,#0a121a);display:flex;align-items:center;gap:14px;margin-bottom:14px}.i1-gem{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#f4c85f,#76501a);font-size:28px;color:#111}.i1-summary small{color:#d9b65d;letter-spacing:.5px}.i1-summary strong{display:block;font-size:23px;margin-top:5px}.i1-summary span{font-size:12px;color:#bfc6cd}.i1-summary .chart{margin-left:auto;color:#f2c65c;font-size:27px}
+.i1-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.i1-tile{min-height:92px;border:1px solid #293947;border-radius:15px;background:linear-gradient(145deg,#101d28,#09131d);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;box-shadow:0 5px 14px #0004}.i1-icon{font-size:29px;color:#eec05a;line-height:1.1;margin-bottom:7px}.i1-tile b{font-size:11px;font-weight:650}.i1-tile small{font-size:9px;color:#9fa9b2;margin-top:3px}
+.i1-section{margin-top:16px}.i1-section-title{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px}.i1-section-title b{font-size:15px}.i1-section-title span{color:#dcb35b;font-size:12px}
+.i1-recent{border:1px solid #263544;border-radius:15px;overflow:hidden}.i1-row{display:flex;align-items:center;gap:9px;padding:11px;border-bottom:1px solid #1d2a35}.i1-row:last-child{border-bottom:0}.i1-initial{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#e9b94f,#8b5d15);color:#111;font-weight:800}.i1-row-main{flex:1}.i1-row-main b{display:block;font-size:12px}.i1-row-main small{color:#9da8b1;font-size:10px}.i1-row-value{color:#e9bd58;font-weight:800;font-size:12px}
+.i1-feature{display:grid;grid-template-columns:1fr 1fr;gap:10px}.i1-feature button{min-height:58px;border-radius:13px;border:1px solid #293947;background:#0b1620;color:#fff;font-weight:700}.i1-feature button:first-child{color:#f0c25b}
+.i1-cert{margin-top:14px;border:1px solid #8a6422;border-radius:15px;padding:13px;background:linear-gradient(145deg,#17130c,#0b1015);display:flex;align-items:center;gap:12px}.i1-cert .seal{font-size:34px;color:#e8b84d}.i1-cert b{font-size:13px}.i1-cert small{display:block;color:#aeb4bb;margin-top:3px}
+.i1-bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);z-index:30;background:#07111a;border-top:1px solid #283745;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -8px 25px #0007}.i1-bottom button{background:none;border:0;color:#8e98a2;font-size:10px;padding:5px}.i1-bottom button b{display:block;font-size:20px;margin-bottom:2px;font-weight:500}.i1-bottom button.active,.i1-bottom button:hover{color:#f0c25b}
+.i1-fab{position:fixed;right:max(18px,calc((100vw - 520px)/2 + 18px));bottom:78px;width:58px;height:58px;border-radius:50%;border:2px solid #f0c25b;background:linear-gradient(145deg,#f5ca60,#b77d12);color:#111;font-size:30px;box-shadow:0 8px 22px #0008;z-index:31}
+/* keep menu sections functional and visually consistent */
+.menu-section.menu-active{display:block!important}
+body.menu-viewing .image1-dashboard{display:none!important}
+body.menu-viewing header{display:block}
 </style>
 </head>
 <body>
@@ -441,6 +485,27 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
+<section class="image1-dashboard" id="image1Home">
+  <div class="i1-top"><div class="i1-welcome"><div class="i1-avatar">♟</div><div><small>Welcome,</small><b>Mahendra Gandhi</b></div></div><div class="i1-bell">♧</div></div>
+  <div class="i1-summary"><div class="i1-gem">◆</div><div><small>₹ VALUATION SUMMARY</small><strong id="i1Total">₹0</strong><span id="i1Count">0 Valuations</span></div><div class="chart">▥</div></div>
+  <div class="i1-grid">
+    <button class="i1-tile" onclick="newValuationImage1()"><span class="i1-icon">⊕</span><b>New Valuation</b></button>
+    <button class="i1-tile" onclick="openLoad()"><span class="i1-icon">▣</span><b>Saved Valuations</b></button>
+    <button class="i1-tile" onclick="showMenuSection('customerHistory')"><span class="i1-icon">♟</span><b>Customers</b></button>
+    <button class="i1-tile" onclick="showMenuSection('reports')"><span class="i1-icon">▤</span><b>Reports</b></button>
+    <button class="i1-tile" onclick="showMenuSection('bankManagement33')"><span class="i1-icon">♜</span><b>Bank Wise</b></button>
+    <button class="i1-tile" onclick="printCertificate()"><span class="i1-icon">◉</span><b>Certificate</b></button>
+    <button class="i1-tile" onclick="focusLtvImage1()"><span class="i1-icon">▦</span><b>LTV Calculator</b></button>
+    <button class="i1-tile" onclick="showMenuSection('dataSafetyBackup')"><span class="i1-icon">☁</span><b>Backup & Restore</b></button>
+    <button class="i1-tile" onclick="openAppMenu()"><span class="i1-icon">⚙</span><b>Settings</b></button>
+  </div>
+  <div class="i1-section"><div class="i1-section-title"><b>Recent Valuations</b><span onclick="openLoad()">View All ›</span></div><div class="i1-recent" id="i1Recent"></div></div>
+  <div class="i1-feature"><button onclick="showMenuSection('customerHistory')">♙ Customer History</button><button onclick="showMenuSection('reports')">▤ Bank & Reports</button></div>
+  <div class="i1-cert"><div class="seal">◉</div><div><b>Professional Valuation Certificate</b><small>Generate and print beautiful PDF reports</small></div></div>
+</section>
+<div class="i1-bottom"><button class="active" onclick="showHomeImage1()"><b>⌂</b>Home</button><button onclick="newValuationImage1()"><b>▣</b>Valuations</button><button onclick="showMenuSection('customerHistory')"><b>♟</b>Customers</button><button onclick="openAppMenu()"><b>☰</b>More</button></div>
+<button class="i1-fab" onclick="newValuationImage1()" aria-label="New valuation">+</button>
+
 <section class="menu-section card dashboard-card" id="dashboard">
   <div class="itemhead">
     <div>
@@ -2330,48 +2395,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
-<style>
-:root{--gold:#d9a62a;--gold2:#f4c55a;--navy:#030b14;--panel:#0b1723;--text:#f6f7f9;--muted:#aab4c0;--line:#233343}
-body.app-started{background:radial-gradient(circle at 50% -10%,#12263a 0,#030b14 38%,#02070d 100%);color:var(--text)}
-body.app-started .app{max-width:520px;background:transparent;padding-bottom:84px}
-body.app-started>header{display:none!important} body.app-started main{padding:0 12px 20px}
-body.app-started .card{background:linear-gradient(145deg,#0c1a27,#07111b);border:1px solid #263747;color:var(--text);box-shadow:0 10px 28px #0006}
-body.app-started .card h2,body.app-started label{color:var(--text)} body.app-started .field label{color:#aab4c0}
-body.app-started input,body.app-started select,body.app-started textarea{background:#06101a!important;color:#fff!important;border-color:#2c3d4e!important}
-body.app-started input::placeholder{color:#687887} body.app-started .secondary{background:#0a1722;color:#fff;border-color:#2a3b4b}
-body.app-started .primary{background:linear-gradient(180deg,#f1bf4c,#c58a13);color:#111;box-shadow:0 5px 18px #c58a1338}
-body.app-started .summary{background:linear-gradient(145deg,#101f2d,#07111a)!important}
-body.app-started .loan{background:#0b1723;color:#fff;border-color:#2a3b4b}.loan b{color:var(--gold2)!important}
-body.app-started .menu-section{display:none} body.app-started .menu-section.menu-active{display:block}
-#rvHome{display:none} body.app-started #rvHome{display:block}
-.rv-top{display:flex;align-items:center;gap:10px;padding:15px 4px 12px}.rv-menu{width:40px;height:40px;border-radius:12px;border:1px solid #314353;background:#0a1722;color:#f4c55a;font-size:23px}
-.rv-logo{width:42px;height:42px;border:1px solid #d9a62a;border-radius:50%;display:grid;place-items:center;color:#f4c55a;font-family:Georgia,serif;font-weight:900;font-size:19px;background:radial-gradient(circle,#513a12,#0a1722 65%)}
-.rv-brand{flex:1}.rv-brand b{display:block;font-family:Georgia,serif;letter-spacing:.5px;font-size:14px;color:#f5c75a}.rv-brand span{font-size:9px;color:#aab4c0}.rv-user{text-align:right;font-size:9px}.rv-user b{display:block;color:#fff}.rv-user span{color:#f4c55a}
-.rv-hero{border:1px solid #6e521e;border-radius:18px;padding:15px;background:radial-gradient(circle at 10% 50%,#4c3510 0,#111d27 30%,#08131d 100%);box-shadow:0 8px 24px #0007;display:flex;align-items:center;gap:12px}
-.rv-gem{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:27px;background:radial-gradient(circle,#d9a62a,#5a3d0d);border:1px solid #f2c85e}.rv-hero small{color:#b9c2cc}.rv-hero strong{font-size:24px;display:block;margin:3px 0}.rv-hero em{font-style:normal;font-size:11px;color:#aeb8c3}.rv-hero .trend{margin-left:auto;color:#f4c55a;font-size:24px}
-.rv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}.rv-tile{min-height:91px;border:1px solid #263747;border-radius:15px;background:linear-gradient(145deg,#102131,#08131e);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:8px 3px;font-size:10.5px;font-weight:700;box-shadow:inset 0 1px #ffffff08,0 7px 15px #0004}.rv-tile i{font-style:normal;font-size:28px;color:#f4c55a}.rv-tile:active{transform:scale(.98)}
-.rv-section-title{display:flex;justify-content:space-between;align-items:center;margin:15px 2px 8px}.rv-section-title b{font-size:15px}.rv-section-title span{font-size:10px;color:#f4c55a}.rv-recent{border:1px solid #263747;border-radius:16px;overflow:hidden;background:#08131d}.rv-row{display:grid;grid-template-columns:40px 1fr auto;gap:9px;align-items:center;padding:11px;border-bottom:1px solid #1e2d3a}.rv-row:last-child{border-bottom:0}.rv-avatar{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#e6b642,#7e5208);color:#111;font-weight:900}.rv-row b{font-size:12px}.rv-row small{display:block;color:#8f9aa6;margin-top:2px;font-size:10px}.rv-amount{font-weight:850;color:#f4c55a;font-size:12px}.rv-feature{margin-top:12px;border:1px solid #5e471a;border-radius:16px;padding:13px;background:linear-gradient(100deg,#241806,#0d1720);display:flex;align-items:center;gap:12px}.rv-feature-icon{font-size:31px}.rv-feature b{font-size:13px}.rv-feature small{display:block;color:#aeb8c3;margin-top:3px;font-size:10px}
-.rv-bottom{position:fixed;z-index:9000;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(4,1fr);padding:7px 7px calc(7px + env(safe-area-inset-bottom));background:#06101aee;backdrop-filter:blur(14px);border-top:1px solid #253747}.rv-bottom button{border:0;background:transparent;color:#8f9aa6;font-size:10px;padding:4px}.rv-bottom i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}.rv-bottom .active{color:#f4c55a}.rv-new{position:fixed;z-index:9001;right:max(16px,calc((100vw - 520px)/2 + 16px));bottom:70px;width:55px;height:55px;border-radius:50%;border:1px solid #f6cf68;background:linear-gradient(145deg,#f5c75b,#b97c0b);color:#111;font-size:29px;box-shadow:0 8px 22px #0008}
-body.app-started .dashboard-stat{background:#0a1722;border-color:#263747;color:#fff}.dashboard-stat .num{color:#f4c55a}.dashboard-stat .label{color:#aab4c0}body.app-started .menu-panel{background:#07121c;color:#fff;border-color:#263747}.menu-item{background:#0b1723!important;color:#fff!important;border-color:#263747!important}
-@media(max-width:390px){.rv-user{display:none}.rv-grid{gap:6px}.rv-tile{min-height:84px;font-size:10px}.rv-tile i{font-size:25px}}
-@media print{#rvHome,.rv-bottom,.rv-new{display:none!important}body.app-started{background:#fff;color:#111}}
-</style>
-<script>
-(function(){
- function moneyUI(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0})}
- function getRecords(){try{return JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){return[]}}
- function esc(x){return String(x??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
- function renderHome(){const rec=getRecords(),el=id=>document.getElementById(id);const total=rec.reduce((s,r)=>s+Number(r.totalValue||r.value||r.grandTotal||0),0);if(el('rvTotal'))el('rvTotal').textContent=moneyUI(total);if(el('rvCount'))el('rvCount').textContent=rec.length+' Valuation'+(rec.length===1?'':'s');if(el('rvRecent')){const list=rec.slice().sort((a,b)=>Number(b.id||0)-Number(a.id||0)).slice(0,5);el('rvRecent').innerHTML=list.length?list.map(r=>{const n=r.customer?.name||'Customer',init=n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase(),v=r.totalValue||r.value||r.grandTotal||0,b=r.customer?.bank||'Bank not selected',d=r.customer?.date||r.date||'';return '<div class="rv-row"><div class="rv-avatar">'+init+'</div><div><b>'+esc(n)+'</b><small>'+esc(b)+' • '+esc(d)+'</small></div><div class="rv-amount">'+moneyUI(v)+'</div></div>'}).join(''):'<div style="padding:22px;text-align:center;color:#8f9aa6">No saved valuations yet</div>'}}
- function setActive(id){document.querySelectorAll('.rv-bottom button').forEach(b=>b.classList.remove('active'));const e=document.getElementById(id);if(e)e.classList.add('active')}
- function hideSections(){['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('menu-active')})}
- function showHome(){document.body.classList.add('app-started');const h=document.getElementById('rvHome'),v=document.getElementById('valuation-main-sections');if(h)h.style.display='block';if(v)v.style.display='none';hideSections();document.body.classList.remove('menu-viewing');setActive('rvNavHome');renderHome();window.scrollTo({top:0,behavior:'smooth'})}
- function showVal(){document.body.classList.add('app-started');const h=document.getElementById('rvHome'),v=document.getElementById('valuation-main-sections');if(h)h.style.display='none';if(v)v.style.display='block';hideSections();document.body.classList.remove('menu-viewing');setActive('rvNavVal');window.scrollTo({top:0,behavior:'smooth'})}
- function section(id){document.body.classList.add('app-started');const h=document.getElementById('rvHome'),v=document.getElementById('valuation-main-sections');if(h)h.style.display='none';if(v)v.style.display='none';hideSections();const e=document.getElementById(id);if(e){e.classList.add('menu-active');document.body.classList.add('menu-viewing');setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'start'}),40)}setActive(id==='customerHistory'?'rvNavCust':'');if(id==='dashboard'&&typeof updateDashboard==='function')updateDashboard();if(id==='reports'&&typeof updateReports==='function')updateReports();if(id==='bankStatementReport'&&typeof refreshBankStatementReport==='function')refreshBankStatementReport();if(id==='customerHistory'&&typeof updateCustomerHistory==='function')updateCustomerHistory();if(id==='bankManagement33'&&typeof renderBankManagement33==='function')renderBankManagement33()}
- function build(){if(document.getElementById('rvHome'))return;const host=document.querySelector('main');if(!host)return;const d=document.createElement('section');d.id='rvHome';d.innerHTML='<div class="rv-top"><button class="rv-menu" onclick="openAppMenu()">☰</button><div class="rv-logo">RJ</div><div class="rv-brand"><b>RAJENDRA JEWELLERS</b><span>GOLD VALUATION APP</span></div><div class="rv-user"><b>MAHENDRA GANDHI</b><span>REGISTERED GOLD APPRAISER</span></div></div><div class="rv-hero"><div class="rv-gem">◆</div><div><small>₹ VALUATION SUMMARY</small><strong id="rvTotal">₹0</strong><em id="rvCount">0 Valuations</em></div><div class="trend">↗</div></div><div class="rv-grid"><button class="rv-tile" onclick="uiNewValuation()"><i>＋</i>New Valuation</button><button class="rv-tile" onclick="openLoad()"><i>▣</i>Saved Valuations</button><button class="rv-tile" onclick="uiCustomers()"><i>♟</i>Customers</button><button class="rv-tile" onclick="uiReports()"><i>▤</i>Reports</button><button class="rv-tile" onclick="uiBanks()"><i>♜</i>Bank Wise</button><button class="rv-tile" onclick="uiCertificate()"><i>◉</i>Certificate</button><button class="rv-tile" onclick="uiLTV()"><i>▦</i>LTV Calculator</button><button class="rv-tile" onclick="uiBackup()"><i>☁</i>Backup & Restore</button><button class="rv-tile" onclick="openAppMenu()"><i>⚙</i>Settings</button></div><div class="rv-section-title"><b>Recent Valuations</b><span onclick="openLoad()">VIEW ALL ›</span></div><div class="rv-recent" id="rvRecent"></div><div class="rv-feature"><div class="rv-feature-icon">🏅</div><div><b>Professional Valuation Certificate</b><small>Generate and share professional PDF reports</small></div></div><button class="rv-new" onclick="uiNewValuation()">＋</button>';host.insertBefore(d,host.firstChild);const n=document.createElement('div');n.className='rv-bottom';n.innerHTML='<button id="rvNavHome" class="active" onclick="showHomeUI()"><i>⌂</i>Home</button><button id="rvNavVal" onclick="showValuationUI()"><i>▣</i>Valuations</button><button id="rvNavCust" onclick="uiCustomers()"><i>♟</i>Customers</button><button onclick="openAppMenu()"><i>☰</i>More</button>';document.body.appendChild(n)}
- window.showHomeUI=showHome;window.showValuationUI=showVal;window.uiNewValuation=showVal;window.uiCustomers=()=>section('customerHistory');window.uiReports=()=>section('reports');window.uiBanks=()=>section('bankStatementReport');window.uiBackup=()=>section('dataSafetyBackup');window.uiLTV=()=>{showVal();setTimeout(()=>document.querySelector('.summary')?.scrollIntoView({behavior:'smooth',block:'start'}),120)};window.uiCertificate=()=>{showVal();setTimeout(()=>typeof printCertificate==='function'&&printCertificate(),150)};window.enterValuationApp=function(){document.getElementById('appCover')?.classList.add('hidden');document.body.style.overflow='';build();showHome()};document.addEventListener('DOMContentLoaded',build);window.addEventListener('storage',renderHome);window.addEventListener('pageshow',renderHome)
-})();
-</script>
-
 </body></html>`;
     const w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups for the PDF report.');return;}
@@ -3191,5 +3214,26 @@ window.toggleCustomerSummaryGroup=function(btn){
 })();
 </script>
 
+
+<script>
+(function(){
+  function money(v){return '₹'+Number(v||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function saved(){try{let a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+  function total(r){return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0}
+  function renderHome(){
+    const a=saved();
+    const tv=a.reduce((x,r)=>x+total(r),0);
+    const t=document.getElementById('i1Total'),c=document.getElementById('i1Count'),list=document.getElementById('i1Recent');
+    if(t)t.textContent=money(tv); if(c)c.textContent=a.length+' Valuations';
+    if(list){const rows=a.slice().reverse().slice(0,5); list.innerHTML=rows.length?rows.map(r=>{const n=String(r?.customer?.name||r?.customerName||'Unnamed');const m=String(r?.customer?.mobile||r?.mobile||'');return '<div class="i1-row"><div class="i1-initial">'+(n.trim()[0]||'R').toUpperCase()+'</div><div class="i1-row-main"><b>'+n.replace(/[<>]/g,'')+'</b><small>'+m.replace(/[<>]/g,'')+'</small></div><div class="i1-row-value">'+money(total(r))+' ›</div></div>'}).join(''):'<div class="i1-row"><div class="i1-row-main"><b>No saved valuations yet</b><small>Start a new valuation</small></div></div>'}
+  }
+  window.showHomeImage1=function(){document.body.classList.add('image1-home');document.body.classList.remove('menu-viewing');const h=document.querySelector('header');if(h)h.style.display='none';renderHome();window.scrollTo(0,0)};
+  window.newValuationImage1=function(){document.body.classList.remove('image1-home');document.body.classList.remove('menu-viewing');const h=document.querySelector('header');if(h)h.style.display='block';const v=document.getElementById('valuation-main-sections');if(v)v.style.display='block';window.scrollTo(0,0);setTimeout(function(){const x=document.getElementById('customerName');if(x)x.focus()},120)};
+  window.focusLtvImage1=function(){newValuationImage1();setTimeout(function(){const x=document.getElementById('ltv1');if(x)x.scrollIntoView({behavior:'smooth',block:'center'})},180)};
+  document.addEventListener('DOMContentLoaded',function(){showHomeImage1();setTimeout(renderHome,300);});
+  window.addEventListener('storage',renderHome);
+  const oldCalc=window.calculate; if(typeof oldCalc==='function') window.calculate=function(){oldCalc();renderHome()};
+})();
+</script>
 </body>
 </html>
