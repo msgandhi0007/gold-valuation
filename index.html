@@ -2570,6 +2570,178 @@ document.addEventListener('DOMContentLoaded',()=>{
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
+
+<script>
+/* STEP 70 - Explicit Edit Mode + Sanctioned Loan safety */
+(function(){
+  function valuationControls(){
+    const root=document.getElementById('valuation-main-sections');
+    if(!root) return [];
+    return Array.from(root.querySelectorAll('input,select,textarea,button'));
+  }
+  function applyEditLock(locked){
+    const root=document.getElementById('valuation-main-sections');
+    if(!root)return;
+    valuationControls().forEach(function(el){
+      if(el.id==='editValuationEditButton' || el.id==='editValuationCancelButton') return;
+      // Keep the Saved button usable so the user can leave this screen.
+      if(el.textContent && el.textContent.trim().indexOf('📂 Saved')===0) return;
+      // The edit banner controls are handled separately.
+      if(el.closest && el.closest('#editValuationBanner')) return;
+      el.disabled=!!locked;
+      el.setAttribute('aria-disabled',String(!!locked));
+    });
+    const saveBtn=document.querySelector('footer button:first-child');
+    if(saveBtn){
+      saveBtn.disabled=!!locked;
+      saveBtn.title=locked?'Click Edit before changing this saved valuation.':'';
+    }
+    root.classList.toggle('valuation-edit-locked',!!locked);
+  }
+  function ensureEditButtons(){
+    const banner=document.getElementById('editValuationBanner');
+    if(!banner)return;
+    let edit=document.getElementById('editValuationEditButton');
+    if(!edit){
+      edit=document.createElement('button');
+      edit.id='editValuationEditButton';
+      edit.type='button';
+      edit.textContent='✏️ Edit';
+      edit.style.cssText='float:right;margin-right:8px;padding:5px 12px;border:1px solid #b88600;border-radius:8px;background:#fff;color:#8a5a00;font-weight:800';
+      edit.onclick=function(){
+        window._valuationEditUnlocked=true;
+        applyEditLock(false);
+        edit.style.display='none';
+        const cancel=document.getElementById('editValuationCancelButton');
+        if(cancel)cancel.style.display='inline-block';
+        const banner2=document.getElementById('editValuationBanner');
+        if(banner2){banner2.style.background='#eefaf0';banner2.style.borderColor='#58a66a';}
+      };
+      banner.insertBefore(edit,banner.firstElementChild);
+    }
+    let cancel=document.getElementById('editValuationCancelButton');
+    if(!cancel){
+      cancel=banner.querySelector('button[onclick="cancelValuationEdit()"]');
+      if(cancel){ cancel.id='editValuationCancelButton'; }
+    }
+    if(cancel){
+      cancel.onclick=function(){ if(typeof window.cancelValuationEdit==='function')window.cancelValuationEdit(); };
+    }
+  }
+  function setMode(record,originalFilename){
+    window._editingValuationId=record?.id||null;
+    window._editingValuationOriginalFilename=originalFilename||null;
+    window._valuationEditUnlocked=!record;
+    const banner=document.getElementById('editValuationBanner');
+    const fileEl=document.getElementById('editValuationFile');
+    if(banner)banner.style.display=record?'block':'none';
+    if(fileEl)fileEl.textContent=record?('File: '+(window._editingValuationOriginalFilename||'Existing valuation file')):'';
+    ensureEditButtons();
+    const edit=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    if(edit)edit.style.display=record?'inline-block':'none';
+    if(cancel)cancel.style.display=record?'none':'none';
+    applyEditLock(!!record);
+  }
+  function clearMode(){
+    window._editingValuationId=null;
+    window._editingValuationOriginalFilename=null;
+    window._valuationEditUnlocked=true;
+    const banner=document.getElementById('editValuationBanner');
+    const fileEl=document.getElementById('editValuationFile');
+    if(banner)banner.style.display='none';
+    if(fileEl)fileEl.textContent='';
+    applyEditLock(false);
+  }
+  window.setValuationEditMode=setMode;
+  window.clearValuationEditMode=clearMode;
+
+  const oldCancel=window.cancelValuationEdit;
+  window.cancelValuationEdit=function(){
+    if(typeof oldCancel==='function') oldCancel();
+    else { clearMode(); if(typeof resetAfterSave==='function')resetAfterSave(); }
+    applyEditLock(false);
+  };
+
+  function marketValue(){
+    const el=document.getElementById('tv');
+    if(!el)return 0;
+    return Number(String(el.textContent||'').replace(/[^0-9.-]/g,''))||0;
+  }
+  function loanValidation(showMessage){
+    const loanEl=document.getElementById('sanctionedLoan');
+    if(!loanEl)return true;
+    const total=marketValue();
+    const loan=Math.max(0,Number(loanEl.value||0));
+    loanEl.max=String(Math.max(0,total));
+    let msg=document.getElementById('sanctionedLoanError');
+    if(!msg){
+      msg=document.createElement('div'); msg.id='sanctionedLoanError';
+      msg.style.cssText='font-size:12px;font-weight:700;margin-top:5px;color:#b00020';
+      loanEl.parentElement.appendChild(msg);
+    }
+    if(loan>total+0.000001){
+      msg.textContent='⚠ Sanctioned loan cannot be greater than Total Market Value ('+money(total)+').';
+      loanEl.setAttribute('aria-invalid','true');
+      if(showMessage) alert('Sanctioned loan cannot be greater than Total Market Value ('+money(total)+').');
+      return false;
+    }
+    msg.textContent='Maximum allowed: '+money(total);
+    loanEl.removeAttribute('aria-invalid');
+    return true;
+  }
+  window.validateSanctionedLoan=loanValidation;
+
+  const oldCalculate=window.calculate;
+  if(typeof oldCalculate==='function'){
+    window.calculate=function(){
+      oldCalculate.apply(this,arguments);
+      const loanEl=document.getElementById('sanctionedLoan');
+      if(loanEl){
+        const total=marketValue();
+        loanEl.max=String(Math.max(0,total));
+        if(Number(loanEl.value||0)>total){
+          loanEl.value=total.toFixed(0);
+          oldCalculate.apply(this,arguments);
+        }
+        loanValidation(false);
+      }
+    };
+  }
+  const loanEl=document.getElementById('sanctionedLoan');
+  if(loanEl){
+    loanEl.addEventListener('input',function(){loanValidation(false);});
+    loanEl.addEventListener('change',function(){
+      const total=marketValue();
+      if(Number(this.value||0)>total)this.value=total.toFixed(0);
+      loanValidation(false);
+      if(typeof window.calculate==='function')window.calculate();
+    });
+  }
+
+  const oldSave=window.saveData;
+  if(typeof oldSave==='function'){
+    window.saveData=async function(){
+      if(window._currentSavedRecord && !window._valuationEditUnlocked){
+        alert('This saved valuation is locked. Click ✏️ Edit before changing or saving it.');
+        return;
+      }
+      if(!loanValidation(true))return;
+      return oldSave.apply(this,arguments);
+    };
+  }
+
+  // New valuation starts unlocked. Saved valuations become locked through setValuationEditMode().
+  document.addEventListener('DOMContentLoaded',function(){
+    if(!window._currentSavedRecord){
+      window._valuationEditUnlocked=true;
+      applyEditLock(false);
+    }
+    ensureEditButtons();
+    loanValidation(false);
+  });
+})();
+</script>
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
