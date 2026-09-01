@@ -25,8 +25,8 @@ button.primary{width:100%;padding:13px;border:0;border-radius:13px;background:va
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
 footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}
 /* STEP 97 - Main Valuation footer must never appear on menu/report screens */
-body.menu-viewing > footer{display:none!important;visibility:hidden!important;pointer-events:none!important}
-body:not(.menu-viewing) > footer{display:flex!important;visibility:visible!important;pointer-events:auto!important}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
+body > footer{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+body.menu-viewing > footer, body:has(.menu-section.menu-active) > footer, body:has(#valuation-main-sections[style*='display: none']) > footer{display:none!important;visibility:hidden!important;pointer-events:none!important}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
 
 .certificate{display:none;background:#fff;color:#222}
@@ -2790,83 +2790,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 
-<script>
-/* STEP 96 - Keep Save / Load / Share footer only on main Valuation screen */
-(function(){
-  function setMainFooterVisible(visible){
-    try{
-      const f=document.querySelector('footer');
-      if(!f) return;
-      if(visible){
-        f.style.setProperty('display','flex','important');
-        f.style.visibility='visible';
-      }else{
-        f.style.setProperty('display','none','important');
-        f.style.visibility='hidden';
-      }
-    }catch(e){console.error('STEP 96 footer:',e);}
-  }
-  window.setMainValuationFooterVisible=setMainFooterVisible;
-
-  // Main screen: show the three valuation actions.
-  const oldShowValuation=window.showValuationScreen;
-  window.showValuationScreen=function(){
-    if(typeof oldShowValuation==='function') oldShowValuation.apply(this,arguments);
-    setTimeout(function(){setMainFooterVisible(true);},0);
-  };
-
-  // Every menu/report screen: hide the main valuation actions.
-  const oldShowMenuSection=window.showMenuSection;
-  window.showMenuSection=function(id){
-    setMainFooterVisible(false);
-    if(typeof oldShowMenuSection==='function') oldShowMenuSection.apply(this,arguments);
-    setTimeout(function(){setMainFooterVisible(false);},120);
-  };
-
-  document.addEventListener('DOMContentLoaded',function(){
-    const valuation=document.getElementById('valuation-main-sections');
-    setMainFooterVisible(!!(valuation && !valuation.classList.contains('menu-section')));
-  });
-})();
-</script>
-<script>
-/* STEP 97 - Robust footer visibility guard */
-(function(){
-  function syncMainFooter(){
-    var f=document.querySelector('body > footer');
-    if(!f)return;
-    var menuViewing=document.body.classList.contains('menu-viewing');
-    var valuation=document.getElementById('valuation-main-sections');
-    var mainVisible=!!valuation && !menuViewing && getComputedStyle(valuation).display!=='none';
-    f.style.setProperty('display',mainVisible?'flex':'none','important');
-    f.style.setProperty('visibility',mainVisible?'visible':'hidden','important');
-    f.style.setProperty('pointer-events',mainVisible?'auto':'none','important');
-  }
-  window.syncMainValuationFooter97=syncMainFooter;
-  document.addEventListener('DOMContentLoaded',syncMainFooter);
-  var oldMenu=window.showMenuSection;
-  if(typeof oldMenu==='function'){
-    window.showMenuSection=function(id){
-      var r=oldMenu.apply(this,arguments);
-      syncMainFooter();
-      setTimeout(syncMainFooter,50);
-      setTimeout(syncMainFooter,300);
-      return r;
-    };
-  }
-  var oldVal=window.showValuationScreen;
-  if(typeof oldVal==='function'){
-    window.showValuationScreen=function(){
-      var r=oldVal.apply(this,arguments);
-      syncMainFooter();
-      setTimeout(syncMainFooter,50);
-      setTimeout(syncMainFooter,300);
-      return r;
-    };
-  }
-  new MutationObserver(syncMainFooter).observe(document.body,{attributes:true,attributeFilter:['class']});
-})();
-</script>
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
@@ -4294,6 +4217,26 @@ document.addEventListener('DOMContentLoaded',function(){
     document.body.appendChild(m);m.querySelector('#gv89b').onclick=gv89CreateBackup;m.querySelector('#gv89f').onchange=function(){gv89RestoreBackup(this.files[0]);};m.querySelector('#gv89c').onclick=function(){m.remove();};
   };
   window.openBackupRestoreCenter=window.gv89ShowBackupCenter;
+})();
+</script>
+<script>
+/* STEP 98 - Main Valuation footer only */
+(function(){
+  function syncFooter(){
+    var footer=document.querySelector('body > footer');
+    if(!footer) return;
+    var valuation=document.getElementById('valuation-main-sections');
+    var activeMenu=document.querySelector('.menu-section.menu-active');
+    var menuOpen=document.body.classList.contains('menu-viewing');
+    var valuationVisible=!!valuation && getComputedStyle(valuation).display!=='none' && !valuation.classList.contains('menu-section');
+    var show=valuationVisible && !activeMenu && !menuOpen;
+    footer.style.setProperty('display',show?'flex':'none','important');
+    footer.style.setProperty('visibility',show?'visible':'hidden','important');
+    footer.style.setProperty('pointer-events',show?'auto':'none','important');
+  }
+  window.syncMainValuationFooter98=syncFooter;
+  document.addEventListener('DOMContentLoaded',function(){ syncFooter(); setTimeout(syncFooter,100); setTimeout(syncFooter,500); });
+  new MutationObserver(syncFooter).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style']});
 })();
 </script>
 </body>
