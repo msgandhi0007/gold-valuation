@@ -2787,12 +2787,24 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 
+<script>
+(function(){
+window.gv89CreateBackup=function(){var d={createdAt:new Date().toISOString(),app:'Gold Valuation',version:'Step 89'};Object.keys(localStorage).forEach(function(k){try{d[k]=JSON.parse(localStorage.getItem(k));}catch(e){d[k]=localStorage.getItem(k);}});var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Gold-Valuation-Backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);alert('Backup created successfully.');};
+window.gv89RestoreBackup=function(file){if(!file)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||d.app!=='Gold Valuation')throw 0;if(!confirm('Restore this backup? Existing local data may be replaced.'))return;Object.keys(d).forEach(function(k){if(!['createdAt','app','version'].includes(k))localStorage.setItem(k,typeof d[k]==='string'?d[k]:JSON.stringify(d[k]));});alert('Backup restored successfully. Reloading.');location.reload();}catch(e){alert('Restore failed: Invalid backup file.');}};r.readAsText(file);};
+window.openBackupRestoreCenter=function(){var m=document.createElement('div');m.style='position:fixed;inset:0;background:#0008;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';m.innerHTML='<div style="background:white;border-radius:18px;padding:22px;width:min(500px,100%);font-family:Arial"><h2>💾 Backup & Restore Center</h2><button id="b1" style="width:100%;padding:14px;margin:6px 0">💾 Create Full Backup</button><label style="display:block;width:100%;padding:14px;margin:6px 0;background:#eee;text-align:center;box-sizing:border-box">📥 Restore Backup<input id="b2" type="file" accept=".json" style="display:none"></label><button id="b3" style="width:100%;padding:12px;margin-top:8px">Close</button></div>';document.body.appendChild(m);b1.onclick=gv89CreateBackup;b2.onchange=function(){gv89RestoreBackup(this.files[0])};b3.onclick=function(){m.remove()};};
+})();</script>
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
       const holder=document.createElement('div');
       holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;padding:20px;z-index:-1;';
-      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('</body>'));
+      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('<script>
+(function(){
+window.gv89CreateBackup=function(){var d={createdAt:new Date().toISOString(),app:'Gold Valuation',version:'Step 89'};Object.keys(localStorage).forEach(function(k){try{d[k]=JSON.parse(localStorage.getItem(k));}catch(e){d[k]=localStorage.getItem(k);}});var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Gold-Valuation-Backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);alert('Backup created successfully.');};
+window.gv89RestoreBackup=function(file){if(!file)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||d.app!=='Gold Valuation')throw 0;if(!confirm('Restore this backup? Existing local data may be replaced.'))return;Object.keys(d).forEach(function(k){if(!['createdAt','app','version'].includes(k))localStorage.setItem(k,typeof d[k]==='string'?d[k]:JSON.stringify(d[k]));});alert('Backup restored successfully. Reloading.');location.reload();}catch(e){alert('Restore failed: Invalid backup file.');}};r.readAsText(file);};
+window.openBackupRestoreCenter=function(){var m=document.createElement('div');m.style='position:fixed;inset:0;background:#0008;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';m.innerHTML='<div style="background:white;border-radius:18px;padding:22px;width:min(500px,100%);font-family:Arial"><h2>💾 Backup & Restore Center</h2><button id="b1" style="width:100%;padding:14px;margin:6px 0">💾 Create Full Backup</button><label style="display:block;width:100%;padding:14px;margin:6px 0;background:#eee;text-align:center;box-sizing:border-box">📥 Restore Backup<input id="b2" type="file" accept=".json" style="display:none"></label><button id="b3" style="width:100%;padding:12px;margin-top:8px">Close</button></div>';document.body.appendChild(m);b1.onclick=gv89CreateBackup;b2.onchange=function(){gv89RestoreBackup(this.files[0])};b3.onclick=function(){m.remove()};};
+})();</script>
+</body>'));
       document.body.appendChild(holder);
       const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
       const {jsPDF}=window.jspdf;
@@ -4189,6 +4201,12 @@ document.addEventListener('DOMContentLoaded',function(){
   };
 })();
 </script>
+<script>
+(function(){
+window.gv89CreateBackup=function(){var d={createdAt:new Date().toISOString(),app:'Gold Valuation',version:'Step 89'};Object.keys(localStorage).forEach(function(k){try{d[k]=JSON.parse(localStorage.getItem(k));}catch(e){d[k]=localStorage.getItem(k);}});var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Gold-Valuation-Backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);alert('Backup created successfully.');};
+window.gv89RestoreBackup=function(file){if(!file)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||d.app!=='Gold Valuation')throw 0;if(!confirm('Restore this backup? Existing local data may be replaced.'))return;Object.keys(d).forEach(function(k){if(!['createdAt','app','version'].includes(k))localStorage.setItem(k,typeof d[k]==='string'?d[k]:JSON.stringify(d[k]));});alert('Backup restored successfully. Reloading.');location.reload();}catch(e){alert('Restore failed: Invalid backup file.');}};r.readAsText(file);};
+window.openBackupRestoreCenter=function(){var m=document.createElement('div');m.style='position:fixed;inset:0;background:#0008;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';m.innerHTML='<div style="background:white;border-radius:18px;padding:22px;width:min(500px,100%);font-family:Arial"><h2>💾 Backup & Restore Center</h2><button id="b1" style="width:100%;padding:14px;margin:6px 0">💾 Create Full Backup</button><label style="display:block;width:100%;padding:14px;margin:6px 0;background:#eee;text-align:center;box-sizing:border-box">📥 Restore Backup<input id="b2" type="file" accept=".json" style="display:none"></label><button id="b3" style="width:100%;padding:12px;margin-top:8px">Close</button></div>';document.body.appendChild(m);b1.onclick=gv89CreateBackup;b2.onchange=function(){gv89RestoreBackup(this.files[0])};b3.onclick=function(){m.remove()};};
+})();</script>
 </body>
 </html>
 
