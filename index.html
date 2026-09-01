@@ -2346,12 +2346,258 @@ document.addEventListener('DOMContentLoaded',()=>{
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
+
+
+<script>
+/* STEP 60 FIX - Save ALL customer/bank report PDFs into selected Reports folder */
+(function(){
+  function safeName(v, fallback){
+    return String(v||fallback||'Report').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+  }
+
+  async function renderAndSaveReportPdf(element, filename){
+    if(!element) throw new Error('Report content not found.');
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+      throw new Error('PDF library is not ready.');
+    }
+    const holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+    holder.innerHTML=element.innerHTML || '';
+    document.body.appendChild(holder);
+    try{
+      await new Promise(r=>setTimeout(r,120));
+      const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2;
+      const imgH=canvas.height*imgW/canvas.width;
+      const pageInnerH=pageH-margin*2;
+      /* Keep the existing one-page report layout, but never exceed A4. */
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageInnerH),undefined,'FAST');
+      const blob=pdf.output('blob');
+      if(!(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports'))){
+        throw new Error('Selected Storage Folder is not available.');
+      }
+      return true;
+    }finally{
+      holder.remove();
+    }
+  }
+
+  function wireCustomerStatementButtons(){
+    const print=document.getElementById('statementPrintButton');
+    const share=document.getElementById('statementShareButton');
+    const preview=document.getElementById('statementPreview');
+    if(!print || !preview)return;
+
+    print.onclick=async function(){
+      try{
+        const name=preview.querySelector('.s30-meta')?.textContent || 'Customer';
+        const match=String(name).match(/Customer Name:\s*([^\n]+)/i);
+        const customer=match?match[1].trim():'Customer';
+        const filename='Customer-Statement-'+safeName(customer,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+        await renderAndSaveReportPdf(preview,filename);
+        alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+      }catch(e){
+        console.error('Customer statement PDF save failed:',e);
+        alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+      }
+    };
+
+    if(share){
+      share.onclick=async function(){
+        try{
+          const name=preview.querySelector('.s30-meta')?.textContent || 'Customer';
+          const match=String(name).match(/Customer Name:\s*([^\n]+)/i);
+          const customer=match?match[1].trim():'Customer';
+          const mobileMatch=String(name).match(/Mobile Number:\s*([^\n]+)/i);
+          const mobile=mobileMatch?mobileMatch[1].trim():'';
+          const filename='Customer-Statement-'+safeName(customer,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+
+          /* Always save a copy first, then share the same PDF file. */
+          const tempHolder=document.createElement('div');
+          tempHolder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+          tempHolder.innerHTML=preview.innerHTML||'';
+          document.body.appendChild(tempHolder);
+          let blob;
+          try{
+            await new Promise(r=>setTimeout(r,100));
+            const canvas=await html2canvas(tempHolder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+            const {jsPDF}=window.jspdf;
+            const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+            const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+            pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+            blob=pdf.output('blob');
+          }finally{ tempHolder.remove(); }
+
+          if(!(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports'))){
+            throw new Error('Selected Storage Folder is not available.');
+          }
+
+          const file=new File([blob],filename,{type:'application/pdf'});
+          const text='Customer Valuation Statement\nRAJENDRA JEWELLERS\nCustomer: '+customer+(mobile?'\nMobile: '+mobile:'');
+          if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+            await navigator.share({title:'Customer Valuation Statement - '+customer,text:text,files:[file]});
+          }else if(navigator.share){
+            await navigator.share({title:'Customer Valuation Statement - '+customer,text:text});
+          }else{
+            alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+          }
+        }catch(e){
+          if(e && e.name==='AbortError')return;
+          console.error('Customer statement share/save failed:',e);
+          alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+        }
+      };
+    }
+  }
+
+  /* The original function creates the statement and wires its buttons.
+     Re-wire them immediately afterwards so Print/Share both save to Reports. */
+  const originalShow=window.showCustomerStatement;
+  if(typeof originalShow==='function'){
+    window.showCustomerStatement=function(name,mobile){
+      const result=originalShow.apply(this,arguments);
+      setTimeout(wireCustomerStatementButtons,30);
+      return result;
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(wireCustomerStatementButtons,300);
+  });
+})();
+</script>
+
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
       const holder=document.createElement('div');
       holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;padding:20px;z-index:-1;';
-      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('</body>'));
+      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('
+
+<script>
+/* STEP 60 FIX - Save ALL customer/bank report PDFs into selected Reports folder */
+(function(){
+  function safeName(v, fallback){
+    return String(v||fallback||'Report').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+  }
+
+  async function renderAndSaveReportPdf(element, filename){
+    if(!element) throw new Error('Report content not found.');
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+      throw new Error('PDF library is not ready.');
+    }
+    const holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+    holder.innerHTML=element.innerHTML || '';
+    document.body.appendChild(holder);
+    try{
+      await new Promise(r=>setTimeout(r,120));
+      const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2;
+      const imgH=canvas.height*imgW/canvas.width;
+      const pageInnerH=pageH-margin*2;
+      /* Keep the existing one-page report layout, but never exceed A4. */
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageInnerH),undefined,'FAST');
+      const blob=pdf.output('blob');
+      if(!(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports'))){
+        throw new Error('Selected Storage Folder is not available.');
+      }
+      return true;
+    }finally{
+      holder.remove();
+    }
+  }
+
+  function wireCustomerStatementButtons(){
+    const print=document.getElementById('statementPrintButton');
+    const share=document.getElementById('statementShareButton');
+    const preview=document.getElementById('statementPreview');
+    if(!print || !preview)return;
+
+    print.onclick=async function(){
+      try{
+        const name=preview.querySelector('.s30-meta')?.textContent || 'Customer';
+        const match=String(name).match(/Customer Name:\s*([^\n]+)/i);
+        const customer=match?match[1].trim():'Customer';
+        const filename='Customer-Statement-'+safeName(customer,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+        await renderAndSaveReportPdf(preview,filename);
+        alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+      }catch(e){
+        console.error('Customer statement PDF save failed:',e);
+        alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+      }
+    };
+
+    if(share){
+      share.onclick=async function(){
+        try{
+          const name=preview.querySelector('.s30-meta')?.textContent || 'Customer';
+          const match=String(name).match(/Customer Name:\s*([^\n]+)/i);
+          const customer=match?match[1].trim():'Customer';
+          const mobileMatch=String(name).match(/Mobile Number:\s*([^\n]+)/i);
+          const mobile=mobileMatch?mobileMatch[1].trim():'';
+          const filename='Customer-Statement-'+safeName(customer,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+
+          /* Always save a copy first, then share the same PDF file. */
+          const tempHolder=document.createElement('div');
+          tempHolder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+          tempHolder.innerHTML=preview.innerHTML||'';
+          document.body.appendChild(tempHolder);
+          let blob;
+          try{
+            await new Promise(r=>setTimeout(r,100));
+            const canvas=await html2canvas(tempHolder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+            const {jsPDF}=window.jspdf;
+            const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+            const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+            pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+            blob=pdf.output('blob');
+          }finally{ tempHolder.remove(); }
+
+          if(!(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports'))){
+            throw new Error('Selected Storage Folder is not available.');
+          }
+
+          const file=new File([blob],filename,{type:'application/pdf'});
+          const text='Customer Valuation Statement\nRAJENDRA JEWELLERS\nCustomer: '+customer+(mobile?'\nMobile: '+mobile:'');
+          if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+            await navigator.share({title:'Customer Valuation Statement - '+customer,text:text,files:[file]});
+          }else if(navigator.share){
+            await navigator.share({title:'Customer Valuation Statement - '+customer,text:text});
+          }else{
+            alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+          }
+        }catch(e){
+          if(e && e.name==='AbortError')return;
+          console.error('Customer statement share/save failed:',e);
+          alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+        }
+      };
+    }
+  }
+
+  /* The original function creates the statement and wires its buttons.
+     Re-wire them immediately afterwards so Print/Share both save to Reports. */
+  const originalShow=window.showCustomerStatement;
+  if(typeof originalShow==='function'){
+    window.showCustomerStatement=function(name,mobile){
+      const result=originalShow.apply(this,arguments);
+      setTimeout(wireCustomerStatementButtons,30);
+      return result;
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(wireCustomerStatementButtons,300);
+  });
+})();
+</script>
+
+</body>'));
       document.body.appendChild(holder);
       const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
       const {jsPDF}=window.jspdf;
@@ -3310,6 +3556,129 @@ window.toggleCustomerSummaryGroup=function(btn){
     fixReportTables();
     setTimeout(fixReportTables,100);
     setTimeout(fixReportTables,500);
+  });
+})();
+</script>
+
+
+
+<script>
+/* STEP 60 FIX - Save ALL customer/bank report PDFs into selected Reports folder */
+(function(){
+  function safeName(v, fallback){
+    return String(v||fallback||'Report').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+  }
+
+  async function renderAndSaveReportPdf(element, filename){
+    if(!element) throw new Error('Report content not found.');
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+      throw new Error('PDF library is not ready.');
+    }
+    const holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+    holder.innerHTML=element.innerHTML || '';
+    document.body.appendChild(holder);
+    try{
+      await new Promise(r=>setTimeout(r,120));
+      const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2;
+      const imgH=canvas.height*imgW/canvas.width;
+      const pageInnerH=pageH-margin*2;
+      /* Keep the existing one-page report layout, but never exceed A4. */
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageInnerH),undefined,'FAST');
+      const blob=pdf.output('blob');
+      if(!(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports'))){
+        throw new Error('Selected Storage Folder is not available.');
+      }
+      return true;
+    }finally{
+      holder.remove();
+    }
+  }
+
+  function wireCustomerStatementButtons(){
+    const print=document.getElementById('statementPrintButton');
+    const share=document.getElementById('statementShareButton');
+    const preview=document.getElementById('statementPreview');
+    if(!print || !preview)return;
+
+    print.onclick=async function(){
+      try{
+        const name=preview.querySelector('.s30-meta')?.textContent || 'Customer';
+        const match=String(name).match(/Customer Name:\s*([^\n]+)/i);
+        const customer=match?match[1].trim():'Customer';
+        const filename='Customer-Statement-'+safeName(customer,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+        await renderAndSaveReportPdf(preview,filename);
+        alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+      }catch(e){
+        console.error('Customer statement PDF save failed:',e);
+        alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+      }
+    };
+
+    if(share){
+      share.onclick=async function(){
+        try{
+          const name=preview.querySelector('.s30-meta')?.textContent || 'Customer';
+          const match=String(name).match(/Customer Name:\s*([^\n]+)/i);
+          const customer=match?match[1].trim():'Customer';
+          const mobileMatch=String(name).match(/Mobile Number:\s*([^\n]+)/i);
+          const mobile=mobileMatch?mobileMatch[1].trim():'';
+          const filename='Customer-Statement-'+safeName(customer,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+
+          /* Always save a copy first, then share the same PDF file. */
+          const tempHolder=document.createElement('div');
+          tempHolder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+          tempHolder.innerHTML=preview.innerHTML||'';
+          document.body.appendChild(tempHolder);
+          let blob;
+          try{
+            await new Promise(r=>setTimeout(r,100));
+            const canvas=await html2canvas(tempHolder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+            const {jsPDF}=window.jspdf;
+            const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+            const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+            pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+            blob=pdf.output('blob');
+          }finally{ tempHolder.remove(); }
+
+          if(!(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports'))){
+            throw new Error('Selected Storage Folder is not available.');
+          }
+
+          const file=new File([blob],filename,{type:'application/pdf'});
+          const text='Customer Valuation Statement\nRAJENDRA JEWELLERS\nCustomer: '+customer+(mobile?'\nMobile: '+mobile:'');
+          if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+            await navigator.share({title:'Customer Valuation Statement - '+customer,text:text,files:[file]});
+          }else if(navigator.share){
+            await navigator.share({title:'Customer Valuation Statement - '+customer,text:text});
+          }else{
+            alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+          }
+        }catch(e){
+          if(e && e.name==='AbortError')return;
+          console.error('Customer statement share/save failed:',e);
+          alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+        }
+      };
+    }
+  }
+
+  /* The original function creates the statement and wires its buttons.
+     Re-wire them immediately afterwards so Print/Share both save to Reports. */
+  const originalShow=window.showCustomerStatement;
+  if(typeof originalShow==='function'){
+    window.showCustomerStatement=function(name,mobile){
+      const result=originalShow.apply(this,arguments);
+      setTimeout(wireCustomerStatementButtons,30);
+      return result;
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(wireCustomerStatementButtons,300);
   });
 })();
 </script>
