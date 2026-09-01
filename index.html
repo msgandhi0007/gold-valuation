@@ -23,7 +23,10 @@ main{padding:14px}.card{background:var(--card);border:1px solid var(--line);bord
 button.primary{width:100%;padding:13px;border:0;border-radius:13px;background:var(--gold);color:white;font-size:16px;font-weight:750}
 .summary{background:#222;color:#fff}.summary h2{color:#fff}.ltv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.loan{background:#fff;color:#222;border-radius:13px;padding:12px}.loan span{display:block;color:#666;font-size:11px}.loan b{font-size:20px;color:var(--green)}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}
+/* STEP 97 - Main Valuation footer must never appear on menu/report screens */
+body.menu-viewing > footer{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body:not(.menu-viewing) > footer{display:flex!important;visibility:visible!important;pointer-events:auto!important}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
 
 .certificate{display:none;background:#fff;color:#222}
@@ -2824,6 +2827,44 @@ document.addEventListener('DOMContentLoaded',()=>{
     const valuation=document.getElementById('valuation-main-sections');
     setMainFooterVisible(!!(valuation && !valuation.classList.contains('menu-section')));
   });
+})();
+</script>
+<script>
+/* STEP 97 - Robust footer visibility guard */
+(function(){
+  function syncMainFooter(){
+    var f=document.querySelector('body > footer');
+    if(!f)return;
+    var menuViewing=document.body.classList.contains('menu-viewing');
+    var valuation=document.getElementById('valuation-main-sections');
+    var mainVisible=!!valuation && !menuViewing && getComputedStyle(valuation).display!=='none';
+    f.style.setProperty('display',mainVisible?'flex':'none','important');
+    f.style.setProperty('visibility',mainVisible?'visible':'hidden','important');
+    f.style.setProperty('pointer-events',mainVisible?'auto':'none','important');
+  }
+  window.syncMainValuationFooter97=syncMainFooter;
+  document.addEventListener('DOMContentLoaded',syncMainFooter);
+  var oldMenu=window.showMenuSection;
+  if(typeof oldMenu==='function'){
+    window.showMenuSection=function(id){
+      var r=oldMenu.apply(this,arguments);
+      syncMainFooter();
+      setTimeout(syncMainFooter,50);
+      setTimeout(syncMainFooter,300);
+      return r;
+    };
+  }
+  var oldVal=window.showValuationScreen;
+  if(typeof oldVal==='function'){
+    window.showValuationScreen=function(){
+      var r=oldVal.apply(this,arguments);
+      syncMainFooter();
+      setTimeout(syncMainFooter,50);
+      setTimeout(syncMainFooter,300);
+      return r;
+    };
+  }
+  new MutationObserver(syncMainFooter).observe(document.body,{attributes:true,attributeFilter:['class']});
 })();
 </script>
 </body></html>`;
