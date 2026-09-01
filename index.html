@@ -732,7 +732,7 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
-    <div class="save-top"><h2>Saved Valuations</h2>
+    <div class="save-top"><h2 id="savedManagerTitle">Saved Valuations</h2>
 <div class="backup-note" style="font-size:11px;color:#777;margin:4px 0 10px">Backup creates a file containing your saved valuation records. Restore merges records without deleting existing ones.</div>
 <div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0">
 <button class="secondary" onclick="exportBackup()">💾 Backup</button>
@@ -1553,8 +1553,8 @@ async function saveData(){
   window.openLoad=function(){if(typeof oldOpenLoad==='function')oldOpenLoad();setTimeout(()=>refreshFiles63(true),100);};
 })();
 
-function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';if(document.getElementById('saveDateFilter'))document.getElementById('saveDateFilter').value='all';selectedBank='ALL';renderSaved();if(typeof refreshSavedManager84==='function')refreshSavedManager84(true)}
-function closeLoad(){document.getElementById('saveManager').style.display='none'}
+function openLoad(){window._certificateManagerMode=false;const title=document.getElementById('savedManagerTitle');if(title)title.textContent='Saved Valuations';document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';if(document.getElementById('saveDateFilter'))document.getElementById('saveDateFilter').value='all';selectedBank='ALL';renderSaved();if(typeof refreshSavedManager84==='function')refreshSavedManager84(true)}
+function closeLoad(){window._certificateManagerMode=false;const title=document.getElementById('savedManagerTitle');if(title)title.textContent='Saved Valuations';document.getElementById('saveManager').style.display='none'}
 function loadData(){openLoad()}
 function migrateCertificateNumbers(){
   try{
@@ -1641,11 +1641,16 @@ function renderSaved(){
         <div style="font-size:11px;color:#777;margin-top:3px">Certificate: ${esc(x.certificateNo||'—')} • Items: ${(x.items||[]).length} • Value: ${money(val)} • Loan: ${money(loan)}</div>
       </div>
       <div class="saved-actions">
-        <button class="load-btn" onclick="loadSaved(${i})">Open</button>
-        <button class="secondary" type="button" onclick="duplicateSaved(${i})">📋 Duplicate</button>
-        <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
-        <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
-        <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
+        ${window._certificateManagerMode ? `
+          <button class="print-btn" onclick="printSaved(${i})">📜 Print Certificate PDF</button>
+          <button class="share-btn" onclick="shareSavedPdf(${i})">↗ Share Certificate</button>
+        ` : `
+          <button class="load-btn" onclick="loadSaved(${i})">Open</button>
+          <button class="secondary" type="button" onclick="duplicateSaved(${i})">📋 Duplicate</button>
+          <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
+          <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
+          <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
+        `}
       </div>
     </div>`;
   }).join('');
@@ -1869,9 +1874,19 @@ function dashboardOpenSaved87(){
 function dashboardOpenCertificates87(){
   try{ if(typeof showValuationScreen==='function') showValuationScreen(); }catch(e){}
   setTimeout(function(){
-    const el=document.getElementById('certificate');
-    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-    else alert('Valuation Certificate section is not available.');
+    try{
+      if(typeof openLoad!=='function') throw new Error('Saved valuations manager is not available.');
+      openLoad();
+      window._certificateManagerMode=true;
+      const title=document.getElementById('savedManagerTitle');
+      if(title) title.textContent='Valuation Certificates';
+      const search=document.getElementById('saveSearch');
+      if(search) search.placeholder='Search customer, bank, date or certificate...';
+      renderSaved();
+    }catch(e){
+      console.error(e);
+      alert('Valuation Certificates could not be opened. Please reload the app.');
+    }
   },120);
 }
 function updateDashboard(){
