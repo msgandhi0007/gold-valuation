@@ -1023,6 +1023,53 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step115-customer-statement-button">
+@media screen{
+  /* Reference-style Statement action: visual only, onclick/data attributes untouched. */
+  .customer-group-head button[data-statement-index]{
+    box-sizing:border-box!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:6px!important;
+    min-width:112px!important;
+    min-height:42px!important;
+    margin-top:0!important;
+    padding:8px 13px!important;
+    border-radius:11px!important;
+    border:1px solid #39536a!important;
+    background:linear-gradient(145deg,#0b1d2b,#07131f)!important;
+    color:#f4c33f!important;
+    font-size:13px!important;
+    font-weight:850!important;
+    line-height:1.1!important;
+    box-shadow:0 5px 14px rgba(0,0,0,.22),inset 0 0 0 1px rgba(255,255,255,.025)!important;
+    opacity:1!important;
+    text-shadow:none!important;
+  }
+  .customer-group-head button[data-statement-index]:hover{
+    background:linear-gradient(145deg,#10283a,#0a1723)!important;
+    border-color:#f0b936!important;
+    color:#ffd75c!important;
+  }
+  .customer-group-head button[data-statement-index]:active{
+    transform:translateY(1px)!important;
+  }
+  .customer-group-head button[data-statement-index]::first-letter{
+    color:#f4c33f!important;
+  }
+  @media(max-width:520px){
+    .customer-group-head button[data-statement-index]{
+      min-width:100px!important;
+      min-height:40px!important;
+      padding:8px 10px!important;
+      font-size:12px!important;
+    }
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
