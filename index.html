@@ -2182,6 +2182,156 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step124-premium-saved-valuations-ui">
+@media screen{
+  /* STEP 124 — Saved Valuations visual layer only.
+     Existing search, filters, edit/open/certificate/delete/duplicate/sync logic is untouched. */
+
+  #savedValuations{
+    background:
+      radial-gradient(circle at 100% 0%,rgba(245,191,53,.07),transparent 28%),
+      linear-gradient(145deg,#06131e,#02080e)!important;
+    border:1px solid #2b4358!important;
+    border-radius:22px!important;
+    color:#f3f7fa!important;
+    box-shadow:0 16px 38px rgba(0,0,0,.34)!important;
+    overflow:hidden!important;
+  }
+  #savedValuations h2{
+    color:#fff!important;font-size:22px!important;
+  }
+  #savedValuations .saved-toolbar,
+  #savedValuations .manager-toolbar{
+    background:#06111b!important;
+    border:1px solid #233d51!important;
+    border-radius:15px!important;
+    padding:10px!important;
+  }
+  #savedValuations input,#savedValuations select{
+    background:#071722!important;color:#f4f7fa!important;
+    border:1px solid #2a4358!important;border-radius:11px!important;
+    min-height:42px!important;
+  }
+  #savedValuations input:focus,#savedValuations select:focus{
+    border-color:#d9ab2b!important;
+    box-shadow:0 0 0 2px rgba(245,191,53,.07)!important;
+  }
+  #savedValuations button{
+    border-radius:11px!important;
+    font-weight:800!important;
+  }
+
+  /* Saved valuation cards */
+  #savedValuations .saved-card,
+  #savedValuations .valuation-card,
+  #savedValuations .saved-item{
+    position:relative!important;
+    background:linear-gradient(145deg,#091a27,#050d15)!important;
+    border:1px solid #294257!important;
+    border-radius:17px!important;
+    color:#edf3f7!important;
+    padding:13px!important;
+    margin:8px 0!important;
+    box-shadow:0 9px 20px rgba(0,0,0,.20)!important;
+  }
+  #savedValuations .saved-card:hover,
+  #savedValuations .valuation-card:hover,
+  #savedValuations .saved-item:hover{
+    border-color:#476176!important;
+  }
+
+  #savedValuations .saved-card .customer-name,
+  #savedValuations .valuation-card .customer-name,
+  #savedValuations .saved-item .customer-name{
+    color:#fff!important;font-size:17px!important;font-weight:900!important;
+  }
+  #savedValuations .saved-card .meta,
+  #savedValuations .valuation-card .meta,
+  #savedValuations .saved-item .meta{
+    color:#9fb0bf!important;font-size:10px!important;
+  }
+  #savedValuations .saved-card .amount,
+  #savedValuations .valuation-card .amount,
+  #savedValuations .saved-item .amount{
+    color:#f5c33f!important;font-size:18px!important;font-weight:900!important;
+  }
+
+  /* Generic nested stat blocks — catches the existing manager markup without changing it. */
+  #savedValuations .saved-card .stat,
+  #savedValuations .valuation-card .stat,
+  #savedValuations .saved-item .stat{
+    background:#071722!important;border:1px solid #233d51!important;
+    border-radius:10px!important;padding:8px!important;
+  }
+  #savedValuations .saved-card .stat small,
+  #savedValuations .valuation-card .stat small,
+  #savedValuations .saved-item .stat small{
+    color:#94a6b5!important;
+  }
+  #savedValuations .saved-card .stat b,
+  #savedValuations .valuation-card .stat b,
+  #savedValuations .saved-item .stat b{
+    color:#f0f5f8!important;
+  }
+
+  /* Action buttons */
+  #savedValuations .saved-card button,
+  #savedValuations .valuation-card button,
+  #savedValuations .saved-item button{
+    min-height:38px!important;
+    padding:7px 10px!important;
+    background:#07131f!important;
+    border:1px solid #2b455a!important;
+    color:#dce6ed!important;
+  }
+  #savedValuations .saved-card button:first-child,
+  #savedValuations .valuation-card button:first-child{
+    color:#f5c33f!important;border-color:#725c20!important;
+  }
+  #savedValuations .saved-card button[onclick*="delete"],
+  #savedValuations .valuation-card button[onclick*="delete"],
+  #savedValuations .saved-item button[onclick*="delete"]{
+    color:#ff6874!important;border-color:#6d2d39!important;
+  }
+
+  /* Count / empty state */
+  #savedValuations .count,
+  #savedValuations .result-count{
+    color:#9fb0bf!important;font-size:11px!important;
+  }
+
+  @media(max-width:700px){
+    #savedValuations{
+      margin:6px 0!important;
+      padding:10px!important;
+      border-radius:18px!important;
+    }
+    #savedValuations h2{font-size:18px!important}
+    #savedValuations .saved-card,
+    #savedValuations .valuation-card,
+    #savedValuations .saved-item{
+      padding:10px!important;border-radius:14px!important;
+    }
+    #savedValuations .saved-card .customer-name,
+    #savedValuations .valuation-card .customer-name,
+    #savedValuations .saved-item .customer-name{
+      font-size:15px!important;
+    }
+    #savedValuations .saved-card .amount,
+    #savedValuations .valuation-card .amount,
+    #savedValuations .saved-item .amount{
+      font-size:16px!important;
+    }
+    #savedValuations .saved-card button,
+    #savedValuations .valuation-card button,
+    #savedValuations .saved-item button{
+      min-height:35px!important;padding:6px 8px!important;font-size:10px!important;
+    }
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
