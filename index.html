@@ -2698,6 +2698,48 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+<style id="step127-premium-certificates-ui">
+@media screen{
+#certificates,#certificateScreen,#certificateManager{
+background:radial-gradient(circle at 100% 0%,rgba(245,191,53,.08),transparent 30%),linear-gradient(145deg,#06131e,#02080e)!important;
+border:1px solid #294257!important;border-radius:22px!important;color:#eef4f7!important;
+box-shadow:0 16px 38px rgba(0,0,0,.34)!important;
+}
+#certificates h2,#certificateScreen h2,#certificateManager h2{color:#fff!important;font-size:20px!important;font-weight:900!important}
+#certificates input,#certificates select,#certificateScreen input,#certificateScreen select,#certificateManager input,#certificateManager select{
+background:#071722!important;color:#f4f7fa!important;border:1px solid #2a4358!important;border-radius:11px!important;min-height:42px!important;
+}
+#certificates input:focus,#certificates select:focus,#certificateScreen input:focus,#certificateScreen select:focus,#certificateManager input:focus,#certificateManager select:focus{
+border-color:#d9ab2b!important;box-shadow:0 0 0 2px rgba(245,191,53,.07)!important;
+}
+#certificates button,#certificateScreen button,#certificateManager button{border-radius:11px!important;font-weight:850!important;min-height:40px!important}
+#certificates .certificate-card,#certificateScreen .certificate-card,#certificateManager .certificate-card,
+#certificates .saved-card,#certificateManager .saved-card,#certificates .valuation-card,#certificateManager .valuation-card{
+background:linear-gradient(145deg,#091a27,#050d15)!important;border:1px solid #294257!important;border-radius:16px!important;
+color:#edf3f7!important;padding:12px!important;margin:8px 0!important;box-shadow:0 9px 20px rgba(0,0,0,.20)!important;
+}
+#certificates .certificate-card:hover,#certificateManager .certificate-card:hover{border-color:#4a6174!important}
+#certificates .certificate-card .customer-name,#certificateScreen .certificate-card .customer-name,#certificateManager .certificate-card .customer-name{
+color:#fff!important;font-size:16px!important;font-weight:900!important;
+}
+#certificates .certificate-card .meta,#certificateScreen .certificate-card .meta,#certificateManager .certificate-card .meta{color:#9fb0bf!important;font-size:10px!important}
+#certificates .certificate-card .amount,#certificateScreen .certificate-card .amount,#certificateManager .certificate-card .amount{color:#f5c33f!important;font-size:17px!important;font-weight:900!important}
+#certificates .certificate-card button,#certificateManager .certificate-card button,#certificateScreen .certificate-card button{
+background:#07131f!important;border:1px solid #2b455a!important;color:#dce6ed!important;padding:7px 10px!important;
+}
+#certificates .certificate-card button:first-child,#certificateManager .certificate-card button:first-child,#certificateScreen .certificate-card button:first-child{
+background:linear-gradient(135deg,#c68a00,#f0b92d)!important;color:#071019!important;border-color:#e5b52e!important;
+}
+#certificates button[onclick*="share"],#certificateManager button[onclick*="share"],#certificateScreen button[onclick*="share"]{color:#6fc8ff!important}
+#certificates button[onclick*="delete"],#certificateManager button[onclick*="delete"],#certificateScreen button[onclick*="delete"]{color:#ff6874!important;border-color:#6d2d39!important}
+#certificatePreview,#certificate-preview{background:#fdfcf8!important;color:#111!important;border:1px solid #b58a24!important;border-radius:14px!important;box-shadow:0 10px 25px rgba(0,0,0,.25)!important}
+@media(max-width:700px){
+#certificates,#certificateScreen,#certificateManager{border-radius:18px!important;padding:10px!important}
+#certificates h2,#certificateScreen h2,#certificateManager h2{font-size:18px!important}
+#certificates .certificate-card,#certificateManager .certificate-card{padding:10px!important;border-radius:14px!important}
+#certificates .certificate-card button,#certificateManager .certificate-card button{min-height:35px!important;padding:6px 8px!important;font-size:10px!important}
+}}
+</style>
 </head>
 <body>
 <div class="app">
