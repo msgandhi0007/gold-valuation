@@ -4738,33 +4738,5 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
-<script id="step111-reference-mirror">
-(function(){
-  function syncReference(){
-    try{
-      var items=document.querySelectorAll('#items .item');
-      var count=items.length;
-      var tg=document.getElementById('tg'), tv=document.getElementById('tv'), loan=document.getElementById('sanctionedLoan');
-      var net=0;
-      items.forEach(function(it){
-        var n=it.querySelector('.net'); if(n){ net += parseFloat(n.textContent)||0; }
-      });
-      var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
-      set('s111-items',String(count));
-      set('s111-gross',(tg?tg.textContent:'0.00')||'0.00');
-      set('s111-net',net.toFixed(3));
-      set('s111-value',(tv?tv.textContent:'₹0')||'₹0');
-      set('s111-sanctioned-display',loan && loan.value ? (window.money?window.money(parseFloat(loan.value)||0):'₹'+Number(loan.value||0).toLocaleString('en-IN')) : '₹0');
-      var d=document.getElementById('s111-updated-time');
-      if(d && !d.textContent.trim()) d.textContent=new Date().toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    }catch(e){}
-  }
-  syncReference();
-  document.addEventListener('input',syncReference,true);
-  document.addEventListener('change',syncReference,true);
-  new MutationObserver(syncReference).observe(document.body,{subtree:true,childList:true,characterData:true});
-})();
-</script>
-
 </body>
 </html>
