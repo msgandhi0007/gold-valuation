@@ -3070,6 +3070,72 @@ background:linear-gradient(135deg,#c68a00,#f0b92d)!important;color:#071019!impor
 }
 </style>
 
+
+<style id="step131-premium-dashboard-final">
+@media screen{
+/* STEP 131 — Dashboard final visual polish only. Existing dashboard/quick-action logic preserved. */
+#dashboard,#dashboardScreen,#homeDashboard{
+ background:
+  radial-gradient(circle at 100% 0%,rgba(245,191,53,.10),transparent 30%),
+  linear-gradient(145deg,#06131e,#02080e)!important;
+ color:#eef4f7!important;
+}
+#dashboard h2,#dashboardScreen h2,#homeDashboard h2{
+ color:#fff!important;font-weight:900!important;
+}
+#dashboard .dashboard-card,#dashboardScreen .dashboard-card,#homeDashboard .dashboard-card,
+#dashboard .stat-card,#dashboardScreen .stat-card,#homeDashboard .stat-card{
+ background:linear-gradient(145deg,#0a1d2b,#06111a)!important;
+ border:1px solid #29465a!important;border-radius:16px!important;
+ box-shadow:0 10px 22px rgba(0,0,0,.20)!important;
+ color:#eef4f7!important;
+}
+#dashboard .stat-card .value,#dashboardScreen .stat-card .value,#homeDashboard .stat-card .value,
+#dashboard .dashboard-value,#dashboardScreen .dashboard-value,#homeDashboard .dashboard-value{
+ color:#f5c33f!important;font-weight:900!important;
+}
+#dashboard .stat-card .label,#dashboardScreen .stat-card .label,#homeDashboard .stat-card .label{
+ color:#94a8b7!important;font-size:10px!important;text-transform:uppercase!important;letter-spacing:.4px!important;
+}
+#dashboard .quick-actions,#dashboardScreen .quick-actions,#homeDashboard .quick-actions{
+ display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
+}
+#dashboard .quick-action,#dashboardScreen .quick-action,#homeDashboard .quick-action{
+ background:linear-gradient(145deg,#091a27,#050d15)!important;
+ border:1px solid #294257!important;border-radius:15px!important;
+ color:#edf3f7!important;min-height:72px!important;
+ box-shadow:0 8px 18px rgba(0,0,0,.18)!important;
+}
+#dashboard .quick-action strong,#dashboardScreen .quick-action strong,#homeDashboard .quick-action strong{
+ color:#fff!important;font-weight:900!important;
+}
+#dashboard .quick-action small,#dashboardScreen .quick-action small,#homeDashboard .quick-action small{
+ color:#8fa4b3!important;
+}
+#dashboard .quick-action:first-child,#dashboardScreen .quick-action:first-child,#homeDashboard .quick-action:first-child{
+ border-color:#725c20!important;
+ background:linear-gradient(145deg,#17150b,#0a1216)!important;
+}
+#dashboard button,#dashboardScreen button,#homeDashboard button{
+ border-radius:11px!important;font-weight:850!important;
+}
+#dashboard .section-title,#dashboardScreen .section-title,#homeDashboard .section-title{
+ color:#d7e1e7!important;font-weight:900!important;
+}
+@media(max-width:700px){
+ #dashboard .quick-actions,#dashboardScreen .quick-actions,#homeDashboard .quick-actions{
+  grid-template-columns:1fr 1fr!important;gap:8px!important;
+ }
+ #dashboard .quick-action,#dashboardScreen .quick-action,#homeDashboard .quick-action{
+  min-height:66px!important;border-radius:13px!important;
+ }
+ #dashboard .stat-card,#dashboardScreen .stat-card,#homeDashboard .stat-card{
+  border-radius:14px!important;
+ }
+}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
