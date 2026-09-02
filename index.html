@@ -3278,6 +3278,14 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="step133-market-value-saved-hidden">
+/* STEP 133 — Hide total Market Value from Saved Valuations cards.
+   Market Rate / Gram remains available on the main Valuation screen only.
+   Calculations and saved data remain unchanged. */
+#savedValuations .saved-main .saved-meta{color:#9fb0bf!important}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -4672,7 +4680,7 @@ function renderSaved(){
       <div class="saved-main">
         <div class="saved-name">${esc(x.customer?.name||'Unnamed Customer')}</div>
         <div class="saved-meta">${esc(x.customer?.bank||'—')} • ${esc(x.customer?.mobile||'—')} • ${esc(x.customer?.date||'—')}</div>
-        <div style="font-size:11px;color:#777;margin-top:3px">Certificate: ${esc(x.certificateNo||'—')} • Items: ${(x.items||[]).length} • Value: ${money(val)} • Loan: ${money(loan)}</div>
+        <div style="font-size:11px;color:#777;margin-top:3px">Certificate: ${esc(x.certificateNo||'—')} • Items: ${(x.items||[]).length} • Loan: ${money(loan)}</div>
       </div>
       <div class="saved-actions">
         ${window._certificateManagerMode ? `
