@@ -761,6 +761,241 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step110-main-reference-complete">
+@media screen{
+  /* STEP 110: reference-matched main screen, visual/layout layer only.
+     Existing IDs, handlers and calculation/storage implementations remain unchanged. */
+  :root{
+    --s110-bg:#02060b;--s110-panel:#06111b;--s110-card:#071521;--s110-line:#22384b;
+    --s110-gold:#f4bf35;--s110-gold2:#ffd65b;--s110-purple:#b45cff;--s110-blue:#4d8cff;
+    --s110-green:#20d37a;--s110-cyan:#20d6d2;--s110-muted:#94a5b5;
+  }
+  html,body{background:#02060b!important;color:#f5f7fa!important}
+  body{
+    background:
+      radial-gradient(circle at 8% -8%,rgba(244,191,53,.13),transparent 25%),
+      radial-gradient(circle at 100% 20%,rgba(111,42,190,.12),transparent 30%),
+      #02060b!important;
+  }
+  .app{max-width:690px!important;background:transparent!important;min-height:100vh!important}
+
+  /* Header */
+  header{
+    position:relative!important;
+    min-height:274px!important;
+    padding:18px 20px 21px!important;
+    color:#fff!important;
+    background:
+      radial-gradient(circle at 78% 0%,rgba(244,191,53,.12),transparent 23%),
+      linear-gradient(145deg,#010408 0%,#06111b 63%,#091722 100%)!important;
+    border:1px solid #1d3245!important;border-top:0!important;
+    border-radius:0 0 30px 30px!important;
+    box-shadow:0 16px 38px rgba(0,0,0,.36)!important;
+  }
+  .brand{
+    margin-left:57px!important;margin-top:3px!important;
+    font-family:Georgia,"Times New Roman",serif!important;
+    font-size:28px!important;font-weight:900!important;letter-spacing:.35px!important;
+    color:var(--s110-gold)!important;text-transform:uppercase!important;
+    text-shadow:0 0 16px rgba(244,191,53,.13)!important;
+  }
+  .brand:before{
+    content:"RJ";position:absolute;left:18px;top:16px;width:45px;height:45px;
+    display:flex;align-items:center;justify-content:center;border-radius:50%;
+    border:2px solid var(--s110-gold);color:var(--s110-gold);
+    font:900 15px Georgia,"Times New Roman",serif;
+    box-shadow:inset 0 0 18px rgba(244,191,53,.08);
+  }
+  .sub{
+    margin-left:57px!important;color:#e3eaf0!important;opacity:1!important;
+    font-size:13px!important;font-weight:700!important;letter-spacing:1px!important;
+  }
+  .menu-btn{
+    position:absolute!important;left:16px!important;top:73px!important;
+    width:48px!important;height:48px!important;z-index:5!important;
+    border-radius:14px!important;background:#07131f!important;
+    border:1px solid #405466!important;color:#fff!important;font-size:27px!important;
+  }
+
+  /* Market rate hero exactly follows the reference visual hierarchy. */
+  .rate{
+    position:relative!important;margin:24px 3px 0!important;padding:18px 20px 18px 20px!important;
+    min-height:126px!important;border-radius:24px!important;
+    border:1px solid var(--s110-gold)!important;
+    background:
+      radial-gradient(circle at 0% 50%,rgba(238,55,103,.28),transparent 35%),
+      linear-gradient(110deg,#3b0c2e 0%,#270a40 48%,#101938 100%)!important;
+    box-shadow:0 15px 34px rgba(0,0,0,.36),inset 0 0 0 1px rgba(255,255,255,.04)!important;
+    overflow:hidden!important;
+  }
+  .rate:before{
+    content:"◆";position:absolute;left:20px;top:26px;width:68px;height:68px;
+    border:1px solid rgba(255,214,91,.95);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;color:var(--s110-gold2);
+    font-size:27px;background:rgba(0,0,0,.10);
+  }
+  .rate label{display:block!important;margin-left:93px!important;color:var(--s110-gold2)!important;
+    font-size:17px!important;font-weight:900!important}
+  .rate input{
+    display:block!important;width:calc(100% - 93px)!important;margin:7px 0 0 93px!important;
+    padding:0!important;border:0!important;outline:0!important;background:transparent!important;
+    color:#fff!important;font-size:43px!important;line-height:1.05!important;font-weight:850!important;
+  }
+  .rate:after{
+    content:"Market rate / gram";position:absolute;right:19px;bottom:13px;
+    color:rgba(255,255,255,.62);font-size:9px;letter-spacing:.3px;
+  }
+
+  main{padding:14px 14px 102px!important}
+  #valuation-main-sections{display:block!important;background:transparent!important}
+
+  /* Customer Details */
+  #valuation-main-sections>.card:first-child{
+    background:linear-gradient(145deg,#071522,#040b12)!important;
+    border:1px solid var(--s110-line)!important;border-radius:22px!important;
+    padding:17px!important;box-shadow:0 11px 28px rgba(0,0,0,.26)!important;
+  }
+  #valuation-main-sections>.card:first-child h2{
+    font-size:20px!important;color:#f5f8fb!important;
+  }
+  #valuation-main-sections>.card:first-child .grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;
+  }
+  #valuation-main-sections>.card:first-child .field label{
+    color:var(--s110-muted)!important;font-size:11px!important;font-weight:650!important;
+  }
+  #valuation-main-sections>.card:first-child input,
+  #valuation-main-sections>.card:first-child select{
+    min-height:48px!important;padding:11px 12px!important;background:#06111b!important;
+    color:#f4f7fa!important;border:1px solid #2a4053!important;border-radius:13px!important;
+  }
+  #valuation-main-sections>.card:first-child .field:nth-child(5){
+    grid-column:1/-1!important;
+  }
+  #valuation-main-sections>.card:first-child .field:nth-child(5) input{
+    border-color:#315069!important;
+    box-shadow:inset 0 0 18px rgba(32,211,122,.025)!important;
+  }
+
+  /* Jewellery */
+  .s110-jewellery-card{background:linear-gradient(145deg,#071522,#040b12)!important}
+  .s110-card-heading{display:flex!important;align-items:center!important;gap:9px!important;margin:0 0 13px!important}
+  .s110-card-heading h2{margin:0!important;font-size:20px!important;color:#f5f8fb!important}
+  .s110-heading-icon{
+    width:33px;height:33px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    color:var(--s110-gold);background:#0b1724;border:1px solid #2b4256;font-size:20px;font-weight:900;
+  }
+  .s110-jewellery-card>.primary{
+    width:auto!important;float:right!important;margin-top:-48px!important;
+    padding:11px 15px!important;border-radius:12px!important;
+    background:linear-gradient(90deg,#8e5e00,#d7a728)!important;
+    border:1px solid #edc54e!important;color:#fff!important;font-size:14px!important;
+  }
+  .s110-jewellery-card:after{content:"";display:block;clear:both}
+  #items{clear:both}
+  #items .item{
+    background:linear-gradient(145deg,#091725,#050d15)!important;
+    border:1px solid #253b4f!important;border-radius:18px!important;
+    padding:13px!important;box-shadow:none!important;
+  }
+  #items .itemhead{color:#fff!important;font-size:16px!important}
+  #items .remove{
+    background:rgba(255,70,86,.08)!important;color:#ff6572!important;
+    border:1px solid rgba(255,82,99,.48)!important;border-radius:12px!important;padding:9px 13px!important;
+  }
+  #items .field label{color:var(--s110-muted)!important;font-size:11px!important}
+  #items input,#items select{
+    background:#06111b!important;color:#f4f7fa!important;border:1px solid #2a4053!important;
+    border-radius:13px!important;min-height:47px!important;
+  }
+  #items .calc{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
+  #items .metric{
+    min-height:69px!important;background:linear-gradient(180deg,#091824,#07121d)!important;
+    border:1px solid #294156!important;border-radius:12px!important;padding:9px!important;text-align:center!important;
+  }
+  #items .metric small{color:#8fa1b1!important;font-size:10px!important}
+  #items .metric b{font-size:15px!important;color:#fff!important}
+  #items .metric:nth-child(1) b{color:var(--s110-green)!important}
+  #items .metric:nth-child(2) b{color:var(--s110-blue)!important}
+  #items .metric:nth-child(3) b{color:#ff9a25!important}
+
+  /* Valuation Summary */
+  .s110-summary{
+    background:linear-gradient(145deg,#061a2b,#06111c)!important;
+    border-color:#294861!important;
+  }
+  .s110-summary .s110-heading-icon{color:#f4bf35}
+  .s110-summary>div[style*="overflow-x:auto"]{
+    border-color:#263f54!important;background:#06111b!important;
+  }
+  .s110-summary table{color:#eef4f8!important}
+  .s110-summary th{color:#f4bf35!important;background:#0a1a29!important}
+  .s110-summary td{border-color:#1a3042!important}
+  .s110-summary tfoot tr{background:#0a1a29!important}
+  .s110-summary .ltv{grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:12px!important}
+  .s110-summary .loan{
+    background:linear-gradient(145deg,#091725,#06111b)!important;
+    color:#fff!important;border:1px solid #294258!important;border-radius:14px!important;padding:13px!important;
+  }
+  .s110-summary .loan span{color:#9dafbe!important;font-size:11px!important}
+  .s110-summary .loan input{
+    background:#06111b!important;color:#f4f7fa!important;border:1px solid #2a4053!important;
+    border-radius:10px!important;
+  }
+  .s110-summary .loan b{color:var(--s110-green)!important;font-size:20px!important}
+
+  /* Make sanctioned-loan + LTV block visually prominent without changing its input or validation. */
+  #sanctionedLoan{font-weight:800!important;color:#20d37a!important}
+  #ltv1{font-weight:800!important}
+  .s110-ltv-box{border-left:2px solid var(--s110-purple)!important}
+  .s110-loanrate-box{border-left:2px solid var(--s110-blue)!important}
+
+  /* Existing Save / Load / Share actions — same functions, reference-style presentation. */
+  body>footer{
+    position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+    z-index:1100!important;max-width:690px!important;margin:auto!important;
+    padding:9px 12px!important;display:flex!important;gap:9px!important;
+    background:rgba(2,7,13,.98)!important;border-top:1px solid #1f3548!important;
+    backdrop-filter:blur(14px)!important;box-shadow:0 -12px 28px rgba(0,0,0,.36)!important;
+  }
+  body>footer button{
+    flex:1!important;min-height:52px!important;border-radius:13px!important;
+    font-size:15px!important;font-weight:850!important;
+  }
+  body>footer button:first-child{
+    background:linear-gradient(90deg,#087c49,#12a35f)!important;color:#fff!important;border:1px solid #20c97c!important;
+  }
+  body>footer button:nth-child(2){
+    background:linear-gradient(90deg,#0752b4,#0d75e7)!important;color:#fff!important;border:1px solid #438cff!important;
+  }
+  body>footer button:nth-child(3){
+    background:linear-gradient(90deg,#6420a9,#9423bd)!important;color:#fff!important;border:1px solid #bd61dc!important;
+  }
+
+  @media(max-width:520px){
+    header{min-height:248px!important;padding:16px 12px 18px!important}
+    .brand{font-size:22px!important;margin-left:54px!important}
+    .sub{font-size:11px!important;margin-left:54px!important}
+    .brand:before{left:12px!important;top:14px!important;width:43px!important;height:43px!important}
+    .menu-btn{left:11px!important;top:68px!important}
+    .rate{margin-top:21px!important;min-height:120px!important;padding:17px!important}
+    .rate:before{left:15px!important;top:24px!important;width:63px!important;height:63px!important}
+    .rate label{margin-left:80px!important;font-size:16px!important}
+    .rate input{margin-left:80px!important;width:calc(100% - 80px)!important;font-size:38px!important}
+    main{padding:12px 9px 92px!important}
+    #valuation-main-sections>.card{padding:14px!important;border-radius:19px!important}
+    #valuation-main-sections>.card:first-child .grid{grid-template-columns:1fr 1fr!important}
+    #valuation-main-sections>.card:first-child .field:nth-child(4){grid-column:2!important}
+    #valuation-main-sections>.card:first-child .field:nth-child(5){grid-column:1/-1!important}
+    #items .calc{grid-template-columns:repeat(2,1fr)!important}
+    .s110-summary .ltv{grid-template-columns:1fr 1fr!important}
+    body>footer{padding:8px 9px!important}
+    body>footer button{min-height:50px!important;font-size:14px!important}
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1035,19 +1270,19 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <div class="field"><label>Valuation Date</label><input id="valuationDate" type="date"></div>
 <div class="field"><label>Sanctioned Loan Amount (₹)</label><input id="sanctionedLoan" type="number" inputmode="decimal" min="0" step="1" placeholder="Enter sanctioned loan amount"></div>
 </div></section>
-<section class="card"><h2>Jewellery Items</h2><div id="items"></div><button class="primary" onclick="addItem()">＋ Add Jewellery Item</button></section>
-<section class="card summary"><h2>Valuation Summary — Table</h2>
+<section class="card s110-jewellery-card"><div class="s110-card-heading"><span class="s110-heading-icon">◇</span><h2>Add Jewellery Item</h2></div><div id="items"></div><button class="primary" onclick="addItem()">＋ Add New Item</button></section>
+<section class="card summary s110-summary"><div class="s110-card-heading"><span class="s110-heading-icon">▥</span><h2>Valuation Summary</h2></div>
 <div style="overflow-x:auto;border-radius:12px;border:1px solid #ffffff22"><table style="width:100%;border-collapse:collapse;min-width:760px;font-size:12px">
 <thead><tr><th style="padding:10px;text-align:left">Item</th><th style="padding:10px;text-align:left">Jewellery Name</th><th style="padding:10px;text-align:right">Gross Wt (g)</th><th style="padding:10px;text-align:right">Stone Wt (g)</th><th style="padding:10px;text-align:right">Purity %</th><th style="padding:10px;text-align:right">Rounded (g)</th><th style="padding:10px;text-align:right">Value (₹)</th></tr></thead>
 <tbody id="summaryRows"></tbody><tfoot><tr style="font-weight:850;background:#ffffff18"><td style="padding:10px">TOTAL</td><td></td><td id="tg" style="padding:10px;text-align:right">0.00</td><td id="ts" style="padding:10px;text-align:right">0.00</td><td id="avgPurity" style="padding:10px;text-align:right">0.00</td><td id="tr" style="padding:10px;text-align:right">0.00</td><td id="tv" style="padding:10px;text-align:right">₹0</td></tr></tfoot>
 </table></div>
 <div class="ltv">
-  <div class="loan">
-    <span>LTV 1 (%)</span>
+  <div class="loan s110-ltv-box">
+    <span>Select LTV %</span>
     <input id="ltv1" type="number" min="0" max="100" step="0.01" value="65" inputmode="decimal" oninput="calculate()" style="width:100%;border:1px solid #ddd;border-radius:8px;padding:7px;margin:5px 0;font-size:16px">
     <b id="l65">₹0</b>
   </div>
-  <div class="loan">
+  <div class="loan s110-loanrate-box">
     <span>Loan Rate / gram (₹)</span>
     <input id="loanRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" oninput="calculate()" style="width:100%;border:1px solid #ddd;border-radius:8px;padding:7px;margin:5px 0;font-size:16px">
     <b id="l70">₹0</b>
