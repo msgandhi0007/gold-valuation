@@ -539,6 +539,62 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step106-reference-functions-ui">
+/* STEP 106 — REFERENCE FUNCTION ORGANIZATION
+   Navigation is mapped only to functions/sections already present in the app.
+   No calculation, storage, save/load/share, report, certificate, backup,
+   history, filter, or sync implementation is replaced. */
+@media screen{
+  .s106-menu-kicker{font-size:9px;letter-spacing:2px;color:#8fa1b1;margin-bottom:2px}
+  .s106-menu-brand{
+    display:flex;align-items:center;gap:12px;margin:10px 0 14px;padding:13px;
+    border:1px solid #24394d;border-radius:16px;
+    background:linear-gradient(145deg,#081522,#050c14);
+  }
+  .s106-rj-badge{
+    width:48px;height:48px;flex:0 0 48px;border:1px solid #f2b72d;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;color:#f2b72d;font-weight:900;font-size:18px;
+    box-shadow:inset 0 0 18px rgba(242,183,45,.08);
+  }
+  .s106-menu-brand strong{display:block;color:#f5f7fa;font-size:14px;letter-spacing:.3px}
+  .s106-menu-brand small{display:block;color:#9aa8b6;font-size:10px;margin-top:3px}
+  .s106-menu-group{
+    margin:0 0 12px;padding:9px;border:1px solid #1c3042;border-radius:17px;
+    background:linear-gradient(145deg,#07111b,#040a10);
+  }
+  .s106-group-title{font-size:11px;font-weight:900;letter-spacing:1.2px;padding:3px 8px 8px}
+  .s106-group-title.gold{color:#f2b72d}.s106-group-title.blue{color:#4d8cff}
+  .s106-group-title.green{color:#16c87a}.s106-group-title.purple{color:#b45cff}
+  .s106-menu-group .menu-item{
+    display:grid!important;grid-template-columns:34px minmax(0,1fr) 18px;align-items:center;
+    gap:9px;width:100%;min-height:58px!important;margin:0!important;padding:9px 7px!important;
+    border:0!important;border-top:1px solid #172a3a!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;text-align:left;
+  }
+  .s106-menu-group .menu-item:first-of-type{border-top:0!important}
+  .s106-menu-group .menu-item:hover{background:rgba(255,255,255,.035)!important}
+  .s106-menu-group .menu-item b{display:block;color:#f5f7fa!important;font-size:13px;line-height:1.25}
+  .s106-menu-group .menu-item small{display:block;color:#8293a4!important;font-size:10px;margin-top:3px;line-height:1.2}
+  .s106-menu-group .menu-item i{font-style:normal;color:#aab7c3;font-size:22px;text-align:right}
+  .s106-icon{
+    width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:900;background:#0a1723;border:1px solid #21384c;
+  }
+  .s106-icon.gold{color:#f2b72d}.s106-icon.blue{color:#4d8cff}
+  .s106-icon.green{color:#16c87a}.s106-icon.cyan{color:#17cbd0}.s106-icon.purple{color:#b45cff}
+  .s106-menu-footer{
+    padding:10px 4px 2px;color:#68798a;font-size:10px;display:flex;justify-content:space-between;
+  }
+  .s106-menu-footer span{color:#8a98a5}
+  @media(max-width:520px){
+    .s106-menu-brand{margin-top:8px}
+    .s106-menu-group{margin-bottom:9px}
+    .s106-menu-group .menu-item{min-height:55px!important}
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -877,23 +933,91 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </div>
 
 
+
 <div id="appMenu" class="menu-overlay" onclick="if(event.target===this)closeAppMenu()">
   <div class="menu-panel">
     <div class="menu-head">
-      <h2>Menu</h2>
+      <div>
+        <div class="s106-menu-kicker">RAJENDRA JEWELLERS</div>
+        <h2>MENU</h2>
+      </div>
       <button class="menu-close" type="button" onclick="closeAppMenu()">✕</button>
     </div>
-    <div class="menu-list">
-      <button class="menu-item" type="button" onclick="showMenuSection('dashboard')">📊 Dashboard<small>Valuation overview & recent history</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('reports')">📈 Bank & Monthly Reports<small>Valuation and sanctioned-loan overview</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('bankStatementReport')">🏦 Bank-wise Customer Report<small>Customer and valuation report by bank</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('dataSafetyBackup')">🛡️ Data Safety & Backup<small>Backup and restore app data</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('customerHistory')">👤 Customer History<small>Find previous valuations by customer</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('bankManagement33')">🏛️ Bank Management<small>Add, rename, remove and set default bank</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('settings59')">⚙️ Settings<small>Choose storage folder and app preferences</small></button>
-      <button class="menu-item" type="button" onclick="showMenuSection('storageManagement61')">📁 Storage Management<small>Check, change or clear the selected storage folder</small></button>
-      <button class="menu-item" type="button" onclick="showValuationScreen()">💰 Valuation<small>Return to the main valuation screen</small></button>
+
+    <div class="s106-menu-brand">
+      <div class="s106-rj-badge">RJ</div>
+      <div>
+        <strong>RAJENDRA JEWELLERS</strong>
+        <small>REGISTERED GOLD APPRAISER</small>
+        <small>MAHENDRA SHANTILAL GANDHI</small>
+      </div>
     </div>
+
+    <div class="s106-menu-group">
+      <div class="s106-group-title gold">MAIN</div>
+      <button class="menu-item" type="button" onclick="showMenuSection('dashboard')">
+        <span class="s106-icon gold">⌂</span><span><b>Dashboard</b><small>Overview &amp; Summary</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="dashboardNewValuation87()">
+        <span class="s106-icon gold">◇</span><span><b>Add New Valuation</b><small>Create New Valuation</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="dashboardOpenSaved87()">
+        <span class="s106-icon gold">▰</span><span><b>Saved Valuations</b><small>View, Search &amp; Manage</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="dashboardOpenCertificates87()">
+        <span class="s106-icon gold">▤</span><span><b>Certificates</b><small>View &amp; print certificates</small></span><i>›</i>
+      </button>
+    </div>
+
+    <div class="s106-menu-group">
+      <div class="s106-group-title blue">REPORTS</div>
+      <button class="menu-item" type="button" onclick="showMenuSection('bankStatementReport')">
+        <span class="s106-icon blue">♜</span><span><b>Bank-wise Customer Report</b><small>Customer list by Bank</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('reports')">
+        <span class="s106-icon blue">▦</span><span><b>Monthly Valuation Report</b><small>Month-wise Summary</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('customerHistory')">
+        <span class="s106-icon blue">♟</span><span><b>Customer History</b><small>Customer Wise Valuations</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('customerHistory');setTimeout(function(){var e=document.getElementById('customerSummaryEmbedded');if(e)e.scrollIntoView({behavior:'smooth',block:'start'});},150)">
+        <span class="s106-icon blue">◔</span><span><b>Customer Summary</b><small>Total Summary by Customer</small></span><i>›</i>
+      </button>
+    </div>
+
+    <div class="s106-menu-group">
+      <div class="s106-group-title green">TOOLS &amp; UTILITIES</div>
+      <button class="menu-item" type="button" onclick="showMenuSection('dataSafetyBackup')">
+        <span class="s106-icon green">☁</span><span><b>Backup &amp; Restore</b><small>Backup All Data</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('storageManagement61')">
+        <span class="s106-icon green">▰</span><span><b>Storage Folder</b><small>Open App Data Folder</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('storageManagement61');setTimeout(function(){var e=document.getElementById('valuationSyncBtn');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});},150)">
+        <span class="s106-icon cyan">⟳</span><span><b>Sync &amp; Restore</b><small>Sync valuation files</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('reports')">
+        <span class="s106-icon cyan">▣</span><span><b>Print / Export</b><small>PDF reports &amp; statements</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('bankManagement33')">
+        <span class="s106-icon green">⚙</span><span><b>Bank Management</b><small>Manage banks &amp; defaults</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showMenuSection('settings59')">
+        <span class="s106-icon green">⚙</span><span><b>Settings</b><small>App preferences</small></span><i>›</i>
+      </button>
+    </div>
+
+    <div class="s106-menu-group">
+      <div class="s106-group-title purple">MORE</div>
+      <button class="menu-item" type="button" onclick="showMenuSection('settings59')">
+        <span class="s106-icon purple">ⓘ</span><span><b>App Information</b><small>App settings &amp; storage options</small></span><i>›</i>
+      </button>
+      <button class="menu-item" type="button" onclick="showValuationScreen()">
+        <span class="s106-icon gold">₹</span><span><b>Valuation</b><small>Return to main valuation</small></span><i>›</i>
+      </button>
+    </div>
+
+    <div class="s106-menu-footer">© 2026 Rajendra Jewellers <span>Version 2.0</span></div>
   </div>
 </div>
 
