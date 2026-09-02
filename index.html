@@ -3266,6 +3266,18 @@ background:linear-gradient(135deg,#c68a00,#f0b92d)!important;color:#071019!impor
 }
 </style>
 
+
+<style id="market-rate-valuation-only-fix">
+/* Market Rate / Gram is shown only on the main Valuation screen.
+   Existing rate input/calculation logic is unchanged. */
+body.menu-viewing .s111-rate{
+  display:none!important;
+}
+body:not(.menu-viewing) .s111-rate{
+  display:flex!important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
