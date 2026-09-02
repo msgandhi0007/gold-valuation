@@ -453,7 +453,7 @@ button{font-family:inherit}
 .secondary{background:#0b151f!important;color:#fff!important;border:1px solid #2b3b4a!important}
 .summary{background:linear-gradient(145deg,#171717,#0e0e0e)!important;border:1px solid #333!important}
 .loan{background:#fff!important;color:#222!important}
-footer{background:#06101a!important;border-top:1px solid #273746!important}
+footer{background:#06101a!important;border-top:1px solid #273746!important;position:fixed!important;bottom:70px!important;left:50%!important;transform:translateX(-50%)!important;width:min(520px,calc(100% - 20px))!important;z-index:29!important;padding:8px!important;border-radius:14px!important;box-shadow:0 -4px 18px #0008!important}body.image1-home footer{display:none!important}
 footer button{background:#0c1722!important;color:#fff!important;border:1px solid #1e2e3c!important}
 /* Hide old home header/rate on the redesigned home screen */
 body.image1-home header{display:none}
@@ -1421,6 +1421,7 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker registration failed',err));
   });
+}
 </script>
 
 <script>
@@ -2770,6 +2771,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Ensure the managed bank list is refreshed whenever the form is reset/loaded.
   window.refreshBankManagement33=render;
+  });
 })();
 </script>
 
