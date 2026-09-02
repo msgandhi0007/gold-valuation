@@ -2332,6 +2332,177 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step125-premium-customer-history-ui">
+@media screen{
+  /* STEP 125 — Customer History / Summary visual layer only. */
+
+  #customerHistory,
+  #customerSummary{
+    background:
+      radial-gradient(circle at 100% 0%,rgba(245,191,53,.07),transparent 30%),
+      linear-gradient(145deg,#06131e,#02080e)!important;
+    border:1px solid #2b4358!important;
+    border-radius:22px!important;
+    color:#edf3f7!important;
+    box-shadow:0 16px 38px rgba(0,0,0,.34)!important;
+  }
+
+  #customerHistory h2,
+  #customerSummary h2,
+  #customerHistory h3,
+  #customerSummary h3{
+    color:#fff!important;
+  }
+
+  #customerHistory input,
+  #customerHistory select,
+  #customerSummary input,
+  #customerSummary select{
+    background:#071722!important;
+    color:#f4f7fa!important;
+    border:1px solid #2a4358!important;
+    border-radius:12px!important;
+    min-height:42px!important;
+  }
+  #customerHistory input::placeholder,
+  #customerSummary input::placeholder{color:#728596!important}
+  #customerHistory input:focus,
+  #customerHistory select:focus,
+  #customerSummary input:focus,
+  #customerSummary select:focus{
+    border-color:#d9ab2b!important;
+    box-shadow:0 0 0 2px rgba(245,191,53,.07)!important;
+  }
+
+  #customerHistory button,
+  #customerSummary button{
+    border-radius:11px!important;
+    font-weight:800!important;
+  }
+
+  /* Customer list cards */
+  #customerHistory .history-row,
+  #customerHistory .customer-group,
+  #customerSummary .history-row,
+  #customerSummary .customer-group{
+    background:linear-gradient(145deg,#091a27,#050d15)!important;
+    border:1px solid #294257!important;
+    border-radius:16px!important;
+    color:#edf3f7!important;
+    padding:12px!important;
+    box-shadow:0 9px 20px rgba(0,0,0,.20)!important;
+  }
+
+  #customerHistory .history-name,
+  #customerHistory .customer-group-name,
+  #customerSummary .history-name,
+  #customerSummary .customer-group-name,
+  #customerHistory .customer-name-link,
+  #customerHistory .customer-row-toggle,
+  #customerSummary .customer-name-link,
+  #customerSummary .customer-summary-link{
+    color:#fff!important;
+    font-weight:900!important;
+  }
+
+  #customerHistory .history-meta,
+  #customerHistory .customer-group-contact,
+  #customerHistory .customer-click-hint,
+  #customerSummary .history-meta,
+  #customerSummary .customer-group-contact,
+  #customerSummary .customer-click-hint{
+    color:#9fb0bf!important;
+    opacity:1!important;
+  }
+
+  #customerHistory .history-amount,
+  #customerSummary .history-amount{
+    color:#f5c33f!important;
+    font-weight:900!important;
+  }
+
+  #customerHistory .customer-group-stat,
+  #customerSummary .customer-group-stat{
+    background:#071722!important;
+    border:1px solid #233d51!important;
+    border-radius:10px!important;
+  }
+  #customerHistory .customer-group-stat span,
+  #customerSummary .customer-group-stat span{
+    color:#8fa3b3!important;
+    opacity:1!important;
+  }
+  #customerHistory .customer-group-stat b,
+  #customerSummary .customer-group-stat b{
+    color:#f1f5f7!important;
+  }
+
+  #customerHistory .history-actions button,
+  #customerHistory .customer-group-actions button,
+  #customerSummary .history-actions button,
+  #customerSummary .customer-group-actions button{
+    background:#07131f!important;
+    border:1px solid #2b455a!important;
+    color:#dce6ed!important;
+    min-height:38px!important;
+  }
+
+  #customerHistory .history-actions button:first-child,
+  #customerHistory .customer-group-actions button:first-child,
+  #customerSummary .history-actions button:first-child,
+  #customerSummary .customer-group-actions button:first-child{
+    color:#f5c33f!important;
+    border-color:#725c20!important;
+  }
+
+  #customerHistory .history-empty,
+  #customerSummary .history-empty{
+    color:#9fb0bf!important;
+    background:#07131f!important;
+    border:1px dashed #294257!important;
+    border-radius:14px!important;
+  }
+
+  /* Filter headings / status text */
+  #customerHistory label,
+  #customerSummary label{
+    color:#dbe5eb!important;
+    font-weight:800!important;
+  }
+  #customerHistory [style*="color"],
+  #customerSummary [style*="color"]{
+    /* Preserve semantic colors from existing status/audit elements. */
+  }
+
+  @media(max-width:700px){
+    #customerHistory,#customerSummary{
+      margin:6px 0!important;
+      padding:10px!important;
+      border-radius:18px!important;
+    }
+    #customerHistory .history-row,
+    #customerHistory .customer-group,
+    #customerSummary .history-row,
+    #customerSummary .customer-group{
+      padding:10px!important;border-radius:14px!important;
+    }
+    #customerHistory .history-actions,
+    #customerHistory .customer-group-actions,
+    #customerSummary .history-actions,
+    #customerSummary .customer-group-actions{
+      gap:6px!important;
+    }
+    #customerHistory .history-actions button,
+    #customerHistory .customer-group-actions button,
+    #customerSummary .history-actions button,
+    #customerSummary .customer-group-actions button{
+      min-height:36px!important;font-size:10px!important;padding:6px 7px!important;
+    }
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
