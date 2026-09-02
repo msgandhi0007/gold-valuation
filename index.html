@@ -596,109 +596,305 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </style>
 
 
-<style id="step111-exact-reference-main">
+
+
+
+<style id="step113-reference-final-ui">
 @media screen{
-  :root{--s111-bg:#02070d;--s111-card:#07131f;--s111-line:#243a4e;--s111-gold:#f4bf35;--s111-purple:#a73de2;--s111-blue:#3f83f4;--s111-green:#19d36f;--s111-cyan:#18cbd0}
-  html,body{background:#02070d!important;color:#f4f7fa!important}
-  body{background:radial-gradient(circle at 0 0,rgba(244,191,53,.08),transparent 22%),radial-gradient(circle at 100% 35%,rgba(109,40,190,.10),transparent 32%),#02070d!important}
-  .app{max-width:690px!important;background:transparent!important}
-  .s111-header{min-height:282px!important;padding:16px 18px 18px!important;background:linear-gradient(145deg,#010509,#07131e 62%,#091722)!important;border:1px solid #203548!important;border-top:0!important;border-radius:0 0 31px 31px!important;box-shadow:0 16px 38px #0008!important}
-  .s111-brand-row{display:flex;align-items:center;gap:10px;margin-left:67px!important}
-  .s111-rj-logo{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--s111-gold);color:var(--s111-gold);font:900 18px Georgia,serif;background:#070b10}
-  .s111-brand-row .brand{margin:0!important;font:900 28px Georgia,"Times New Roman",serif!important;letter-spacing:.3px;color:var(--s111-gold)!important;text-transform:uppercase}
-  .s111-brand-row .sub{margin:2px 0 0!important;font-size:12px!important;letter-spacing:1px;color:#eef2f6!important;font-weight:800!important}
-  .s111-header .menu-btn{position:absolute!important;left:18px!important;top:18px!important;width:45px!important;height:45px!important;border-radius:14px!important;background:transparent!important;border:0!important;color:#fff!important;font-size:28px!important;z-index:10}
-  .s111-top-tools{position:absolute;right:18px;top:19px;display:flex;gap:7px}
-  .s111-top-tools button{width:42px;height:42px;border-radius:50%;border:1px solid #3a4a5a;background:#07131f;color:#fff;font-size:20px;position:relative}
-  .s111-top-tools span{position:absolute;right:-2px;top:-4px;width:18px;height:18px;border-radius:50%;background:#ed4b2f;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
-  .s111-rate{margin:22px 2px 0!important;height:126px!important;min-height:126px!important;padding:0!important;border:1px solid var(--s111-gold)!important;border-radius:25px!important;background:linear-gradient(110deg,#4a0d32,#2b0a43 52%,#111a39)!important;display:flex!important;align-items:center!important;box-shadow:0 14px 34px #0009!important}
-  .s111-gold-orb{margin-left:18px;width:72px;height:72px;border-radius:50%;border:2px solid #ffe16b;display:flex;align-items:center;justify-content:center;color:#ffd34d;font-size:28px;background:#3d0d27;flex:0 0 72px}
-  .s111-rate-content{padding:14px 12px 12px 22px;min-width:0;flex:1}
-  .s111-rate label{display:block!important;margin:0!important;color:#ffd65c!important;font-size:17px!important;font-weight:900!important}
-  .s111-rate input{display:block!important;margin:4px 0 0!important;padding:0!important;border:0!important;background:transparent!important;color:#fff!important;font-size:45px!important;font-weight:850!important;line-height:1.03!important;width:100%!important}
-  .s111-updated{font-size:9px;color:#fff;margin-top:5px}.s111-updated b{font-size:14px;margin-left:6px}
-  .s111-eye{width:47px;height:47px;border:1px solid #536071;border-radius:13px;margin-right:18px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px}
+  :root{
+    --r-bg:#02070d;--r-card:#07131f;--r-card2:#091925;--r-line:#22394d;
+    --r-gold:#f5bf35;--r-purple:#b35cff;--r-blue:#4b8cff;--r-green:#1fd274;
+    --r-cyan:#18cbd0;--r-orange:#f39a22;--r-pink:#e83d93;--r-muted:#9aaaba;
+  }
+  html,body{background:var(--r-bg)!important;color:#f4f7fa!important}
+  body{
+    background:
+      radial-gradient(circle at 8% 0%,rgba(244,191,53,.08),transparent 24%),
+      radial-gradient(circle at 100% 32%,rgba(109,43,191,.10),transparent 31%),
+      #02070d!important;
+    overflow-x:hidden!important;
+  }
+  .app{width:100%!important;max-width:1024px!important;background:transparent!important}
 
-  main{padding:14px 13px 90px!important}
-  .s111-main>.card{margin:0 0 14px!important;padding:16px!important;border-radius:21px!important;background:linear-gradient(145deg,#071521,#040b12)!important;border:1px solid var(--s111-line)!important;box-shadow:0 11px 28px #0007!important}
-  .s111-card-head{display:flex;align-items:center;gap:9px;margin-bottom:13px;min-height:35px}
-  .s111-card-head h2{margin:0!important;font-size:20px!important;color:#f4f7fa!important;font-weight:850!important}
-  .s111-head-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid #30485b;background:#0a1723;font-size:18px;font-weight:900}
-  .s111-head-icon.gold{color:var(--s111-gold)}.s111-head-icon.cyan{color:var(--s111-cyan)}.s111-head-icon.purple{color:#b65bff}
-  .s111-saved{margin-left:auto!important;padding:10px 13px!important;border-radius:12px!important;background:#07131f!important;border:1px solid #294257!important;color:#f0f4f7!important;font-weight:800!important}
+  /* ===== REFERENCE HEADER ===== */
+  .s111-header{
+    position:relative!important;box-sizing:border-box!important;
+    min-height:292px!important;padding:20px 22px 20px!important;
+    background:
+      radial-gradient(circle at 70% -5%,rgba(244,191,53,.12),transparent 25%),
+      linear-gradient(145deg,#010509,#06111b 62%,#091723)!important;
+    border:1px solid #1e3447!important;border-top:0!important;
+    border-radius:0 0 32px 32px!important;box-shadow:0 17px 40px rgba(0,0,0,.38)!important;
+  }
+  .s111-brand-row{
+    display:flex!important;align-items:center!important;gap:13px!important;
+    margin:0 170px 0 82px!important;height:61px!important;
+  }
+  .s111-rj-logo{
+    width:58px!important;height:58px!important;flex:0 0 58px!important;
+    border-radius:50%!important;border:2px solid var(--r-gold)!important;
+    background:radial-gradient(circle,#211807,#070b10 70%)!important;
+    color:var(--r-gold)!important;font:900 19px Georgia,serif!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    box-shadow:0 0 0 2px rgba(244,191,53,.08),inset 0 0 15px rgba(244,191,53,.12)!important;
+  }
+  .s111-brand-row .brand{
+    margin:0!important;padding:0!important;
+    color:var(--r-gold)!important;font:900 clamp(24px,4vw,31px) Georgia,"Times New Roman",serif!important;
+    letter-spacing:.3px!important;line-height:1.02!important;text-transform:uppercase!important;
+    white-space:nowrap!important;
+  }
+  .s111-brand-row .sub{
+    margin:5px 0 0!important;color:#f1f4f7!important;
+    font-size:14px!important;line-height:1!important;letter-spacing:1.1px!important;font-weight:800!important;
+  }
+  /* Prevent older global .brand:before from creating a second RJ logo. */
+  .s111-brand-row .brand:before{content:none!important;display:none!important}
+  .s111-header .menu-btn{
+    position:absolute!important;left:22px!important;top:24px!important;
+    width:46px!important;height:46px!important;border-radius:12px!important;
+    border:0!important;background:transparent!important;color:#fff!important;
+    font-size:29px!important;line-height:1!important;z-index:30!important;
+  }
+  .s111-top-tools{position:absolute!important;right:21px!important;top:23px!important;display:flex!important;gap:8px!important}
+  .s111-top-tools button{
+    width:45px!important;height:45px!important;border-radius:50%!important;
+    border:1px solid #3c4d5d!important;background:#07131f!important;color:#fff!important;
+    font-size:21px!important;position:relative!important;
+  }
+  .s111-top-tools button:first-child{color:#fff!important}
+  .s111-top-tools button:first-child::first-letter{color:#fff}
+  .s111-top-tools span{
+    position:absolute!important;right:-2px!important;top:-4px!important;width:19px!important;height:19px!important;
+    border-radius:50%!important;background:#ed4b2f!important;color:#fff!important;font-size:10px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+  }
 
-  .s111-customer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-  .s111-customer-tile{position:relative;padding:13px 10px 10px;border-radius:14px;background:linear-gradient(145deg,#091621,#050c14);border:1px solid #20364a}
-  .s111-customer-tile label{display:block!important;color:#dbe4ec!important;font-size:11px!important;margin:0 0 7px!important;padding-left:23px}
-  .s111-field-icon{position:absolute;left:10px;top:13px;font-size:18px}.s111-field-icon.cyan{color:var(--s111-cyan)}.s111-field-icon.green{color:var(--s111-green)}
-  .s111-customer-tile input{width:100%!important;box-sizing:border-box!important;background:transparent!important;border:0!important;padding:2px 0!important;color:#fff!important;font-size:16px!important;font-weight:750!important;min-height:26px!important}
-  .s111-customer-tile input::placeholder{color:#7d8e9f!important;font-weight:500!important}
-  .s111-hidden-data{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
-  .s111-edit-banner{margin-bottom:10px!important}
+  /* Market rate card */
+  .s111-rate{
+    margin:26px 0 0!important;height:163px!important;min-height:163px!important;padding:0!important;
+    display:flex!important;align-items:center!important;box-sizing:border-box!important;
+    border:1px solid var(--r-gold)!important;border-radius:26px!important;
+    background:
+      radial-gradient(circle at 0% 50%,rgba(238,50,106,.26),transparent 34%),
+      linear-gradient(110deg,#420d31,#290a42 50%,#111a3a)!important;
+    box-shadow:0 16px 36px rgba(0,0,0,.37),inset 0 0 0 1px rgba(255,255,255,.035)!important;
+  }
+  .s111-gold-orb{
+    margin-left:24px!important;width:96px!important;height:96px!important;flex:0 0 96px!important;
+    border-radius:50%!important;border:2px solid #ffe16b!important;background:rgba(255,190,30,.05)!important;
+    color:#ffd34d!important;font-size:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  }
+  .s111-rate-content{padding:18px 18px 15px 26px!important;min-width:0!important;flex:1!important}
+  .s111-rate label{font-size:20px!important;font-weight:900!important;color:#ffd75a!important;display:block!important;margin:0!important}
+  .s111-rate input{
+    width:100%!important;margin:5px 0 0!important;padding:0!important;background:transparent!important;border:0!important;
+    color:#fff!important;font-size:51px!important;font-weight:850!important;line-height:1!important;
+  }
+  .s111-updated{margin-top:10px!important;color:#fff!important;font-size:12px!important}
+  .s111-updated b{margin-left:8px!important;font-size:15px!important}
+  .s111-eye{
+    width:52px!important;height:52px!important;flex:0 0 52px!important;margin-right:23px!important;
+    border:1px solid #526170!important;border-radius:14px!important;color:#fff!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;font-size:26px!important;
+  }
 
-  .s111-jewel-head{margin-bottom:10px!important}
-  .s111-add{margin-left:auto!important;width:auto!important;padding:10px 15px!important;border-radius:11px!important;background:linear-gradient(90deg,#5d1aaa,#8b27d6)!important;border:1px solid #a44cf0!important;color:#fff!important;font-size:13px!important}
-  #items .item{background:linear-gradient(145deg,#081722,#050d15)!important;border:1px solid #263e52!important;border-radius:17px!important;padding:12px!important;margin-bottom:9px!important}
+  main{padding:16px 20px 132px!important;background:transparent!important}
+  .s111-main>.card{
+    margin:0 0 14px!important;padding:17px!important;border-radius:22px!important;
+    background:linear-gradient(145deg,#071521,#040b12)!important;border:1px solid var(--r-line)!important;
+    box-shadow:0 12px 29px rgba(0,0,0,.27)!important;
+  }
+  .s111-card-head{display:flex!important;align-items:center!important;gap:10px!important;margin-bottom:14px!important;min-height:35px!important}
+  .s111-card-head h2{margin:0!important;font-size:21px!important;font-weight:850!important;color:#f5f8fb!important}
+  .s111-head-icon{
+    width:34px!important;height:34px!important;border-radius:10px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    border:1px solid #30485b!important;background:#0a1723!important;font-size:18px!important;font-weight:900!important;
+  }
+  .s111-head-icon.gold{color:var(--r-gold)!important}.s111-head-icon.cyan{color:var(--r-cyan)!important}
+  .s111-head-icon.purple{color:var(--r-purple)!important}
+  .s111-saved{
+    margin-left:auto!important;padding:11px 14px!important;border-radius:13px!important;
+    background:#07131f!important;border:1px solid #2a4257!important;color:#f3f6f9!important;font-weight:850!important;
+  }
+
+  /* Customer cards exactly in the reference arrangement */
+  .s111-customer-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important}
+  .s111-customer-tile{
+    position:relative!important;min-height:82px!important;box-sizing:border-box!important;
+    padding:14px 12px 10px!important;border-radius:14px!important;
+    background:linear-gradient(145deg,#091621,#050c14)!important;border:1px solid #21384c!important;
+  }
+  .s111-customer-tile label{
+    display:block!important;color:#dbe4ec!important;font-size:12px!important;
+    margin:0 0 8px!important;padding-left:26px!important;white-space:nowrap!important;
+  }
+  .s111-field-icon{left:11px!important;top:13px!important;font-size:17px!important}
+  .s111-customer-tile input{
+    width:100%!important;box-sizing:border-box!important;min-height:30px!important;
+    padding:2px 0!important;border:0!important;background:transparent!important;color:#fff!important;
+    font-size:16px!important;font-weight:750!important;
+  }
+  .s111-customer-tile input::placeholder{color:#7f91a2!important}
+  .s111-hidden-data{display:none!important}
+
+  /* Jewellery */
+  .s111-jewel-head{margin-bottom:11px!important}
+  .s111-add{
+    margin-left:auto!important;width:auto!important;padding:11px 16px!important;
+    border-radius:12px!important;background:linear-gradient(90deg,#5b18a7,#8d29d8)!important;
+    border:1px solid #aa52ef!important;color:#fff!important;font-size:14px!important;font-weight:850!important;
+  }
+  #items .item{
+    background:linear-gradient(145deg,#081722,#050d15)!important;border:1px solid #263e52!important;
+    border-radius:18px!important;padding:13px!important;margin-bottom:9px!important;
+  }
   #items .itemhead{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:9px!important}
   #items .itemhead span{font-size:18px!important;font-weight:850!important;color:#f4f7fa!important}
-  #items .remove{background:transparent!important;color:#ff5b69!important;border:1px solid #9e3042!important;border-radius:10px!important;padding:8px 12px!important}
-  #items .field label{color:#a0b0bf!important;font-size:11px!important}
-  #items input,#items select{background:#06111b!important;border:1px solid #2a4155!important;color:#f5f7fa!important;border-radius:12px!important;min-height:47px!important}
-  #items .field:first-of-type{margin-bottom:9px!important}
+  #items .remove{
+    background:transparent!important;color:#ff5b69!important;border:1px solid #9e3042!important;
+    border-radius:10px!important;padding:8px 13px!important;
+  }
+  #items .field label{color:#9eafbd!important;font-size:11px!important}
+  #items input,#items select{
+    background:#06111b!important;border:1px solid #2a4155!important;color:#f5f7fa!important;
+    border-radius:12px!important;min-height:47px!important;
+  }
   #items .grid{grid-template-columns:repeat(3,1fr)!important;gap:9px!important}
   #items .calc{grid-template-columns:repeat(4,1fr)!important;gap:8px!important;margin-top:9px!important}
-  #items .metric{background:linear-gradient(145deg,#091a27,#07121d)!important;border:1px solid #294359!important;border-radius:12px!important;padding:9px!important;min-height:62px!important;text-align:center!important}
+  #items .metric{
+    background:linear-gradient(145deg,#091a27,#07121d)!important;border:1px solid #294359!important;
+    border-radius:12px!important;padding:9px!important;min-height:68px!important;text-align:center!important;
+  }
   #items .metric small{color:#a1afbc!important;font-size:10px!important}
-  #items .metric b{font-size:15px!important}.s111-jewellery #items .metric:nth-child(1) b{color:#20d37a!important}.s111-jewellery #items .metric:nth-child(2) b{color:#4d8cff!important}.s111-jewellery #items .metric:nth-child(3) b{color:#f39a22!important}
+  #items .metric b{font-size:16px!important}
+  #items .metric:nth-child(1) b{color:var(--r-green)!important}
+  #items .metric:nth-child(2) b{color:var(--r-blue)!important}
+  #items .metric:nth-child(3) b{color:var(--r-purple)!important}
+  #items .metric:nth-child(4) b{color:var(--r-orange)!important}
 
+  /* Summary */
   .s111-summary{background:linear-gradient(145deg,#071522,#040c14)!important}
-  .s111-summary .s111-details{margin-left:auto;border:0;background:transparent;color:#b95bff;font-size:11px;font-weight:800}
-  .s111-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .s111-stat{min-height:79px;padding:10px 5px;border:1px solid #294257;border-radius:12px;background:linear-gradient(145deg,#091824,#07121d);text-align:center}
-  .s111-stat small{display:block;color:#d5dde5;font-size:10px;line-height:1.35}.s111-stat b{display:block;margin-top:8px;font-size:18px;color:#fff}
-  .s111-stat:nth-child(3) b{color:var(--s111-green)}.s111-stat:nth-child(4) b{color:#f4bf35}
-  .s111-details-table{display:none;margin-top:10px}.s111-details-table.s111-open{display:block}
-  .s111-details-table table{color:#fff!important}.s111-details-table th{color:#f4bf35!important;background:#091a29}.s111-details-table td{border-color:#1b3042!important}
+  .s111-summary .s111-details{margin-left:auto!important;border:0!important;background:transparent!important;
+    color:var(--r-purple)!important;font-size:12px!important;font-weight:850!important}
+  .s111-summary-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:9px!important}
+  .s111-stat{
+    min-height:83px!important;padding:11px 6px!important;border:1px solid #294257!important;border-radius:12px!important;
+    background:linear-gradient(145deg,#091824,#07121d)!important;text-align:center!important;
+  }
+  .s111-stat small{display:block!important;color:#d5dde5!important;font-size:11px!important;line-height:1.35!important}
+  .s111-stat b{display:block!important;margin-top:8px!important;font-size:19px!important;color:#fff!important}
+  .s111-stat:nth-child(3) b{color:var(--r-green)!important}.s111-stat:nth-child(4) b{color:var(--r-gold)!important}
 
-  .s111-loan-card{background:linear-gradient(145deg,#07131f,#040b12)!important}
-  .s111-loan-grid{display:grid;grid-template-columns:1fr 1.35fr;gap:10px}
-  .s111-loan-tile{background:linear-gradient(145deg,#091824,#07121d)!important;border:1px solid #294257!important;border-radius:14px!important;padding:12px!important;color:#fff!important}
-  .s111-loan-title{display:flex;align-items:center;gap:8px;font-size:11px;color:#dbe4eb;margin-bottom:8px}
-  .s111-loan-icon{width:28px;height:28px;border-radius:8px;border:1px solid #34485a;display:flex;align-items:center;justify-content:center;color:#e5eaf0}
-  .s111-loan-icon.green{color:#27db72}
-  .s111-loan-tile input{width:100%!important;box-sizing:border-box!important;background:#06111b!important;color:#fff!important;border:1px solid #2a4155!important;border-radius:11px!important;min-height:45px!important;padding:9px!important;font-size:16px!important;font-weight:750!important}
-  .s111-loan-tile b{display:block;margin-top:8px;color:#20d37a!important;font-size:19px!important}
-  .s111-loan-note{margin:9px 2px;color:#8294a5;font-size:10px}
-  .s111-loan-rate{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid #21394d;border-radius:13px;background:#06111b}
-  .s111-loan-rate span{font-size:11px;color:#9cadbc}.s111-loan-rate input{min-height:40px!important;background:#081621!important;border:1px solid #2a4155!important;color:#fff!important;border-radius:10px!important;padding:7px!important}.s111-loan-rate b{color:#20d37a!important;font-size:16px}
+  /* Loan & LTV */
+  .s111-loan-grid{display:grid!important;grid-template-columns:1fr 1.35fr!important;gap:11px!important}
+  .s111-loan-tile{
+    background:linear-gradient(145deg,#091824,#07121d)!important;border:1px solid #294257!important;
+    border-radius:14px!important;padding:12px!important;color:#fff!important;
+  }
+  .s111-loan-title{display:flex!important;align-items:center!important;gap:8px!important;font-size:12px!important;color:#dbe4eb!important;margin-bottom:8px!important}
+  .s111-loan-icon{
+    width:29px!important;height:29px!important;border-radius:8px!important;border:1px solid #34485a!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;color:#e5eaf0!important;
+  }
+  .s111-loan-icon.green{color:#27db72!important}
+  .s111-loan-tile input{
+    width:100%!important;box-sizing:border-box!important;background:#06111b!important;color:#fff!important;
+    border:1px solid #2a4155!important;border-radius:11px!important;min-height:45px!important;
+    padding:9px!important;font-size:16px!important;font-weight:750!important;
+  }
+  .s111-loan-tile b{display:block!important;margin-top:8px!important;color:var(--r-green)!important;font-size:20px!important}
+  .s111-loan-note{margin:9px 2px!important;color:#8294a5!important;font-size:10px!important}
+  .s111-loan-rate{
+    display:grid!important;grid-template-columns:1fr 1fr auto!important;align-items:center!important;gap:9px!important;
+    padding:10px!important;border:1px solid #21394d!important;border-radius:13px!important;background:#06111b!important;
+  }
+  .s111-loan-rate span{font-size:11px!important;color:#9cadbc!important}
+  .s111-loan-rate input{min-height:40px!important;background:#081621!important;border:1px solid #2a4155!important;color:#fff!important;border-radius:10px!important;padding:7px!important}
 
-  .s111-secondary-actions{display:none!important}
-  body>footer{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:1200!important;max-width:690px!important;margin:auto!important;display:flex!important;gap:10px!important;padding:9px 12px!important;background:rgba(2,7,13,.98)!important;border-top:1px solid #21374a!important}
-  body>footer button{flex:1!important;min-height:52px!important;border-radius:13px!important;color:#fff!important;font-weight:850!important;font-size:15px!important}
-  body>footer button:first-child{background:linear-gradient(90deg,#087c49,#13a65f)!important;border:1px solid #21cf7c!important}
-  body>footer button:nth-child(2){background:linear-gradient(90deg,#0756bd,#0b78e9)!important;border:1px solid #448eff!important}
-  body>footer button:nth-child(3){background:linear-gradient(90deg,#7020b3,#a423c7)!important;border:1px solid #c05ce1!important}
+  /* Quick actions */
+  .s113-quick-actions{background:linear-gradient(145deg,#07131f,#040b12)!important}
+  .s113-quick-heading{display:flex;align-items:center;gap:9px;margin-bottom:11px;font-size:18px}
+  .s113-quick-heading span{color:var(--r-gold);font-size:22px}
+  .s113-quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .s113-quick-grid button{
+    min-height:74px;border-radius:12px;border:1px solid #243b50;background:#07131f;color:#f0f4f7;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;
+  }
+  .s113-quick-grid small{font-size:9px;color:#d0d8df}
+  .s113-quick-grid .q{width:31px;height:31px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    background:#0a1724;border:1px solid #21394e;font-size:18px;font-weight:900}
+  .s113-quick-grid .gold{color:var(--r-gold)}.s113-quick-grid .purple{color:var(--r-purple)}
+  .s113-quick-grid .blue{color:var(--r-blue)}.s113-quick-grid .cyan{color:var(--r-cyan)}
+  .s113-quick-grid .green{color:var(--r-green)}.s113-quick-grid .pink{color:var(--r-pink)}.s113-quick-grid .red{color:#ff654f}
 
-  @media(max-width:520px){
-    .s111-header{min-height:250px!important;padding:13px 12px 15px!important}
-    .s111-brand-row{margin-left:52px!important;gap:8px}
-    .s111-rj-logo{width:45px;height:45px;font-size:15px}
-    .s111-brand-row .brand{font-size:22px!important}.s111-brand-row .sub{font-size:10px!important}
-    .s111-header .menu-btn{left:10px!important;top:68px!important}
-    .s111-top-tools{right:11px;top:14px}
-    .s111-top-tools button{width:38px;height:38px}
-    .s111-rate{margin-top:22px!important;height:121px!important;min-height:121px!important}
-    .s111-gold-orb{width:63px;height:63px;flex-basis:63px;margin-left:12px}
-    .s111-rate-content{padding-left:14px}.s111-rate label{font-size:15px!important}.s111-rate input{font-size:38px!important}
-    .s111-eye{width:40px;height:40px;margin-right:12px}
-    main{padding:11px 9px 83px!important}
-    .s111-main>.card{padding:13px!important;border-radius:19px!important}
-    .s111-customer-grid{grid-template-columns:repeat(3,1fr);gap:7px}
-    .s111-customer-tile{padding:11px 8px 8px}.s111-customer-tile label{font-size:9px!important;padding-left:18px}.s111-field-icon{left:7px;top:10px;font-size:15px}.s111-customer-tile input{font-size:13px!important}
-    #items .grid{grid-template-columns:repeat(3,1fr)!important}.s111-summary-grid{grid-template-columns:repeat(4,1fr);gap:5px}.s111-stat{min-height:73px}.s111-stat b{font-size:15px}
-    .s111-loan-grid{grid-template-columns:1fr 1.2fr;gap:7px}.s111-loan-tile{padding:9px}.s111-loan-title{font-size:9px}.s111-loan-tile b{font-size:17px}
-    .s111-loan-rate{grid-template-columns:1fr 1fr}.s111-loan-rate b{grid-column:2;text-align:right}
-    body>footer{padding:8px 9px!important}body>footer button{min-height:49px!important;font-size:14px!important}
+  /* Existing certificate/reset card stays functional but visually subordinate like reference. */
+  .s111-secondary-actions{padding:13px!important}
+  .s111-secondary-actions .actions{gap:9px!important}
+  .s111-secondary-actions .secondary{
+    min-height:48px!important;border-radius:12px!important;background:#07131f!important;
+    color:#dce6ee!important;border:1px solid #263e53!important;font-weight:800!important;
+  }
+
+  /* Functional Save/Load/Share footer, same handlers, reference colors. */
+  body>footer{
+    position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+    z-index:7000!important;max-width:1024px!important;margin:auto!important;
+    box-sizing:border-box!important;padding:9px 12px!important;display:flex!important;gap:10px!important;
+    background:rgba(2,7,13,.98)!important;border-top:1px solid #20364a!important;
+    box-shadow:0 -12px 28px rgba(0,0,0,.38)!important;backdrop-filter:blur(14px)!important;
+  }
+  body>footer button{
+    flex:1!important;min-height:54px!important;border-radius:13px!important;font-size:15px!important;font-weight:850!important;
+  }
+  body>footer button:first-child{background:linear-gradient(90deg,#07804b,#12aa61)!important;border:1px solid #23d07f!important;color:#fff!important}
+  body>footer button:nth-child(2){background:linear-gradient(90deg,#0756bc,#0d78eb)!important;border:1px solid #4a95ff!important;color:#fff!important}
+  body>footer button:nth-child(3){background:linear-gradient(90deg,#671fb0,#9822c3)!important;border:1px solid #c05fe1!important;color:#fff!important}
+
+  .s113-bottom-nav{
+    position:fixed!important;left:0!important;right:0!important;bottom:0!important;display:none!important;
+  }
+
+  @media(max-width:700px){
+    .s111-header{min-height:270px!important;padding:15px 12px 17px!important}
+    .s111-brand-row{margin:0 0 0 58px!important;height:55px!important}
+    .s111-rj-logo{width:50px!important;height:50px!important;flex-basis:50px!important;font-size:17px!important}
+    .s111-brand-row .brand{font-size:23px!important;white-space:normal!important;line-height:1.0!important}
+    .s111-brand-row .sub{font-size:11px!important;margin-top:4px!important}
+    .s111-header .menu-btn{left:10px!important;top:73px!important}
+    .s111-top-tools{right:10px!important;top:15px!important}
+    .s111-top-tools button{width:43px!important;height:43px!important}
+    .s111-rate{margin-top:20px!important;height:145px!important;min-height:145px!important}
+    .s111-gold-orb{margin-left:14px!important;width:78px!important;height:78px!important;flex-basis:78px!important;font-size:28px!important}
+    .s111-rate-content{padding-left:17px!important}
+    .s111-rate label{font-size:17px!important}
+    .s111-rate input{font-size:42px!important}
+    .s111-eye{width:48px!important;height:48px!important;flex-basis:48px!important;margin-right:12px!important}
+    main{padding:12px 10px 94px!important}
+    .s111-main>.card{padding:14px!important;border-radius:20px!important}
+    .s111-customer-grid{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+    .s111-customer-tile{padding:11px 8px 9px!important;min-height:76px!important}
+    .s111-customer-tile label{font-size:9px!important;padding-left:18px!important}
+    .s111-field-icon{left:7px!important;top:11px!important;font-size:14px!important}
+    .s111-customer-tile input{font-size:13px!important}
+    .s111-saved{padding:9px 11px!important;font-size:12px!important}
+    .s111-card-head h2{font-size:19px!important}
+    .s111-add{font-size:12px!important;padding:10px 12px!important}
+    #items .grid{grid-template-columns:repeat(3,1fr)!important}
+    #items .calc{grid-template-columns:repeat(4,1fr)!important}
+    .s111-summary-grid{grid-template-columns:repeat(4,1fr)!important}
+    .s111-stat{min-height:76px!important}
+    .s111-stat small{font-size:9px!important}.s111-stat b{font-size:15px!important}
+    .s111-loan-grid{grid-template-columns:1fr 1fr!important}
+    .s111-loan-title{font-size:10px!important}
+    .s111-loan-rate{grid-template-columns:1fr 1fr!important}
+    .s111-loan-rate b{grid-column:2!important;text-align:left!important}
+    .s113-quick-grid{grid-template-columns:repeat(5,1fr)!important}
+    .s113-quick-grid button{min-height:68px!important}
+    .s113-quick-grid small{font-size:8px!important}
+    body>footer{padding:8px 9px!important;gap:8px!important}
+    body>footer button{min-height:51px!important;font-size:14px!important}
   }
 }
 </style>
@@ -1084,6 +1280,24 @@ body.menu-viewing #valuation-main-sections{display:none!important}
     </div>
   </section>
 
+
+  <!-- Reference quick actions: visual/navigation shortcuts using existing functions only -->
+  <section class="card s113-quick-actions">
+    <div class="s113-quick-heading"><span>▥</span><b>Quick Actions</b></div>
+    <div class="s113-quick-grid">
+      <button type="button" onclick="showMenuSection('customerHistory')"><span class="q cyan">♟</span><small>Customer History</small></button>
+      <button type="button" onclick="showMenuSection('customerHistory')"><span class="q purple">♟</span><small>Customer Summary</small></button>
+      <button type="button" onclick="showMenuSection('reports')"><span class="q blue">♜</span><small>Bank Reports</small></button>
+      <button type="button" onclick="showMenuSection('reports')"><span class="q gold">▦</span><small>Monthly Report</small></button>
+      <button type="button" onclick="openLoad()"><span class="q pink">▰</span><small>Saved Valuations</small></button>
+      <button type="button" onclick="showMenuSection('dataSafetyBackup')"><span class="q green">☁</span><small>Backup &amp; Restore</small></button>
+      <button type="button" onclick="showMenuSection('storageManagement61')"><span class="q gold">▰</span><small>Storage Folder</small></button>
+      <button type="button" onclick="showMenuSection('storageManagement61')"><span class="q cyan">⟳</span><small>Sync &amp; Restore</small></button>
+      <button type="button" onclick="showMenuSection('reports')"><span class="q red">▣</span><small>Print / PDF</small></button>
+      <button type="button" onclick="showMenuSection('settings59')"><span class="q blue">▦</span><small>Calculator</small></button>
+    </div>
+  </section>
+
   <!-- Keep certificate/reset functions exactly as before -->
   <section class="card s111-secondary-actions">
     <div class="actions">
@@ -1284,6 +1498,14 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </section>
 
 <footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
+<nav class="s113-bottom-nav" aria-label="Main navigation">
+  <button type="button" class="active" onclick="showValuationScreen()"><span>⌂</span><small>Valuation</small></button>
+  <button type="button" onclick="showMenuSection('dashboard')"><span>▦</span><small>Dashboard</small></button>
+  <button type="button" onclick="showMenuSection('reports')"><span>▥</span><small>Reports</small></button>
+  <button type="button" onclick="showMenuSection('customerHistory')"><span>♟</span><small>History</small></button>
+  <button type="button" onclick="openAppMenu()"><span>•••</span><small>More</small></button>
+</nav>
+
 
 <script>
 let count=0;
