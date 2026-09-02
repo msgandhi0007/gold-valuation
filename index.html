@@ -65,7 +65,6 @@ body.menu-viewing > footer, body:has(.menu-section.menu-active) > footer, body:h
 .no-saved{text-align:center;color:#777;padding:20px}
 .itemName,.itemOther{width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit}
 
-</style>
 
 /* Step 21 - Professional App Cover */
 #appCover{
@@ -3419,6 +3418,16 @@ body.cover-active>.app{display:none!important}
 body.app-started>footer{display:flex!important}
 body.app-started>.app{display:block!important;visibility:visible!important}
 </style>
+<style id="step141-cover-final">
+#appCover{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;background:#020407!important;overflow:hidden!important;margin:0!important;padding:0!important}
+#appCover.hidden{display:none!important}
+#appCover .cover-inner{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important}
+#appCover img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important}
+body.cover-active>footer{display:none!important}
+body.cover-active>.app{display:none!important}
+body.app-started>.app{display:block!important;visibility:visible!important}
+body.app-started>footer{display:flex!important}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -4902,44 +4911,17 @@ addItem();
 
 <script>
 function enterValuationApp(){
-  var cover=document.getElementById('appCover');
-  var app=document.querySelector('body > .app');
-  var footer=document.querySelector('body > footer');
-  try{
-    if(cover){
-      cover.classList.add('hidden');
-      cover.style.display='none';
-      cover.setAttribute('aria-hidden','true');
-    }
-    document.body.classList.remove('cover-active');
-    document.body.classList.add('app-started');
-    document.body.style.overflow='';
-    if(app){
-      app.style.removeProperty('display');
-      app.style.removeProperty('visibility');
-      app.style.setProperty('display','block','important');
-      app.style.setProperty('visibility','visible','important');
-    }
-    if(footer){
-      footer.style.removeProperty('display');
-      footer.style.setProperty('display','flex','important');
-    }
-    if(typeof showValuationScreen==='function'){
-      showValuationScreen();
-    }else{
-      var v=document.getElementById('valuation-main-sections');
-      if(v) v.style.setProperty('display','block','important');
-    }
-    window.scrollTo(0,0);
-  }catch(e){
-    console.error(e);
-    if(cover){cover.classList.add('hidden');cover.style.display='none';}
-    document.body.classList.remove('cover-active');
-    document.body.classList.add('app-started');
-    document.body.style.overflow='';
-    if(app) app.style.setProperty('display','block','important');
-    if(footer) footer.style.setProperty('display','flex','important');
-  }
+  const cover=document.getElementById('appCover');
+  const app=document.querySelector('body > .app');
+  const footer=document.querySelector('body > footer');
+  if(cover){cover.classList.add('hidden');cover.style.display='none';}
+  document.body.classList.remove('cover-active');
+  document.body.classList.add('app-started');
+  document.body.style.overflow='';
+  if(app){app.style.setProperty('display','block','important');app.style.setProperty('visibility','visible','important');}
+  if(footer){footer.style.setProperty('display','flex','important');}
+  if(typeof showValuationScreen==='function') showValuationScreen();
+  window.scrollTo(0,0);
 }
 window.addEventListener('DOMContentLoaded',()=>{
   const cover=document.getElementById('appCover');
@@ -7514,11 +7496,10 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 
-<script id="step140-cover-init">
+<script id="step141-cover-init">
 (function(){
   function init(){
-    var c=document.getElementById('appCover');
-    var f=document.querySelector('body > footer');
+    const c=document.getElementById('appCover'),f=document.querySelector('body > footer');
     if(c && !c.classList.contains('hidden')){
       document.body.classList.add('cover-active');
       document.body.classList.remove('app-started');
