@@ -1260,6 +1260,136 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step117-market-short-attractive-logo">
+@media screen{
+  /* ===== STEP 117: visual-only refinement ===== */
+  /* Shorter Market Rate hero, preserving its existing input, IDs and handlers. */
+  .s111-rate{
+    height:132px!important;
+    min-height:132px!important;
+    margin-top:20px!important;
+    border-radius:24px!important;
+  }
+  .s111-gold-orb{
+    width:78px!important;height:78px!important;flex-basis:78px!important;
+    margin-left:22px!important;
+    position:relative!important;
+    font-size:0!important;
+    background:
+      radial-gradient(circle at 50% 42%,rgba(255,216,90,.18),transparent 42%),
+      rgba(255,190,30,.035)!important;
+  }
+  /* attractive gold-bar / diamond emblem */
+  .s111-gold-orb:before{
+    content:"";position:absolute;width:23px;height:18px;
+    left:50%;top:50%;transform:translate(-50%,-46%) rotate(45deg);
+    background:linear-gradient(135deg,#fff0a1 0%,#ffd044 42%,#d89000 100%);
+    border:1px solid #ffe77a;border-radius:3px;
+    box-shadow:0 5px 10px rgba(245,191,53,.28);
+  }
+  .s111-gold-orb:after{
+    content:"";position:absolute;width:30px;height:5px;
+    left:50%;top:61%;transform:translateX(-50%);
+    border-radius:50%;border:1px solid rgba(255,225,103,.7);
+    box-shadow:0 0 10px rgba(245,191,53,.16);
+  }
+  .s111-rate-content{padding-top:13px!important;padding-bottom:10px!important}
+  .s111-rate label{font-size:18px!important}
+  .s111-rate input{font-size:43px!important;margin-top:3px!important}
+  .s111-updated{margin-top:6px!important;font-size:11px!important}
+  .s111-eye{
+    width:48px!important;height:48px!important;flex-basis:48px!important;
+    margin-right:19px!important;
+  }
+
+  /* ===== Attractive Rajendra Jewellers logo ===== */
+  .s111-rj-logo{
+    position:relative!important;
+    width:64px!important;height:64px!important;flex-basis:64px!important;
+    border:2px solid #f6c63d!important;
+    background:
+      radial-gradient(circle,#1b1608 0%,#080b0f 67%,#020508 100%)!important;
+    color:#ffd35b!important;
+    font:900 19px Georgia,"Times New Roman",serif!important;
+    letter-spacing:0!important;
+    box-shadow:
+      0 0 0 2px rgba(245,191,53,.10),
+      0 0 20px rgba(245,191,53,.12),
+      inset 0 0 18px rgba(245,191,53,.12)!important;
+  }
+  .s111-rj-logo:before{
+    content:"♛";position:absolute;left:50%;top:-14px;
+    transform:translateX(-50%);font-size:17px;line-height:1;
+    color:#ffd75c;text-shadow:0 0 8px rgba(245,191,53,.3);
+  }
+  .s111-rj-logo:after{
+    content:"✦";position:absolute;left:50%;bottom:4px;
+    transform:translateX(-50%);font-size:8px;color:#f6c63d;
+  }
+  .s111-brand-row{
+    align-items:center!important;
+  }
+  .s111-brand-row .brand{
+    font-family:Georgia,"Times New Roman",serif!important;
+    font-weight:900!important;
+    color:#f6c63d!important;
+    letter-spacing:.2px!important;
+  }
+  .s111-brand-row .sub{
+    color:#eef3f7!important;
+    letter-spacing:1.2px!important;
+  }
+
+  @media(max-width:700px){
+    .s111-header{
+      min-height:248px!important;
+      padding-top:13px!important;
+      padding-bottom:15px!important;
+    }
+    .s111-brand-row{
+      margin-left:58px!important;
+      margin-right:6px!important;
+      height:55px!important;
+      gap:9px!important;
+    }
+    .s111-rj-logo{
+      width:52px!important;height:52px!important;flex-basis:52px!important;
+      font-size:16px!important;
+    }
+    .s111-rj-logo:before{font-size:14px!important;top:-11px!important}
+    .s111-rj-logo:after{bottom:2px!important;font-size:7px!important}
+    .s111-brand-row .brand{
+      font-size:21px!important;
+      line-height:1!important;
+      white-space:nowrap!important;
+    }
+    .s111-brand-row .sub{
+      font-size:10px!important;
+      margin-top:4px!important;
+    }
+    .s111-rate{
+      height:126px!important;
+      min-height:126px!important;
+      margin-top:17px!important;
+      border-radius:23px!important;
+    }
+    .s111-gold-orb{
+      width:68px!important;height:68px!important;flex-basis:68px!important;
+      margin-left:12px!important;
+    }
+    .s111-rate-content{padding:10px 8px 9px 15px!important}
+    .s111-rate label{font-size:16px!important;white-space:nowrap!important}
+    .s111-rate input{font-size:39px!important}
+    .s111-updated{font-size:10px!important;margin-top:4px!important}
+    .s111-eye{
+      width:44px!important;height:44px!important;flex-basis:44px!important;
+      margin-right:10px!important;font-size:22px!important;
+    }
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
