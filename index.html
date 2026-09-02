@@ -1548,6 +1548,144 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step119-mobile-header-customer-fix">
+@media screen{
+  /* STEP 119: mobile visual correction only — no application logic changes. */
+
+  /* Keep hamburger fully inside the header, never over the Market Rate card. */
+  .s111-header .menu-btn{
+    top:29px!important;
+    left:12px!important;
+    width:48px!important;height:48px!important;
+    border-radius:13px!important;
+    background:rgba(7,19,31,.82)!important;
+    border:1px solid #344c60!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+  }
+
+  /* Give the brand a protected area so the Sync/notification buttons never cut the name. */
+  .s111-brand-row{
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  .s111-brand-row .brand{
+    min-width:0!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  /* Market rate stays compact and starts below the header controls. */
+  .s111-rate{
+    margin-top:18px!important;
+  }
+
+  @media(max-width:700px){
+    .s111-header{
+      min-height:252px!important;
+      overflow:hidden!important;
+    }
+    .s111-header .menu-btn{
+      top:27px!important;
+      left:10px!important;
+      width:46px!important;height:46px!important;
+      z-index:50!important;
+    }
+
+    /* Compact, attractive mobile logo lockup. */
+    .s111-brand-row{
+      margin:0 104px 0 58px!important;
+      height:58px!important;
+      gap:8px!important;
+      align-items:center!important;
+    }
+    .s111-rj-logo{
+      width:50px!important;height:50px!important;flex:0 0 50px!important;
+      font-size:15px!important;
+    }
+    .s111-brand-row .brand{
+      width:100%!important;
+      max-width:190px!important;
+      white-space:normal!important;
+      overflow:visible!important;
+      font-size:19px!important;
+      line-height:1.03!important;
+      letter-spacing:.1px!important;
+    }
+    .s111-brand-row .sub{
+      font-size:9px!important;
+      letter-spacing:.8px!important;
+      white-space:nowrap!important;
+    }
+    .s111-top-tools{
+      right:8px!important;
+      top:13px!important;
+      gap:6px!important;
+    }
+    .s111-top-tools button{
+      width:42px!important;height:42px!important;
+      font-size:19px!important;
+    }
+
+    .s111-rate{
+      height:124px!important;
+      min-height:124px!important;
+      margin-top:14px!important;
+    }
+
+    /* On narrow phones, two customer tiles + a full-width date tile
+       gives every input usable room while retaining the same fields. */
+    .s111-customer-grid{
+      grid-template-columns:1fr 1fr!important;
+      gap:8px!important;
+    }
+    .s111-customer-tile{
+      min-width:0!important;
+      min-height:74px!important;
+      padding:10px 9px 8px!important;
+    }
+    .s111-customer-tile:nth-child(3){
+      grid-column:1/-1!important;
+    }
+    .s111-customer-tile label{
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+      font-size:9.5px!important;
+      padding-left:18px!important;
+    }
+    .s111-customer-tile input{
+      min-width:0!important;
+      width:100%!important;
+      font-size:13px!important;
+      text-overflow:ellipsis!important;
+      overflow:hidden!important;
+      white-space:nowrap!important;
+    }
+
+    /* Jewellery input row remains three columns, but uses smaller type so all
+       three controls fit without horizontal clipping. */
+    #items .grid{
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:7px!important;
+    }
+    #items .field{
+      min-width:0!important;
+    }
+    #items .field label{
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+    }
+    #items input,#items select{
+      min-width:0!important;
+      width:100%!important;
+      box-sizing:border-box!important;
+      font-size:14px!important;
+    }
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
