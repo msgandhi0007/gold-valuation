@@ -1,33 +1,30 @@
 {
-  "id": "./",
-  "name": "Rajendra Jewellers – Gold Valuation",
+  "name": "Rajendra Jewellers Gold Valuation App",
   "short_name": "Gold Valuation",
-  "description": "Professional gold jewellery valuation, bank-wise records and valuation certificates.",
-  "start_url": "./",
+  "description": "Gold valuation and gold loan calculation app",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f7f3ea",
-  "theme_color": "#b78320",
-  "prefer_related_applications": false,
+  "background_color": "#020407",
+  "theme_color": "#b77a00",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }
