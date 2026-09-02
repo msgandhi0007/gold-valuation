@@ -596,196 +596,39 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </style>
 
 
-<style id="step107-main-reference-ui">
+<style id="step108-safe-main-ui">
 @media screen{
-  body{
-    background:
-      radial-gradient(circle at 10% 0%,rgba(244,191,53,.10),transparent 25%),
-      radial-gradient(circle at 100% 40%,rgba(88,45,190,.10),transparent 30%),
-      #02070d!important;
-  }
-  .app{max-width:720px!important}
-  header{
-    position:relative!important;
-    min-height:225px!important;
-    padding:20px 20px 22px!important;
-    background:
-      radial-gradient(circle at 75% 0%,rgba(244,191,53,.13),transparent 28%),
-      linear-gradient(145deg,#010509,#06111b 62%,#0a1722)!important;
-    border:1px solid #1d3143!important;
-    border-radius:0 0 32px 32px!important;
-  }
-  .brand{
-    margin-left:58px!important;
-    margin-top:3px!important;
-    font-family:Georgia,serif!important;
-    font-size:29px!important;
-    letter-spacing:.3px!important;
-    color:#f5bd32!important;
-  }
-  .brand:before{
-    position:absolute!important;
-    left:20px!important;top:20px!important;
-    width:46px!important;height:46px!important;
-    font-size:16px!important;
-    border:2px solid #f5bd32!important;
-  }
-  .sub{margin-left:58px!important;color:#e0e7ee!important;font-size:14px!important}
-  .menu-btn{
-    position:absolute!important;left:18px!important;top:74px!important;
-    z-index:4!important;width:46px!important;height:46px!important;
-    font-size:27px!important;border-radius:14px!important;
-  }
-  .s107-header-tools{
-    position:absolute;right:18px;top:22px;display:flex;gap:8px;z-index:4;
-  }
-  .s107-head-icon{
-    width:42px;height:42px;border-radius:50%;
-    border:1px solid #445668!important;background:#07131f!important;color:#f4bf35!important;
-    font-size:20px;font-weight:800;box-shadow:0 7px 18px rgba(0,0,0,.28);
-  }
-  .rate{
-    margin:24px 2px 0!important;
-    padding:20px 22px 19px!important;
-    min-height:122px!important;
-    border-radius:25px!important;
-    border:1px solid #f0bd36!important;
-    background:
-      radial-gradient(circle at 0% 50%,rgba(240,60,110,.25),transparent 35%),
-      linear-gradient(110deg,#3b0d2c,#270b3d 47%,#111a39)!important;
-    box-shadow:0 14px 34px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.04)!important;
-  }
-  .rate label{display:block!important;color:#ffd75a!important;font-size:18px!important;font-weight:900!important}
-  .rate input{
-    margin-top:7px!important;padding:0!important;width:75%!important;
-    color:#fff!important;background:transparent!important;border:0!important;
-    font-size:44px!important;font-weight:800!important;
-  }
-
-  main{padding:16px 14px 140px!important}
-  #valuation-main-sections{display:block}
-  #valuation-main-sections>.card{
-    margin:0 0 14px!important;
-    padding:18px!important;
-    background:linear-gradient(145deg,#07131f,#040b12)!important;
-    border:1px solid #21384b!important;
-    border-radius:22px!important;
-    box-shadow:0 12px 30px rgba(0,0,0,.24)!important;
-  }
-  #valuation-main-sections>.card:first-child{
-    margin-top:0!important;
-  }
-  #valuation-main-sections>.card:first-child h2,
-  #valuation-main-sections>.card:nth-child(2) h2{
-    font-size:21px!important;
-    color:#f2f5f8!important;
-  }
-  #valuation-main-sections .grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    gap:10px!important;
-  }
-  #valuation-main-sections .field label{font-size:12px!important;color:#9cabb9!important}
-  #valuation-main-sections input,#valuation-main-sections select{
-    min-height:46px!important;padding:10px 12px!important;
-    background:#06111c!important;border:1px solid #2a4053!important;color:#f5f8fb!important;
-  }
-  #valuation-main-sections .item{
-    padding:13px!important;border-radius:18px!important;
-    background:linear-gradient(145deg,#081522,#050d15)!important;
-    border:1px solid #243a4e!important;
-  }
-  #valuation-main-sections .item .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-  #valuation-main-sections .metric{
-    min-height:66px!important;padding:9px!important;
-    background:#071521!important;border:1px solid #263d51!important;border-radius:13px!important;
-  }
-  #valuation-main-sections .metric small{color:#899aa9!important}
-  #valuation-main-sections .metric b{font-size:16px!important;color:#f4f7fa!important}
-
-  /* Existing table remains available; make it match the reference palette. */
-  #valuation-main-sections .summary{
-    background:linear-gradient(145deg,#061a2b,#06111c)!important;
-    border:1px solid #2a4862!important;
-  }
-  #valuation-main-sections .summary table{color:#edf3f8!important}
-  #valuation-main-sections .summary th{color:#f5c544!important;border-bottom:1px solid #2a4862!important}
-  #valuation-main-sections .summary td{border-bottom:1px solid #1a2f41!important}
-  #valuation-main-sections .loan{
-    background:#081725!important;color:#f4f7fa!important;border:1px solid #284158!important;
-  }
-
-  .s107-visual-summary{
-    padding:16px!important;
-    background:linear-gradient(145deg,#061b2d,#06111d)!important;
-    border:1px solid #294761!important;
-    border-radius:21px!important;
-  }
-  .s107-section-title{display:flex;align-items:center;gap:10px;margin-bottom:13px}
-  .s107-section-title h2{margin:0!important;color:#f5f7fa!important;font-size:19px!important}
-  .s107-section-title small{display:block;color:#8799aa;font-size:11px;margin-top:2px}
-  .s107-title-icon{
-    width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-    color:#f4bf35;background:#121c25;border:1px solid #3c4a55;font-weight:900;font-size:19px;
-  }
-  .s107-title-icon.cyan{color:#20d6d2}
-  .s107-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .s107-summary-grid>div{
-    padding:12px 7px;text-align:center;border:1px solid #29445b;border-radius:12px;
-    background:linear-gradient(180deg,#0a1a29,#07121d);
-  }
-  .s107-summary-grid small{display:block;color:#9eafbe;font-size:10px}
-  .s107-summary-grid b{display:block;margin-top:7px;color:#fff;font-size:17px}
-  .s107-summary-grid>div:last-child b{color:#f5bf32}
-  .s107-quick{
-    padding:16px!important;background:linear-gradient(145deg,#07131f,#040b12)!important;
-  }
-  .s107-quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .s107-quick-grid button{
-    min-height:72px!important;border-radius:14px!important;border:1px solid #263d52!important;
-    background:#07131f!important;color:#dce7ef!important;font-size:22px!important;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-  }
-  .s107-quick-grid button span{font-size:10px;color:#c5d0da}
-  .s107-quick-grid button:nth-child(1){color:#f4bf35}
-  .s107-quick-grid button:nth-child(2){color:#4d8cff}
-  .s107-quick-grid button:nth-child(3){color:#b45cff}
-  .s107-quick-grid button:nth-child(4){color:#20d6d2}
-  .s107-quick-grid button:nth-child(5){color:#4d8cff}
-  .s107-quick-grid button:nth-child(6){color:#20d37a}
-
-  footer{
-    bottom:70px!important;
-    background:rgba(3,9,15,.97)!important;
-    border-top:1px solid #21364a!important;
-    z-index:80!important;
-  }
-  .s107-bottom-nav{
-    position:fixed;left:0;right:0;bottom:0;height:68px;z-index:90;
-    display:flex;justify-content:center;gap:4px;
-    padding:6px max(10px,calc((100vw - 720px)/2 + 10px));
-    background:rgba(2,7,13,.98);border-top:1px solid #203447;
-    box-shadow:0 -12px 28px rgba(0,0,0,.35);
-  }
-  .s107-bottom-nav button{
-    flex:1;max-width:140px;border:0;border-radius:12px;background:transparent;
-    color:#8795a3;font-size:21px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  }
-  .s107-bottom-nav button span{font-size:9px}
-  .s107-bottom-nav button.active{color:#f4bf35;background:#0a1622}
-  @media(max-width:520px){
-    header{min-height:210px!important;padding-left:14px!important;padding-right:14px!important}
-    .brand{font-size:23px!important;margin-left:55px!important}
-    .sub{margin-left:55px!important;font-size:12px!important}
-    .rate{margin-top:21px!important}
-    .rate input{font-size:39px!important;width:100%!important}
-    #valuation-main-sections .grid,
-    #valuation-main-sections .item .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-    #valuation-main-sections .field:nth-child(3){grid-column:1/-1}
-    .s107-summary-grid{grid-template-columns:repeat(2,1fr)}
-    .s107-quick-grid{grid-template-columns:repeat(3,1fr)}
-    .s107-quick-grid button{min-height:68px!important}
-    footer{bottom:68px!important}
-  }
+:root{--s108-bg:#03070d;--s108-card:#07131f;--s108-card2:#091827;--s108-line:#22384b;--s108-gold:#f4bf35;--s108-muted:#9baaba;--s108-green:#20d37a}
+html,body{background:#03070d!important;color:#f3f6fa!important}
+body{background:radial-gradient(circle at 10% -10%,rgba(244,191,53,.10),transparent 28%),radial-gradient(circle at 100% 20%,rgba(103,51,190,.10),transparent 30%),#03070d!important}
+.app{max-width:720px!important;background:transparent!important}
+header{background:linear-gradient(145deg,#02060b,#07121e 70%,#0a1723)!important;border:1px solid #1c3041!important;border-radius:0 0 28px 28px!important;box-shadow:0 14px 35px rgba(0,0,0,.35)!important}
+.brand{color:var(--s108-gold)!important}
+.sub{color:#c1ccd6!important}
+.menu-btn{background:#081421!important;color:#fff!important;border:1px solid #405466!important}
+.rate{background:linear-gradient(110deg,#3d0d2f,#280b40 48%,#111a38)!important;border:1px solid var(--s108-gold)!important;border-radius:22px!important;box-shadow:0 12px 30px rgba(0,0,0,.3)!important}
+.rate label{color:#ffd45a!important;font-weight:800!important}
+.rate input{color:#fff!important;background:transparent!important;border-color:transparent!important;font-weight:800!important}
+main{background:transparent!important}
+.card{background:linear-gradient(145deg,#081522,#040c14)!important;border:1px solid var(--s108-line)!important;color:#f3f6fa!important;border-radius:21px!important;box-shadow:0 9px 26px rgba(0,0,0,.22)!important}
+.card h2,.card h3,.card strong,.card b{color:#f3f6fa!important}
+.field label,.label,.muted,.hint{color:var(--s108-muted)!important}
+input,select,textarea{background:#06111b!important;color:#f2f6fa!important;border:1px solid #2b4155!important;border-radius:13px!important}
+input:focus,select:focus,textarea:focus{border-color:var(--s108-gold)!important;box-shadow:0 0 0 3px rgba(244,191,53,.10)!important}
+.item{background:linear-gradient(145deg,#091725,#050d15)!important;border:1px solid #253b4f!important;border-radius:17px!important}
+.metric{background:#071521!important;border:1px solid #294054!important;color:#fff!important;border-radius:12px!important}
+.metric small{color:#8fa1b1!important}.metric b{color:#fff!important}
+.summary{background:linear-gradient(145deg,#061b2c,#06111b)!important;border-color:#294861!important}
+.summary th{color:#f4bf35!important}.summary td{color:#eaf0f5!important;border-color:#1b3042!important}
+.loan{background:#081725!important;color:#fff!important;border-color:#294258!important}
+button.primary{background:linear-gradient(90deg,#9b6800,#d9ab29)!important;color:#fff!important;border-color:#edc34e!important;border-radius:13px!important}
+button.secondary,.secondary{background:#07131f!important;color:#e9eff4!important;border-color:#2b4257!important;border-radius:13px!important}
+footer{background:rgba(3,9,15,.97)!important;border-top:1px solid #213548!important;backdrop-filter:blur(12px)!important}
+footer button{background:#07131f!important;color:#e1e8ee!important;border-color:#263d52!important;border-radius:12px!important}
+@media(max-width:520px){
+header{padding:16px 13px 18px!important}.rate input{font-size:38px!important}
+main{padding:12px 10px 90px!important}.card{padding:14px!important}
+}
 }
 </style>
 
@@ -796,10 +639,6 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <button class="menu-btn" type="button" aria-label="Open menu" onclick="openAppMenu()">☰</button>
 <div class="brand">Gold Valuation</div><div class="sub">Simple jewellery valuation & LTV calculator</div>
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
-<div class="s107-header-tools">
-  <button type="button" class="s107-head-icon" aria-label="Saved valuations" onclick="openLoad()">▰</button>
-  <button type="button" class="s107-head-icon" aria-label="Dashboard" onclick="showMenuSection('dashboard')">⌂</button>
-</div>
 </header>
 <main>
 <section class="menu-section card dashboard-card" id="dashboard">
@@ -1068,29 +907,6 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 <div class="field"><label>Sanctioned Loan Amount (₹)</label><input id="sanctionedLoan" type="number" inputmode="decimal" min="0" step="1" placeholder="Enter sanctioned loan amount"></div>
 </div></section>
 <section class="card"><h2>Jewellery Items</h2><div id="items"></div><button class="primary" onclick="addItem()">＋ Add Jewellery Item</button></section>
-
-<section class="s107-visual-summary card">
-  <div class="s107-section-title"><span class="s107-title-icon">▥</span><div><h2>Valuation Summary</h2><small>Current calculation overview</small></div></div>
-  <div class="s107-summary-grid">
-    <div><small>Total Items</small><b data-s107-target="itemsCount">0</b></div>
-    <div><small>Gross Weight</small><b data-s107-target="tg">0.00 g</b></div>
-    <div><small>Net Weight</small><b data-s107-target="tn">0.00 g</b></div>
-    <div><small>Total Value</small><b data-s107-target="tv">₹0</b></div>
-  </div>
-</section>
-
-<section class="s107-quick card">
-  <div class="s107-section-title"><span class="s107-title-icon cyan">✦</span><div><h2>Quick Actions</h2><small>Frequently used functions</small></div></div>
-  <div class="s107-quick-grid">
-    <button type="button" onclick="clearAll()">＋<span>New Valuation</span></button>
-    <button type="button" onclick="openLoad()">▰<span>Saved Valuations</span></button>
-    <button type="button" onclick="dashboardOpenCertificates87()">▤<span>Certificates</span></button>
-    <button type="button" onclick="showMenuSection('reports')">▦<span>Reports</span></button>
-    <button type="button" onclick="showMenuSection('customerHistory')">♟<span>Customer History</span></button>
-    <button type="button" onclick="showMenuSection('dataSafetyBackup')">☁<span>Backup</span></button>
-  </div>
-</section>
-
 <section class="card summary"><h2>Valuation Summary — Table</h2>
 <div style="overflow-x:auto;border-radius:12px;border:1px solid #ffffff22"><table style="width:100%;border-collapse:collapse;min-width:760px;font-size:12px">
 <thead><tr><th style="padding:10px;text-align:left">Item</th><th style="padding:10px;text-align:left">Jewellery Name</th><th style="padding:10px;text-align:right">Gross Wt (g)</th><th style="padding:10px;text-align:right">Stone Wt (g)</th><th style="padding:10px;text-align:right">Purity %</th><th style="padding:10px;text-align:right">Rounded (g)</th><th style="padding:10px;text-align:right">Value (₹)</th></tr></thead>
@@ -1301,14 +1117,6 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </section>
 
 <footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
-<nav class="s107-bottom-nav" aria-label="Main navigation">
-  <button type="button" class="active" onclick="showValuationScreen()">⌂<span>Valuation</span></button>
-  <button type="button" onclick="showMenuSection('dashboard')">▦<span>Dashboard</span></button>
-  <button type="button" onclick="showMenuSection('reports')">▥<span>Reports</span></button>
-  <button type="button" onclick="showMenuSection('customerHistory')">♟<span>History</span></button>
-  <button type="button" onclick="openAppMenu()">•••<span>More</span></button>
-</nav>
-
 
 <script>
 let count=0;
@@ -4762,32 +4570,5 @@ document.addEventListener('DOMContentLoaded',function(){
   },true);
 })();
 </script>
-
-<script id="step107-summary-mirror">
-(function(){
-  function mirror(){
-    try{
-      var items=document.querySelectorAll('#items .item').length;
-      var a=document.querySelector('[data-s107-target="itemsCount"]');
-      var b=document.querySelector('[data-s107-target="tg"]');
-      var c=document.querySelector('[data-s107-target="tn"]');
-      var d=document.querySelector('[data-s107-target="tv"]');
-      if(a)a.textContent=String(items);
-      if(b){var x=document.getElementById('tg');b.textContent=(x?x.textContent:'0.00')+' g';}
-      if(c){
-        var net=[].slice.call(document.querySelectorAll('#items .net')).reduce(function(t,e){
-          return t+(parseFloat(e.textContent)||0);
-        },0);
-        c.textContent=net.toFixed(2)+' g';
-      }
-      if(d){var v=document.getElementById('tv');d.textContent=v?v.textContent:'₹0';}
-    }catch(e){}
-  }
-  mirror();
-  new MutationObserver(mirror).observe(document.body,{subtree:true,childList:true,characterData:true});
-  setInterval(mirror,800);
-})();
-</script>
-
 </body>
 </html>
