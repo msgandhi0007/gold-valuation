@@ -1913,6 +1913,38 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step121-customer-card-width">
+@media screen and (max-width:700px){
+  /* STEP 121 — customer-card proportions only.
+     Customer Name gets the most room; Mobile is medium; Date is compact.
+     No fields, IDs, values, calculations or event handlers are changed. */
+  .s111-customer-grid{
+    grid-template-columns:1.45fr 1.15fr .80fr!important;
+    gap:6px!important;
+  }
+  .s111-customer-tile{
+    min-width:0!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  .s111-customer-tile label{
+    padding-left:0!important;
+    font-size:8px!important;
+  }
+  .s111-customer-tile input{
+    font-size:11px!important;
+  }
+  /* Date card remains deliberately compact while keeping the full date usable. */
+  .s111-customer-tile:nth-child(3){
+    grid-column:auto!important;
+  }
+  .s111-customer-tile:nth-child(3) input{
+    font-size:10px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
