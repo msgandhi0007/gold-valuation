@@ -3394,6 +3394,15 @@ body.cover-active .footer-actions{
 }
 </style>
 
+
+<style id="step138-cover-footer-start-fix">
+/* STEP 138 — Cover/footer and Start Valuation behavior fix. */
+body.cover-active > footer{display:none!important}
+body.cover-active .s113-bottom-nav{display:none!important}
+body.app-started > footer{display:flex!important}
+#appCover.hidden{display:none!important}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -4876,6 +4885,10 @@ function enterValuationApp(){
   cover.classList.add('hidden');
   document.body.style.overflow='';
   document.body.classList.add('app-started');
+  document.body.classList.remove('cover-active');
+  const footer=document.querySelector('body > footer');
+  if(footer) footer.style.display='';
+  if(typeof showValuationScreen==='function') showValuationScreen();
   window.scrollTo(0,0);
 }
 window.addEventListener('DOMContentLoaded',()=>{
@@ -7456,8 +7469,10 @@ document.addEventListener('DOMContentLoaded',function(){
   function syncCoverState(){
     var c=document.getElementById('appCover');
     if(!c) return;
-    var visible=getComputedStyle(c).display!=='none' && c.offsetParent!==null;
+    var visible=!c.classList.contains('hidden') && getComputedStyle(c).display!=='none';
     document.body.classList.toggle('cover-active',visible);
+    var footer=document.querySelector('body > footer');
+    if(footer) footer.style.display=visible?'none':'';
   }
   function init(){
     syncCoverState();
