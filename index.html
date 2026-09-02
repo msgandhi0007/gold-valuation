@@ -899,6 +899,130 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step114-history-summary-visibility-fix">
+@media screen{
+  /* Customer History / Summary readability fix.
+     No data, calculation, filtering, storage, or history logic is changed. */
+  #customerHistory{
+    color:#f2f6fa!important;
+    background:linear-gradient(145deg,#071522,#040b12)!important;
+    border-color:#263f53!important;
+  }
+  #customerHistory h2,#customerHistory h3{
+    color:#f5f8fb!important;
+  }
+  #customerHistory input,#customerHistory select{
+    background:#06111b!important;color:#f3f7fa!important;
+    border:1px solid #2a4155!important;border-radius:12px!important;
+  }
+  #customerHistory button{
+    color:#edf3f7;
+  }
+  #customerHistoryRows .history-row{
+    background:linear-gradient(145deg,#091824,#06111a)!important;
+    color:#f4f7fa!important;border:1px solid #294257!important;
+    border-radius:16px!important;padding:14px!important;
+  }
+  #customerHistoryRows .history-name,
+  #customerHistoryRows .customer-name-link,
+  #customerHistoryRows .customer-row-toggle{
+    color:#ffffff!important;background:transparent!important;
+  }
+  #customerHistoryRows .customer-name-link::after,
+  #customerHistoryRows .customer-row-toggle::after{
+    color:#9fb0bf!important;
+  }
+  #customerHistoryRows .history-meta{
+    color:#b8c6d2!important;opacity:1!important;
+  }
+  #customerHistoryRows .history-amount{
+    color:#f7c33d!important;
+  }
+  #customerHistoryRows .history-row > div[style*="Sanctioned Loan"]{
+    color:#d7e0e7!important;opacity:1!important;
+  }
+  #customerHistoryRows .history-row > div[style*="Sanctioned Loan"] b{
+    color:#20d37a!important;
+  }
+  /* The audit box was white with white text; make both explicit and readable. */
+  #customerHistoryRows .history-row > div[style*="background:#f8f9fa"]{
+    background:#0b1b29!important;color:#cbd7e0!important;
+    border:1px solid #233d52!important;
+  }
+  #customerHistoryRows .history-row > div[style*="background:#f8f9fa"] b{
+    color:#f2f6fa!important;
+  }
+  #customerHistoryRows .history-actions button{
+    background:#07131f!important;color:#dce7ef!important;
+    border:1px solid #2b4358!important;border-radius:10px!important;
+  }
+
+  /* Customer Summary is embedded in the same screen. Show its summary details
+     without requiring a customer-name click. The existing Open/PDF actions remain
+     available through their original interaction flow. */
+  #customerSummaryEmbedded{
+    color:#f2f6fa!important;
+    border-top-color:#294257!important;
+  }
+  #customerSummaryEmbedded .customer-group{
+    background:linear-gradient(145deg,#091824,#06111a)!important;
+    color:#f3f7fa!important;border:1px solid #294257!important;
+    border-radius:16px!important;padding:14px!important;
+  }
+  #customerSummaryEmbedded .customer-summary-link,
+  #customerSummaryEmbedded .customer-group-name{
+    color:#ffffff!important;background:transparent!important;
+  }
+  #customerSummaryEmbedded .customer-summary-link::after,
+  #customerSummaryEmbedded .customer-group-name::after{
+    color:#9fb0bf!important;
+  }
+  #customerSummaryEmbedded .customer-group-contact{
+    color:#b8c6d2!important;opacity:1!important;
+  }
+  #customerSummaryEmbedded .customer-group-stats{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:8px!important;margin-top:12px!important;
+  }
+  #customerSummaryEmbedded .customer-group-stat{
+    background:#081925!important;border:1px solid #294257!important;
+    border-radius:11px!important;padding:9px!important;color:#dce6ed!important;
+  }
+  #customerSummaryEmbedded .customer-group-stat span{
+    color:#9eb0bf!important;opacity:1!important;
+  }
+  #customerSummaryEmbedded .customer-group-stat b{
+    color:#f5f8fb!important;
+  }
+  #customerSummaryEmbedded .customer-group-stat:first-child b{color:#f4bf35!important}
+  #customerSummaryEmbedded .customer-group-stat:nth-child(2) b{color:#20d37a!important}
+  #customerSummaryEmbedded .customer-group-history{
+    display:block!important;
+    margin-top:12px!important;padding-top:10px!important;
+    border-top:1px solid #20384c!important;
+    color:#e6edf2!important;
+  }
+  #customerSummaryEmbedded .customer-group-entry{
+    color:#e6edf2!important;border-bottom-color:#1c3447!important;
+  }
+  #customerSummaryEmbedded .customer-group-entry b{color:#fff!important}
+  #customerSummaryEmbedded .customer-group-entry span{color:#9fb0bf!important;opacity:1!important}
+  #customerSummaryEmbedded .customer-group-actions button{
+    background:#07131f!important;color:#dce7ef!important;
+    border:1px solid #2b4358!important;border-radius:9px!important;
+  }
+  #customerSummaryEmbedded .collapsed-hint{display:none!important}
+
+  @media(max-width:520px){
+    #customerSummaryEmbedded .customer-group-stats{grid-template-columns:1fr 1fr!important}
+    #customerHistoryRows .history-top{gap:7px!important}
+    #customerHistoryRows .history-amount{font-size:18px!important}
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
