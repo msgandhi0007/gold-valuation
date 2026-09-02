@@ -596,39 +596,168 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 </style>
 
 
-<style id="step108-safe-main-ui">
+<style id="step109-main-exact-reference">
 @media screen{
-:root{--s108-bg:#03070d;--s108-card:#07131f;--s108-card2:#091827;--s108-line:#22384b;--s108-gold:#f4bf35;--s108-muted:#9baaba;--s108-green:#20d37a}
-html,body{background:#03070d!important;color:#f3f6fa!important}
-body{background:radial-gradient(circle at 10% -10%,rgba(244,191,53,.10),transparent 28%),radial-gradient(circle at 100% 20%,rgba(103,51,190,.10),transparent 30%),#03070d!important}
-.app{max-width:720px!important;background:transparent!important}
-header{background:linear-gradient(145deg,#02060b,#07121e 70%,#0a1723)!important;border:1px solid #1c3041!important;border-radius:0 0 28px 28px!important;box-shadow:0 14px 35px rgba(0,0,0,.35)!important}
-.brand{color:var(--s108-gold)!important}
-.sub{color:#c1ccd6!important}
-.menu-btn{background:#081421!important;color:#fff!important;border:1px solid #405466!important}
-.rate{background:linear-gradient(110deg,#3d0d2f,#280b40 48%,#111a38)!important;border:1px solid var(--s108-gold)!important;border-radius:22px!important;box-shadow:0 12px 30px rgba(0,0,0,.3)!important}
-.rate label{color:#ffd45a!important;font-weight:800!important}
-.rate input{color:#fff!important;background:transparent!important;border-color:transparent!important;font-weight:800!important}
-main{background:transparent!important}
-.card{background:linear-gradient(145deg,#081522,#040c14)!important;border:1px solid var(--s108-line)!important;color:#f3f6fa!important;border-radius:21px!important;box-shadow:0 9px 26px rgba(0,0,0,.22)!important}
-.card h2,.card h3,.card strong,.card b{color:#f3f6fa!important}
-.field label,.label,.muted,.hint{color:var(--s108-muted)!important}
-input,select,textarea{background:#06111b!important;color:#f2f6fa!important;border:1px solid #2b4155!important;border-radius:13px!important}
-input:focus,select:focus,textarea:focus{border-color:var(--s108-gold)!important;box-shadow:0 0 0 3px rgba(244,191,53,.10)!important}
-.item{background:linear-gradient(145deg,#091725,#050d15)!important;border:1px solid #253b4f!important;border-radius:17px!important}
-.metric{background:#071521!important;border:1px solid #294054!important;color:#fff!important;border-radius:12px!important}
-.metric small{color:#8fa1b1!important}.metric b{color:#fff!important}
-.summary{background:linear-gradient(145deg,#061b2c,#06111b)!important;border-color:#294861!important}
-.summary th{color:#f4bf35!important}.summary td{color:#eaf0f5!important;border-color:#1b3042!important}
-.loan{background:#081725!important;color:#fff!important;border-color:#294258!important}
-button.primary{background:linear-gradient(90deg,#9b6800,#d9ab29)!important;color:#fff!important;border-color:#edc34e!important;border-radius:13px!important}
-button.secondary,.secondary{background:#07131f!important;color:#e9eff4!important;border-color:#2b4257!important;border-radius:13px!important}
-footer{background:rgba(3,9,15,.97)!important;border-top:1px solid #213548!important;backdrop-filter:blur(12px)!important}
-footer button{background:#07131f!important;color:#e1e8ee!important;border-color:#263d52!important;border-radius:12px!important}
-@media(max-width:520px){
-header{padding:16px 13px 18px!important}.rate input{font-size:38px!important}
-main{padding:12px 10px 90px!important}.card{padding:14px!important}
-}
+  :root{
+    --s109-bg:#02060b;--s109-card:#07121d;--s109-card2:#091827;
+    --s109-line:#22384b;--s109-gold:#f4bf35;--s109-muted:#99a9b9;
+    --s109-green:#22d27a;--s109-blue:#4d8cff;--s109-purple:#b45cff;--s109-cyan:#20d6d2;
+  }
+  html,body{background:var(--s109-bg)!important;color:#f5f7fa!important}
+  body{
+    background:
+      radial-gradient(circle at 9% -8%,rgba(244,191,53,.12),transparent 26%),
+      radial-gradient(circle at 100% 35%,rgba(91,38,180,.12),transparent 30%),
+      #02060b!important;
+  }
+  .app{max-width:720px!important;background:transparent!important}
+  header{
+    min-height:260px!important;padding:18px 18px 20px!important;
+    background:
+      radial-gradient(circle at 78% 7%,rgba(244,191,53,.12),transparent 23%),
+      linear-gradient(145deg,#010408 0%,#06111b 60%,#091722 100%)!important;
+    border:1px solid #1e3448!important;border-top:0!important;border-radius:0 0 30px 30px!important;
+    box-shadow:0 15px 38px rgba(0,0,0,.32)!important;
+  }
+  .brand{
+    margin-left:58px!important;color:var(--s109-gold)!important;
+    font-family:Georgia,serif!important;font-size:28px!important;font-weight:900!important;
+    letter-spacing:.3px!important;text-transform:uppercase!important;
+  }
+  .brand:before{
+    content:"RJ";display:inline-flex;position:absolute;left:18px;top:16px;width:46px;height:46px;
+    align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--s109-gold);
+    color:var(--s109-gold);font:900 16px Georgia,serif;box-shadow:inset 0 0 18px rgba(244,191,53,.08);
+  }
+  .sub{margin-left:58px!important;color:#e1e9f0!important;font-size:13px!important;font-weight:700!important;letter-spacing:.9px!important}
+  .menu-btn{
+    position:absolute!important;left:16px!important;top:72px!important;width:48px!important;height:48px!important;
+    border-radius:14px!important;background:#07131f!important;color:#fff!important;border:1px solid #435669!important;
+    font-size:27px!important;z-index:4!important;
+  }
+  .rate{
+    margin:25px 3px 0!important;padding:18px 20px!important;min-height:125px!important;
+    border-radius:24px!important;border:1px solid var(--s109-gold)!important;
+    background:
+      radial-gradient(circle at 0% 50%,rgba(241,55,101,.27),transparent 35%),
+      linear-gradient(110deg,#3b0b2d,#260a3f 48%,#101936)!important;
+    box-shadow:0 15px 32px rgba(0,0,0,.34),inset 0 0 0 1px rgba(255,255,255,.04)!important;
+  }
+  .rate label{color:#ffd75b!important;font-size:17px!important;font-weight:900!important}
+  .rate input{
+    margin-top:7px!important;padding:0!important;color:#fff!important;background:transparent!important;
+    border:0!important;font-size:43px!important;font-weight:800!important;line-height:1.1!important;
+  }
+
+  main{padding:15px 13px 116px!important}
+  #valuation-main-sections{
+    display:block!important;
+    background:transparent!important;
+  }
+  #valuation-main-sections>.card{
+    background:linear-gradient(145deg,#081522,#040b12)!important;
+    border:1px solid var(--s109-line)!important;border-radius:21px!important;
+    padding:17px!important;margin:0 0 14px!important;
+    box-shadow:0 11px 28px rgba(0,0,0,.25)!important;
+  }
+  #valuation-main-sections>.card h2{font-size:20px!important;color:#f6f8fb!important}
+  #valuation-main-sections>.card .field label{font-size:12px!important;color:var(--s109-muted)!important}
+  #valuation-main-sections>.card input,
+  #valuation-main-sections>.card select{
+    background:#06111b!important;color:#f4f7fa!important;border:1px solid #2b4155!important;
+    border-radius:13px!important;min-height:45px!important;
+  }
+  #valuation-main-sections .item{
+    background:linear-gradient(145deg,#091725,#050d15)!important;border:1px solid #253b4f!important;
+    border-radius:18px!important;
+  }
+  #valuation-main-sections .item .metric{
+    background:linear-gradient(180deg,#091824,#07121d)!important;border:1px solid #294156!important;
+    border-radius:12px!important;
+  }
+  #valuation-main-sections .metric b{color:#fff!important}
+  #valuation-main-sections .summary{
+    background:linear-gradient(145deg,#061a2b,#06111c)!important;border-color:#2a4862!important;
+  }
+  #valuation-main-sections .summary th{color:#f4bf35!important}
+  #valuation-main-sections .loan{
+    background:#081725!important;color:#fff!important;border-color:#294258!important;
+  }
+  #valuation-main-sections .loan b{color:var(--s109-green)!important}
+  #valuation-main-sections .actions{gap:10px!important}
+  #valuation-main-sections .actions .secondary{
+    background:#07131f!important;color:#edf3f8!important;border:1px solid #2e465c!important;
+    border-radius:14px!important;font-weight:800!important;min-height:52px!important;
+  }
+
+  /* Customer Details reference cards: 3 compact fields across the top, loan below. */
+  #valuation-main-sections>.card:first-child .grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  #valuation-main-sections>.card:first-child .field:nth-child(5){
+    grid-column:1/-1!important;
+  }
+
+  /* Jewellery reference row */
+  #valuation-main-sections>.card:nth-child(2)>h2{
+    display:inline-block!important;margin-right:8px!important;vertical-align:middle!important;
+  }
+  #valuation-main-sections>.card:nth-child(2)>button{
+    float:right!important;width:auto!important;padding:11px 15px!important;
+    border-radius:12px!important;
+  }
+  #valuation-main-sections>.card:nth-child(2)::after{content:"";display:block;clear:both}
+
+  .s109-quick-wrap{
+    margin:0 0 15px;padding:16px;border-radius:21px;
+    background:linear-gradient(145deg,#07131f,#040b12);
+    border:1px solid #20384b;
+    box-shadow:0 10px 28px rgba(0,0,0,.22);
+  }
+  .s109-quick-title{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .s109-quick-title>span{color:var(--s109-gold);font-size:24px}
+  .s109-quick-title b{font-size:18px}.s109-quick-title small{display:block;color:var(--s109-muted);font-size:10px;margin-top:2px}
+  .s109-quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .s109-quick-grid button{
+    min-height:76px;border-radius:13px;border:1px solid #263d52;background:#07131f;color:#edf2f6;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px 5px;
+  }
+  .s109-quick-grid button b{font-size:10px;white-space:normal}
+  .s109-qicon{width:31px;height:31px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    background:#0a1724;border:1px solid #21394e;font-size:18px;font-weight:900}
+  .s109-qicon.gold{color:var(--s109-gold)}.s109-qicon.purple{color:var(--s109-purple)}
+  .s109-qicon.blue{color:var(--s109-blue)}.s109-qicon.cyan{color:var(--s109-cyan)}
+  .s109-qicon.green{color:var(--s109-green)}
+
+  /* Keep the existing functional footer, but match the reference treatment. */
+  footer{
+    bottom:0!important;z-index:110!important;background:rgba(2,7,13,.98)!important;
+    border-top:1px solid #1f3548!important;backdrop-filter:blur(14px)!important;
+    padding:9px max(12px,calc((100vw - 720px)/2 + 12px))!important;
+    box-shadow:0 -12px 28px rgba(0,0,0,.34)!important;
+  }
+  footer button{
+    min-height:50px!important;background:#07131f!important;color:#dce6ee!important;
+    border:1px solid #263c51!important;border-radius:13px!important;font-size:15px!important;font-weight:800!important;
+  }
+  footer button:first-child{color:#f0fff6!important;border-color:#1f7d55!important}
+  footer button:nth-child(2){color:#c7dcff!important;border-color:#285b95!important}
+  footer button:nth-child(3){color:#e4caff!important;border-color:#684292!important}
+
+  @media(max-width:520px){
+    header{min-height:235px!important;padding:16px 12px 18px!important}
+    .brand{font-size:22px!important;margin-left:55px!important}
+    .sub{font-size:11px!important;margin-left:55px!important}
+    .brand:before{left:12px!important;top:14px!important;width:43px!important;height:43px!important}
+    .rate{margin-top:22px!important;min-height:118px!important}
+    .rate input{font-size:39px!important}
+    #valuation-main-sections>.card:first-child .grid{grid-template-columns:1fr 1fr!important}
+    #valuation-main-sections>.card:first-child .field:nth-child(5){grid-column:1/-1!important}
+    .s109-quick-grid{grid-template-columns:repeat(3,1fr)}
+    .s109-quick-grid button{min-height:70px}
+    main{padding-bottom:95px!important}
+  }
 }
 </style>
 
@@ -637,7 +766,7 @@ main{padding:12px 10px 90px!important}.card{padding:14px!important}
 <div class="app">
 <header>
 <button class="menu-btn" type="button" aria-label="Open menu" onclick="openAppMenu()">☰</button>
-<div class="brand">Gold Valuation</div><div class="sub">Simple jewellery valuation & LTV calculator</div>
+<div class="brand">RAJENDRA JEWELLERS</div><div class="sub">GOLD VALUATION APP</div>
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
@@ -880,7 +1009,7 @@ main{padding:12px 10px 90px!important}.card{padding:14px!important}
 </section>
 
 <div id="valuation-main-sections">
-<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div>
+<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">▰ Saved</button></div>
 <div id="editValuationBanner" style="display:none;margin:10px 0 0;padding:10px 12px;border:1px solid #d99a00;border-radius:10px;background:#fff8e6;font-size:13px;font-weight:700">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
     <span>✏️ Editing Saved Valuation</span>
@@ -926,6 +1055,23 @@ main{padding:12px 10px 90px!important}.card{padding:14px!important}
 </div>
 </section>
 <section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="saveCurrentCertificatePdf()">📜 Valuation Certificate / PDF</button></div></section>
+</div>
+
+<section class="s109-quick-wrap">
+  <div class="s109-quick-title"><span>✦</span><div><b>Quick Actions</b><small>Common valuation tasks</small></div></div>
+  <div class="s109-quick-grid">
+    <button type="button" onclick="openLoad()"><span class="s109-qicon gold">▰</span><b>Saved Valuations</b></button>
+    <button type="button" onclick="dashboardOpenCertificates87()"><span class="s109-qicon purple">▤</span><b>Certificates</b></button>
+    <button type="button" onclick="showMenuSection('reports')"><span class="s109-qicon blue">▦</span><b>Bank Reports</b></button>
+    <button type="button" onclick="showMenuSection('reports')"><span class="s109-qicon gold">▦</span><b>Monthly Report</b></button>
+    <button type="button" onclick="showMenuSection('customerHistory')"><span class="s109-qicon cyan">♟</span><b>Customer History</b></button>
+    <button type="button" onclick="showMenuSection('dataSafetyBackup')"><span class="s109-qicon green">☁</span><b>Backup &amp; Restore</b></button>
+    <button type="button" onclick="showMenuSection('storageManagement61')"><span class="s109-qicon gold">▰</span><b>Storage Folder</b></button>
+    <button type="button" onclick="showMenuSection('bankManagement33')"><span class="s109-qicon green">⚙</span><b>Bank Management</b></button>
+    <button type="button" onclick="showMenuSection('settings59')"><span class="s109-qicon cyan">⚙</span><b>Settings</b></button>
+  </div>
+</section>
+
 </div>
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
