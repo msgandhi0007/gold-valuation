@@ -3286,6 +3286,24 @@ body:not(.menu-viewing) .s111-rate{
 #savedValuations .saved-main .saved-meta{color:#9fb0bf!important}
 </style>
 
+
+<style id="step134-saved-valuations-clean-header">
+/* STEP 134 — Remove Backup/Restore controls accidentally embedded in Saved Valuations.
+   Backup/Restore remains available from its dedicated menu section. */
+#saveManager .save-top{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+#saveManager .save-top h2{
+  flex:1!important;
+  margin:0!important;
+}
+#saveManager .save-top .close{
+  flex:0 0 auto!important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -3699,12 +3717,7 @@ body:not(.menu-viewing) .s111-rate{
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
     <div class="save-top"><h2 id="savedManagerTitle">Saved Valuations</h2>
-<div class="backup-note" style="font-size:11px;color:#777;margin:4px 0 10px">Backup creates a file containing your saved valuation records. Restore merges records without deleting existing ones.</div>
-<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0">
-<button class="secondary" onclick="exportBackup()">💾 Backup</button>
-<button class="secondary" onclick="document.getElementById('backupFile').click()">📥 Restore</button>
-<input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0])">
-</div><button class="close" onclick="closeLoad()">✕</button></div>
+<button class="close" onclick="closeLoad()">✕</button></div>
     <div style="display:flex;gap:8px;align-items:center;margin:8px 0 6px;flex-wrap:wrap">
       <input id="saveSearch" class="search" type="search" placeholder="Search customer, mobile, bank, date or certificate..." oninput="renderSaved()" style="flex:1;min-width:220px">
       <button class="secondary" type="button" onclick="clearSavedSearch()">✕ Clear</button>
