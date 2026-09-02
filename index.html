@@ -3346,6 +3346,54 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="step137-cover-fullscreen-fix">
+/* STEP 137 — Cover page must occupy the app viewport.
+   Main Save/Load/Share footer is hidden while the cover is active. */
+#appCover{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100vh!important;
+  z-index:999999!important;
+  margin:0!important;
+  padding:0!important;
+  background:#020407!important;
+  overflow:hidden!important;
+}
+#appCover .cover-inner{
+  position:relative!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:#020407!important;
+  overflow:hidden!important;
+}
+#appCover img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+#appCover ~ #bottom-actions,
+#appCover ~ .bottom-actions,
+body.cover-active #bottom-actions,
+body.cover-active .bottom-actions,
+body.cover-active #footerActions,
+body.cover-active .footer-actions{
+  display:none!important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -7399,6 +7447,27 @@ document.addEventListener('DOMContentLoaded',function(){
       e.preventDefault();e.stopPropagation();window.unlockSavedValuation();
     }
   },true);
+})();
+</script>
+
+
+<script id="step137-cover-state-hook">
+(function(){
+  function syncCoverState(){
+    var c=document.getElementById('appCover');
+    if(!c) return;
+    var visible=getComputedStyle(c).display!=='none' && c.offsetParent!==null;
+    document.body.classList.toggle('cover-active',visible);
+  }
+  function init(){
+    syncCoverState();
+    var c=document.getElementById('appCover');
+    if(c){
+      new MutationObserver(syncCoverState).observe(c,{attributes:true,attributeFilter:['style','class']});
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
 })();
 </script>
 
