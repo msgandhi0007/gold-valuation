@@ -11,6 +11,10 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
 .app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:90px}
 header{background:linear-gradient(135deg,#8c5c08,#d3a438);color:white;padding:22px 18px 20px;border-radius:0 0 24px 24px}
+/* STEP 101 - Keep Market Rate visible while scrolling on the main Valuation screen */
+body:not(.menu-viewing) header{position:sticky;top:0;z-index:1000}
+body.menu-viewing header{position:relative;z-index:1}
+
 .brand{font-size:23px;font-weight:800}.sub{opacity:.9;font-size:13px;margin-top:3px}
 .rate{margin-top:18px;background:#fff2;border:1px solid #fff5;border-radius:16px;padding:14px}
 .rate input{width:100%;font-size:24px;font-weight:800;border:0;background:transparent;color:white;outline:0;margin-top:5px}
@@ -19,11 +23,14 @@ main{padding:14px}.card{background:var(--card);border:1px solid var(--line);bord
 .itemhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:750}
 .remove{border:0;background:#fff0f0;color:#b42318;border-radius:9px;padding:6px 9px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.field input{width:100%;padding:11px;border:1px solid #dcd7cc;border-radius:10px;font-size:16px;outline:0}
-.calc{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.metric{background:#faf8f3;border-radius:10px;padding:8px}.metric small{display:block;color:var(--muted);font-size:10px}.metric b{font-size:14px;color:#222 !important;font-weight:800;display:block;margin-top:2px}
+.calc{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.metric{background:#faf8f3;border-radius:10px;padding:8px}.metric small{display:block;color:var(--muted);font-size:10px}.metric b{font-size:14px}
 button.primary{width:100%;padding:13px;border:0;border-radius:13px;background:var(--gold);color:white;font-size:16px;font-weight:750}
 .summary{background:#222;color:#fff}.summary h2{color:#fff}.ltv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.loan{background:#fff;color:#222;border-radius:13px;padding:12px}.loan span{display:block;color:#666;font-size:11px}.loan b{font-size:20px;color:var(--green)}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.secondary{padding:12px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:700}
-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px max(14px,calc((100vw - 520px)/2 + 14px));display:flex;gap:10px}
+/* STEP 97 - Main Valuation footer must never appear on menu/report screens */
+body > footer{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+body.menu-viewing > footer, body:has(.menu-section.menu-active) > footer, body:has(#valuation-main-sections[style*='display: none']) > footer{display:none!important;visibility:hidden!important;pointer-events:none!important}footer button{flex:1;padding:11px;border:0;border-radius:12px;background:#f1eee7;font-weight:700}
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
 
 .certificate{display:none;background:#fff;color:#222}
@@ -129,10 +136,11 @@ al App Cover */
 /* Step 24 - Dashboard & Valuation History */
 .dashboard-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea);border:1px solid var(--line)}
 .dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-.dashboard-stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 10px;min-height:76px;color:#222!important}.dashboard-stat .label,.dashboard-stat .num{color:#222!important}.dashboard-stat .label{font-size:12px;opacity:.68}.dashboard-stat .num{font-size:22px;font-weight:850;margin-top:5px}
-
+.dashboard-stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 10px;min-height:76px}
+.dashboard-stat .label{font-size:12px;opacity:.68}
+.dashboard-stat .num{font-size:22px;font-weight:850;margin-top:5px}
 .dashboard-bank{display:flex;gap:8px;overflow-x:auto;margin-top:12px;padding-bottom:3px}
-.dashboard-bank .bank-pill{white-space:nowrap;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:12px;color:#222!important}.dashboard-bank .bank-pill b,.dashboard-bank .bank-pill span,.dashboard-bank .bank-pill small{color:#222!important}
+.dashboard-bank .bank-pill{white-space:nowrap;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:12px}
 .dashboard-history{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
 .dashboard-history-row{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:8px;padding:9px 0;border-bottom:1px solid #eee;font-size:12px}
 .dashboard-history-row:last-child{border-bottom:0}
@@ -175,6 +183,7 @@ al App Cover */
 .history-actions button{min-height:42px}
 .history-empty{padding:18px;text-align:center;opacity:.6}
 @media(max-width:520px){.history-actions{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.history-filter-grid{grid-template-columns:1fr!important}}
 
 
 /* Step 28 FIX - embedded customer grouping */
@@ -249,6 +258,10 @@ al App Cover */
 
 /* STEP 32 - Data Safety & Backup */
 .s32-backup-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+/* STEP 59 - Storage Folder */
+.storage-folder-card{background:linear-gradient(135deg,#fffdf8,#f7f3ea)}
+.storage-folder-status{font-size:12px;color:#666;margin-top:10px;line-height:1.5}
+.storage-folder-btn{width:100%;min-height:48px;padding:12px;border:0;border-radius:12px;background:var(--gold);color:#fff;font-size:15px;font-weight:800}
 .s32-status{margin-top:10px;padding:10px;border-radius:10px;background:#f4f1e9;font-size:12px}
 .s32-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .s32-actions button{min-height:46px}
@@ -277,7 +290,7 @@ al App Cover */
 header{position:relative;padding-right:72px}
 .menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:5000}
 .menu-overlay.open{display:block!important}
-.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;box-sizing:border-box;background:#fff;box-shadow:-10px 0 35px rgba(0,0,0,.25);padding:18px;overflow:auto}
+.menu-panel{position:absolute;top:0;right:0;width:min(88vw,360px);height:100%;box-sizing:border-box;background:#fff;box-shadow:-10px 0 35px rgba(0,0,0,.25);padding:18px;overflow:auto;z-index:5001!important;visibility:visible!important;opacity:1!important}
 .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .menu-head h2{margin:0;font-size:21px}
 .menu-close{border:0;background:#f1eee7;border-radius:10px;padding:8px 12px;font-size:18px}
@@ -430,51 +443,14 @@ body.menu-viewing #valuation-main-sections{display:none!important}
   .report-table th:nth-child(4),.report-table td:nth-child(4){width:23%}
 }
 
-
-/* IMAGE 1 UI THEME - premium dark navy + gold */
-:root{--gold:#d8a83e;--gold2:#f3c45b;--bg:#050b12;--card:#0b141e;--text:#f5f5f5;--muted:#aeb6bf;--line:#263442;--green:#21a36a}
-html,body{background:#050b12!important;color:var(--text)!important}
-body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-.app{max-width:520px;background:linear-gradient(180deg,#050b12,#07111b);min-height:100vh;padding-bottom:88px}
-header{background:#050b12!important;border-bottom:1px solid #9b7020;border-radius:0!important;padding:14px 18px 16px;text-align:center;position:relative}
-header .menu-btn{position:absolute;left:14px;top:18px;background:none!important;color:var(--gold2)!important;border:0!important;font-size:26px!important}
-header .brand{font-family:Georgia,serif;color:var(--gold2);font-size:24px;letter-spacing:1.5px;text-transform:uppercase}
-header .sub{color:#fff;opacity:.8;letter-spacing:1px}
-header .rate{margin-top:14px;background:linear-gradient(145deg,#111f2c,#09121b)!important;border:1px solid #7e5d20!important;border-radius:18px!important;text-align:left}
-header .rate label{color:#d8b260}
-header .rate input{color:#fff!important}
-main{padding:12px;background:#050b12}
-.card{background:linear-gradient(145deg,#0c1722,#08111a)!important;border:1px solid #253443!important;color:#fff!important;box-shadow:0 8px 22px #0005}
-.card h2{color:#fff!important}
-input,select{background:#07111a!important;color:#fff!important;border:1px solid #344352!important}
-button{font-family:inherit}
-.primary{background:linear-gradient(180deg,#f1bd4d,#c88e19)!important;color:#080b0f!important;border:0!important;box-shadow:0 5px 14px #b7832038}
-.secondary{background:#0b151f!important;color:#fff!important;border:1px solid #2b3b4a!important}
-.summary{background:linear-gradient(145deg,#171717,#0e0e0e)!important;border:1px solid #333!important}
-.loan{background:#fff!important;color:#222!important}
-footer{background:#06101a!important;border-top:1px solid #273746!important;position:fixed!important;bottom:70px!important;left:50%!important;transform:translateX(-50%)!important;width:min(520px,calc(100% - 20px))!important;z-index:29!important;padding:8px!important;border-radius:14px!important;box-shadow:0 -4px 18px #0008!important}body.image1-home footer{display:none!important}
-footer button{background:#0c1722!important;color:#fff!important;border:1px solid #1e2e3c!important}
-/* Hide old home header/rate on the redesigned home screen */
-body.image1-home header{display:none}
-body.image1-home #valuation-main-sections{display:none!important}
-body.image1-home .menu-section{display:none!important}
-body.image1-home .image1-dashboard{display:block}
-.image1-dashboard{display:none;padding:0 12px 18px}
-.i1-top{padding:20px 4px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.i1-welcome{display:flex;align-items:center;gap:10px}.i1-avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f0c258,#7d5411);border:1px solid #d7a63b;color:#111;font-size:22px}.i1-welcome small{display:block;color:#fff;opacity:.8;font-size:12px}.i1-welcome b{display:block;color:#f2c65c;font-size:15px;margin-top:2px}.i1-bell{font-size:23px;color:#f2c65c}
-.i1-summary{border:1px solid #71541e;border-radius:18px;padding:15px;background:linear-gradient(145deg,#111e29,#0a121a);display:flex;align-items:center;gap:14px;margin-bottom:14px}.i1-gem{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#f4c85f,#76501a);font-size:28px;color:#111}.i1-summary small{color:#d9b65d;letter-spacing:.5px}.i1-summary strong{display:block;font-size:23px;margin-top:5px}.i1-summary span{font-size:12px;color:#bfc6cd}.i1-summary .chart{margin-left:auto;color:#f2c65c;font-size:27px}
-.i1-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.i1-tile{min-height:92px;border:1px solid #293947;border-radius:15px;background:linear-gradient(145deg,#101d28,#09131d);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;box-shadow:0 5px 14px #0004}.i1-icon{font-size:29px;color:#eec05a;line-height:1.1;margin-bottom:7px}.i1-tile b{font-size:11px;font-weight:650}.i1-tile small{font-size:9px;color:#9fa9b2;margin-top:3px}
-.i1-section{margin-top:16px}.i1-section-title{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px}.i1-section-title b{font-size:15px}.i1-section-title span{color:#dcb35b;font-size:12px}
-.i1-recent{border:1px solid #263544;border-radius:15px;overflow:hidden}.i1-row{display:flex;align-items:center;gap:9px;padding:11px;border-bottom:1px solid #1d2a35}.i1-row:last-child{border-bottom:0}.i1-initial{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#e9b94f,#8b5d15);color:#111;font-weight:800}.i1-row-main{flex:1}.i1-row-main b{display:block;font-size:12px}.i1-row-main small{color:#9da8b1;font-size:10px}.i1-row-value{color:#e9bd58;font-weight:800;font-size:12px}
-.i1-feature{display:grid;grid-template-columns:1fr 1fr;gap:10px}.i1-feature button{min-height:58px;border-radius:13px;border:1px solid #293947;background:#0b1620;color:#fff;font-weight:700}.i1-feature button:first-child{color:#f0c25b}
-.i1-cert{margin-top:14px;border:1px solid #8a6422;border-radius:15px;padding:13px;background:linear-gradient(145deg,#17130c,#0b1015);display:flex;align-items:center;gap:12px}.i1-cert .seal{font-size:34px;color:#e8b84d}.i1-cert b{font-size:13px}.i1-cert small{display:block;color:#aeb4bb;margin-top:3px}
-.i1-bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);z-index:30;background:#07111a;border-top:1px solid #283745;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -8px 25px #0007}.i1-bottom button{background:none;border:0;color:#8e98a2;font-size:10px;padding:5px}.i1-bottom button b{display:block;font-size:20px;margin-bottom:2px;font-weight:500}.i1-bottom button.active,.i1-bottom button:hover{color:#f0c25b}
-.i1-fab{position:fixed;right:max(18px,calc((100vw - 520px)/2 + 18px));bottom:78px;width:58px;height:58px;border-radius:50%;border:2px solid #f0c25b;background:linear-gradient(145deg,#f5ca60,#b77d12);color:#111;font-size:30px;box-shadow:0 8px 22px #0008;z-index:31}
-/* keep menu sections functional and visually consistent */
-.menu-section.menu-active{display:block!important}
-body.menu-viewing .image1-dashboard{display:none!important}
-body.menu-viewing header{display:block}
 </style>
+<style>
+/* STEP 102 - Master stability guard */
+@media screen and (max-width:520px){body:not(.menu-viewing) header{position:sticky;top:0;z-index:1000}}
+</style>
+<script>
+(function(){function sync(){var f=document.querySelector('body > footer'),v=document.getElementById('valuation-main-sections');if(!f||!v)return;var menu=document.body.classList.contains('menu-viewing')||!!document.querySelector('.menu-section.menu-active');var show=getComputedStyle(v).display!=='none'&&!menu;f.style.setProperty('display',show?'flex':'none','important');f.style.setProperty('visibility',show?'visible':'hidden','important');f.style.setProperty('pointer-events',show?'auto':'none','important')}document.addEventListener('DOMContentLoaded',function(){sync();setTimeout(sync,100);setTimeout(sync,500)});new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style']})})();
+</script>
 </head>
 <body>
 <div class="app">
@@ -484,27 +460,6 @@ body.menu-viewing header{display:block}
 <div class="rate"><label>Market Rate / gram (₹)</label><input id="rate" type="number" inputmode="decimal" value="0" oninput="calculate()"></div>
 </header>
 <main>
-<section class="image1-dashboard" id="image1Home">
-  <div class="i1-top"><div class="i1-welcome"><div class="i1-avatar">♟</div><div><small>Welcome,</small><b>Mahendra Gandhi</b></div></div><div class="i1-bell">♧</div></div>
-  <div class="i1-summary"><div class="i1-gem">◆</div><div><small>₹ VALUATION SUMMARY</small><strong id="i1Total">₹0</strong><span id="i1Count">0 Valuations</span></div><div class="chart">▥</div></div>
-  <div class="i1-grid">
-    <button class="i1-tile" onclick="newValuationImage1()"><span class="i1-icon">⊕</span><b>New Valuation</b></button>
-    <button class="i1-tile" onclick="openLoad()"><span class="i1-icon">▣</span><b>Saved Valuations</b></button>
-    <button class="i1-tile" onclick="showMenuSection('customerHistory')"><span class="i1-icon">♟</span><b>Customers</b></button>
-    <button class="i1-tile" onclick="showMenuSection('reports')"><span class="i1-icon">▤</span><b>Reports</b></button>
-    <button class="i1-tile" onclick="showMenuSection('bankManagement33')"><span class="i1-icon">♜</span><b>Bank Wise</b></button>
-    <button class="i1-tile" onclick="printCertificate()"><span class="i1-icon">◉</span><b>Certificate</b></button>
-    <button class="i1-tile" onclick="focusLtvImage1()"><span class="i1-icon">▦</span><b>LTV Calculator</b></button>
-    <button class="i1-tile" onclick="showMenuSection('dataSafetyBackup')"><span class="i1-icon">☁</span><b>Backup & Restore</b></button>
-    <button class="i1-tile" onclick="openAppMenu()"><span class="i1-icon">⚙</span><b>Settings</b></button>
-  </div>
-  <div class="i1-section"><div class="i1-section-title"><b>Recent Valuations</b><span onclick="openLoad()">View All ›</span></div><div class="i1-recent" id="i1Recent"></div></div>
-  <div class="i1-feature"><button onclick="showMenuSection('customerHistory')">♙ Customer History</button><button onclick="showMenuSection('reports')">▤ Bank & Reports</button></div>
-  <div class="i1-cert"><div class="seal">◉</div><div><b>Professional Valuation Certificate</b><small>Generate and print beautiful PDF reports</small></div></div>
-</section>
-<div class="i1-bottom"><button class="active" onclick="showHomeImage1()"><b>⌂</b>Home</button><button onclick="newValuationImage1()"><b>▣</b>Valuations</button><button onclick="showMenuSection('customerHistory')"><b>♟</b>Customers</button><button onclick="openAppMenu()"><b>☰</b>More</button></div>
-<button class="i1-fab" onclick="newValuationImage1()" aria-label="New valuation">+</button>
-
 <section class="menu-section card dashboard-card" id="dashboard">
   <div class="itemhead">
     <div>
@@ -516,10 +471,12 @@ body.menu-viewing header{display:block}
   <div class="dashboard-grid">
     <div class="dashboard-stat"><div class="label">Saved Valuations</div><div class="num" id="dashCount">0</div></div>
     <div class="dashboard-stat"><div class="label">Customers</div><div class="num" id="dashCustomers">0</div></div>
-    <div class="dashboard-stat wide-stat"><div class="label">Total Valuation</div><div class="num" id="dashTotal">₹0</div></div>
+    <div class="dashboard-stat wide-stat"><div class="label">Total Market Value</div><div class="num" id="dashTotal">₹0</div></div>
     <div class="dashboard-stat wide-stat"><div class="label">Total Sanctioned Loan</div><div class="num" id="dashLoan">₹0</div></div>
     <div class="dashboard-stat"><div class="label">Today's Valuations</div><div class="num" id="dashToday">0</div></div>
-    <div class="dashboard-stat wide-stat"><div class="label">This Month Valuation</div><div class="num" id="dashMonthTotal">₹0</div></div>
+    <div class="dashboard-stat"><div class="label">This Month Valuations</div><div class="num" id="dashMonthCount">0</div></div>
+    <div class="dashboard-stat wide-stat"><div class="label">This Month Market Value</div><div class="num" id="dashMonthTotal">₹0</div></div>
+    <div class="dashboard-stat"><div class="label">Average LTV</div><div class="num" id="dashAvgLtv">0%</div></div>
   </div>
   <div style="font-weight:800;margin-top:14px">Bank-wise Summary</div>
   <div class="dashboard-bank" id="dashBanks"></div>
@@ -527,9 +484,12 @@ body.menu-viewing header{display:block}
     <div style="font-weight:800;margin-bottom:5px">Recent Valuations</div>
     <div id="dashHistory"></div>
   </div>
+  <div style="font-weight:800;margin-top:14px">Quick Actions</div>
   <div class="dashboard-quick">
-    <button type="button" onclick="showMenuSection('customerHistory')">👤 Customer History</button>
-    <button type="button" onclick="showMenuSection('reports')">📈 Reports</button>
+    <button type="button" onclick="dashboardNewValuation87()">➕ New Valuation</button>
+    <button type="button" onclick="dashboardOpenSaved87()">📂 Saved Valuations</button>
+    <button type="button" onclick="dashboardOpenCertificates87()">📄 Certificates</button>
+    <button type="button" onclick="showMenuSection('reports')">📈 Bank & Monthly Reports</button>
   </div>
 </section>
 <section class="menu-section card report-card" id="reports">
@@ -639,6 +599,48 @@ body.menu-viewing header{display:block}
   <div class="s32-reminder">Backup includes saved valuations, customer details, bank information, sanctioned loan amounts and app settings stored by this app.</div>
 </section>
 
+<section class="menu-section card storage-folder-card" id="settings59">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Settings</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Choose where valuations, reports and backups should be stored</div>
+    </div>
+  </div>
+  <button type="button" id="chooseStorageFolderBtn" class="storage-folder-btn">📁 Choose Storage Folder</button>
+  <div id="storageFolderStatus" class="storage-folder-status">No storage folder selected. The browser's normal Downloads location will continue to be used.</div><div style="font-size:12px;margin-top:8px;color:#777">Files will be organized automatically into <b>Valuations</b>, <b>Reports</b>, <b>Certificates</b> and <b>Backups</b>.</div>
+</section>
+
+<section class="menu-section card storage-management-card" id="storageManagement61">
+  <div class="itemhead">
+    <div>
+      <h2 style="margin:0">Storage Management</h2>
+      <div style="font-size:12px;opacity:.68;margin-top:4px">Check and manage the folder used by this app</div>
+    </div>
+  </div>
+  <div id="storageManagementStatus" class="storage-folder-status">Checking storage status…</div>
+  <div class="storage-management-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+    <button type="button" id="storageChangeFolderBtn" class="storage-folder-btn">🔄 Change Storage Folder</button>
+    <button type="button" id="storageRefreshBtn" class="storage-folder-btn" style="background:#555">↻ Refresh Status</button>
+    <button type="button" id="storageClearSelectionBtn" class="storage-folder-btn" style="background:#777;grid-column:1/-1">🗑️ Clear Folder Selection</button>
+  </div>
+  <div style="font-size:12px;margin-top:10px;color:#777">Clearing the selection does <b>not</b> delete any files. It only makes the app forget the selected folder. Existing files remain safely in the folder.</div>
+  <div id="storageSubfoldersStatus" style="margin-top:12px;font-size:13px;line-height:1.7"></div>
+  <div id="storageProtectionStatus" style="margin-top:10px;padding:10px;border-radius:10px;background:#f7f5ef;font-size:13px;line-height:1.6">🛡️ Checking automatic valuation backup status…</div>
+  <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+    <div style="font-weight:800;margin-bottom:6px">📂 Valuation Files in Selected Folder</div>
+    <div style="font-size:12px;color:#777;margin-bottom:8px">Manage the physical valuation files stored in the selected <b>Valuations</b> folder. This list is separate from Saved Valuations to avoid duplicate entries.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="valuationFileSearch" class="search" type="search" placeholder="Search valuation files..." style="margin:0;flex:1;min-width:170px">
+      <select id="valuationFileDate" style="padding:9px;border:1px solid var(--line);border-radius:10px"><option value="">All dates</option></select>
+      <button id="valuationFileRefreshBtn" type="button" class="secondary">↻ Refresh Files</button>
+      <button id="valuationSyncBtn" type="button" class="secondary">🔄 Sync Now</button>
+    </div>
+    <div id="valuationFileStatus" style="font-size:12px;margin-top:6px;color:#087f5b"></div>
+    <div id="valuationSyncStatus" style="font-size:12px;margin-top:6px;color:#1769aa"></div>
+    <div id="valuationFileList"></div>
+  </div>
+</section>
+
 <section class="menu-section card customer-history-card" id="customerHistory">
   <div class="itemhead">
     <div>
@@ -648,10 +650,12 @@ body.menu-viewing header{display:block}
     <button type="button" onclick="updateCustomerHistory()" style="padding:8px 12px">↻ Refresh</button>
   </div>
 
-  <input id="historySearch" type="search"
-    placeholder="Search customer name or mobile number..."
-    oninput="updateCustomerHistory()"
-    style="width:100%;margin-top:12px">
+  <div class="history-filter-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+    <input id="historySearch" type="search" placeholder="🔎 Customer name / mobile..." oninput="updateCustomerHistory()" style="width:100%">
+    <select id="historyBankFilter" onchange="updateCustomerHistory()" style="width:100%"><option value="">All Banks</option></select>
+    <select id="historyDateFilter" onchange="updateCustomerHistory()" style="width:100%"><option value="">All Dates</option></select>
+    <button type="button" onclick="clearCustomerHistoryFilters()" style="padding:10px">✕ Clear Filters</button>
+  </div>
 
   <div id="historySummary" style="font-size:13px;margin-top:10px;opacity:.75"></div>
   <div id="customerHistoryRows" style="margin-top:8px"></div>
@@ -695,7 +699,17 @@ body.menu-viewing header{display:block}
 </section>
 
 <div id="valuation-main-sections">
-<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div><div class="grid">
+<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Customer Details</h2><button class="secondary" style="padding:8px 10px" onclick="openLoad()">📂 Saved</button></div>
+<div id="editValuationBanner" style="display:none;margin:10px 0 0;padding:10px 12px;border:1px solid #d99a00;border-radius:10px;background:#fff8e6;font-size:13px;font-weight:700">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+    <span>✏️ Editing Saved Valuation</span>
+    <span style="display:flex;gap:6px;align-items:center">
+      <button id="editValuationEditButton" type="button" style="display:none;padding:7px 12px;border:1px solid #b88600;border-radius:8px;background:#fff;color:#8a5a00;font-weight:800">✏️ Edit</button>
+      <button id="editValuationCancelButton" type="button" onclick="cancelValuationEdit()" style="display:none;padding:7px 12px;border:1px solid #bbb;border-radius:8px;background:#fff">Cancel Edit</button>
+    </span>
+  </div>
+  <div id="editValuationFile" style="font-size:11px;font-weight:500;opacity:.72;margin-top:4px"></div>
+</div><div class="grid">
 <div class="field"><label>Customer Name</label><input id="customerName" type="text" placeholder="Enter customer name"></div>
 <div class="field"><label>Mobile Number</label><input id="customerMobile" type="tel" inputmode="tel" placeholder="Enter mobile number"></div>
 <div class="field"><label>Bank Name</label>
@@ -730,19 +744,23 @@ body.menu-viewing header{display:block}
   </div>
 </div>
 </section>
-<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="printCertificate()">📜 Valuation Certificate / PDF</button></div></section>
+<section class="card"><div class="actions"><button class="secondary" onclick="clearAll()">Reset</button><button class="secondary" onclick="saveCurrentCertificatePdf()">📜 Valuation Certificate / PDF</button></div></section>
 </div>
 </main></div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
-    <div class="save-top"><h2>Saved Valuations</h2>
+    <div class="save-top"><h2 id="savedManagerTitle">Saved Valuations</h2>
 <div class="backup-note" style="font-size:11px;color:#777;margin:4px 0 10px">Backup creates a file containing your saved valuation records. Restore merges records without deleting existing ones.</div>
 <div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0">
 <button class="secondary" onclick="exportBackup()">💾 Backup</button>
 <button class="secondary" onclick="document.getElementById('backupFile').click()">📥 Restore</button>
 <input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(this.files[0])">
 </div><button class="close" onclick="closeLoad()">✕</button></div>
-    <input id="saveSearch" class="search" type="search" placeholder="Search customer name, mobile, bank or certificate no..." oninput="renderSaved()">
+    <div style="display:flex;gap:8px;align-items:center;margin:8px 0 6px;flex-wrap:wrap">
+      <input id="saveSearch" class="search" type="search" placeholder="Search customer, mobile, bank, date or certificate..." oninput="renderSaved()" style="flex:1;min-width:220px">
+      <button class="secondary" type="button" onclick="clearSavedSearch()">✕ Clear</button>
+    </div>
+    <div id="savedSearchCount" style="font-size:11px;color:#777;margin:0 0 8px"></div>
 <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
 <label style="font-size:12px;font-weight:700">Sort:</label>
 <select id="saveSort" onchange="renderSaved()" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--line);border-radius:10px">
@@ -753,6 +771,18 @@ body.menu-viewing header{display:block}
 <option value="valueLow">Lowest valuation</option>
 </select>
 </div>
+<div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+<label style="font-size:12px;font-weight:700">Date:</label>
+<select id="saveDateFilter" onchange="renderSaved()" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--line);border-radius:10px">
+<option value="all">All dates</option>
+<option value="today">Today</option>
+<option value="month">This month</option>
+<option value="older">Older valuations</option>
+</select>
+<button class="secondary" type="button" onclick="refreshSavedManager84()">↻ Refresh</button>
+<button class="secondary" type="button" onclick="syncSavedManager84()">🔄 Sync</button>
+</div>
+<div id="savedManagerStatus84" style="font-size:11px;color:#777;margin:2px 0 8px"></div>
     <div id="bankTabs" class="bank-tabs"></div>
     <div id="savedList"></div>
   </div>
@@ -772,6 +802,8 @@ body.menu-viewing header{display:block}
       <button class="menu-item" type="button" onclick="showMenuSection('dataSafetyBackup')">🛡️ Data Safety & Backup<small>Backup and restore app data</small></button>
       <button class="menu-item" type="button" onclick="showMenuSection('customerHistory')">👤 Customer History<small>Find previous valuations by customer</small></button>
       <button class="menu-item" type="button" onclick="showMenuSection('bankManagement33')">🏛️ Bank Management<small>Add, rename, remove and set default bank</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('settings59')">⚙️ Settings<small>Choose storage folder and app preferences</small></button>
+      <button class="menu-item" type="button" onclick="showMenuSection('storageManagement61')">📁 Storage Management<small>Check, change or clear the selected storage folder</small></button>
       <button class="menu-item" type="button" onclick="showValuationScreen()">💰 Valuation<small>Return to the main valuation screen</small></button>
     </div>
   </div>
@@ -1094,7 +1126,41 @@ tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
 el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
 rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
 document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
-document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
+document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);if(typeof window.validateSanctionedLoan==='function')window.validateSanctionedLoan(false);
+}
+function getCurrentMarketValueForLoan(){
+  const rateValue=num(document.getElementById('rate')?.value); let total=0;
+  document.querySelectorAll('.item').forEach(el=>{
+    const g=num(el.querySelector('.gross')?.value), s=num(el.querySelector('.stone')?.value), p=num(el.querySelector('.purity')?.value);
+    const net=Math.max(0,g-s); const pure=net*p/100; const rounded=Math.floor((pure+1e-9)*10)/10;
+    total += rounded*rateValue;
+  });
+  return Math.max(0,total);
+}
+window.getCurrentLtvLoanLimit=function(){
+  const marketValue=getCurrentMarketValueForLoan();
+  const ltv=Math.max(0,Math.min(100,num(document.getElementById('ltv1')?.value)));
+  return marketValue*ltv/100;
+};
+window.validateSanctionedLoan=function(showMessage=true){
+  const el=document.getElementById('sanctionedLoan'); if(!el)return true;
+  const marketValue=getCurrentMarketValueForLoan();
+  const ltv=Math.max(0,Math.min(100,num(document.getElementById('ltv1')?.value)));
+  const max=marketValue*ltv/100;
+  const loan=Math.max(0,num(el.value));
+  el.max=max.toFixed(2);
+  if(loan>max){
+    el.value=max.toFixed(2);
+    if(showMessage)alert('Sanctioned Loan Amount cannot be greater than the entered LTV value. Maximum allowed at '+ltv.toFixed(2)+'% LTV: '+money(max));
+    return false;
+  }
+  return true;
+};
+function setupLoanLimit(){
+  const el=document.getElementById('sanctionedLoan'); if(!el || el.dataset.loanLimitReady==='1')return;
+  el.dataset.loanLimitReady='1';
+  el.addEventListener('input',function(){window.validateSanctionedLoan(true);});
+  el.addEventListener('change',function(){window.validateSanctionedLoan(true);}); const ltv=document.getElementById('ltv1'); if(ltv){ ltv.addEventListener('input',function(){if(typeof calculate==='function')calculate();}); ltv.addEventListener('change',function(){if(typeof calculate==='function')calculate();}); }
 }
 function currentData(){
 return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||window._draftCertificateNo||'',
@@ -1106,27 +1172,24 @@ loanRate:String(document.getElementById('loanRate')?.value??'0'),
 items:[...document.querySelectorAll('.item')].map(x=>({name:getItemName(x),gross:x.querySelector('.gross').value,stone:x.querySelector('.stone').value,purity:x.querySelector('.purity').value}))}
 }
 
-function exportBackup(){
+async function exportBackup(){
   const records=getSaved();
-  const payload={
-    app:"Gold Valuation",
-    version:18,
-    exportedAt:new Date().toISOString(),
-    records:records
-  };
+  const payload={app:"Gold Valuation",version:18,exportedAt:new Date().toISOString(),records:records};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const stamp=new Date().toISOString().slice(0,10);
+  const filename="Gold-Valuation-Backup-"+stamp+".json";
+  try{
+    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Backups')){
+      alert("Backup saved in your selected Storage Folder.");
+      return;
+    }
+  }catch(e){console.warn("Selected folder save failed; using Downloads fallback",e);}
   const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  const d=new Date();
-  const stamp=d.toISOString().slice(0,10);
-  a.href=url;
-  a.download="Gold-Valuation-Backup-"+stamp+".json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  alert("Backup created successfully. Keep this file in a safe place.");
+  const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  alert("Backup created in Downloads because the selected folder could not be used.");
 }
+
 function importBackup(file){
   if(!file)return;
   const reader=new FileReader();
@@ -1199,9 +1262,55 @@ if(JSON.stringify(clean)!==JSON.stringify(a)){
 return clean;
 }
 let selectedBank='ALL';
+window._editingValuationId=null;
+window._editingValuationOriginalFilename=null;
+window._editUnlocked=false;
 function setSavedBankFilter(bank){
   selectedBank=bank;
   renderSaved();
+}
+function applyValuationEditLock(locked){
+  const ids=['customerName','customerMobile','bankName','valuationDate','sanctionedLoan','rate','ltv1','loanRate'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!!locked;});
+  document.querySelectorAll('#items input,#items select,#items button').forEach(el=>el.disabled=!!locked);
+  const add=document.querySelector('#valuation-main-sections > .card:nth-of-type(2) > button.primary');
+  if(add)add.disabled=!!locked;
+}
+function setValuationEditMode(record, originalFilename){
+  window._editingValuationId=record?.id||null;
+  window._editingValuationOriginalFilename=originalFilename||window._editingValuationOriginalFilename||null;
+  window._editUnlocked=false;
+  const banner=document.getElementById('editValuationBanner');
+  const fileEl=document.getElementById('editValuationFile');
+  const editBtn=document.getElementById('editValuationEditButton');
+  const cancelBtn=document.getElementById('editValuationCancelButton');
+  if(banner)banner.style.display=record?'block':'none';
+  if(fileEl)fileEl.textContent=record ? ('File: '+(window._editingValuationOriginalFilename||'Existing valuation file')) : '';
+  if(editBtn){editBtn.style.display=record?'inline-block':'none';editBtn.textContent='✏️ Edit';editBtn.onclick=function(){
+    window._editUnlocked=true; applyValuationEditLock(false);
+    editBtn.style.display='none'; if(cancelBtn)cancelBtn.style.display='inline-block';
+  };}
+  if(cancelBtn)cancelBtn.style.display='none';
+  applyValuationEditLock(!!record);
+}
+function clearValuationEditMode(){
+  window._editingValuationId=null;
+  window._editingValuationOriginalFilename=null;
+  window._editUnlocked=false;
+  applyValuationEditLock(false);
+  const banner=document.getElementById('editValuationBanner');
+  const fileEl=document.getElementById('editValuationFile');
+  const editBtn=document.getElementById('editValuationEditButton');
+  const cancelBtn=document.getElementById('editValuationCancelButton');
+  if(banner)banner.style.display='none';
+  if(fileEl)fileEl.textContent='';
+  if(editBtn)editBtn.style.display='none';
+  if(cancelBtn)cancelBtn.style.display='none';
+}
+function cancelValuationEdit(){
+  clearValuationEditMode();
+  resetAfterSave();
+  if(typeof showValuationScreen==='function')showValuationScreen();
 }
 function resetAfterSave(){
 document.getElementById('customerName').value='';
@@ -1216,25 +1325,253 @@ document.getElementById('items').innerHTML='';
 count=0;
 window._currentSavedRecord=null;
 window._draftCertificateNo=null;
+clearValuationEditMode();
 if(typeof addItem==='function') addItem();
 if(typeof calculate==='function') calculate();
 }
-function saveData(){
-const d=currentData();let a=getSaved();
-d.customer.bank=d.customer.bank||'Other / Not specified';
-const existingIndex=a.findIndex(x=>String(x.id)===String(d.id));
-if(existingIndex>=0){
-  a[existingIndex]=d;
-}else{
-  a.push(d);
+async function validateValuationBeforeSave(){
+  const nameEl=document.getElementById('customerName');
+  const rateEl=document.getElementById('rate');
+  const name=String(nameEl?.value||'').trim();
+  if(!name){
+    alert('Customer Name is required. Please enter the customer name before saving.');
+    nameEl?.focus();
+    return false;
+  }
+  const rateValue=num(rateEl?.value);
+  if(!(rateValue>0)){
+    alert('Market Rate / gram is required. Please enter the market rate before saving.');
+    rateEl?.focus();
+    return false;
+  }
+  const itemEls=[...document.querySelectorAll('#items .item')];
+  if(!itemEls.length){
+    alert('Valuation details are required. Please add at least one Jewellery Item before saving.');
+    return false;
+  }
+  const valid=itemEls.some(el=>{
+    const itemName=typeof getItemName==='function'?getItemName(el):(el.querySelector('.itemName')?.value||'');
+    const gross=num(el.querySelector('.gross')?.value);
+    const purity=num(el.querySelector('.purity')?.value);
+    return String(itemName||'').trim() && gross>0 && purity>0;
+  });
+  if(!valid){
+    alert('Valuation details are required. Enter a Jewellery Item Name, Gross Weight and Purity before saving.');
+    return false;
+  }
+  return true;
 }
-ensureCertificateNo(d);
-localStorage.setItem('goldValuations',JSON.stringify(a));
-alert(existingIndex>=0 ? 'Valuation updated successfully under '+d.customer.bank+'. Form has been reset for the next customer.' : 'Valuation saved successfully under '+d.customer.bank+'. Form has been reset for the next customer.');
-resetAfterSave();
+
+async function saveData(){
+  try{
+    if(!(await validateValuationBeforeSave())) return;
+    if(window._editingValuationId && !window._editUnlocked){
+      alert('This saved valuation is locked. Tap ✏️ Edit before saving changes.');
+      return;
+    }
+    window.validateSanctionedLoan(false);
+    const d=currentData();
+    let a=getSaved();
+    d.customer.bank=d.customer.bank||'Other / Not specified';
+    ensureCertificateNo(d);
+    const nowIso=new Date().toISOString();
+    const existingIndex=a.findIndex(x=>String(x.id)===String(d.id));
+    if(existingIndex>=0){
+      const oldRecord=a[existingIndex]||{};
+      d.createdAt=oldRecord.createdAt || nowIso;
+      d.modifiedAt=nowIso;
+      d.auditStatus='Edited';
+      a[existingIndex]=d;
+    } else {
+      d.createdAt=nowIso; d.modifiedAt=nowIso; d.auditStatus='Created';
+      a.push(d);
+    }
+
+    // Keep the fast local copy for the app UI.
+    localStorage.setItem('goldValuations',JSON.stringify(a));
+
+    // Step 62: also save this valuation as an individual JSON file in the
+    // user-selected Storage Folder -> Valuations. The local copy above is
+    // retained so Load/Reports continue to work even when folder access is unavailable.
+    let fileSaved=false, backupSaved=false, valuationFilename='';
+    if(window.saveBlobToStorageFolder){
+      const safeName=String(d.customer?.name||'Customer').trim()
+        .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+      const safeDate=String(d.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
+      const cert=String(d.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+      const generatedFilename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+      // Step 69: when editing an existing valuation, keep the original physical
+      // filename so changing the customer/date does not create a second file.
+      valuationFilename=window._editingValuationOriginalFilename || generatedFilename;
+      const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+      try{ fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
+
+      // Step 65: keep a protected copy in Selected Storage Folder -> Backups.
+      // This is an automatic per-valuation backup and is overwritten only for
+      // the same valuation filename when that valuation is updated.
+      if(fileSaved){
+        try{
+          const backupName='Valuation Backup - '+valuationFilename;
+          backupSaved=await window.saveBlobToStorageFolder(backupName,blob,'Backups');
+          if(backupSaved){
+            localStorage.setItem('goldValuationLastAutoBackup',new Date().toISOString());
+            localStorage.setItem('goldValuationLastAutoBackupFile',backupName);
+          }
+        }catch(e){ console.warn('Automatic valuation backup failed:',e); }
+      }
+    }
+
+    const action=existingIndex>=0?'updated':'saved';
+    const location=fileSaved ? ' It was also saved in your selected Storage Folder → Valuations.' : ' The app copy is saved, but the selected Storage Folder is not available.';
+    const backupMsg=backupSaved ? ' A protected backup copy was also saved in → Backups.' : '';
+    alert('Valuation '+action+' successfully under '+d.customer.bank+'.'+location+backupMsg+' Form has been reset for the next customer.');
+    resetAfterSave();
+  }catch(e){
+    console.error(e);
+    alert('Valuation could not be saved: '+(e.message||'Unknown error'));
+  }
 }
-function openLoad(){document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';selectedBank='ALL';renderSaved()}
-function closeLoad(){document.getElementById('saveManager').style.display='none'}
+
+/* STEP 63 - Valuation File Management */
+(function(){
+  let valuationFiles=[];
+  let fileFilterDate='';
+  window._valuationFiles=[];
+
+  function esc63(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function norm63(v){return String(v||'').trim().toLowerCase();}
+  function getLocal63(){
+    try{const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}
+  }
+  function mergeLocal63(records){
+    const all=getLocal63().concat(records||[]);
+    let clean;
+    try{clean=typeof dedupeValuations==='function'?dedupeValuations(all):all;}catch(e){clean=all;}
+    localStorage.setItem('goldValuations',JSON.stringify(clean));
+    try{if(typeof renderSaved==='function')renderSaved();}catch(e){}
+    try{if(typeof updateReports==='function')updateReports();}catch(e){}
+    try{if(typeof updateCustomerHistory==='function')updateCustomerHistory();}catch(e){}
+    try{if(typeof updateCustomerGroups==='function')updateCustomerGroups();}catch(e){}
+    try{if(typeof refreshBankStatementReport==='function')refreshBankStatementReport();}catch(e){}
+    return clean;
+  }
+  function fileDate63(d){return String(d?.customer?.date||d?.date||'').slice(0,10);}
+  function fileBank63(d){return String(d?.customer?.bank||'').trim();}
+  function fileName63(d){
+    const name=String(d?.customer?.name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+    const date=fileDate63(d).replace(/[^0-9-]/g,'-')||'Valuation';
+    const cert=String(d?.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+    return (name||'Customer')+' - '+date+(cert?' - '+cert:'')+'.json';
+  }
+  function setFileStatus63(msg,ok=true){
+    const el=document.getElementById('valuationFileStatus');
+    if(el){el.textContent=msg;el.style.color=ok?'#087f5b':'#b42318';}
+  }
+  function renderFileDates63(){
+    const sel=document.getElementById('valuationFileDate'); if(!sel)return;
+    const dates=[...new Set(valuationFiles.map(x=>fileDate63(x.data)).filter(Boolean))].sort().reverse();
+    const old=fileFilterDate;
+    sel.innerHTML='<option value="">All dates</option>'+dates.map(d=>'<option value="'+esc63(d)+'">'+esc63(d)+'</option>').join('');
+    if(dates.includes(old)){sel.value=old;}else{fileFilterDate='';sel.value='';}
+  }
+  function matches63(x){
+    const q=norm63(document.getElementById('valuationFileSearch')?.value||document.getElementById('saveSearch')?.value||'');
+    const d=x.data||{};
+    if(q){const hay=[d?.customer?.name,d?.customer?.mobile,d?.customer?.bank,d?.certificateNo,x.name].map(norm63).join(' ');if(!hay.includes(q))return false;}
+    if(fileFilterDate && fileDate63(d)!==fileFilterDate)return false;
+    if(typeof selectedBank!=='undefined' && selectedBank && selectedBank!=='ALL' && norm63(fileBank63(d))!==norm63(selectedBank))return false;
+    return true;
+  }
+  function renderFiles63(){
+    const list=document.getElementById('valuationFileList');if(!list)return;
+    const rows=valuationFiles.filter(matches63);
+    if(!rows.length){list.innerHTML='<div style="padding:14px;text-align:center;color:#777">No valuation files found in the selected folder.</div>';return;}
+    list.innerHTML=rows.map((x)=>{
+      const d=x.data||{}; const idx=valuationFiles.indexOf(x);
+      return '<div class="saved-row" style="margin-top:8px">'+
+        '<div class="saved-row-top"><div><div class="saved-name">'+esc63(d?.customer?.name||'Unnamed Customer')+'</div>'+ 
+        '<div class="saved-meta">'+esc63(fileBank63(d)||'—')+' • '+esc63(d?.customer?.mobile||'—')+' • '+esc63(fileDate63(d)||'—')+'</div>'+ 
+        '<div style="font-size:11px;color:#777;margin-top:3px;word-break:break-word">📄 '+esc63(x.name)+'</div>'+
+        '<div style="font-size:11px;color:#555;margin-top:4px;line-height:1.5">🕒 Created: '+esc63(formatAuditDate86(d.createdAt))+'<br>✏️ Modified: '+esc63(formatAuditDate86(d.modifiedAt))+'</div></div></div>'+ 
+        '<div class="saved-actions">'+
+        '<button type="button" class="load-btn" onclick="loadValuationFile63('+idx+')">Open</button>'+
+        '<button type="button" class="delete-btn" onclick="deleteValuationFile63('+idx+')">Delete file</button>'+
+        '</div></div>';
+    }).join('');
+  }
+  async function refreshFiles63(silent){
+    if(!window.getStorageFolderHandle){setFileStatus63('Storage folder feature is not available.',false);return;}
+    const h=await window.getStorageFolderHandle();
+    if(!h){valuationFiles=[];window._valuationFiles=[];renderFileDates63();renderFiles63();setFileStatus63('No selected storage folder. Choose a folder in Settings first.',false);return;}
+    try{
+      const dir=await h.getDirectoryHandle('Valuations',{create:true});
+      const found=[]; const imported=[];
+      for await (const [name,entry] of dir.entries()){
+        if(entry.kind!=='file' || !name.toLowerCase().endsWith('.json'))continue;
+        try{
+          const file=await entry.getFile(); const text=await file.text(); const data=JSON.parse(text);
+          if(data && typeof data==='object' && !Array.isArray(data)){
+            found.push({name,data}); imported.push(data);
+          }
+        }catch(e){console.warn('Could not read valuation file',name,e);}
+      }
+      valuationFiles=found.sort((a,b)=>String(fileDate63(b.data)).localeCompare(String(fileDate63(a.data)))||a.name.localeCompare(b.name));
+      window._valuationFiles=valuationFiles;
+      if(imported.length){
+        setFileStatus63(found.length+' valuation file(s) found in the selected folder.');
+      }else{
+        setFileStatus63('No valuation files found in the selected folder.');
+      }
+      renderFileDates63();renderFiles63();
+    }catch(e){console.error(e);setFileStatus63('Could not read the Valuations folder: '+(e.message||'Unknown error'),false);}
+  }
+  window.refreshValuationFiles63=refreshFiles63;
+  window.loadValuationFile63=async function(index){
+    const x=valuationFiles[index];if(!x)return; const d=x.data;
+    try{
+      const a=getLocal63(); const id=d.id||('file-'+Date.now()); d.id=id;
+      const i=a.findIndex(r=>String(r.id)===String(id)); if(i>=0)a[i]=d;else a.push(d);
+      localStorage.setItem('goldValuations',JSON.stringify(typeof dedupeValuations==='function'?dedupeValuations(a):a));
+      if(typeof window._currentSavedRecord!=='undefined')window._currentSavedRecord=d;
+      setValuationEditMode(d, x.name);
+      if(typeof customerName!=='undefined')customerName.value=d.customer?.name||'';
+      if(typeof customerMobile!=='undefined')customerMobile.value=d.customer?.mobile||'';
+      if(typeof setBankValue==='function')setBankValue(d.customer?.bank||'');
+      if(typeof valuationDate!=='undefined')valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);
+      if(typeof rate!=='undefined')rate.value=d.rate||0;
+      const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+      set('ltv1',d.ltv1??65);set('loanRate',d.loanRate??0);set('sanctionedLoan',d.sanctionedLoan??0);
+      const itemsEl=document.getElementById('items'); if(itemsEl){itemsEl.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));}
+      if(typeof calculate==='function')calculate();
+      closeLoad();
+      if(typeof showValuationScreen==='function')showValuationScreen();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){console.error(e);alert('Could not open valuation file: '+(e.message||'Unknown error'));}
+  };
+  window.deleteValuationFile63=async function(index){
+    const x=valuationFiles[index];if(!x)return;
+    if(!confirm('Delete this valuation file from the selected storage folder? The app/local valuation record will NOT be deleted.'))return;
+    try{
+      const h=await window.getStorageFolderHandle(); if(!h)throw new Error('Selected storage folder is not available.');
+      const dir=await h.getDirectoryHandle('Valuations',{create:false}); await dir.removeEntry(x.name);
+      valuationFiles.splice(index,1);window._valuationFiles=valuationFiles;renderFileDates63();renderFiles63();
+      setFileStatus63('Valuation file deleted. The app/local record was kept.');
+    }catch(e){console.error(e);alert('Could not delete valuation file: '+(e.message||'Unknown error'));}
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    const box=document.getElementById('valuationFileSearch'); if(box)box.addEventListener('input',renderFiles63);
+    const ds=document.getElementById('valuationFileDate'); if(ds)ds.addEventListener('change',function(){fileFilterDate=this.value;renderFiles63();});
+    const rb=document.getElementById('valuationFileRefreshBtn'); if(rb)rb.addEventListener('click',function(){refreshFiles63(false);});
+    setTimeout(()=>refreshFiles63(true),700);
+  });
+  const oldSetSavedBankFilter=window.setSavedBankFilter;
+  window.setSavedBankFilter=function(bank){if(typeof oldSetSavedBankFilter==='function')oldSetSavedBankFilter(bank);else{selectedBank=bank;try{renderSaved();}catch(e){}}renderFiles63();};
+  const oldOpenLoad=window.openLoad;
+  window.openLoad=function(){if(typeof oldOpenLoad==='function')oldOpenLoad();setTimeout(()=>refreshFiles63(true),100);};
+})();
+
+function openLoad(){window._certificateManagerMode=false;const title=document.getElementById('savedManagerTitle');if(title)title.textContent='Saved Valuations';document.getElementById('saveManager').style.display='block';document.getElementById('saveSearch').value='';if(document.getElementById('saveSort'))document.getElementById('saveSort').value='newest';if(document.getElementById('saveDateFilter'))document.getElementById('saveDateFilter').value='all';selectedBank='ALL';renderSaved();if(typeof refreshSavedManager84==='function')refreshSavedManager84(true)}
+function closeLoad(){window._certificateManagerMode=false;const title=document.getElementById('savedManagerTitle');if(title)title.textContent='Saved Valuations';document.getElementById('saveManager').style.display='none'}
 function loadData(){openLoad()}
 function migrateCertificateNumbers(){
   try{
@@ -1262,6 +1599,14 @@ function renderSaved(){
   let rows=all.map((x,i)=>({x,i})).filter(({x})=>{
     const bank=x.customer?.bank||'';
     if(selectedBank!=='ALL' && bank!==selectedBank)return false;
+    const df=document.getElementById('saveDateFilter')?.value||'all';
+    const d=String(x.customer?.date||x.date||'').slice(0,10);
+    const now=new Date();
+    const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const month=today.slice(0,7);
+    if(df==='today' && d!==today)return false;
+    if(df==='month' && !d.startsWith(month))return false;
+    if(df==='older' && (!d || d.startsWith(month)))return false;
     if(!q)return true;
     const hay=[
       x.customer?.name,x.customer?.mobile,x.customer?.bank,
@@ -1292,6 +1637,12 @@ function renderSaved(){
   });
 
   const list=document.getElementById('savedList');
+  const countEl=document.getElementById('savedSearchCount');
+  if(countEl) {
+    const df=document.getElementById('saveDateFilter')?.value||'all';
+    const dlabel=df==='today'?' today':df==='month'?' this month':df==='older'?' older':'';
+    countEl.textContent = rows.length + ' valuation' + (rows.length===1?'':'s') + ' found' + dlabel + (q?' for “'+q+'”':'');
+  }
   if(!rows.length){
     list.innerHTML='<div style="padding:20px;text-align:center;color:#777">No saved valuations found.</div>';
     return;
@@ -1307,18 +1658,31 @@ function renderSaved(){
         <div style="font-size:11px;color:#777;margin-top:3px">Certificate: ${esc(x.certificateNo||'—')} • Items: ${(x.items||[]).length} • Value: ${money(val)} • Loan: ${money(loan)}</div>
       </div>
       <div class="saved-actions">
-        <button class="load-btn" onclick="loadSaved(${i})">Open</button>
-        <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
-        <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
-        <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
+        ${window._certificateManagerMode ? `
+          <button class="print-btn" onclick="printSaved(${i})">📜 Print Certificate PDF</button>
+          <button class="share-btn" onclick="shareSavedPdf(${i})">↗ Share Certificate</button>
+        ` : `
+          <button class="load-btn" onclick="loadSaved(${i})">Open</button>
+          <button class="secondary" type="button" onclick="duplicateSaved(${i})">📋 Duplicate</button>
+          <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
+          <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
+          <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
+        `}
       </div>
     </div>`;
   }).join('');
 }
+function clearSavedSearch(){
+  const el=document.getElementById('saveSearch');
+  if(el){el.value='';el.focus();}
+  renderSaved();
+}
+
 function loadSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
 ensureCertificateNo(d);
 window._currentSavedRecord=d;
+setValuationEditMode(d, typeof fileName63==='function' ? fileName63(d) : null);
 localStorage.setItem('goldValuations',JSON.stringify(a));
 customerName.value=d.customer?.name||'';customerMobile.value=d.customer?.mobile||'';setBankValue(d.customer?.bank||'');valuationDate.value=d.customer?.date||new Date().toISOString().slice(0,10);rate.value=d.rate||0;
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=
@@ -1327,7 +1691,7 @@ if(document.getElementById('ltv1')) document.getElementById('ltv1').value=
   d.ltv1 ?? d.ltv65 ?? d.ltv ?? 65;
 if(document.getElementById('loanRate')) document.getElementById('loanRate').value=
   d.loanRate ?? d.loanRatePerGram ?? d.ltv70 ?? 0;
-items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();closeLoad();alert('Valuation loaded successfully.');
+items.innerHTML='';count=0;(d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));calculate();if(typeof window.validateSanctionedLoan==='function')window.validateSanctionedLoan(false);closeLoad();if(typeof showValuationScreen==='function'){showValuationScreen();setTimeout(function(){showValuationScreen();},60);}window.scrollTo({top:0,behavior:'smooth'});
 }
 function printSaved(i){
 const a=getSaved(),d=a[i];if(!d)return;
@@ -1349,7 +1713,7 @@ if(document.getElementById('loanRate')) document.getElementById('loanRate').valu
 items.innerHTML='';count=0;
 (d.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80}));
 calculate();closeLoad();
-setTimeout(()=>printCertificate(),100);
+setTimeout(()=>saveCurrentCertificatePdf(),100);
 }
 
 function deleteSaved(i){
@@ -1365,6 +1729,7 @@ function clearAll(){if(!confirm('Reset this valuation?'))return;customerName.val
 document.querySelectorAll('.item').forEach(setupItemNameDropdown);
 window._currentSavedRecord=null;
 window._draftCertificateNo=null;
+clearValuationEditMode();
 addItem();calculate()}
 async function shareResult(){
 let t='GOLD VALUATION\n--------------------\n';if(customerName.value)t+='Customer: '+customerName.value+'\n';if(bankName.value)t+='Bank: '+bankName.value+'\n';t+='Market Rate: ₹'+num(rate.value).toLocaleString('en-IN')+'/g\n\n';
@@ -1445,36 +1810,23 @@ function setBackupStatus(msg,ok=true){
   const el=document.getElementById('backupStatus');
   if(el){el.textContent=msg;el.style.color=ok?'#087f5b':'#b42318';}
 }
-function exportValuationsBackup(){
+async function exportValuationsBackup(){
   try{
     const records=getSavedValuations();
-    if(!records.length){
-      alert('No saved valuations found to back up.');
+    if(!records.length){alert('No saved valuations found to back up.');return;}
+    const payload={app:'Rajendra Jewellers – Gold Valuation',backupVersion:1,exportedAt:new Date().toISOString(),valuations:records};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const stamp=new Date().toISOString().slice(0,10);
+    const filename='Gold-Valuation-Backup-'+stamp+'.json';
+    if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Backups')){
+      setBackupStatus(records.length+' valuation(s) saved in the selected Storage Folder.');
       return;
     }
-    const payload={
-      app:'Rajendra Jewellers – Gold Valuation',
-      backupVersion:1,
-      exportedAt:new Date().toISOString(),
-      valuations:records
-    };
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    const d=new Date();
-    const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    a.href=url;
-    a.download='Gold-Valuation-Backup-'+stamp+'.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-    setBackupStatus(records.length+' valuation(s) backed up successfully.');
-  }catch(e){
-    console.error(e);
-    alert('Backup could not be created.');
-  }
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setBackupStatus(records.length+' valuation(s) backed up to Downloads because the selected folder could not be used.');
+  }catch(e){console.error(e);alert('Backup could not be created.');}
 }
+
 function restoreValuationsBackup(event){
   const file=event.target.files && event.target.files[0];
   if(!file)return;
@@ -1527,6 +1879,33 @@ function dashboardValue(r){
 function dashboardDate(r){
   return String(r?.customer?.date||r?.date||'').slice(0,10);
 }
+function dashboardNewValuation87(){
+  try{ if(typeof showValuationScreen==='function') showValuationScreen(); }catch(e){}
+  try{ if(typeof resetAfterSave==='function') resetAfterSave(); }catch(e){}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function dashboardOpenSaved87(){
+  try{ if(typeof showValuationScreen==='function') showValuationScreen(); }catch(e){}
+  setTimeout(function(){ try{ if(typeof openLoad==='function') openLoad(); }catch(e){} },120);
+}
+function dashboardOpenCertificates87(){
+  try{ if(typeof showValuationScreen==='function') showValuationScreen(); }catch(e){}
+  setTimeout(function(){
+    try{
+      if(typeof openLoad!=='function') throw new Error('Saved valuations manager is not available.');
+      openLoad();
+      window._certificateManagerMode=true;
+      const title=document.getElementById('savedManagerTitle');
+      if(title) title.textContent='Valuation Certificates';
+      const search=document.getElementById('saveSearch');
+      if(search) search.placeholder='Search customer, bank, date or certificate...';
+      renderSaved();
+    }catch(e){
+      console.error(e);
+      alert('Valuation Certificates could not be opened. Please reload the app.');
+    }
+  },120);
+}
 function updateDashboard(){
   const records=dashboardRecords();
   const total=records.reduce((s,r)=>s+dashboardValue(r),0);
@@ -1537,6 +1916,9 @@ function updateDashboard(){
   const todayRecords=records.filter(r=>dashboardDate(r)===today);
   const monthRecords=records.filter(r=>dashboardDate(r).slice(0,7)===monthPrefix);
   const monthTotal=monthRecords.reduce((s,r)=>s+dashboardValue(r),0);
+  const monthCount=monthRecords.length;
+  const ltvValues=records.map(r=>{ const v=Number(r?.ltv1??r?.ltv??r?.customer?.ltv1??0); return Number.isFinite(v)&&v>0?v:null; }).filter(v=>v!==null);
+  const avgLtv=ltvValues.length?ltvValues.reduce((a,b)=>a+b,0)/ltvValues.length:0;
   const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
   const countEl=document.getElementById('dashCount');
   const totalEl=document.getElementById('dashTotal');
@@ -1544,12 +1926,16 @@ function updateDashboard(){
   const todayEl=document.getElementById('dashToday');
   const custEl=document.getElementById('dashCustomers');
   const monthEl=document.getElementById('dashMonthTotal');
+  const monthCountEl=document.getElementById('dashMonthCount');
+  const avgLtvEl=document.getElementById('dashAvgLtv');
   if(countEl)countEl.textContent=records.length;
   if(totalEl)totalEl.textContent=money(total);
   if(loanEl)loanEl.textContent=money(loanTotal);
   if(todayEl)todayEl.textContent=todayRecords.length;
   if(custEl)custEl.textContent=customers.size;
   if(monthEl)monthEl.textContent=money(monthTotal);
+  if(monthCountEl)monthCountEl.textContent=monthCount;
+  if(avgLtvEl)avgLtvEl.textContent=avgLtv.toFixed(2)+'%';
 
   const bankMap={};
   records.forEach(r=>{
@@ -1773,74 +2159,63 @@ function reportFilteredRecords(){
   });
 }
 function printBankMonthlyReport(){
-  try{
-    const records=reportFilteredRecords();
-    const bank=(document.getElementById('reportBank')||{}).value||'All Banks';
-    const month=(document.getElementById('reportMonth')||{}).value||'All Months';
-    const esc2=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const money2=n=>typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
-    const totalValue=records.reduce((s,r)=>s+dashboardValue(r),0);
-    const totalLoan=records.reduce((s,r)=>s+reportLoanAmount(r),0);
-    const customers=new Set(records.map(r=>String(r?.customer?.name||'').trim().toLowerCase()).filter(Boolean));
-    const rows=records.map((r,i)=>{
-      const c=r?.customer||{};
-      return `<tr>
-        <td>${i+1}</td>
-        <td>${esc2(c.name||'')}</td>
-        <td>${esc2(c.bank||'')}</td>
-        <td>${esc2(reportDate(r)||'')}</td>
-        <td style="text-align:right">${money2(dashboardValue(r))}</td>
-        <td style="text-align:right">${money2(reportLoanAmount(r))}</td>
-      </tr>`;
-    }).join('');
-    const el=document.getElementById('bankMonthlyPrint');
-    el.innerHTML=`
-      <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:12px">
-        <div style="font-size:25px;font-weight:800;letter-spacing:.4px">RAJENDRA JEWELLERS</div>
-        <div style="font-size:18px;font-weight:700;margin-top:5px">GOLD VALUATION REPORT</div>
-        <div style="font-size:12px;margin-top:5px">Bank-wise / Monthly Report</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;font-size:13px">
-        <div><b>Bank:</b> ${esc2(bank)}</div>
-        <div><b>Month:</b> ${esc2(month)}</div>
-        <div><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
-        <div><b>Valuer:</b> MAHENDRA SHANTILAL GANDHI</div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
-        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Valuations</b><br><span style="font-size:20px">${records.length}</span></div>
-        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Total Valuation</b><br><span style="font-size:20px">${money2(totalValue)}</span></div>
-        <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Sanctioned Loan</b><br><span style="font-size:20px">${money2(totalLoan)}</span></div>
-      </div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px">
-        <thead><tr style="background:#f1eee7">
-          <th style="border:1px solid #ccc;padding:7px">#</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:left">Customer</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:left">Bank</th>
-          <th style="border:1px solid #ccc;padding:7px">Date</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:right">Valuation ₹</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:right">Loan ₹</th>
-        </tr></thead>
-        <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:12px;text-align:center">No valuations found for this selection.</td></tr>'}</tbody>
-        <tfoot><tr>
-          <td colspan="4" style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">TOTAL</td>
-          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalValue)}</td>
-          <td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalLoan)}</td>
-        </tr></tfoot>
-      </table>
-      <div style="margin-top:35px;font-size:12px">
-        <div style="font-weight:800">REGISTERED GOLD APPRAISER</div>
-        <div>MAHENDRA SHANTILAL GANDHI</div>
-        <div>PPDC/GA/2026/244642</div>
-      </div>`;
-    document.body.classList.add('report-printing');
-    setTimeout(()=>{
-      window.print();
-      setTimeout(()=>document.body.classList.remove('report-printing'),700);
-    },100);
-  }catch(e){
-    console.error(e);
-    alert('Report PDF could not be prepared.');
-  }
+  (async function(){
+    try{
+      const records=reportFilteredRecords();
+      const bank=(document.getElementById('reportBank')||{}).value||'All Banks';
+      const month=(document.getElementById('reportMonth')||{}).value||'All Months';
+      const esc2=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const money2=n=>typeof money==='function'?money(n):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+      const totalValue=records.reduce((sum,r)=>sum+dashboardValue(r),0);
+      const totalLoan=records.reduce((sum,r)=>sum+reportLoanAmount(r),0);
+      const el=document.getElementById('bankMonthlyPrint');
+      if(!el) throw new Error('Report area not found.');
+      const rows=records.map((r,i)=>{
+        const c=r?.customer||{};
+        return `<tr><td>${i+1}</td><td>${esc2(c.name||'')}</td><td>${esc2(c.bank||'')}</td><td>${esc2(reportDate(r)||'')}</td><td style="text-align:right">${money2(dashboardValue(r))}</td><td style="text-align:right">${money2(reportLoanAmount(r))}</td></tr>`;
+      }).join('');
+      el.innerHTML=`
+        <div style="text-align:center;border-bottom:2px solid #b78320;padding-bottom:12px">
+          <div style="font-size:25px;font-weight:800;letter-spacing:.4px">RAJENDRA JEWELLERS</div>
+          <div style="font-size:18px;font-weight:700;margin-top:5px">GOLD VALUATION REPORT</div>
+          <div style="font-size:12px;margin-top:5px">Bank-wise / Monthly Report</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;font-size:13px">
+          <div><b>Bank:</b> ${esc2(bank)}</div><div><b>Month:</b> ${esc2(month)}</div>
+          <div><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div><div><b>Valuer:</b> MAHENDRA SHANTILAL GANDHI</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
+          <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Valuations</b><br><span style="font-size:20px">${records.length}</span></div>
+          <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Total Valuation</b><br><span style="font-size:20px">${money2(totalValue)}</span></div>
+          <div style="border:1px solid #ddd;padding:10px;border-radius:8px"><b>Sanctioned Loan</b><br><span style="font-size:20px">${money2(totalLoan)}</span></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr style="background:#f1eee7"><th style="border:1px solid #ccc;padding:7px">#</th><th style="border:1px solid #ccc;padding:7px;text-align:left">Customer</th><th style="border:1px solid #ccc;padding:7px;text-align:left">Bank</th><th style="border:1px solid #ccc;padding:7px">Date</th><th style="border:1px solid #ccc;padding:7px;text-align:right">Valuation ₹</th><th style="border:1px solid #ccc;padding:7px;text-align:right">Loan ₹</th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="6" style="border:1px solid #ccc;padding:12px;text-align:center">No valuations found for this selection.</td></tr>'}</tbody>
+          <tfoot><tr><td colspan="4" style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">TOTAL</td><td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalValue)}</td><td style="border:1px solid #ccc;padding:8px;font-weight:800;text-align:right">${money2(totalLoan)}</td></tr></tfoot>
+        </table>
+        <div style="margin-top:35px;font-size:12px"><div style="font-weight:800">REGISTERED GOLD APPRAISER</div><div>MAHENDRA SHANTILAL GANDHI</div><div>PPDC/GA/2026/244642</div></div>`;
+
+      // Do not use the old print route. Clone the report into a real off-screen
+      // rendering surface with a fixed width so html2canvas always gets valid
+      // dimensions on Android, then save the resulting PDF to Reports.
+      if(typeof window.saveReportElement==='function'){
+        const safeBank=String(bank||'All-Banks').replace(/[^a-z0-9_-]+/gi,'_');
+        const safeMonth=String(month||'All-Months').replace(/[^a-z0-9_-]+/gi,'_');
+        const filename='Gold-Valuation-Report-'+safeBank+'-'+safeMonth+'.pdf';
+        const blob=await window.saveReportElement(el,filename);
+        if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports')){
+          alert('Report PDF saved in your selected Storage Folder → Reports.');
+          return;
+        }
+        throw new Error('Storage folder permission is not available.');
+      }
+      throw new Error('Report PDF exporter is not ready.');
+    }catch(e){
+      console.error(e);
+      alert('Report PDF could not be exported: '+(e.message||'Unknown error'));
+    }
+  })();
 }
 
 </script>
@@ -1848,13 +2223,32 @@ function printBankMonthlyReport(){
 <script>
 
 /* Step 27 - Customer-wise History */
+function formatAuditDate86(v){
+  if(!v)return '—';
+  try{return new Date(v).toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return String(v);}
+}
+function ensureAuditTimestamps86(r){
+  if(!r)return r;
+  if(!r.createdAt){
+    const d=r.customer&&r.customer.date?String(r.customer.date):'';
+    r.createdAt=d?new Date(d+'T00:00:00').toISOString():new Date().toISOString();
+  }
+  if(!r.modifiedAt)r.modifiedAt=r.createdAt;
+  if(!r.auditStatus)r.auditStatus='Created';
+  return r;
+}
 function historyRecords(){
   try{
     const raw=localStorage.getItem('goldValuations');
     const a=raw?JSON.parse(raw):[];
-    return Array.isArray(a)?a:[];
+    if(!Array.isArray(a))return[];
+    let changed=false;
+    a.forEach(r=>{const before=JSON.stringify([r.createdAt,r.modifiedAt,r.auditStatus]);ensureAuditTimestamps86(r);if(before!==JSON.stringify([r.createdAt,r.modifiedAt,r.auditStatus]))changed=true;});
+    if(changed)localStorage.setItem('goldValuations',JSON.stringify(a));
+    return a;
   }catch(e){return[]}
 }
+
 function historyCustomer(r){
   return r?.customer||{};
 }
@@ -1870,6 +2264,8 @@ function openHistoryRecord(record){
   try{
     // Restore the selected saved valuation using the app's normal load flow.
     const c=historyCustomer(record);
+    window._currentSavedRecord=record;
+    setValuationEditMode(record, (typeof fileName63==='function'?fileName63(record):null));
     if(document.getElementById('customerName'))document.getElementById('customerName').value=c.name||'';
     if(document.getElementById('customerMobile'))document.getElementById('customerMobile').value=c.mobile||'';
     if(document.getElementById('valuationDate'))document.getElementById('valuationDate').value=c.date||record.date||'';
@@ -1888,6 +2284,7 @@ function openHistoryRecord(record){
       });
     }
     if(typeof calculate==='function')calculate();
+    if(typeof showValuationScreen==='function')showValuationScreen();
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(e){
     console.error(e);
@@ -1901,7 +2298,7 @@ function printHistoryRecord(record){
       printSavedCertificate(record);
     }else if(typeof printCertificate==='function'){
       openHistoryRecord(record);
-      setTimeout(()=>printCertificate(),100);
+      setTimeout(()=>saveCurrentCertificatePdf(),100);
     }else{
       alert('Certificate print function is not available.');
     }
@@ -1926,60 +2323,72 @@ function shareHistoryRecord(record){
     alert('Share PDF could not be prepared.');
   }
 }
+function populateCustomerHistoryFilters(records){
+  const bankEl=document.getElementById('historyBankFilter');
+  const dateEl=document.getElementById('historyDateFilter');
+  if(!bankEl||!dateEl)return;
+  const bankCurrent=bankEl.value, dateCurrent=dateEl.value;
+  const banks=[...new Set(records.map(r=>String(historyCustomer(r).bank||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const dates=[...new Set(records.map(r=>String(historyCustomer(r).date||r.date||'').slice(0,10)).filter(Boolean))].sort().reverse();
+  bankEl.innerHTML='<option value="">All Banks</option>'+banks.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join('');
+  dateEl.innerHTML='<option value="">All Dates</option>'+dates.map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');
+  if(banks.includes(bankCurrent))bankEl.value=bankCurrent;
+  if(dates.includes(dateCurrent))dateEl.value=dateCurrent;
+}
+function clearCustomerHistoryFilters(){
+  const q=document.getElementById('historySearch'),b=document.getElementById('historyBankFilter'),d=document.getElementById('historyDateFilter');
+  if(q)q.value=''; if(b)b.value=''; if(d)d.value=''; updateCustomerHistory();
+}
+function deleteHistoryRecord(record){
+  try{
+    const a=getSaved();
+    let idx=a.findIndex(x=>x===record);
+    if(idx<0 && record?.certificateNo) idx=a.findIndex(x=>String(x.certificateNo)===String(record.certificateNo));
+    if(idx<0){alert('Saved valuation could not be found.');return;}
+    const name=historyName(a[idx])||'this valuation';
+    const date=String(historyCustomer(a[idx]).date||a[idx].date||'').slice(0,10);
+    if(!confirm('Delete valuation for '+name+(date?' dated '+date:'')+'?\n\nThis cannot be undone.'))return;
+    a.splice(idx,1);
+    localStorage.setItem('goldValuations',JSON.stringify(a));
+    if(window._currentSavedRecord===record)window._currentSavedRecord=null;
+    if(typeof renderSaved==='function')renderSaved();
+    updateCustomerHistory();
+    if(typeof updateCustomerGroups==='function')updateCustomerGroups();
+    if(typeof updateDashboard==='function')updateDashboard();
+    alert('Valuation deleted successfully.');
+  }catch(e){console.error(e);alert('Valuation could not be deleted: '+(e.message||'Unknown error'));}
+}
 function updateCustomerHistory(){
   const q=String(document.getElementById('historySearch')?.value||'').trim().toLowerCase();
+  const bankFilter=String(document.getElementById('historyBankFilter')?.value||'').trim().toLowerCase();
+  const dateFilter=String(document.getElementById('historyDateFilter')?.value||'').trim();
   const rows=document.getElementById('customerHistoryRows');
   const summary=document.getElementById('historySummary');
   if(!rows)return;
 
-  let records=historyRecords();
-  if(q){
-    records=records.filter(r=>{
-      const n=historyName(r).toLowerCase();
-      const m=historyMobile(r).toLowerCase();
-      const b=String(historyCustomer(r).bank||'').toLowerCase();
-      return n.includes(q)||m.includes(q)||b.includes(q);
-    });
-  }
+  const all=historyRecords();
+  populateCustomerHistoryFilters(all);
+  let records=all.filter(r=>{
+    const c=historyCustomer(r), n=historyName(r).toLowerCase(), m=historyMobile(r).toLowerCase();
+    const b=String(c.bank||'').toLowerCase(), d=String(c.date||r.date||'').slice(0,10);
+    return (!q || n.includes(q)||m.includes(q)||b.includes(q)) && (!bankFilter || b===bankFilter) && (!dateFilter || d===dateFilter);
+  });
+  records.sort((a,b)=>String(b.modifiedAt||b.createdAt||b.customer?.date||'').localeCompare(String(a.modifiedAt||a.createdAt||a.customer?.date||'')));
 
   const totalValue=records.reduce((s,r)=>s+(typeof dashboardValue==='function'?dashboardValue(r):0),0);
   const totalLoan=records.reduce((s,r)=>s+(typeof reportLoanAmount==='function'?reportLoanAmount(r):0),0);
-  if(summary){
-    summary.textContent=records.length+' valuation(s) found · Valuation '+(typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN'))+' · Loan '+(typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN'));
-  }
-
-  if(!records.length){
-    rows.innerHTML='<div class="history-empty">No customer valuations found.</div>';
-    return;
-  }
+  if(summary)summary.textContent=records.length+' valuation(s) found · Valuation '+(typeof money==='function'?money(totalValue):'₹'+totalValue.toLocaleString('en-IN'))+' · Loan '+(typeof money==='function'?money(totalLoan):'₹'+totalLoan.toLocaleString('en-IN'));
+  if(!records.length){window._historyShown=[];rows.innerHTML='<div class="history-empty">No customer valuations found for the selected filters.</div>';return;}
 
   window._historyShown=records;
   rows.innerHTML=records.map((r,i)=>{
-    const c=historyCustomer(r);
-    const name=esc(historyName(r)||'Unnamed Customer');
-    const mobile=esc(historyMobile(r)||'No mobile');
-    const bank=esc(c.bank||'');
+    const c=historyCustomer(r), name=esc(historyName(r)||'Unnamed Customer'), mobile=esc(historyMobile(r)||'No mobile'), bank=esc(c.bank||'');
     const date=esc(String(c.date||r.date||'').slice(0,10)||'—');
-    const val=typeof dashboardValue==='function'?dashboardValue(r):0;
-    const loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
-    return `<div class="history-row">
-      <div class="history-top">
-        <div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to open valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div>
-        <div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div>
-      </div>
-      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>
-      <div class="history-actions">
-        <button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">Open</button>
-        <button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 Print PDF</button>
-        <button type="button" onclick="event.stopPropagation();shareHistoryRecord(window._historyShown[${i}])">↗ Share PDF</button>
-      </div>
-    </div>`;
+    const val=typeof dashboardValue==='function'?dashboardValue(r):0, loan=typeof reportLoanAmount==='function'?reportLoanAmount(r):0;
+    return `<div class="history-row">\n      <div class="history-top"><div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to view valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div><div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div></div>\n      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>\n      <div style="font-size:11px;margin-top:7px;line-height:1.6;background:#f8f9fa;border-radius:9px;padding:7px 9px">🕒 <b>Created:</b> ${esc(formatAuditDate86(r.createdAt))}<br>✏️ <b>Last modified:</b> ${esc(formatAuditDate86(r.modifiedAt))}<br>📝 <b>Status:</b> ${esc(r.auditStatus||'Created')}</div>\n      <div class="history-actions"><button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">✏️ Edit / Open</button><button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 PDF</button><button type="button" onclick="event.stopPropagation();deleteHistoryRecord(window._historyShown[${i}])" style="color:#b42318">🗑️ Delete</button></div>\n    </div>`;
   }).join('');
 }
-document.addEventListener('DOMContentLoaded',()=>{
-  updateCustomerHistory();
-  setInterval(updateCustomerHistory,2000);
-});
+document.addEventListener('DOMContentLoaded',()=>{updateCustomerHistory();setInterval(updateCustomerHistory,2000);});
 
 </script>
 
@@ -2366,7 +2775,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       '<tr><td colspan="4" style="padding:14px;text-align:center">No valuations found.</td></tr>';
   };
 
-  window.exportBankStatementPDF=function(){
+  window.exportBankStatementPDF=async function(){
     syncBankStatementSelect();
     const select=document.getElementById('bankStatementSelect');
     const bank=String(select?.value||'').trim()||'All Banks';
@@ -2388,18 +2797,46 @@ document.addEventListener('DOMContentLoaded',()=>{
     const gs=[...groups.values()];
     const tv=records.reduce((s,r)=>s+value31(r),0),tl=records.reduce((s,r)=>s+loan31(r),0);
     const rows=gs.map((g,i)=>`<tr><td>${i+1}</td><td>${esc31(g.name)}${g.mobile?'<br>'+esc31(g.mobile):''}</td><td>${g.count}</td><td>${money31(g.value)}</td><td>${money31(g.loan)}</td></tr>`).join('');
-    const doc=`<!doctype html><html><head><title>Bank-wise Customer Report</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#111}h1,h2{margin:0}.head{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}.meta{margin:16px 0;line-height:1.7}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.box{border:1px solid #ccc;padding:10px}.box span{font-size:11px;color:#666}.box b{font-size:17px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th,td{border:1px solid #ccc;padding:8px}th{background:#f1eee6}td:nth-child(1),td:nth-child(3){text-align:center}td:nth-child(4),td:nth-child(5){text-align:right}.sign{margin-top:35px;border-top:1px solid #777;padding-top:8px;font-size:12px}</style></head><body>
+    const doc=`<!doctype html><html><head><title>Bank-wise Customer Report</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#111}h1,h2{margin:0}.head{text-align:center;border-bottom:3px double #b78320;padding-bottom:12px}.meta{margin:16px 0;line-height:1.7}.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.box{border:1px solid #ccc;padding:10px}.box span{font-size:11px;color:#666}.box b{font-size:17px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th,td{border:1px solid #ccc;padding:8px}th{background:#f1eee6}td:nth-child(1),td:nth-child(3){text-align:center}td:nth-child(4),td:nth-child(5){text-align:right}.sign{margin-top:35px;border-top:1px solid #777;padding-top:8px;font-size:12px}
+/* STEP 61 - Storage Management */
+.storage-management-card .storage-folder-status{margin-top:8px}
+.storage-management-card button{box-sizing:border-box}
+@media(max-width:520px){
+  .storage-management-grid{grid-template-columns:1fr !important}
+  .storage-management-grid button{grid-column:auto !important}
+}
+</style></head><body>
       <div class="head"><h1>RAJENDRA JEWELLERS</h1><h2>BANK-WISE CUSTOMER REPORT</h2></div>
       <div class="meta"><b>Bank:</b> ${esc31(bank)}<br><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
       <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
       <table><thead><tr><th>#</th><th>Customer</th><th>Valuations</th><th>Valuation ₹</th><th>Loan ₹</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center">No valuations found.</td></tr>'}</tbody><tfoot><tr><td colspan="2" style="text-align:right"><b>TOTAL</b></td><td><b>${records.length}</b></td><td><b>${money31(tv)}</b></td><td><b>${money31(tl)}</b></td></tr></tfoot></table>
       <div class="sign"><b>AUTHORISED SIGNATORY</b><br><br>Signature: ______________________<br><br><b>REGISTERED GOLD APPRAISER</b><br>MAHENDRA SHANTILAL GANDHI</div>
       
+
+
+
 </body></html>`;
-    const w=window.open('','_blank');
-    if(!w){alert('Please allow pop-ups for the PDF report.');return;}
-    w.document.open();w.document.write(doc);w.document.close();
-    setTimeout(()=>{w.focus();w.print();},350);
+    try{
+      if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
+      const holder=document.createElement('div');
+      holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;padding:20px;z-index:-1;';
+      holder.innerHTML=doc.substring(doc.indexOf('<body>')+6,doc.indexOf('</body>'));
+      document.body.appendChild(holder);
+      const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+      const blob=pdf.output('blob');
+      const safe=String(bank||'All-Banks').replace(/[^a-z0-9_-]+/gi,'_');
+      const filename='Bank-Wise-Customer-Report-'+safe+'.pdf';
+      holder.remove();
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Reports')){
+        alert('Bank Report PDF saved in your selected Storage Folder → Reports.');
+      }else{
+        alert('Bank Report PDF could not be saved to the selected Storage Folder. Please select the folder again in Settings.');
+      }
+    }catch(e){ console.error(e); alert('Bank Report PDF could not be exported: '+(e.message||'Unknown error')); }
   };
 
   document.addEventListener('DOMContentLoaded',function(){
@@ -2434,26 +2871,21 @@ document.addEventListener('DOMContentLoaded',()=>{
       (last?'<br>Last backup: '+new Date(last).toLocaleString('en-IN'):'<br>No backup created yet.');
   }
 
-  function backup(){
+  async function backup(){
     try{
       const payload={app:'Gold Valuation App',backupVersion:32,createdAt:new Date().toISOString(),data:getData()};
       const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
       const d=new Date(),p=n=>String(n).padStart(2,'0');
-      a.href=url;
-      a.download='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
-      a.style.display='none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function(){a.remove();URL.revokeObjectURL(url);},3000);
-      localStorage.setItem('s32LastBackup',new Date().toISOString());
-      status();
-      setTimeout(function(){alert('Backup created successfully. Check your Downloads folder.');},150);
-    }catch(e){
-      console.error(e);
-      alert('Backup failed: '+(e.message||'Unknown error'));
-    }
+      const filename='Gold_Valuation_Backup_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.json';
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(filename,blob,'Backups')){
+        localStorage.setItem('s32LastBackup',new Date().toISOString());status();
+        setTimeout(function(){alert('Backup saved successfully in your selected Storage Folder.');},100);
+        return;
+      }
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},3000);
+      localStorage.setItem('s32LastBackup',new Date().toISOString());status();
+      setTimeout(function(){alert('Backup saved to Downloads because the selected Storage Folder could not be used.');},150);
+    }catch(e){console.error(e);alert('Backup failed: '+(e.message||'Unknown error'));}
   }
 
   function restore(file){
@@ -2512,6 +2944,316 @@ document.addEventListener('DOMContentLoaded',()=>{
 })();
 </script>
 
+
+<script>
+/* STEP 59 - Choose Storage Folder */
+(function(){
+  const DB='GoldValuationSettingsDB', STORE='settings', KEY='storageFolderHandle';
+  function openDB(){
+    return new Promise(function(resolve,reject){
+      if(!('indexedDB' in window)){reject(new Error('IndexedDB is not supported.'));return;}
+      const req=indexedDB.open(DB,1);
+      req.onupgradeneeded=function(){req.result.createObjectStore(STORE);};
+      req.onsuccess=function(){resolve(req.result);};
+      req.onerror=function(){reject(req.error||new Error('Could not open settings storage.'));};
+    });
+  }
+  async function putHandle(handle){
+    const db=await openDB();
+    return new Promise(function(resolve,reject){
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(handle,KEY);
+      tx.oncomplete=function(){db.close();resolve();};
+      tx.onerror=function(){db.close();reject(tx.error||new Error('Could not save folder.'));};
+    });
+  }
+  window._storeStorageFolderHandle=putHandle;
+  async function getHandle(){
+    const db=await openDB();
+    return new Promise(function(resolve,reject){
+      const tx=db.transaction(STORE,'readonly');
+      const req=tx.objectStore(STORE).get(KEY);
+      req.onsuccess=function(){const v=req.result;db.close();resolve(v||null);};
+      req.onerror=function(){db.close();reject(req.error||new Error('Could not read folder.'));};
+    });
+  }
+  function setStatus(text){
+    const el=document.getElementById('storageFolderStatus');
+    if(el)el.textContent=text;
+  }
+  async function refresh(){
+    const btn=document.getElementById('chooseStorageFolderBtn');
+    if(!btn)return;
+    if(!('showDirectoryPicker' in window)){
+      btn.disabled=true;
+      btn.style.opacity='.6';
+      setStatus('Folder selection is not supported by this browser. The normal Downloads location will be used.');
+      return;
+    }
+    try{
+      const h=await getHandle();
+      if(!h){setStatus("No storage folder selected. The browser's normal Downloads location will continue to be used.");return;}
+      let permission='prompt';
+      try{permission=await h.queryPermission({mode:'readwrite'});}catch(e){}
+      setStatus('Selected folder: '+(h.name||'Storage folder')+(permission==='granted'?' ✓ Ready to use.':' · Permission will be requested when the folder is used.'));
+    }catch(e){console.warn(e);}
+  }
+  async function choose(){
+    if(!('showDirectoryPicker' in window)){alert('Your browser does not support choosing a storage folder. Please use a supported browser such as Chrome or Edge.');return;}
+    try{
+      const handle=await window.showDirectoryPicker({mode:'readwrite'});
+      await putHandle(handle);
+      setStatus('Selected folder: '+(handle.name||'Storage folder')+' ✓ Ready.');
+      alert('Storage folder selected successfully.');
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      console.error(e);
+      alert('Could not select the storage folder. Please try again.');
+    }
+  }
+  window.getStorageFolderHandle=async function(){
+    try{
+      const h=await getHandle();
+      if(!h)return null;
+      if(h.queryPermission && h.requestPermission){
+        let p=await h.queryPermission({mode:'readwrite'});
+        if(p!=='granted')p=await h.requestPermission({mode:'readwrite'});
+        if(p!=='granted')return null;
+      }
+      return h;
+    }catch(e){console.warn(e);return null;}
+  };
+  window.saveBlobToStorageFolder=async function(filename,blob,subfolder){
+    const h=await window.getStorageFolderHandle();
+    if(!h)return false;
+    let dir=h;
+    if(subfolder){
+      const parts=String(subfolder).split('/').filter(Boolean);
+      for(const part of parts) dir=await dir.getDirectoryHandle(part,{create:true});
+    }
+    const fh=await dir.getFileHandle(filename,{create:true});
+    const w=await fh.createWritable();
+    await w.write(blob);
+    await w.close();
+    return true;
+  };
+  window.refreshStorageFolderStatus=refresh;
+  document.addEventListener('DOMContentLoaded',function(){
+    const b=document.getElementById('chooseStorageFolderBtn');
+    if(b)b.addEventListener('click',choose);
+    refresh();
+  });
+})();
+</script>
+
+<script>
+/* STEP 61 - Storage Management */
+(function(){
+  const DB='GoldValuationSettingsDB', STORE='settings', KEY='storageFolderHandle';
+  function openDB(){
+    return new Promise(function(resolve,reject){
+      if(!('indexedDB' in window)){reject(new Error('IndexedDB is not supported.'));return;}
+      const req=indexedDB.open(DB,1);
+      req.onupgradeneeded=function(){
+        if(!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE);
+      };
+      req.onsuccess=function(){resolve(req.result);};
+      req.onerror=function(){reject(req.error||new Error('Could not open settings storage.'));};
+    });
+  }
+  async function getHandle(){
+    try{
+      const db=await openDB();
+      return await new Promise(function(resolve,reject){
+        const tx=db.transaction(STORE,'readonly'), req=tx.objectStore(STORE).get(KEY);
+        req.onsuccess=function(){const v=req.result;db.close();resolve(v||null);};
+        req.onerror=function(){db.close();reject(req.error||new Error('Could not read folder.'));};
+      });
+    }catch(e){return null;}
+  }
+  async function clearHandle(){
+    const db=await openDB();
+    return await new Promise(function(resolve,reject){
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).delete(KEY);
+      tx.oncomplete=function(){db.close();resolve();};
+      tx.onerror=function(){db.close();reject(tx.error||new Error('Could not clear folder selection.'));};
+    });
+  }
+  function setText(id,text){const el=document.getElementById(id);if(el)el.textContent=text;}
+  function setHtml(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+  async function inspect(){
+    const status=document.getElementById('storageManagementStatus');
+    const sub=document.getElementById('storageSubfoldersStatus');
+    if(!status)return;
+    if(!('showDirectoryPicker' in window)){
+      status.textContent='⚠️ Folder selection is not supported by this browser.';
+      if(sub)sub.textContent='Use a supported Android browser such as Chrome or Edge.';
+      return;
+    }
+    const h=await getHandle();
+    if(!h){
+      status.textContent='⚪ No storage folder selected.';
+      if(sub)sub.innerHTML='<b>Storage folders:</b> Not available until a folder is selected.';
+      return;
+    }
+    let permission='prompt';
+    try{permission=await h.queryPermission({mode:'readwrite'});}catch(e){}
+    if(permission!=='granted' && h.requestPermission){
+      try{permission=await h.requestPermission({mode:'readwrite'});}catch(e){}
+    }
+    if(permission!=='granted'){
+      status.textContent='⚠️ '+(h.name||'Selected folder')+' — permission is not granted.';
+      if(sub)sub.innerHTML='<b>Storage folders:</b> Permission required. Tap “Change Storage Folder” and select the folder again.';
+      return;
+    }
+    status.textContent='✅ '+(h.name||'Selected folder')+' — ready for app storage.';
+    let html='<b>Storage folders:</b><br>📂 Valuations — valuation data<br>📂 Reports — customer, bank & monthly reports<br>📂 Certificates — valuation certificate PDFs<br>📂 Backups — backup files';
+    try{
+      const counts={};
+      for(const name of ['Valuations','Reports','Certificates','Backups']){
+        const dir=await h.getDirectoryHandle(name,{create:true});
+        let n=0;
+        if(dir.values){ for await (const entry of dir.values()){ if(entry.kind==='file') n++; } }
+        counts[name]=n;
+      }
+      html+='<br><span style="color:#087f5b">✓ All four app folders are ready.</span>';
+      html+='<br>📊 Files: Valuations <b>'+counts.Valuations+'</b> · Reports <b>'+counts.Reports+'</b> · Certificates <b>'+counts.Certificates+'</b> · Backups <b>'+counts.Backups+'</b>';
+      const last=localStorage.getItem('goldValuationLastAutoBackup');
+      const lastFile=localStorage.getItem('goldValuationLastAutoBackupFile')||'';
+      const prot=document.getElementById('storageProtectionStatus');
+      if(prot){
+        prot.innerHTML=last ? '🛡️ <b>Automatic valuation backup:</b> Active<br>Last backup: '+new Date(last).toLocaleString('en-IN')+(lastFile?'<br>File: '+lastFile:'')+'<br>Backup copies are stored in <b>Backups</b>.' : '🛡️ <b>Automatic valuation backup:</b> Ready. Save a valuation once to create the first protected backup.';
+      }
+    }catch(e){
+      html+='<br><span style="color:#b42318">⚠️ Could not verify/create all folders. Select the storage folder again.</span>';
+    }
+    if(sub)sub.innerHTML=html;
+  }
+  async function changeFolder(){
+    if(typeof window.showDirectoryPicker!=='undefined' || 'showDirectoryPicker' in window){
+      try{
+        const h=await window.showDirectoryPicker({mode:'readwrite'});
+        // Reuse Step 59's stored handle writer when available.
+        if(window._storeStorageFolderHandle) await window._storeStorageFolderHandle(h);
+        else{
+          const db=await openDB();
+          await new Promise(function(resolve,reject){
+            const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(h,KEY);
+            tx.oncomplete=function(){db.close();resolve();};tx.onerror=function(){db.close();reject(tx.error);};
+          });
+        }
+        if(typeof window.refreshStorageFolderStatus==='function')await window.refreshStorageFolderStatus();
+        await inspect();
+        alert('Storage folder changed successfully.');
+      }catch(e){
+        if(e&&e.name==='AbortError')return;
+        console.error(e);alert('Could not change the storage folder. Please try again.');
+      }
+    }else alert('Your browser does not support choosing a storage folder.');
+  }
+  async function clearSelection(){
+    if(!confirm('Forget the selected storage folder? No files will be deleted.'))return;
+    try{
+      await clearHandle();
+      if(typeof window.refreshStorageFolderStatus==='function')await window.refreshStorageFolderStatus();
+      await inspect();
+      alert('Storage folder selection cleared. Your existing files were not deleted.');
+    }catch(e){console.error(e);alert('Could not clear the folder selection.');}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    const c=document.getElementById('storageChangeFolderBtn');
+    const r=document.getElementById('storageRefreshBtn');
+    const x=document.getElementById('storageClearSelectionBtn');
+    if(c)c.addEventListener('click',changeFolder);
+    if(r)r.addEventListener('click',inspect);
+    if(x)x.addEventListener('click',clearSelection);
+    setTimeout(inspect,200);
+  });
+  window.refreshStorageManagement61=inspect;
+})();
+</script>
+
+<script>
+/* STEP 64 - Safe Valuation Sync & Recovery */
+(function(){
+  function localRecords64(){
+    try{const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}
+  }
+  function key64(d){
+    return String(d?.id||d?.certificateNo||((d?.customer?.name||'')+'|'+(d?.customer?.date||'')+'|'+(d?.customer?.mobile||''))).trim().toLowerCase();
+  }
+  function name64(d){return String(d?.customer?.name||'Customer').trim();}
+  function setSync64(msg,ok=true){const e=document.getElementById('valuationSyncStatus');if(e){e.textContent=msg;e.style.color=ok?'#1769aa':'#b42318';}}
+  function syncSummary64(folder,local){
+    const fm=new Map(folder.map(x=>[key64(x.data),x])); const lm=new Map(local.map(x=>[key64(x),x]));
+    let folderOnly=[],appOnly=[],synced=[],conflicts=[];
+    fm.forEach((x,k)=>{if(lm.has(k)) synced.push(x);else folderOnly.push(x);});
+    lm.forEach((x,k)=>{if(!fm.has(k)) appOnly.push(x);});
+    // Same id/certificate means synced; differing content with same identity is a conflict.
+    folder.forEach(x=>{const l=lm.get(key64(x.data));if(l){const a=JSON.stringify(x.data),b=JSON.stringify(l);if(a!==b)conflicts.push({folder:x,local:l});}});
+    return {folderOnly,appOnly,synced,conflicts};
+  }
+  window.syncValuationFiles64=async function(){
+    try{
+      if(typeof window.refreshValuationFiles63==='function') await window.refreshValuationFiles63(true);
+      const folder=Array.isArray(window._valuationFiles)?window._valuationFiles.slice():[];
+      const local=localRecords64();
+      const r=syncSummary64(folder,local);
+      setSync64('Sync status: '+r.synced.length+' synced · '+r.folderOnly.length+' folder-only · '+r.appOnly.length+' app-only · '+r.conflicts.length+' conflict(s).');
+      let changed=false;
+      if(r.folderOnly.length){
+        if(confirm(r.folderOnly.length+' valuation file(s) exist in the folder but not in the app. Restore them to the app now?')){
+          const merged=local.concat(r.folderOnly.map(x=>x.data));
+          localStorage.setItem('goldValuations',JSON.stringify(typeof dedupeValuations==='function'?dedupeValuations(merged):merged));
+          changed=true;
+        }
+      }
+      if(r.appOnly.length){
+        if(confirm(r.appOnly.length+' valuation(s) exist in the app but have no folder file. Save them to the selected Valuations folder now?')){
+          if(!window.saveBlobToStorageFolder)throw new Error('Storage folder saving is not available.');
+          let saved=0;
+          for(const d of r.appOnly){
+            const safeName=String(d?.customer?.name||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+            const safeDate=String(d?.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
+            const cert=String(d?.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+            const fn=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+            const ok=await window.saveBlobToStorageFolder(fn,new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'Valuations'); if(ok)saved++;
+          }
+          setSync64('Sync completed: '+saved+' app-only valuation(s) saved to the folder.');
+          changed=true;
+        }
+      }
+      if(r.conflicts.length){
+        alert(r.conflicts.length+' conflict(s) detected. Nothing was overwritten automatically. Open the matching records/files and decide which copy to keep.');
+      }
+      if(changed && typeof window.refreshValuationFiles63==='function') await window.refreshValuationFiles63(true);
+    }catch(e){console.error(e);setSync64('Sync failed: '+(e.message||'Unknown error'),false);}
+  };
+  document.addEventListener('DOMContentLoaded',function(){const b=document.getElementById('valuationSyncBtn');if(b)b.addEventListener('click',window.syncValuationFiles64);});
+})();
+
+/* STEP 60 - Save valuation certificate PDF into selected Certificates folder */
+window.saveCurrentCertificatePdf = async function(){
+  try{
+    if(typeof window.buildCertificatePdf!=='function' || typeof window.saveCertificatePdfToCertificates!=='function'){
+      throw new Error('PDF functions are not ready.');
+    }
+    const result=await window.buildCertificatePdf();
+    const saved=await window.saveCertificatePdfToCertificates(result);
+    if(saved){
+      alert('PDF saved successfully in your selected Storage Folder → Certificates.');
+      return true;
+    }
+    alert('Please go to Settings → Choose Storage Folder and select the folder again.');
+    return false;
+  }catch(e){
+    console.error('Certificate PDF save failed:',e);
+    alert('PDF could not be saved. Please select the storage folder again in Settings.');
+    return false;
+  }
+};
+</script>
 
 <script>
 /* STEP 33 FINAL - Bank Management */
@@ -2788,7 +3530,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     return 'Gold Valuation\nRAJENDRA JEWELLERS\nCustomer: '+name+(bank?'\nBank: '+bank:'')+(date?'\nValuation Date: '+date:'')+(total?'\nTotal Value: '+total:'');
   }
 
-  async function buildCertificatePdf(){
+  window.buildCertificatePdf=async function buildCertificatePdf(){
     if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
       throw new Error('PDF library is not ready.');
     }
@@ -2852,23 +3594,47 @@ document.addEventListener('DOMContentLoaded',()=>{
     return {blob,filename};
   }
 
-  async function sharePdfFile(){
+  window.saveCertificatePdfToCertificates=async function saveCertificatePdfToCertificates(result){
     try{
-      const result=await buildCertificatePdf();
+      if(window.saveBlobToStorageFolder && await window.saveBlobToStorageFolder(result.filename,result.blob,'Certificates')) return true;
+    }catch(e){ console.warn('Certificate save to selected folder failed',e); }
+    return false;
+  }
+
+  async function sharePdfFile(){
+    let result=null;
+    try{
+      // Sharing a valuation must NOT depend on the selected Storage Folder.
+      // Folder saving is optional; the PDF can always be shared directly.
+      result=await buildCertificatePdf();
       const file=new File([result.blob],result.filename,{type:'application/pdf'});
       const text=shareText();
-      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-        await navigator.share({title:'Gold Valuation Certificate',text:text,files:[file]});
-        return;
+      if(navigator.share){
+        let canShareFile=true;
+        try{ canShareFile=!navigator.canShare || navigator.canShare({files:[file]}); }catch(_){ canShareFile=false; }
+        if(canShareFile){
+          try{
+            await navigator.share({title:'Gold Valuation Certificate',text:text,files:[file]});
+            return;
+          }catch(e){
+            // User cancellation must not show a storage-folder error.
+            if(e && e.name==='AbortError') return;
+            console.warn('Direct PDF share failed; using download fallback.',e);
+          }
+        }
       }
-      // Browser does not support file sharing: download the PDF and offer the normal Android share route.
+
+      // If direct file sharing is unavailable, save a copy to Downloads.
       const url=URL.createObjectURL(result.blob);
-      const a=document.createElement('a'); a.href=url; a.download=result.filename; document.body.appendChild(a); a.click(); a.remove();
+      const a=document.createElement('a');
+      a.href=url; a.download=result.filename;
+      document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),30000);
-      alert('PDF saved. Open the PDF and tap Share to send it to WhatsApp or Email.');
+      alert('PDF created successfully. You can share the downloaded PDF.');
     }catch(e){
-      console.error(e);
-      alert('Direct PDF sharing is not supported by this browser. Please use Valuation Certificate / PDF, then Share.');
+      console.error('sharePdfFile:',e);
+      if(e && e.name==='AbortError') return;
+      alert('PDF could not be created. Please try again.');
     }
   }
 
@@ -2894,25 +3660,62 @@ document.addEventListener('DOMContentLoaded',()=>{
 <script>
 /* STEP 41 - Main menu navigation */
 (function(){
-  const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33'];
+  const menuIds=['dashboard','reports','bankStatementReport','dataSafetyBackup','customerHistory','bankManagement33','settings59','storageManagement61'];
 
   window.openAppMenu=function(){
-    const m=document.getElementById('appMenu');
-    if(m) m.classList.add('open');
+    try{
+      const m=document.getElementById('appMenu');
+      const panel=m?m.querySelector('.menu-panel'):null;
+      // Close any other full-screen UI first so it cannot cover the menu.
+      const statement=document.getElementById('statementModal');
+      if(statement) statement.style.display='none';
+      if(m){
+        m.style.setProperty('display','block','important');
+        m.style.setProperty('visibility','visible','important');
+        m.style.setProperty('opacity','1','important');
+        m.style.setProperty('z-index','5000','important');
+        m.classList.add('open');
+      }
+      if(panel){
+        panel.style.setProperty('display','block','important');
+        panel.style.setProperty('visibility','visible','important');
+        panel.style.setProperty('opacity','1','important');
+        panel.style.setProperty('z-index','5001','important');
+      }
+    }catch(e){console.error('openAppMenu:',e);}
   };
   window.closeAppMenu=function(){
     const m=document.getElementById('appMenu');
-    if(m) m.classList.remove('open');
+    if(m){m.classList.remove('open');m.style.removeProperty('display');m.style.removeProperty('visibility');m.style.removeProperty('opacity');m.style.removeProperty('z-index');}
   };
 
   window.showValuationScreen=function(){
-    menuIds.forEach(function(id){
-      const el=document.getElementById(id);
-      if(el){el.classList.add('menu-section');el.classList.remove('menu-active');}
-    });
-    document.body.classList.remove('menu-viewing');
-    closeAppMenu();
-    window.scrollTo({top:0,behavior:'smooth'});
+    try{
+      const valuation=document.getElementById('valuation-main-sections');
+      // Force the valuation area visible even if a previous menu section applied
+      // an inline/CSS hidden state. This is important when opening a saved record.
+      if(valuation){
+        valuation.classList.remove('menu-section','menu-active');
+        valuation.style.setProperty('display','block','important');
+        valuation.style.visibility='visible';
+      }
+      menuIds.forEach(function(id){
+        const el=document.getElementById(id);
+        if(el){
+          el.classList.add('menu-section');
+          el.classList.remove('menu-active');
+          el.style.removeProperty('display');
+        }
+      });
+      document.body.classList.remove('menu-viewing');
+      closeAppMenu();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){
+      console.error('showValuationScreen:',e);
+      const v=document.getElementById('valuation-main-sections');
+      if(v){v.classList.remove('menu-section','menu-active');v.style.setProperty('display','block','important');}
+      document.body.classList.remove('menu-viewing');
+    }
   };
 
   window.showMenuSection=function(id){
@@ -2935,6 +3738,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(id==='bankStatementReport' && typeof refreshBankStatementReport==='function') refreshBankStatementReport();
       if(id==='customerHistory' && typeof updateCustomerHistory==='function') updateCustomerHistory();
       if(id==='bankManagement33' && typeof window.renderBankManagement33==='function') window.renderBankManagement33();
+      if(id==='settings59' && typeof window.refreshStorageFolderStatus==='function') window.refreshStorageFolderStatus();
+      if(id==='storageManagement61' && typeof window.refreshStorageManagement61==='function') window.refreshStorageManagement61();
     }catch(err){}
   };
 
@@ -3217,23 +4022,303 @@ window.toggleCustomerSummaryGroup=function(btn){
 
 
 <script>
+/* STEP 60 FINAL - Make every report PDF save to the selected Storage Folder */
 (function(){
-  function money(v){return '₹'+Number(v||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
-  function saved(){try{let a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-  function total(r){return Number(r?.totalValue||r?.valuationTotal||r?.value||0)||0}
-  function renderHome(){
-    const a=saved();
-    const tv=a.reduce((x,r)=>x+total(r),0);
-    const t=document.getElementById('i1Total'),c=document.getElementById('i1Count'),list=document.getElementById('i1Recent');
-    if(t)t.textContent=money(tv); if(c)c.textContent=a.length+' Valuations';
-    if(list){const rows=a.slice().reverse().slice(0,5); list.innerHTML=rows.length?rows.map(r=>{const n=String(r?.customer?.name||r?.customerName||'Unnamed');const m=String(r?.customer?.mobile||r?.mobile||'');return '<div class="i1-row"><div class="i1-initial">'+(n.trim()[0]||'R').toUpperCase()+'</div><div class="i1-row-main"><b>'+n.replace(/[<>]/g,'')+'</b><small>'+m.replace(/[<>]/g,'')+'</small></div><div class="i1-row-value">'+money(total(r))+' ›</div></div>'}).join(''):'<div class="i1-row"><div class="i1-row-main"><b>No saved valuations yet</b><small>Start a new valuation</small></div></div>'}
+  function safeFileName(v,fallback){
+    return String(v||fallback||'Report').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
   }
-  window.showHomeImage1=function(){document.body.classList.add('image1-home');document.body.classList.remove('menu-viewing');const h=document.querySelector('header');if(h)h.style.display='none';renderHome();window.scrollTo(0,0)};
-  window.newValuationImage1=function(){document.body.classList.remove('image1-home');document.body.classList.remove('menu-viewing');const h=document.querySelector('header');if(h)h.style.display='block';const v=document.getElementById('valuation-main-sections');if(v)v.style.display='block';window.scrollTo(0,0);setTimeout(function(){const x=document.getElementById('customerName');if(x)x.focus()},120)};
-  window.focusLtvImage1=function(){newValuationImage1();setTimeout(function(){const x=document.getElementById('ltv1');if(x)x.scrollIntoView({behavior:'smooth',block:'center'})},180)};
-  document.addEventListener('DOMContentLoaded',function(){showHomeImage1();setTimeout(renderHome,300);});
-  window.addEventListener('storage',renderHome);
-  const oldCalc=window.calculate; if(typeof oldCalc==='function') window.calculate=function(){oldCalc();renderHome()};
+
+  async function saveReportElement(element, filename){
+    if(!element) throw new Error('Report content not found.');
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+      throw new Error('PDF library is not ready.');
+    }
+    const holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-10000px;top:0;width:780px;background:#fff;color:#111;padding:24px;z-index:-9999;';
+    holder.innerHTML=element.innerHTML||'';
+    document.body.appendChild(holder);
+    try{
+      await new Promise(function(r){setTimeout(r,120);});
+      const canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=8,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',margin,margin,imgW,Math.min(imgH,pageH-margin*2),undefined,'FAST');
+      return pdf.output('blob');
+    }finally{holder.remove();}
+  }
+
+  window.saveReportElement=saveReportElement;
+
+  async function saveToReports(blob,filename){
+    if(!window.saveBlobToStorageFolder) return false;
+    return await window.saveBlobToStorageFolder(filename,blob,'Reports');
+  }
+
+  function installCustomerStatementButtons(){
+    const print=document.getElementById('statementPrintButton');
+    const share=document.getElementById('statementShareButton');
+    if(print){
+      print.onclick=async function(){
+        try{
+          const area=document.getElementById('statementPrintArea')||document.getElementById('statementPreview');
+          const name=document.querySelector('#statementPreview .s30-name')?.textContent || 'Customer';
+          const filename='Customer-Statement-'+safeFileName(name,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+          const blob=await saveReportElement(area,filename);
+          if(await saveToReports(blob,filename)){
+            alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+          }else{
+            alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+          }
+        }catch(e){console.error(e);alert('Customer Statement PDF could not be exported: '+(e.message||'Unknown error'));}
+      };
+    }
+    if(share){
+      share.onclick=async function(){
+        try{
+          const area=document.getElementById('statementPrintArea')||document.getElementById('statementPreview');
+          const name=document.querySelector('#statementPreview .s30-name')?.textContent || 'Customer';
+          const filename='Customer-Statement-'+safeFileName(name,'Customer')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+          const blob=await saveReportElement(area,filename);
+          const saved=await saveToReports(blob,filename);
+          if(!saved){
+            alert('Customer Statement PDF could not be saved. Please select the Storage Folder again in Settings.');
+            return;
+          }
+          const file=new File([blob],filename,{type:'application/pdf'});
+          const text='Customer Valuation Statement - '+name;
+          if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+            await navigator.share({title:'Customer Valuation Statement',text:text,files:[file]});
+          }else{
+            alert('Customer Statement PDF saved in your selected Storage Folder → Reports.');
+          }
+        }catch(e){
+          if(e&&e.name==='AbortError')return;
+          console.error(e);alert('Customer Statement PDF could not be exported: '+(e.message||'Unknown error'));
+        }
+      };
+    }
+  }
+
+  const oldShow=window.showCustomerStatement;
+  if(typeof oldShow==='function'){
+    window.showCustomerStatement=function(){
+      const result=oldShow.apply(this,arguments);
+      setTimeout(installCustomerStatementButtons,60);
+      return result;
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(installCustomerStatementButtons,300);
+  });
+
+  /* Ensure the existing Bank & Monthly and Bank-wise exports never use the
+     browser print/download route. They already save through saveBlobToStorageFolder. */
+  window.reportStorageFolderReady=function(){
+    return !!window.saveBlobToStorageFolder;
+  };
+})();
+
+// Step 76 initialization
+document.addEventListener('DOMContentLoaded',function(){
+  setupLoanLimit();
+  window.validateSanctionedLoan(false);
+});
+</script>
+
+<script>
+/* STEP 84 - Saved Valuation Manager: date filters, refresh and safe sync bridge */
+(function(){
+  function status84(msg,ok=true){
+    const el=document.getElementById('savedManagerStatus84');
+    if(el){el.textContent=msg;el.style.color=ok?'#1769aa':'#b42318';}
+  }
+  window.refreshSavedManager84=function(silent){
+    try{
+      // Re-read the authoritative local copy and remove any duplicate records.
+      const raw=localStorage.getItem('goldValuations')||'[]';
+      let a=[]; try{a=JSON.parse(raw);}catch(e){a=[];}
+      if(!Array.isArray(a))a=[];
+      if(typeof dedupeValuations==='function')a=dedupeValuations(a);
+      localStorage.setItem('goldValuations',JSON.stringify(a));
+      if(typeof renderSaved==='function')renderSaved();
+      // Also refresh the physical Valuations folder when available.
+      if(typeof window.refreshValuationFiles63==='function'){
+        Promise.resolve(window.refreshValuationFiles63(true)).then(function(){
+          if(typeof renderSaved==='function')renderSaved();
+          status84(a.length+' saved valuation(s) loaded · folder refreshed.');
+        }).catch(function(){status84(a.length+' saved valuation(s) loaded · folder refresh unavailable.',false);});
+      }else{
+        status84(a.length+' saved valuation(s) loaded.');
+      }
+    }catch(e){
+      console.error(e); status84('Refresh failed: '+(e.message||'Unknown error'),false);
+    }
+  };
+  window.syncSavedManager84=async function(){
+    try{
+      if(typeof window.syncValuationFiles64!=='function'){
+        status84('Sync is not available in this build.',false);
+        return;
+      }
+      status84('Syncing app records with the selected Valuations folder…');
+      await window.syncValuationFiles64();
+      if(typeof renderSaved==='function')renderSaved();
+      if(typeof window.refreshValuationFiles63==='function')await window.refreshValuationFiles63(true);
+      if(typeof renderSaved==='function')renderSaved();
+      const a=typeof getSaved==='function'?getSaved():[];
+      status84('Sync finished · '+a.length+' saved valuation(s) available.');
+    }catch(e){
+      console.error(e); status84('Sync failed: '+(e.message||'Unknown error'),false);
+    }
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    const df=document.getElementById('saveDateFilter');
+    if(df)df.addEventListener('change',function(){if(typeof renderSaved==='function')renderSaved();});
+  });
+})();
+</script>
+<script>
+/* STEP 85 - Duplicate Saved Valuation as a New Draft */
+(function(){
+  window.duplicateSaved=function(i){
+    try{
+      const a=typeof getSaved==='function'?getSaved():[];
+      const source=a[i];
+      if(!source){ alert('Saved valuation not found.'); return; }
+      const copy=JSON.parse(JSON.stringify(source));
+      copy.id=Date.now()+Math.floor(Math.random()*1000);
+      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo():'';
+      copy.createdAt=new Date().toISOString(); copy.modifiedAt=copy.createdAt;
+      copy.auditStatus='Duplicated'; copy.duplicatedFromId=source.id||null;
+      // A duplicate is a new draft: it must not overwrite the source record.
+      window._currentSavedRecord=null;
+      window._activeCertificateNoOverride=null;
+      window._draftCertificateNo=copy.certificateNo;
+      if(typeof clearValuationEditMode==='function') clearValuationEditMode();
+      const set=(id,v)=>{const el=document.getElementById(id); if(el) el.value=v??'';};
+      set('customerName',copy.customer?.name||'');
+      set('customerMobile',copy.customer?.mobile||'');
+      if(typeof setBankValue==='function') setBankValue(copy.customer?.bank||''); else set('bankName',copy.customer?.bank||'');
+      set('valuationDate',new Date().toISOString().slice(0,10));
+      set('rate',copy.rate||0);
+      set('ltv1',copy.ltv1??65);
+      set('loanRate',copy.loanRate??0);
+      set('sanctionedLoan',copy.sanctionedLoan??'');
+      const itemsEl=document.getElementById('items');
+      if(itemsEl){ itemsEl.innerHTML=''; count=0; (copy.items||[]).forEach(x=>addItem({name:x.name||'',gross:x.gross||0,stone:x.stone||0,purity:x.purity||80})); }
+      if(typeof calculate==='function') calculate();
+      if(typeof closeLoad==='function') closeLoad();
+      if(typeof showValuationScreen==='function') showValuationScreen();
+      window.scrollTo({top:0,behavior:'smooth'});
+      alert('Valuation duplicated as a new draft. Review the details and tap Save to create the new valuation.');
+    }catch(e){ console.error('duplicateSaved:',e); alert('Unable to duplicate this valuation.'); }
+  };
+})();
+</script>
+<script>
+(function(){
+  window.gv89CreateBackup=function(){
+    var d={createdAt:new Date().toISOString(),app:'Gold Valuation',version:'Step 89'};
+    Object.keys(localStorage).forEach(function(k){try{d[k]=JSON.parse(localStorage.getItem(k));}catch(e){d[k]=localStorage.getItem(k);}});
+    var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(b);a.download='Gold-Valuation-Backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+    alert('Backup created successfully.');
+  };
+  window.gv89RestoreBackup=function(file){
+    if(!file)return;var r=new FileReader();r.onload=function(){try{
+      var d=JSON.parse(r.result);if(!d||d.app!=='Gold Valuation')throw 0;
+      if(!confirm('Restore this backup? Existing local data may be replaced.'))return;
+      Object.keys(d).forEach(function(k){if(!['createdAt','app','version'].includes(k))localStorage.setItem(k,typeof d[k]==='string'?d[k]:JSON.stringify(d[k]));});
+      alert('Backup restored successfully. Reloading.');location.reload();
+    }catch(e){alert('Restore failed: Invalid backup file.');}};r.readAsText(file);
+  };
+  window.gv89ShowBackupCenter=function(){
+    var m=document.createElement('div');m.style.cssText='position:fixed;inset:0;background:#0008;z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px';
+    m.innerHTML='<div style="background:#fff;width:min(520px,100%);border-radius:18px;padding:22px;font-family:Arial"><h2>💾 Backup & Restore Center</h2><p>Protect your valuation data with a local backup.</p><button id="gv89b" style="width:100%;padding:14px;margin:6px 0;border:0;border-radius:10px;background:#166534;color:#fff;font-weight:700">💾 Create Full Backup</button><label style="display:block;padding:14px;margin:6px 0;border-radius:10px;background:#1d4ed8;color:#fff;text-align:center;font-weight:700">📥 Restore Backup<input id="gv89f" type="file" accept=".json,application/json" style="display:none"></label><button id="gv89c" style="width:100%;padding:12px;margin-top:10px;border:1px solid #ccc;border-radius:10px;background:#fff">Close</button></div>';
+    document.body.appendChild(m);m.querySelector('#gv89b').onclick=gv89CreateBackup;m.querySelector('#gv89f').onchange=function(){gv89RestoreBackup(this.files[0]);};m.querySelector('#gv89c').onclick=function(){m.remove();};
+  };
+  window.openBackupRestoreCenter=window.gv89ShowBackupCenter;
+})();
+</script>
+<script>
+/* STEP 98 - Main Valuation footer only */
+(function(){
+  function syncFooter(){
+    var footer=document.querySelector('body > footer');
+    if(!footer) return;
+    var valuation=document.getElementById('valuation-main-sections');
+    var activeMenu=document.querySelector('.menu-section.menu-active');
+    var menuOpen=document.body.classList.contains('menu-viewing');
+    var valuationVisible=!!valuation && getComputedStyle(valuation).display!=='none' && !valuation.classList.contains('menu-section');
+    var show=valuationVisible && !activeMenu && !menuOpen;
+    footer.style.setProperty('display',show?'flex':'none','important');
+    footer.style.setProperty('visibility',show?'visible':'hidden','important');
+    footer.style.setProperty('pointer-events',show?'auto':'none','important');
+  }
+  window.syncMainValuationFooter98=syncFooter;
+  document.addEventListener('DOMContentLoaded',function(){ syncFooter(); setTimeout(syncFooter,100); setTimeout(syncFooter,500); });
+  new MutationObserver(syncFooter).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style']});
+})();
+</script>
+<script>
+/* STEP 79 - Reliable Saved Valuation Edit Control */
+(function(){
+  function setEditLock79(locked){
+    if(typeof applyValuationEditLock==='function') applyValuationEditLock(!!locked);
+    const btn=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    const banner=document.getElementById('editValuationBanner');
+    if(banner) banner.style.display=(window._editingValuationId && !window._editUnlocked)?'block':(window._editingValuationId?'block':'none');
+    if(btn){btn.disabled=false;btn.style.display=(window._editingValuationId && !window._editUnlocked)?'inline-block':'none';btn.style.pointerEvents='auto';btn.style.position='relative';btn.style.zIndex='10';}
+    if(cancel){cancel.disabled=false;cancel.style.display=(window._editingValuationId && window._editUnlocked)?'inline-block':'none';}
+  }
+  window.unlockSavedValuation=function(){
+    if(!window._editingValuationId)return;
+    window._editUnlocked=true;
+    if(typeof applyValuationEditLock==='function') applyValuationEditLock(false);
+    const btn=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    if(btn)btn.style.display='none';
+    if(cancel)cancel.style.display='inline-block';
+    const banner=document.getElementById('editValuationBanner');
+    if(banner)banner.style.display='block';
+  };
+  window.setValuationEditMode=function(record, originalFilename){
+    window._editingValuationId=record?.id||null;
+    window._editingValuationOriginalFilename=originalFilename||null;
+    window._editUnlocked=false;
+    const banner=document.getElementById('editValuationBanner');
+    const fileEl=document.getElementById('editValuationFile');
+    const btn=document.getElementById('editValuationEditButton');
+    const cancel=document.getElementById('editValuationCancelButton');
+    if(banner)banner.style.display=record?'block':'none';
+    if(fileEl)fileEl.textContent=record?'File: '+(originalFilename||'Existing valuation file'):'';
+    if(btn){
+      btn.textContent='✏️ Edit';
+      btn.disabled=false;
+      btn.onclick=function(ev){if(ev)ev.preventDefault();window.unlockSavedValuation();};
+    }
+    if(cancel){cancel.onclick=function(ev){if(ev)ev.preventDefault();if(typeof cancelValuationEdit==='function')cancelValuationEdit();};}
+    setEditLock79(!!record);
+  };
+  window.clearValuationEditMode=(function(oldClear){
+    return function(){
+      if(typeof oldClear==='function')oldClear();
+      window._editingValuationId=null;
+      window._editingValuationOriginalFilename=null;
+      window._editUnlocked=false;
+      setEditLock79(false);
+    };
+  })(window.clearValuationEditMode);
+  document.addEventListener('click',function(e){
+    const btn=e.target&&e.target.closest?e.target.closest('#editValuationEditButton'):null;
+    if(btn && window._editingValuationId && !window._editUnlocked){
+      e.preventDefault();e.stopPropagation();window.unlockSavedValuation();
+    }
+  },true);
 })();
 </script>
 </body>
