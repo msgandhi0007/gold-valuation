@@ -1070,6 +1070,196 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step116-premium-main-ui">
+@media screen{
+  :root{
+    --p-bg:#02070d;--p-card:#071522;--p-card2:#091a27;--p-line:#284358;
+    --p-gold:#f5bf35;--p-gold2:#ffd966;--p-green:#20d77a;--p-blue:#4b8fff;
+    --p-purple:#b55cff;--p-cyan:#19d2d0;--p-orange:#ff9c22;--p-muted:#9bacbb;
+  }
+  html,body{background:var(--p-bg)!important;color:#f5f8fb!important}
+  body{
+    background:
+      radial-gradient(circle at 12% -5%,rgba(245,191,53,.10),transparent 25%),
+      radial-gradient(circle at 100% 35%,rgba(154,54,216,.11),transparent 32%),
+      linear-gradient(180deg,#02070d,#030910 65%,#02060b)!important;
+  }
+
+  /* Premium header */
+  .s111-header{
+    background:
+      radial-gradient(circle at 70% -20%,rgba(245,191,53,.15),transparent 27%),
+      linear-gradient(145deg,#010408,#06131e 65%,#091722)!important;
+    border-color:#263c4e!important;
+    box-shadow:0 18px 45px rgba(0,0,0,.42)!important;
+  }
+  .s111-rj-logo{
+    border-color:var(--p-gold)!important;
+    box-shadow:0 0 18px rgba(245,191,53,.14),inset 0 0 16px rgba(245,191,53,.12)!important;
+  }
+  .s111-brand-row .brand{
+    color:var(--p-gold)!important;
+    text-shadow:0 2px 15px rgba(245,191,53,.12)!important;
+  }
+  .s111-top-tools button{
+    border-color:#405365!important;background:#07131f!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)!important;
+  }
+
+  /* Market-rate hero */
+  .s111-rate{
+    border:1px solid var(--p-gold)!important;
+    background:
+      radial-gradient(circle at 3% 50%,rgba(244,54,111,.28),transparent 35%),
+      radial-gradient(circle at 90% 0%,rgba(101,44,173,.20),transparent 34%),
+      linear-gradient(110deg,#410c30,#290b45 50%,#111b3b)!important;
+    box-shadow:0 18px 42px rgba(0,0,0,.43),inset 0 0 35px rgba(255,255,255,.025)!important;
+  }
+  .s111-gold-orb{
+    border-color:var(--p-gold2)!important;
+    box-shadow:0 0 0 4px rgba(245,191,53,.035),0 0 24px rgba(245,191,53,.09)!important;
+  }
+  .s111-rate label{color:var(--p-gold2)!important;letter-spacing:.25px!important}
+  .s111-rate input{font-weight:900!important;text-shadow:0 2px 15px rgba(255,255,255,.10)!important}
+  .s111-eye{background:rgba(2,8,14,.18)!important;border-color:#566474!important}
+
+  /* Cards */
+  .s111-main>.card{
+    position:relative!important;
+    background:
+      linear-gradient(145deg,rgba(9,25,38,.98),rgba(4,12,19,.98))!important;
+    border:1px solid var(--p-line)!important;
+    box-shadow:0 13px 31px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.025)!important;
+    overflow:hidden!important;
+  }
+  .s111-main>.card:before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+    background:linear-gradient(180deg,rgba(245,191,53,.65),transparent 55%,rgba(181,92,255,.35));
+    opacity:.65;
+  }
+  .s111-card-head h2{letter-spacing:.1px!important}
+  .s111-head-icon{
+    background:linear-gradient(145deg,#0c1b28,#07111b)!important;
+    border-color:#345067!important;
+    box-shadow:0 4px 10px rgba(0,0,0,.18)!important;
+  }
+
+  /* Customer */
+  .s111-customer-tile{
+    background:linear-gradient(145deg,#0a1a27,#06111a)!important;
+    border-color:#2a4358!important;
+    transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .s111-customer-tile:focus-within{
+    border-color:#4a6981!important;
+    box-shadow:0 0 0 2px rgba(25,210,208,.06)!important;
+  }
+  .s111-field-icon{color:var(--p-cyan)!important}
+  .s111-customer-tile input{font-weight:800!important}
+
+  /* Jewellery item */
+  #items .item{
+    background:
+      linear-gradient(145deg,#0a1a27,#06111a)!important;
+    border-color:#2a4358!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.18)!important;
+  }
+  #items .field label{font-weight:650!important}
+  #items input,#items select{
+    background:#06111b!important;
+    border-color:#2c455a!important;
+    box-shadow:inset 0 1px 7px rgba(0,0,0,.16)!important;
+  }
+  #items input:focus,#items select:focus{
+    border-color:#58738a!important;box-shadow:0 0 0 2px rgba(245,191,53,.06)!important;
+  }
+  #items .metric{
+    background:linear-gradient(180deg,#0b1d2a,#07131e)!important;
+    border-color:#2c475c!important;
+  }
+  #items .metric b{font-weight:900!important}
+
+  /* Add item CTA */
+  .s111-add{
+    background:linear-gradient(135deg,#8a5a00,#dcae25)!important;
+    border-color:#f1c94d!important;
+    box-shadow:0 7px 18px rgba(218,167,28,.17)!important;
+  }
+  .s111-add:hover{filter:brightness(1.06)!important}
+
+  /* Summary */
+  .s111-summary{
+    background:
+      radial-gradient(circle at 100% 0%,rgba(80,138,255,.08),transparent 32%),
+      linear-gradient(145deg,#071824,#040c14)!important;
+  }
+  .s111-stat{
+    background:linear-gradient(145deg,#0a1b29,#07131e)!important;
+    border-color:#2b465c!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+  }
+  .s111-stat b{font-weight:900!important}
+  .s111-stat:nth-child(1) b{color:#f2f7fb!important}
+  .s111-stat:nth-child(2) b{color:#f2f7fb!important}
+  .s111-stat:nth-child(3) b{color:var(--p-green)!important}
+  .s111-stat:nth-child(4) b{color:var(--p-gold2)!important;text-shadow:0 0 12px rgba(245,191,53,.08)!important}
+
+  /* Loan / LTV */
+  .s111-loan-tile{
+    background:linear-gradient(145deg,#0a1b29,#07131e)!important;
+    border-color:#2b465c!important;
+  }
+  .s111-loan-tile:first-child{border-left:2px solid var(--p-purple)!important}
+  .s111-loan-tile:nth-child(2){border-left:2px solid var(--p-green)!important}
+  .s111-loan-icon.green{color:var(--p-green)!important}
+  .s111-loan-tile input{
+    background:#06111b!important;border-color:#2c455a!important;
+  }
+  .s111-loan-tile b{
+    color:var(--p-green)!important;
+    text-shadow:0 0 13px rgba(32,215,122,.08)!important;
+  }
+
+  /* Secondary actions */
+  .s111-secondary-actions .secondary{
+    background:linear-gradient(145deg,#0a1a27,#06111a)!important;
+    border-color:#2a4358!important;
+  }
+
+  /* Quick actions */
+  .s113-quick-actions{
+    background:linear-gradient(145deg,#071824,#040c14)!important;
+  }
+  .s113-quick-grid button{
+    background:linear-gradient(145deg,#091a27,#06111a)!important;
+    border-color:#2a4358!important;
+  }
+  .s113-quick-grid button:hover{
+    border-color:#46647b!important;
+    transform:translateY(-1px)!important;
+  }
+
+  /* Fixed action bar */
+  body>footer{
+    background:rgba(2,7,13,.985)!important;
+    border-top:1px solid #2a4154!important;
+    box-shadow:0 -14px 34px rgba(0,0,0,.46)!important;
+  }
+  body>footer button{
+    box-shadow:0 6px 15px rgba(0,0,0,.20)!important;
+  }
+
+  @media(max-width:700px){
+    .s111-main>.card{border-radius:21px!important;margin-bottom:13px!important}
+    .s111-card-head{margin-bottom:12px!important}
+    .s111-customer-tile{min-height:80px!important}
+    #items .metric{min-height:70px!important}
+    .s113-quick-grid button{transition:none!important}
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
