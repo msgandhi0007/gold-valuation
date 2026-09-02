@@ -1945,6 +1945,72 @@ body.menu-viewing #valuation-main-sections{display:none!important}
 }
 </style>
 
+
+<style id="step122-compact-summary">
+@media screen and (max-width:700px){
+  /* STEP 122 — keep the main valuation screen compact.
+     The existing detailed valuation table is still present and is revealed
+     by the existing "View Details" button. No data or calculation logic changes. */
+
+  .s111-summary{
+    padding:7px!important;
+    margin-top:5px!important;
+    margin-bottom:5px!important;
+  }
+  .s111-summary .s111-card-head{
+    margin-bottom:5px!important;
+    min-height:25px!important;
+  }
+  .s111-summary .s111-head-icon{
+    width:26px!important;height:26px!important;flex-basis:26px!important;
+  }
+  .s111-summary .s111-card-head h2{
+    font-size:15px!important;
+  }
+  .s111-summary .s111-details{
+    font-size:10px!important;
+    padding:3px 5px!important;
+  }
+  .s111-summary-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:3px!important;
+  }
+  .s111-stat{
+    min-height:45px!important;
+    height:45px!important;
+    padding:4px 2px!important;
+    border-radius:8px!important;
+  }
+  .s111-stat small{
+    font-size:6px!important;
+    line-height:1!important;
+  }
+  .s111-stat b{
+    font-size:10px!important;
+    line-height:1!important;
+    margin-top:3px!important;
+  }
+
+  /* Hide the detailed table initially, as intended by "View Details".
+     Existing button toggles the class and therefore continues to work. */
+  .s111-details-table{
+    display:none!important;
+    margin-top:6px!important;
+  }
+  .s111-details-table.s111-open{
+    display:block!important;
+  }
+  .s111-details-table table{
+    min-width:760px!important;
+  }
+
+  /* Tighten the vertical rhythm around the next loan card. */
+  .s111-summary + .s111-loan-card{
+    margin-top:5px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
