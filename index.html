@@ -10059,5 +10059,232 @@ function enterValuationApp(){
 }
 </style>
 
+
+<style id="step168-exact-preview-arrangement">
+/* STEP 168 — exact mobile valuation arrangement based on the supplied reference.
+   Visual/layout only. Existing IDs, calculations, storage and handlers are preserved. */
+
+@media (max-width:700px){
+
+  /* Compact the top header so Customer Details starts immediately after Market Rate. */
+  .s111-header{
+    min-height:0!important;
+    height:auto!important;
+    padding:8px 10px 9px!important;
+    margin:0!important;
+    border-radius:0 0 24px 24px!important;
+  }
+  .s111-brand-row{
+    height:54px!important;
+    margin:0 70px 6px 48px!important;
+    gap:8px!important;
+  }
+  .s111-rj-logo{
+    width:52px!important;
+    height:52px!important;
+    flex-basis:52px!important;
+  }
+  .s111-brand-row .brand{
+    line-height:.94!important;
+  }
+  .s111-market-rate,
+  .s111-rate-card{
+    margin:0!important;
+  }
+
+  /* Remove the large empty space below Market Rate. */
+  #valuation-main-sections{
+    padding-top:0!important;
+    margin-top:0!important;
+  }
+
+  /* Customer Details becomes the reference-style field group:
+     no separate outer card and no oversized heading. */
+  #valuation-main-sections > .s111-customer{
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+    margin:8px 0 7px!important;
+    padding:0!important;
+  }
+
+  #valuation-main-sections > .s111-customer > .s111-card-head{
+    display:none!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    display:grid!important;
+    grid-template-columns:1.35fr 1fr 1fr!important;
+    gap:8px!important;
+    padding:0!important;
+    margin:0!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    min-width:0!important;
+    min-height:92px!important;
+    height:92px!important;
+    padding:11px 10px 8px!important;
+    border-radius:16px!important;
+    overflow:hidden!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile label{
+    font-size:11px!important;
+    margin-bottom:7px!important;
+    padding-left:21px!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-field-icon{
+    left:9px!important;
+    top:11px!important;
+    font-size:15px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{
+    height:43px!important;
+    min-height:43px!important;
+    padding:8px 10px!important;
+    border:1px solid #23435a!important;
+    border-radius:14px!important;
+    background:#03121d!important;
+    font-size:17px!important;
+    font-weight:700!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  /* Bank stays directly below the three customer fields, full width. */
+  #valuation-main-sections > .s111-customer .s111-hidden-data{
+    display:block!important;
+    grid-column:1/-1!important;
+    min-height:92px!important;
+    padding:12px 12px 10px!important;
+    margin:0!important;
+    border:1px solid #24465d!important;
+    border-radius:17px!important;
+    background:linear-gradient(145deg,#071b29,#06131e)!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-hidden-data label{
+    display:block!important;
+    color:#aebdca!important;
+    font-size:11px!important;
+    margin:0 0 6px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-hidden-data:before{
+    content:"🏦  Select Bank";
+    display:block!important;
+    color:#00d8dc!important;
+    font-size:17px!important;
+    font-weight:800!important;
+    margin:0 0 4px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-hidden-data select{
+    width:100%!important;
+    height:43px!important;
+    min-height:43px!important;
+    border-radius:13px!important;
+    padding:0 34px 0 14px!important;
+    font-size:16px!important;
+  }
+
+  /* Jewellery section: open, reference-style section rather than a large boxed section. */
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card{
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+  }
+
+  #valuation-main-sections > .s111-jewellery{
+    margin:7px 0 8px!important;
+    padding:0!important;
+  }
+
+  #valuation-main-sections > .s111-jewellery .s111-card-head{
+    min-height:64px!important;
+    margin:0!important;
+    padding:7px 0 9px!important;
+    border-top:1px solid rgba(183,131,32,.55)!important;
+    border-bottom:1px solid rgba(183,131,32,.55)!important;
+  }
+
+  #valuation-main-sections > .s111-jewellery .s111-card-head h2{
+    font-size:23px!important;
+    line-height:1.02!important;
+  }
+
+  #valuation-main-sections > .s111-jewellery .s111-add{
+    min-width:190px!important;
+    min-height:54px!important;
+    font-size:16px!important;
+    padding:8px 13px!important;
+  }
+
+  #items{
+    margin-top:9px!important;
+  }
+
+  #items .item{
+    border-radius:18px!important;
+    padding:12px!important;
+    margin:0!important;
+    background:linear-gradient(145deg,#071a27,#04111b)!important;
+    border:1px solid #23465c!important;
+  }
+
+  /* Summary and Loan retain their existing content, but use the same open layout. */
+  #valuation-main-sections > .s111-summary{
+    margin:8px 0!important;
+    padding:11px 0!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-card-head,
+  #valuation-main-sections > .s111-loan-card .s111-card-head{
+    border-top:1px solid rgba(183,131,32,.45)!important;
+    border-bottom:1px solid rgba(183,131,32,.45)!important;
+    padding:9px 4px!important;
+    margin:0 0 9px!important;
+  }
+
+  #valuation-main-sections > .s111-loan-card{
+    margin:8px 0 90px!important;
+    padding:0!important;
+  }
+
+  /* Prevent the fixed Save/Load/Share bar from covering content. */
+  body > footer{
+    z-index:7000!important;
+  }
+}
+
+/* Very narrow phones */
+@media (max-width:430px){
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    grid-template-columns:1.28fr 1fr 1fr!important;
+    gap:6px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{
+    font-size:15px!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-add{
+    min-width:0!important;
+    width:185px!important;
+  }
+}
+</style>
+
 </body>
 </html>
