@@ -9102,5 +9102,67 @@ function enterValuationApp(){
 }
 </style>
 
+
+<style id="step163-remove-section-outer-boxes">
+/* STEP 163 — Remove only the outer section boxes.
+   Inner jewellery item, summary statistic and LTV tiles remain intact. */
+@media screen {
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card {
+    background: transparent !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 8px 0 !important;
+    margin: 6px 0 !important;
+  }
+
+  /* Section headings sit directly on the main screen, like the reference. */
+  #valuation-main-sections > .s111-jewellery .s111-card-head,
+  #valuation-main-sections > .s111-summary .s111-card-head,
+  #valuation-main-sections > .s111-loan-card .s111-card-head {
+    margin: 0 0 10px !important;
+    padding: 8px 8px 10px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(183,131,32,.38) !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep each jewellery item as its own usable inner card. */
+  #valuation-main-sections > .s111-jewellery #items .item {
+    border: 1px solid #29485d !important;
+    border-radius: 16px !important;
+  }
+
+  /* Keep summary statistic tiles visible, but remove only their section wrapper. */
+  #valuation-main-sections > .s111-summary .s111-summary-grid {
+    padding: 0 !important;
+  }
+
+  /* Keep LTV input/loan tiles visible inside the section. */
+  #valuation-main-sections > .s111-loan-card .s111-loan-grid {
+    padding: 0 !important;
+  }
+}
+
+@media (max-width:520px) {
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card {
+    padding: 6px 0 !important;
+    margin: 5px 0 !important;
+  }
+
+  #valuation-main-sections > .s111-jewellery .s111-card-head,
+  #valuation-main-sections > .s111-summary .s111-card-head,
+  #valuation-main-sections > .s111-loan-card .s111-card-head {
+    padding: 7px 8px 9px !important;
+  }
+}
+</style>
+
 </body>
 </html>
