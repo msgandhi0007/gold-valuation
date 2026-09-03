@@ -8199,5 +8199,46 @@ function enterValuationApp(){
   }
 }
 </style>
+
+<style id="step152-market-rate-outer-space-fix">
+/* STEP 152 — Remove excess outer Market Rate/header space.
+   Keep the compact Market Rate card, but shrink the containing header
+   so Customer Details follows immediately with only a small visual gap. */
+
+@media screen and (max-width:700px){
+  .s111-header{
+    height:auto!important;
+    min-height:0!important;
+    padding:6px 8px 7px!important;
+    margin-bottom:5px!important;
+    border-radius:0 0 18px 18px!important;
+  }
+
+  .s111-header .s111-rate{
+    margin-bottom:0!important;
+  }
+
+  /* Collapse any legacy fixed-height spacer/padding below the rate card. */
+  .s111-header > *:last-child{
+    margin-bottom:0!important;
+  }
+
+  #valuation-main-sections{
+    margin-top:0!important;
+    padding-top:0!important;
+  }
+
+  #valuation-main-sections > *:first-child{
+    margin-top:0!important;
+  }
+}
+
+@media screen and (max-width:430px){
+  .s111-header{
+    padding-bottom:5px!important;
+    margin-bottom:3px!important;
+  }
+}
+</style>
 </body>
 </html>
