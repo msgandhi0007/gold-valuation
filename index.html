@@ -9164,5 +9164,238 @@ function enterValuationApp(){
 }
 </style>
 
+
+<style id="step164-valuation-screen-preview-arranged">
+/* STEP 164 — Valuation screen arranged to match the approved reference.
+   Layout only: no IDs, calculations, storage, save/load/share or handlers changed. */
+
+@media screen {
+  /* The valuation screen is one continuous premium canvas. */
+  #valuation-main-sections{
+    display:block!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:0 18px 92px!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+
+  /* Remove every section's outer card. */
+  #valuation-main-sections > .s111-customer,
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card{
+    width:100%!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:10px 0!important;
+    border:0!important;
+    border-radius:0!important;
+    outline:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+
+  /* Customer heading */
+  #valuation-main-sections > .s111-customer .s111-card-head{
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    min-height:48px!important;
+    margin:0 0 10px!important;
+    padding:0 4px 10px!important;
+    border-bottom:1px solid rgba(214,170,43,.34)!important;
+    background:transparent!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-card-head h2{
+    color:#f5f7fa!important;
+    font-size:21px!important;
+    font-weight:900!important;
+    margin:0!important;
+  }
+
+  /* Customer fields: exactly one inner field group, no outer section box. */
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    min-width:0!important;
+    height:112px!important;
+    min-height:112px!important;
+    box-sizing:border-box!important;
+    padding:12px 10px 9px!important;
+    border:1px solid #29465a!important;
+    border-radius:15px!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+    overflow:hidden!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-hidden-data{
+    grid-column:1/-1!important;
+    display:block!important;
+    min-height:96px!important;
+    height:auto!important;
+    margin:0!important;
+    padding:11px 12px 10px!important;
+    border:1px solid #29465a!important;
+    border-radius:15px!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+  }
+
+  /* Jewellery section */
+  #valuation-main-sections > .s111-jewellery .s111-card-head,
+  #valuation-main-sections > .s111-summary .s111-card-head,
+  #valuation-main-sections > .s111-loan-card .s111-card-head{
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    min-height:48px!important;
+    margin:0 0 10px!important;
+    padding:0 4px 10px!important;
+    border-bottom:1px solid rgba(214,170,43,.34)!important;
+    background:transparent!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-card-head h2,
+  #valuation-main-sections > .s111-summary .s111-card-head h2,
+  #valuation-main-sections > .s111-loan-card .s111-card-head h2{
+    margin:0!important;
+    color:#f5f7fa!important;
+    font-size:20px!important;
+    font-weight:900!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-add{
+    margin-left:auto!important;
+  }
+
+  /* Keep jewellery item itself as the only item-level card. */
+  #valuation-main-sections > .s111-jewellery #items .item{
+    width:100%!important;
+    box-sizing:border-box!important;
+    margin:0 0 9px!important;
+    padding:13px!important;
+    border:1px solid #29465a!important;
+    border-radius:17px!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+    box-shadow:none!important;
+  }
+
+  /* Summary: no wrapper, only the four useful stat tiles. */
+  #valuation-main-sections > .s111-summary .s111-summary-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-stat{
+    min-width:0!important;
+    min-height:82px!important;
+    box-sizing:border-box!important;
+    padding:10px 5px!important;
+    border:1px solid #29465a!important;
+    border-radius:13px!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+  }
+
+  /* Loan & LTV: no wrapper, only the two functional tiles. */
+  #valuation-main-sections > .s111-loan-card .s111-loan-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)!important;
+    gap:9px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #valuation-main-sections > .s111-loan-card .s111-loan-tile{
+    min-width:0!important;
+    box-sizing:border-box!important;
+    border-radius:14px!important;
+    border:1px solid #29465a!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+  }
+
+  /* Details table remains available through View Details. */
+  #valuation-main-sections > .s111-summary .s111-details-table{
+    margin-top:10px!important;
+  }
+}
+
+@media (max-width:520px){
+  #valuation-main-sections{
+    padding:0 18px 92px!important;
+  }
+
+  #valuation-main-sections > .s111-customer,
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card{
+    padding:8px 0!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-card-head,
+  #valuation-main-sections > .s111-jewellery .s111-card-head,
+  #valuation-main-sections > .s111-summary .s111-card-head,
+  #valuation-main-sections > .s111-loan-card .s111-card-head{
+    margin-bottom:9px!important;
+    padding:0 3px 9px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-card-head h2{
+    font-size:20px!important;
+  }
+
+  #valuation-main-sections > .s111-jewellery .s111-card-head h2,
+  #valuation-main-sections > .s111-summary .s111-card-head h2,
+  #valuation-main-sections > .s111-loan-card .s111-card-head h2{
+    font-size:19px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    height:112px!important;
+    min-height:112px!important;
+    padding:11px 8px 9px!important;
+    border-radius:15px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile label{
+    font-size:9px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{
+    font-size:14px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-tile:has(#customerName) input{
+    font-size:16px!important;
+  }
+
+  #valuation-main-sections > .s111-summary .s111-summary-grid{
+    gap:6px!important;
+  }
+
+  #valuation-main-sections > .s111-summary .s111-stat{
+    min-height:78px!important;
+    padding:9px 3px!important;
+  }
+
+  #valuation-main-sections > .s111-loan-card .s111-loan-grid{
+    grid-template-columns:1fr 1.25fr!important;
+    gap:7px!important;
+  }
+}
+</style>
+
 </body>
 </html>
