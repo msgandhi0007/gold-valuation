@@ -4399,6 +4399,96 @@ body.app-started>footer{display:flex!important}
   .step153-valuation-box > .s111-customer .s111-customer-tile label{font-size:10px!important}
 }
 </style>
+
+<style id="step158-premium-valuation-arrangement">
+/* STEP 158 — single premium valuation container + clean section hierarchy.
+   Visual/layout only: existing IDs, calculations and handlers remain unchanged. */
+.step153-valuation-box{
+  position:relative!important;
+  margin:18px 16px 18px!important;
+  padding:18px 14px 20px!important;
+  border:1.5px solid #b88a16!important;
+  border-radius:28px!important;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(255,193,45,.055),transparent 28%),
+    radial-gradient(circle at 100% 100%,rgba(154,54,255,.045),transparent 30%),
+    linear-gradient(145deg,#061722,#020a10 72%,#040b12)!important;
+  box-shadow:0 0 0 1px rgba(255,190,40,.06), inset 0 0 28px rgba(0,0,0,.24)!important;
+}
+.step153-box-head{
+  margin:0 2px 14px!important;
+  padding:0 2px 13px!important;
+  border-bottom:1px solid rgba(212,164,42,.45)!important;
+}
+/* Customer Details: remove its outer card border/background; keep the fields as the usable content. */
+.step153-valuation-box .s111-customer{
+  margin:0 0 12px!important;
+  padding:12px 8px 10px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.step153-valuation-box .s111-customer .s111-card-head{
+  margin:0 0 10px!important;
+  padding:0 2px 8px!important;
+  border-bottom:1px solid rgba(42,76,96,.45)!important;
+}
+.step153-valuation-box .s111-customer-grid{
+  margin:0!important;
+  padding:0!important;
+}
+/* Each remaining valuation stage gets its own premium section box. */
+.step153-valuation-box .s111-jewellery,
+.step153-valuation-box .s111-summary,
+.step153-valuation-box .s111-loan-card{
+  margin:10px 0!important;
+  padding:14px!important;
+  border:1px solid #29475c!important;
+  border-radius:20px!important;
+  background:linear-gradient(145deg,rgba(7,24,36,.98),rgba(3,12,19,.98))!important;
+  box-shadow:inset 0 0 20px rgba(0,0,0,.16),0 5px 18px rgba(0,0,0,.16)!important;
+}
+.step153-valuation-box .s111-jewellery{
+  border-color:rgba(218,166,35,.55)!important;
+}
+.step153-valuation-box .s111-summary{
+  border-color:rgba(70,135,180,.58)!important;
+}
+.step153-valuation-box .s111-loan-card{
+  border-color:rgba(163,91,224,.52)!important;
+}
+.step153-valuation-box .s111-jewellery .s111-card-head,
+.step153-valuation-box .s111-summary .s111-card-head,
+.step153-valuation-box .s111-loan-card .s111-card-head{
+  margin-bottom:10px!important;
+}
+/* Keep the valuation action row inside the single premium outer box. */
+.step153-valuation-box .step154-preview-actions{
+  margin:12px 0 4px!important;
+  padding:0!important;
+}
+.step153-valuation-box .s111-secondary-actions{
+  margin:8px 0 0!important;
+}
+@media(max-width:700px){
+  .step153-valuation-box{
+    margin:12px 16px 16px!important;
+    padding:13px 9px 16px!important;
+    border-radius:24px!important;
+  }
+  .step153-box-head{margin-bottom:10px!important;padding-bottom:10px!important}
+  .step153-valuation-box .s111-customer{padding:9px 5px 7px!important;margin-bottom:8px!important}
+  .step153-valuation-box .s111-customer .s111-card-head{margin-bottom:8px!important}
+  .step153-valuation-box .s111-jewellery,
+  .step153-valuation-box .s111-summary,
+  .step153-valuation-box .s111-loan-card{
+    margin:8px 0!important;
+    padding:11px!important;
+    border-radius:18px!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
