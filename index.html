@@ -6748,5 +6748,100 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<script>
+/* STEP 134 - Android/browser back navigation for SPA screens
+   Keeps the last in-app screen in the browser/WebView history so the
+   Android Back key navigates to the previous app window instead of closing it. */
+(function(){
+  if(window.__step134BackNavigationInstalled) return;
+  window.__step134BackNavigationInstalled = true;
+
+  var internalBack = false;
+  var ready = false;
+
+  function currentState(){
+    return history.state && history.state.__goldValuationApp ? history.state : null;
+  }
+
+  function pushAppState(type, id){
+    if(!ready || internalBack) return;
+    var cur=currentState();
+    if(cur && cur.type===type && cur.id===id) return;
+    history.pushState({__goldValuationApp:true,type:type,id:id}, '', location.href.split('#')[0] + (type==='valuation' ? '#valuation' : '#screen-'+encodeURIComponent(id||'')));
+  }
+
+  function cleanHash(){
+    if(location.hash){
+      try{ history.replaceState(history.state,'',location.href.split('#')[0]); }catch(e){}
+    }
+  }
+
+  function goToState(st){
+    internalBack=true;
+    try{
+      if(st && st.type==='menu' && st.id && typeof window.showMenuSection==='function'){
+        window.showMenuSection(st.id);
+      }else if(st && st.type==='valuation' && typeof window.showValuationScreen==='function'){
+        window.showValuationScreen();
+        window.scrollTo(0,0);
+      }
+    }catch(e){ console.warn('Back navigation:',e); }
+    setTimeout(function(){ internalBack=false; },0);
+  }
+
+  window.addEventListener('popstate',function(e){
+    var st=e.state;
+    if(st && st.__goldValuationApp){
+      goToState(st);
+      return;
+    }
+    // The first app screen has no older in-app screen. Keep the user inside
+    // the app rather than allowing a stray history pop to close its WebView.
+    if(ready){
+      history.pushState({__goldValuationApp:true,type:'valuation',id:'valuation'},'',location.href.split('#')[0]+'#valuation');
+      goToState({__goldValuationApp:true,type:'valuation',id:'valuation'});
+    }
+  });
+
+  function installWrappers(){
+    if(typeof window.showMenuSection==='function' && !window.showMenuSection.__step134Wrapped){
+      var oldMenu=window.showMenuSection;
+      var wrappedMenu=function(id){
+        pushAppState('menu',id);
+        return oldMenu.apply(this,arguments);
+      };
+      wrappedMenu.__step134Wrapped=true;
+      window.showMenuSection=wrappedMenu;
+    }
+    if(typeof window.showValuationScreen==='function' && !window.showValuationScreen.__step134Wrapped){
+      var oldVal=window.showValuationScreen;
+      var wrappedVal=function(){
+        pushAppState('valuation','valuation');
+        return oldVal.apply(this,arguments);
+      };
+      wrappedVal.__step134Wrapped=true;
+      window.showValuationScreen=wrappedVal;
+    }
+  }
+
+  function start(){
+    installWrappers();
+    // Establish one real history entry for the app. Android Back now has
+    // somewhere to return to after the user opens another in-app screen.
+    try{
+      history.replaceState({__goldValuationApp:true,type:'valuation',id:'valuation'},'',location.href.split('#')[0]+'#valuation');
+      cleanHash();
+      history.replaceState({__goldValuationApp:true,type:'valuation',id:'valuation'},'',location.href.split('#')[0]);
+    }catch(e){}
+    ready=true;
+    installWrappers();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+})();
+</script>
+
 </body>
 </html>
