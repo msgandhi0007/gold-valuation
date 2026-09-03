@@ -2901,7 +2901,7 @@ main{width:100%!important;max-width:100%!important;min-width:0!important;overflo
     <div class="s111-summary-grid">
       <div class="s111-stat"><small>Total Items</small><b id="s111-items">0</b></div>
       <div class="s111-stat"><small>Gross Weight<br>(Gram)</small><b id="s111-gross">0.000</b></div>
-      <div class="s111-stat"><small>Net Weight<br>(Gram)</small><b id="s111-net">0.000</b></div>
+      <div class="s111-stat"><small>Rounded<br>(Gram)</small><b id="s111-rounded">0.000</b></div>
       <div class="s111-stat"><small>Total Value<br>(₹)</small><b id="s111-value">₹0</b></div>
     </div>
 
@@ -3445,7 +3445,7 @@ document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById(
 // Step 128: keep the reference summary cards synchronized with the actual item calculations.
 const sItems=document.getElementById('s111-items'); if(sItems)sItems.textContent=String(no);
 const sGross=document.getElementById('s111-gross'); if(sGross)sGross.textContent=tg.toFixed(3);
-const sNet=document.getElementById('s111-net'); if(sNet)sNet.textContent=tn.toFixed(3);
+const sRounded=document.getElementById('s111-rounded'); if(sRounded)sRounded.textContent=tr.toFixed(3);
 const sValue=document.getElementById('s111-value'); if(sValue)sValue.textContent=money(tv);
 const ltv1=Math.max(0,Math.min(100,num(document.getElementById('ltv1').value)));const loanRate=Math.max(0,num(document.getElementById('loanRate').value));document.getElementById('l65').textContent=money(tv*ltv1/100);document.getElementById('l70').textContent=money(tr*loanRate);
 const sanctionedEl=document.getElementById('sanctionedLoan'); const sanctionedDisplay=document.getElementById('s111-sanctioned-display'); if(sanctionedDisplay)sanctionedDisplay.textContent=money(sanctionedEl?num(sanctionedEl.value):0);
