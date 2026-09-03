@@ -9055,5 +9055,52 @@ function enterValuationApp(){
   }
 }
 </style>
+
+<style id="step162-customer-outer-box-final">
+/* STEP 162 — Customer Details outer-box removal.
+   Match the requested preview: Customer Details itself has no separate
+   premium card border/background. The three fields + Bank remain grouped
+   inside their own field container. Existing IDs, calculations and handlers
+   are untouched. */
+@media screen {
+  .step153-valuation-box > .s111-customer,
+  .step153-valuation-box .s111-customer.card,
+  #valuation-main-sections > .s111-customer {
+    border: 0 !important;
+    outline: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .step153-valuation-box > .s111-customer {
+    margin: 0 !important;
+  }
+
+  .step153-valuation-box > .s111-customer .s111-card-head {
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep the customer field group as the only visible inner frame. */
+  .step153-valuation-box > .s111-customer .s111-customer-grid {
+    border: 1px solid #29485d !important;
+    border-radius: 16px !important;
+    background: transparent !important;
+  }
+}
+
+@media screen and (max-width:700px) {
+  .step153-valuation-box > .s111-customer {
+    padding: 8px 2px 8px !important;
+  }
+
+  .step153-valuation-box > .s111-customer .s111-card-head {
+    margin: 0 0 8px !important;
+    padding: 0 2px !important;
+  }
+}
+</style>
+
 </body>
 </html>
