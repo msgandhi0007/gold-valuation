@@ -6767,7 +6767,114 @@ document.addEventListener('DOMContentLoaded',()=>{
   .storage-management-grid{grid-template-columns:1fr !important}
   .storage-management-grid button{grid-column:auto !important}
 }
-</style></head><body>
+</style>
+<style id="step155-customer-details-exact">
+/* STEP 155 — Customer Details: match the preview precisely on phone screens. */
+@media (max-width:700px){
+  .step153-valuation-box > .s111-customer{padding:12px 10px 11px!important;}
+  .step153-valuation-box > .s111-customer .s111-card-head{
+    display:flex!important;align-items:center!important;min-height:42px!important;
+    margin:0 0 10px!important;padding:0 4px!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-card-head .s111-head-icon,
+  .step153-valuation-box > .s111-customer .s111-card-head h2{
+    display:block!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-card-head .s111-head-icon{
+    flex:0 0 34px!important;width:34px!important;height:34px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    margin-right:8px!important;border-radius:10px!important;font-size:14px!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-card-head h2{
+    margin:0!important;color:#f1f5f8!important;font-size:20px!important;
+    line-height:1.1!important;white-space:nowrap!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-saved{
+    margin-left:auto!important;flex:0 0 auto!important;min-height:38px!important;
+    padding:7px 10px!important;font-size:13px!important;
+  }
+
+  .step153-valuation-box > .s111-customer .s111-customer-grid{
+    display:grid!important;
+    grid-template-columns:1.45fr 1fr 1.08fr!important;
+    gap:0!important;
+    width:100%!important;
+    border:1px solid #29485d!important;
+    border-radius:16px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile{
+    min-width:0!important;width:auto!important;height:112px!important;
+    min-height:112px!important;padding:14px 10px 10px!important;
+    border:0!important;border-right:1px solid #29485d!important;
+    border-radius:0!important;background:transparent!important;
+    box-sizing:border-box!important;overflow:hidden!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile:nth-child(3){border-right:0!important}
+  .step153-valuation-box > .s111-customer .s111-customer-tile .s111-field-icon{
+    position:static!important;display:inline-block!important;margin:0 4px 5px 0!important;
+    font-size:12px!important;line-height:1!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile label{
+    display:block!important;width:100%!important;margin:0 0 9px!important;padding:0!important;
+    color:#aebfca!important;font-size:11px!important;font-weight:700!important;
+    line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;
+    text-overflow:ellipsis!important;box-sizing:border-box!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile input{
+    display:block!important;width:100%!important;max-width:100%!important;
+    min-width:0!important;height:50px!important;min-height:50px!important;
+    box-sizing:border-box!important;padding:7px 10px!important;
+    border:1px solid #29485d!important;border-radius:12px!important;
+    background:#06131e!important;color:#f3f7fa!important;
+    font-size:15px!important;font-weight:600!important;line-height:1.1!important;
+    outline:none!important;text-overflow:ellipsis!important;overflow:hidden!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile:has(#customerName) input{
+    font-size:16px!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile:has(#valuationDate) input{
+    font-size:14px!important;padding-left:8px!important;padding-right:5px!important;
+  }
+
+  /* Bank is a separate full-width row directly under the three fields. */
+  .step153-valuation-box > .s111-customer .s111-hidden-data{
+    grid-column:1/-1!important;width:100%!important;min-width:0!important;
+    min-height:92px!important;padding:12px 12px 11px!important;
+    border:0!important;border-top:1px solid #29485d!important;
+    border-radius:0!important;background:transparent!important;box-sizing:border-box!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-hidden-data::before{
+    content:"🏦 Select Bank"!important;display:block!important;margin:0 0 5px!important;
+    color:#00d7df!important;font-size:13px!important;font-weight:800!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-hidden-data label{
+    display:block!important;margin:0 0 5px!important;color:#aebfca!important;
+    font-size:11px!important;font-weight:700!important;
+  }
+  .step153-valuation-box > .s111-customer #bankName{
+    display:block!important;width:100%!important;min-height:48px!important;height:48px!important;
+    box-sizing:border-box!important;padding:0 13px!important;border-radius:12px!important;
+    border:1px solid #29485d!important;background:#071722!important;color:#f3f7fa!important;
+    font-size:15px!important;
+  }
+}
+@media(max-width:430px){
+  .step153-valuation-box > .s111-customer .s111-customer-grid{
+    grid-template-columns:1.4fr 1fr 1.05fr!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile{
+    height:108px!important;min-height:108px!important;padding:13px 8px 9px!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile label{font-size:10px!important;margin-bottom:8px!important}
+  .step153-valuation-box > .s111-customer .s111-customer-tile input{font-size:14px!important;height:48px!important;min-height:48px!important;padding-left:9px!important;padding-right:7px!important}
+  .step153-valuation-box > .s111-customer .s111-customer-tile:has(#customerName) input{font-size:15px!important}
+  .step153-valuation-box > .s111-customer .s111-card-head h2{font-size:19px!important}
+  .step153-valuation-box > .s111-customer .s111-saved{font-size:12px!important;padding:6px 9px!important}
+}
+</style>
+</head><body>
       <div class="head"><h1>RAJENDRA JEWELLERS</h1><h2>BANK-WISE CUSTOMER REPORT</h2></div>
       <div class="meta"><b>Bank:</b> ${esc31(bank)}<br><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
       <div class="summary"><div class="box"><span>Customers</span><br><b>${gs.length}</b></div><div class="box"><span>Valuations</span><br><b>${records.length}</b></div><div class="box"><span>Total Valuation</span><br><b>${money31(tv)}</b></div><div class="box"><span>Total Sanctioned Loan</span><br><b>${money31(tl)}</b></div></div>
