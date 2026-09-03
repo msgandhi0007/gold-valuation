@@ -3595,6 +3595,78 @@ body.app-started>footer{display:flex!important}
   header.s111-header .s111-rate{margin-top:19px!important}
 }
 </style>
+
+<style id="step146-bank-visible">
+/* STEP 146 — Make Bank selector visible on Valuation screen */
+#valuation-main-sections .s111-customer-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+#valuation-main-sections .s111-hidden-data{
+  display:flex!important;
+  grid-column:1/-1!important;
+  width:100%!important;
+  min-width:0!important;
+  margin-top:0!important;
+  padding:10px 12px!important;
+  border:1px solid #263f52!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg,#071722,#06121c)!important;
+  box-sizing:border-box!important;
+  flex-direction:column!important;
+  gap:6px!important;
+}
+#valuation-main-sections .s111-hidden-data label{
+  display:block!important;
+  color:#9fb0bf!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  margin:0!important;
+}
+#valuation-main-sections #bankName{
+  display:block!important;
+  width:100%!important;
+  min-height:48px!important;
+  box-sizing:border-box!important;
+  padding:0 14px!important;
+  border-radius:12px!important;
+  border:1px solid #29485d!important;
+  background:#071722!important;
+  color:#f1f5f8!important;
+  font-size:15px!important;
+  outline:none!important;
+}
+#valuation-main-sections #bankName option{
+  background:#071722!important;
+  color:#f1f5f8!important;
+}
+#valuation-main-sections .s111-hidden-data::before{
+  content:"🏦 Select Bank";
+  color:#00d7df!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  display:block!important;
+}
+@media(max-width:700px){
+  #valuation-main-sections .s111-customer-grid{
+    grid-template-columns:1fr 1fr 1fr!important;
+    gap:8px!important;
+  }
+  #valuation-main-sections .s111-hidden-data{
+    grid-column:1/-1!important;
+  }
+}
+@media(max-width:430px){
+  #valuation-main-sections .s111-customer-grid{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(3){
+    grid-column:1/-1!important;
+  }
+  #valuation-main-sections .s111-hidden-data{
+    grid-column:1/-1!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
