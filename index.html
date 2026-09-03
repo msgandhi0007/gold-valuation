@@ -3667,6 +3667,70 @@ body.app-started>footer{display:flex!important}
   }
 }
 </style>
+
+<style id="step147-customer-layout">
+/* STEP 147 — Customer details mobile arrangement
+   Name = full-width larger field
+   Mobile + Valuation Date = same row
+   Bank = full-width below
+*/
+@media(max-width:700px){
+  #valuation-main-sections .s111-customer-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(1){
+    grid-column:1/-1!important;
+    min-height:112px!important;
+    padding:16px 14px 12px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(1) label{
+    font-size:14px!important;
+    margin-bottom:9px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(1) input{
+    min-height:52px!important;
+    padding:7px 12px!important;
+    border:1px solid #29485d!important;
+    border-radius:13px!important;
+    background:#06131e!important;
+    font-size:18px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(2),
+  #valuation-main-sections .s111-customer-tile:nth-child(3){
+    min-height:96px!important;
+    padding:13px 11px 10px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(2) input,
+  #valuation-main-sections .s111-customer-tile:nth-child(3) input{
+    min-height:46px!important;
+    padding:5px 10px!important;
+    border:1px solid #29485d!important;
+    border-radius:12px!important;
+    background:#06131e!important;
+    font-size:15px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(3) input{
+    font-size:15px!important;
+  }
+  #valuation-main-sections .s111-hidden-data{
+    grid-column:1/-1!important;
+  }
+}
+@media(max-width:430px){
+  #valuation-main-sections .s111-customer-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(1){
+    min-height:108px!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(2),
+  #valuation-main-sections .s111-customer-tile:nth-child(3){
+    min-height:92px!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
