@@ -4512,6 +4512,26 @@ body.app-started>footer{display:flex!important}
 .step153-valuation-box>.s111-jewellery,.step153-valuation-box>.s111-summary,.step153-valuation-box>.s111-loan-card{margin:7px 0!important;padding:12px!important;border-radius:18px!important}
 }
 </style>
+
+<style id="step167-valuation-final">
+/* STEP 167 — final valuation-screen arrangement */
+@media (max-width:700px){
+  /* keep the market-rate shell compact and close to customer details */
+  #market-rate-card, .market-rate-card, .rate-card{margin-bottom:12px !important;}
+  /* customer block */
+  #customer-details, .customer-details, .customer-section{margin-top:0 !important;}
+  /* three customer fields: stable proportions */
+  .customer-details-grid, .customer-grid, .customer-fields-grid{grid-template-columns:1.35fr 1fr 1fr !important;}
+  /* bank immediately follows the three fields */
+  .bank-select-card, .select-bank-card, .bank-card{margin-top:10px !important;}
+  /* jewellery heading stays on one line; button remains compact */
+  .jewellery-section .section-title, .add-jewellery-header, .jewellery-header{white-space:nowrap !important;}
+  .jewellery-section .section-title h2, .add-jewellery-header h2, .jewellery-header h2{font-size:25px !important;line-height:1.05 !important;}
+  .jewellery-section .add-new-item, .add-jewellery-header button, .jewellery-header button{min-width:0 !important;width:auto !important;padding:14px 20px !important;font-size:16px !important;}
+  /* item card uses the same width as the bank card */
+  .jewellery-item, .item-card{margin-top:10px !important;}
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
