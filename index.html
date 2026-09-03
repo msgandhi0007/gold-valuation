@@ -4229,6 +4229,176 @@ body.app-started>footer{display:flex!important}
   .step154-preview-actions button{font-size:11px!important;min-height:46px!important}
 }
 </style>
+
+<style id="step157-customer-details-final">
+/* STEP 157 — Final Customer Details alignment to the supplied preview.
+   Visual/layout correction only. Existing IDs, values and handlers are preserved. */
+@media screen and (max-width:700px){
+  .step153-valuation-box > .s111-customer{
+    position:relative!important;
+    padding:10px!important;
+  }
+  /* Restore the Customer Details title and icon beside Saved. */
+  .step153-valuation-box > .s111-customer .s111-card-head{
+    display:flex!important;
+    align-items:center!important;
+    width:100%!important;
+    min-height:48px!important;
+    height:48px!important;
+    margin:0 0 10px!important;
+    padding:0 4px!important;
+    box-sizing:border-box!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-card-head .s111-head-icon{
+    display:flex!important;
+    flex:0 0 34px!important;
+    width:34px!important;height:34px!important;
+    align-items:center!important;justify-content:center!important;
+    margin:0 9px 0 0!important;
+    border-radius:10px!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-card-head h2{
+    display:block!important;
+    flex:1 1 auto!important;
+    margin:0!important;
+    color:#f3f7fa!important;
+    font-size:20px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+    white-space:nowrap!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-saved{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 auto!important;
+    margin-left:auto!important;
+    min-height:38px!important;height:38px!important;
+    padding:6px 11px!important;
+    border-radius:11px!important;
+    font-size:13px!important;
+  }
+
+  /* Three customer fields remain together in one row. */
+  .step153-valuation-box > .s111-customer .s111-customer-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.42fr) minmax(0,1fr) minmax(0,1.05fr)!important;
+    gap:0!important;
+    width:100%!important;
+    margin:0!important;
+    border:1px solid #29485d!important;
+    border-radius:16px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile{
+    min-width:0!important;
+    width:auto!important;
+    height:112px!important;
+    min-height:112px!important;
+    padding:14px 10px 10px!important;
+    border:0!important;
+    border-right:1px solid #29485d!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile:nth-child(3){border-right:0!important}
+  .step153-valuation-box > .s111-customer .s111-customer-tile .s111-field-icon{
+    position:static!important;
+    display:block!important;
+    margin:0 0 5px!important;
+    font-size:13px!important;
+    line-height:1!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile label{
+    display:block!important;
+    width:100%!important;
+    margin:0 0 9px!important;
+    padding:0!important;
+    color:#aebfca!important;
+    font-size:11px!important;
+    font-weight:700!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile input{
+    display:block!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    height:50px!important;min-height:50px!important;
+    box-sizing:border-box!important;
+    padding:7px 10px!important;
+    border:1px solid #29485d!important;
+    border-radius:12px!important;
+    background:#06131e!important;
+    color:#f3f7fa!important;
+    font-size:16px!important;
+    font-weight:600!important;
+    line-height:1.1!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile:first-child input{
+    font-size:18px!important;font-weight:800!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile:nth-child(3) input{
+    font-size:14px!important;padding-left:8px!important;padding-right:5px!important;
+  }
+
+  /* Bank stays full width immediately below the three fields. */
+  .step153-valuation-box > .s111-customer .s111-hidden-data{
+    grid-column:1/-1!important;
+    width:100%!important;
+    min-height:92px!important;
+    padding:12px 12px 11px!important;
+    margin:0!important;
+    border:0!important;
+    border-top:1px solid #29485d!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Edit mode: compact controls without adding a blank block. */
+  #editValuationBanner{
+    position:absolute!important;
+    top:54px!important;
+    right:10px!important;
+    margin:0!important;padding:0!important;
+    min-height:0!important;
+    background:transparent!important;
+    border:0!important;box-shadow:none!important;
+    z-index:6!important;
+    pointer-events:none!important;
+  }
+  #editValuationBanner > div:first-child{
+    position:static!important;
+    width:auto!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    pointer-events:auto!important;
+  }
+  #editValuationBanner > div:first-child > span:first-child,
+  #editValuationFile{display:none!important}
+  #editValuationEditButton,#editValuationCancelButton{
+    margin:0!important;padding:8px 12px!important;
+    min-height:36px!important;
+    border-radius:11px!important;
+    font-size:12px!important;font-weight:800!important;
+  }
+}
+@media screen and (max-width:430px){
+  .step153-valuation-box > .s111-customer .s111-card-head h2{font-size:19px!important}
+  .step153-valuation-box > .s111-customer .s111-customer-grid{
+    grid-template-columns:minmax(0,1.38fr) minmax(0,1fr) minmax(0,1fr)!important;
+  }
+  .step153-valuation-box > .s111-customer .s111-customer-tile{padding-left:8px!important;padding-right:8px!important}
+  .step153-valuation-box > .s111-customer .s111-customer-tile label{font-size:10px!important}
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
