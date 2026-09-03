@@ -4489,6 +4489,29 @@ body.app-started>footer{display:flex!important}
   }
 }
 </style>
+<style id="step159-premium-section-arrangement">
+/* STEP 159 — clean premium valuation hierarchy */
+#valuation-main-sections{padding-left:0!important;padding-right:0!important;background:transparent!important}
+.step153-valuation-box{margin:7px 10px 18px!important;padding:12px 9px 16px!important;border:1px solid #d6a62b!important;border-radius:26px!important;background:radial-gradient(circle at 100% 0%,rgba(245,191,53,.08),transparent 28%),linear-gradient(145deg,#061723,#020a11)!important;box-shadow:0 14px 34px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.025)!important}
+/* Customer is integrated into the master box; no customer outer card */
+.step153-valuation-box>.s111-customer{margin:0!important;padding:8px 5px 11px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.step153-valuation-box>.s111-customer .s111-card-head{display:flex!important;align-items:center!important;margin:0 0 10px!important;padding:2px 3px 10px!important;border-bottom:1px solid rgba(214,166,43,.24)!important}
+.step153-valuation-box>.s111-customer .s111-customer-grid{border:0!important;border-radius:0!important;overflow:visible!important;background:transparent!important;gap:7px!important}
+.step153-valuation-box>.s111-customer .s111-customer-tile{background:linear-gradient(145deg,#081b29,#05111a)!important;border:1px solid #29485d!important;border-radius:15px!important}
+/* Separate premium section boxes */
+.step153-valuation-box>.s111-jewellery,.step153-valuation-box>.s111-summary,.step153-valuation-box>.s111-loan-card{margin:8px 0!important;padding:13px!important;border-radius:20px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 6px 18px rgba(0,0,0,.20)!important}
+.step153-valuation-box>.s111-jewellery{border:1px solid rgba(218,166,35,.62)!important;background:radial-gradient(circle at 100% 0%,rgba(245,191,53,.06),transparent 30%),linear-gradient(145deg,#071a27,#030c14)!important}
+.step153-valuation-box>.s111-summary{border:1px solid rgba(65,139,190,.62)!important;background:radial-gradient(circle at 100% 0%,rgba(75,143,255,.07),transparent 32%),linear-gradient(145deg,#071a28,#030c14)!important}
+.step153-valuation-box>.s111-loan-card{border:1px solid rgba(170,91,225,.60)!important;background:radial-gradient(circle at 0% 100%,rgba(181,92,255,.07),transparent 35%),linear-gradient(145deg,#071a28,#030c14)!important}
+.step153-valuation-box .step154-preview-actions{margin:12px 2px 2px!important}
+@media(max-width:700px){
+.step153-valuation-box{margin:7px 8px 16px!important;padding:10px 7px 14px!important;border-radius:23px!important}
+.step153-valuation-box>.s111-customer{padding:6px 3px 10px!important}
+.step153-valuation-box>.s111-customer .s111-card-head{margin-bottom:9px!important}
+.step153-valuation-box>.s111-customer .s111-customer-grid{gap:7px!important}
+.step153-valuation-box>.s111-jewellery,.step153-valuation-box>.s111-summary,.step153-valuation-box>.s111-loan-card{margin:7px 0!important;padding:12px!important;border-radius:18px!important}
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
@@ -4757,15 +4780,6 @@ body.app-started>footer{display:flex!important}
 
 <div id="valuation-main-sections" class="s111-main">
 
-  <section class="step153-valuation-box">
-    <div class="step153-box-head">
-      <div class="step153-box-icon">◇</div>
-      <div>
-        <h2>VALUATION</h2>
-        <small>Customer • Jewellery • Summary • Loan &amp; LTV</small>
-      </div>
-    </div>
-
   <!-- REFERENCE: Customer Details -->
   <section class="card s111-customer">
     <div class="s111-card-head">
@@ -4900,7 +4914,6 @@ body.app-started>footer{display:flex!important}
     </div>
   </section>
 
-  </section>
 
 </div>
 
@@ -7192,6 +7205,33 @@ document.addEventListener('DOMContentLoaded',()=>{
   .s111-customer-tile input{height:45px!important;font-size:16px!important;padding:7px 9px!important}
   .s111-customer-tile:first-child input{font-size:18px!important}
   #editValuationBanner > div:first-child{right:8px!important;top:58px!important}
+}
+</style>
+
+<style id="step160-remove-outer-valuation-box">
+/* STEP 160 — remove the master VALUATION outer box; keep individual content hierarchy. */
+#valuation-main-sections{padding:0 12px 24px!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#valuation-main-sections > .s111-jewellery,
+#valuation-main-sections > .s111-summary,
+#valuation-main-sections > .s111-loan-card{
+  margin:12px 0!important;
+  border-radius:22px!important;
+  padding:14px!important;
+  background:linear-gradient(145deg,#071a27,#030c14)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 7px 20px rgba(0,0,0,.22)!important;
+}
+/* Customer Details stays integrated, without its own outer card. */
+#valuation-main-sections > .s111-customer{
+  margin:0 0 12px!important;padding:10px 4px 8px!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+}
+#valuation-main-sections > .s111-customer .s111-card-head{margin:0 0 10px!important}
+@media(max-width:700px){
+ #valuation-main-sections{padding:0 8px 20px!important}
+ #valuation-main-sections > .s111-jewellery,
+ #valuation-main-sections > .s111-summary,
+ #valuation-main-sections > .s111-loan-card{margin:9px 0!important;padding:11px!important;border-radius:19px!important}
+ #valuation-main-sections > .s111-customer{padding:7px 3px 8px!important}
 }
 </style>
 </head><body>
