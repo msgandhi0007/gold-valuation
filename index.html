@@ -3511,7 +3511,7 @@ d.innerHTML=`<div class="itemhead"><span>Item ${count}</span><button class="remo
 <div class="grid"><div class="field"><label>Gross Weight (g)</label><input class="gross" type="number" step="0.01" inputmode="decimal" value="${data.gross}" oninput="calculate()"></div>
 <div class="field"><label>Stone Weight (g)</label><input class="stone" type="number" step="0.01" inputmode="decimal" value="${data.stone}" oninput="calculate()"></div>
 <div class="field"><label>Purity (%)</label><input class="purity" type="number" step="0.01" inputmode="decimal" value="${data.purity}" oninput="calculate()"></div></div>
-<div class="calc"><div class="metric"><small>Net Weight</small><b class="net">0.00 g</b></div><div class="metric"><small>Pure Gold</small><b class="pure">0.00 g</b></div><div class="metric"><small>Value</small><b class="value">₹0</b></div></div>`;
+<div class="calc"><div class="metric"><small>Net Weight = GW - SW</small><b class="net">0.00 g</b></div><div class="metric"><small>Rounded (g)</small><b class="pure">0.00 g</b></div><div class="metric"><small>Value</small><b class="value">₹0</b></div></div>`;
 document.getElementById('items').appendChild(d);
 const itemSelect=d.querySelector('.itemName');
 if(itemSelect){
@@ -3537,7 +3537,7 @@ function calculate(){
 const rate=num(document.getElementById('rate').value);let tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,rows='',no=0;
 document.querySelectorAll('.item').forEach(el=>{no++;const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rate;
 tg+=g;ts+=s;tn+=net;tr+=rounded;tv+=value;wp+=net*p;
-el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=pure.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
+el.querySelector('.net').textContent=net.toFixed(2)+' g';el.querySelector('.pure').textContent=rounded.toFixed(2)+' g';el.querySelector('.value').textContent=money(value);
 rows+=`<tr><td style="padding:9px">${no}</td><td style="padding:9px">${esc(typeof getItemName==='function'?getItemName(el):el.querySelector('.itemName').value)}</td><td style="padding:9px;text-align:right">${g.toFixed(2)}</td><td style="padding:9px;text-align:right">${s.toFixed(2)}</td><td style="padding:9px;text-align:right">${p.toFixed(2)}</td><td style="padding:9px;text-align:right">${rounded.toFixed(2)}</td><td style="padding:9px;text-align:right">${money(value)}</td></tr>`});
 document.getElementById('summaryRows').innerHTML=rows||'<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.7">No items added</td></tr>';
 document.getElementById('tg').textContent=tg.toFixed(2);document.getElementById('ts').textContent=ts.toFixed(2);document.getElementById('avgPurity').textContent=(tn?wp/tn:0).toFixed(2);document.getElementById('tr').textContent=tr.toFixed(2);document.getElementById('tv').textContent=money(tv);
