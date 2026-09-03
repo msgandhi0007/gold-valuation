@@ -10286,5 +10286,421 @@ function enterValuationApp(){
 }
 </style>
 
+
+<style id="step169-light-preview-ui">
+/* STEP 169 — mobile-friendly valuation screen based on the approved LIGHT PREVIEW.
+   Visual/UI layer only. Existing IDs, calculations, storage and event handlers preserved. */
+
+:root{
+  --p169-bg:#06121d;
+  --p169-panel:#071b29;
+  --p169-panel2:#061522;
+  --p169-line:#294a60;
+  --p169-gold:#f4bd35;
+  --p169-cyan:#10d8dc;
+  --p169-purple:#b44cff;
+  --p169-green:#00d77a;
+}
+
+@media (max-width:700px){
+
+  html,body{
+    background:#020b12!important;
+    color:#f4f7fa!important;
+  }
+  body{
+    overflow-x:hidden!important;
+  }
+  .app{
+    width:100%!important;
+    max-width:520px!important;
+    margin:0 auto!important;
+    padding-bottom:82px!important;
+    background:linear-gradient(180deg,#020b12 0%,#04111b 100%)!important;
+  }
+  main{
+    padding:0 14px 84px!important;
+  }
+
+  /* HEADER / BRAND */
+  .s111-header{
+    min-height:0!important;
+    height:auto!important;
+    padding:9px 10px 10px!important;
+    border:0!important;
+    border-radius:0 0 24px 24px!important;
+    background:linear-gradient(145deg,#02070b,#06141f)!important;
+    box-shadow:0 8px 24px rgba(0,0,0,.32)!important;
+  }
+  .s111-brand-row{
+    height:54px!important;
+    margin:0 72px 7px 48px!important;
+    gap:8px!important;
+  }
+  .s111-rj-logo{
+    width:52px!important;
+    height:52px!important;
+    flex:0 0 52px!important;
+  }
+  .s111-brand-row .brand{
+    font-size:25px!important;
+    line-height:.94!important;
+    white-space:nowrap!important;
+  }
+  .s111-brand-row .sub{
+    font-size:10px!important;
+    margin-top:4px!important;
+    letter-spacing:1px!important;
+  }
+  .s111-header .menu-btn{
+    top:20px!important;
+    left:10px!important;
+    width:46px!important;
+    height:46px!important;
+  }
+
+  /* COMPACT MARKET RATE */
+  .s111-rate{
+    height:126px!important;
+    min-height:126px!important;
+    margin:8px 0 0!important;
+    border-radius:24px!important;
+    padding:0!important;
+    border:1px solid var(--p169-gold)!important;
+    background:linear-gradient(110deg,#64001e 0%,#36004e 48%,#101d50 100%)!important;
+    box-shadow:inset 0 0 30px rgba(174,0,126,.12)!important;
+  }
+  .s111-gold-orb{
+    width:78px!important;
+    height:78px!important;
+    flex:0 0 78px!important;
+    margin-left:14px!important;
+  }
+  .s111-rate-main{
+    padding-left:12px!important;
+  }
+  .s111-rate-title{
+    font-size:16px!important;
+    margin-bottom:2px!important;
+  }
+  .s111-rate-value{
+    font-size:42px!important;
+    line-height:1!important;
+  }
+  .s111-rate-updated{
+    font-size:10px!important;
+    margin-top:9px!important;
+  }
+
+  /* ONE CLEAN VALUATION FLOW — NO OUTER BOXES */
+  #valuation-main-sections{
+    width:100%!important;
+    padding:0!important;
+    margin:12px 0 0!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+
+  #valuation-main-sections > section{
+    width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+  }
+
+  /* CUSTOMER */
+  #valuation-main-sections > .s111-customer{
+    padding:0 0 9px!important;
+    margin:0 0 5px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-card-head{
+    display:flex!important;
+    align-items:center!important;
+    min-height:58px!important;
+    height:58px!important;
+    padding:0 6px!important;
+    margin:0!important;
+    border-bottom:1px solid rgba(244,189,53,.55)!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-card-head h2{
+    font-size:23px!important;
+    line-height:1!important;
+    margin:0!important;
+    white-space:nowrap!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-head-icon{
+    width:42px!important;
+    height:42px!important;
+    flex:0 0 42px!important;
+    margin-right:9px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-saved{
+    margin-left:auto!important;
+    min-width:108px!important;
+    height:46px!important;
+    padding:0 13px!important;
+    border-radius:15px!important;
+  }
+
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    display:grid!important;
+    grid-template-columns:1.35fr 1fr 1fr!important;
+    gap:8px!important;
+    padding:10px 0 0!important;
+    margin:0!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    min-width:0!important;
+    height:104px!important;
+    min-height:104px!important;
+    padding:13px 9px 9px!important;
+    border:1px solid #294a60!important;
+    border-radius:18px!important;
+    background:linear-gradient(145deg,#071b29,#04131e)!important;
+    overflow:hidden!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-field-icon{
+    left:10px!important;
+    top:14px!important;
+    font-size:14px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile label{
+    display:block!important;
+    padding-left:20px!important;
+    margin:0 0 8px!important;
+    font-size:11px!important;
+    font-weight:700!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{
+    width:100%!important;
+    height:47px!important;
+    min-height:47px!important;
+    padding:8px 10px!important;
+    border:1px solid #294a60!important;
+    border-radius:15px!important;
+    background:#03121d!important;
+    color:#f4f7fa!important;
+    font-size:17px!important;
+    font-weight:700!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  /* DATE INPUT — retain native control but make it compact and readable */
+  #valuationDate{
+    font-size:16px!important;
+    padding-right:4px!important;
+  }
+
+  /* BANK FULL WIDTH */
+  #valuation-main-sections > .s111-customer .s111-hidden-data{
+    grid-column:1/-1!important;
+    min-height:96px!important;
+    height:96px!important;
+    margin:0!important;
+    padding:11px 13px 10px!important;
+    border:1px solid #294a60!important;
+    border-radius:18px!important;
+    background:linear-gradient(145deg,#071b29,#04131e)!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-hidden-data:before{
+    content:"🏦  Select Bank"!important;
+    display:block!important;
+    color:var(--p169-cyan)!important;
+    font-size:17px!important;
+    font-weight:800!important;
+    margin-bottom:3px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-hidden-data label{
+    display:block!important;
+    font-size:11px!important;
+    margin:0 0 5px!important;
+    color:#9fb1bf!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-hidden-data select{
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    padding:0 35px 0 13px!important;
+    border-radius:14px!important;
+    font-size:16px!important;
+  }
+
+  /* JEWELLERY SECTION HEADER */
+  #valuation-main-sections > .s111-jewellery{
+    padding:0!important;
+    margin:0!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-card-head{
+    min-height:70px!important;
+    padding:8px 6px!important;
+    margin:0!important;
+    border-top:1px solid rgba(244,189,53,.45)!important;
+    border-bottom:1px solid rgba(244,189,53,.55)!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-card-head h2{
+    font-size:22px!important;
+    line-height:1.05!important;
+    margin:0!important;
+    flex:1!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-head-icon{
+    width:42px!important;
+    height:42px!important;
+    flex:0 0 42px!important;
+    margin-right:9px!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-add{
+    width:142px!important;
+    min-width:142px!important;
+    height:52px!important;
+    min-height:52px!important;
+    padding:6px 9px!important;
+    border-radius:16px!important;
+    font-size:15px!important;
+    line-height:1.05!important;
+  }
+
+  #items{
+    margin-top:9px!important;
+  }
+  #items .item{
+    width:100%!important;
+    margin:0!important;
+    padding:12px!important;
+    border:1px solid #294a60!important;
+    border-radius:18px!important;
+    background:linear-gradient(145deg,#071b29,#04131e)!important;
+    box-shadow:none!important;
+  }
+  #items .item h3{
+    font-size:22px!important;
+  }
+  #items .item .remove{
+    height:44px!important;
+    min-width:94px!important;
+    border-radius:14px!important;
+  }
+  #items .item select,
+  #items .item input{
+    min-height:45px!important;
+    height:45px!important;
+    border-radius:14px!important;
+  }
+
+  /* SUMMARY — compact four-column mobile row */
+  #valuation-main-sections > .s111-summary{
+    padding:8px 0 10px!important;
+    margin:0!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-card-head{
+    min-height:55px!important;
+    padding:6px 4px!important;
+    margin:0!important;
+    border-top:1px solid rgba(244,189,53,.45)!important;
+    border-bottom:1px solid rgba(244,189,53,.45)!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-card-head h2{
+    font-size:20px!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-details{
+    font-size:12px!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-summary-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,1fr)!important;
+    gap:6px!important;
+    padding:8px 0 0!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-stat{
+    min-width:0!important;
+    min-height:78px!important;
+    padding:8px 3px!important;
+    border-radius:12px!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-stat small{
+    font-size:9px!important;
+  }
+  #valuation-main-sections > .s111-summary .s111-stat b{
+    font-size:15px!important;
+  }
+
+  /* LOAN & LTV */
+  #valuation-main-sections > .s111-loan-card{
+    padding:8px 0 12px!important;
+    margin:0 0 4px!important;
+  }
+  #valuation-main-sections > .s111-loan-card .s111-card-head{
+    min-height:55px!important;
+    padding:6px 4px!important;
+    margin:0 0 8px!important;
+    border-top:1px solid rgba(244,189,53,.45)!important;
+    border-bottom:1px solid rgba(244,189,53,.45)!important;
+  }
+  #valuation-main-sections > .s111-loan-card .s111-card-head h2{
+    font-size:20px!important;
+  }
+  #valuation-main-sections > .s111-loan-card .s111-loan-grid{
+    grid-template-columns:1fr 1.25fr!important;
+    gap:8px!important;
+  }
+  #valuation-main-sections > .s111-loan-card .s111-loan-tile{
+    min-height:91px!important;
+    padding:10px!important;
+    border-radius:14px!important;
+  }
+
+  /* FIXED ACTION BAR */
+  body > footer{
+    height:78px!important;
+    padding:8px 12px!important;
+    gap:8px!important;
+    background:#020910!important;
+    border-top:1px solid #294a60!important;
+    z-index:9000!important;
+  }
+  body > footer button{
+    height:62px!important;
+    min-height:62px!important;
+    border-radius:17px!important;
+    font-size:17px!important;
+    font-weight:800!important;
+  }
+
+}
+
+@media(max-width:430px){
+  main{padding-left:12px!important;padding-right:12px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    grid-template-columns:1.28fr 1fr 1fr!important;
+    gap:6px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    height:100px!important;
+    min-height:100px!important;
+    padding-left:7px!important;
+    padding-right:7px!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{
+    font-size:15px!important;
+  }
+  #valuation-main-sections > .s111-jewellery .s111-add{
+    width:136px!important;
+    min-width:136px!important;
+    font-size:14px!important;
+  }
+}
+</style>
+
 </body>
 </html>
