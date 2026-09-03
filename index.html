@@ -7234,6 +7234,138 @@ document.addEventListener('DOMContentLoaded',()=>{
  #valuation-main-sections > .s111-customer{padding:7px 3px 8px!important}
 }
 </style>
+
+<style id="step161-preview-exact-fix">
+/* STEP 161 — Match the approved valuation-screen preview. Visual/layout only. */
+@media screen {
+  #valuation-main-sections{
+    padding:0 18px 92px!important;
+    margin:0!important;
+    background:transparent!important;
+  }
+  /* No master/outer VALUATION container. */
+  #valuation-main-sections > .step153-valuation-box{display:contents!important}
+
+  /* Customer Details: single clean section card, no nested field-card clutter. */
+  #valuation-main-sections > .s111-customer{
+    display:block!important;
+    width:100%!important;
+    margin:8px 0 10px!important;
+    padding:14px 14px 12px!important;
+    border:1px solid #29465a!important;
+    border-radius:20px!important;
+    background:linear-gradient(145deg,#071a27,#041019)!important;
+    box-shadow:0 8px 22px rgba(0,0,0,.22)!important;
+    box-sizing:border-box!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-card-head{
+    display:flex!important;align-items:center!important;gap:10px!important;
+    min-height:48px!important;margin:0 0 10px!important;padding:0 2px 10px!important;
+    border-bottom:1px solid rgba(213,166,42,.22)!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-head-icon{
+    width:38px!important;height:38px!important;flex:0 0 38px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    border:1px solid #2d4b60!important;border-radius:12px!important;
+    background:#071824!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-card-head h2{
+    margin:0!important;color:#f5f7fa!important;font-size:21px!important;
+    line-height:1.1!important;font-weight:900!important;white-space:nowrap!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-saved{
+    margin-left:auto!important;min-height:38px!important;padding:7px 12px!important;
+    border-radius:12px!important;white-space:nowrap!important;
+  }
+
+  /* Edit banner occupies its own row; never floats over valuation date. */
+  #valuation-main-sections > .s111-customer #editValuationBanner{
+    position:relative!important;display:none;clear:both!important;
+    width:100%!important;margin:0 0 10px!important;padding:9px 10px!important;
+    box-sizing:border-box!important;border:1px solid #40586a!important;
+    border-radius:12px!important;background:#071722!important;color:#e9eef2!important;
+  }
+  #valuation-main-sections > .s111-customer #editValuationBanner[style*="display: block"],
+  #valuation-main-sections > .s111-customer #editValuationBanner[style*="display:block"]{
+    display:block!important;
+  }
+
+  /* Three customer fields in one aligned row. */
+  #valuation-main-sections > .s111-customer .s111-customer-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;width:100%!important;margin:0!important;
+    padding:0!important;border:0!important;overflow:visible!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile{
+    min-width:0!important;width:auto!important;min-height:118px!important;height:118px!important;
+    padding:12px 10px 10px!important;box-sizing:border-box!important;
+    border:1px solid #29465a!important;border-radius:15px!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+    overflow:hidden!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile .s111-field-icon{
+    display:block!important;position:static!important;margin:0 0 5px!important;
+    font-size:12px!important;line-height:1!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile label{
+    display:block!important;width:100%!important;margin:0 0 8px!important;padding:0!important;
+    color:#a8bac6!important;font-size:10px!important;font-weight:750!important;
+    line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{
+    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    height:50px!important;min-height:50px!important;padding:8px 10px!important;box-sizing:border-box!important;
+    border:1px solid #29465a!important;border-radius:12px!important;
+    background:#06131e!important;color:#f3f7fa!important;font-size:15px!important;font-weight:750!important;
+    text-overflow:ellipsis!important;overflow:hidden!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-customer-tile:has(#customerName) input{font-size:17px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-tile:has(#valuationDate) input{font-size:14px!important}
+
+  /* Bank remains inside Customer Details, full width below the three fields. */
+  #valuation-main-sections > .s111-customer .s111-hidden-data{
+    grid-column:1/-1!important;display:block!important;width:100%!important;min-height:96px!important;
+    margin:0!important;padding:11px 12px 10px!important;box-sizing:border-box!important;
+    border:1px solid #29465a!important;border-radius:15px!important;
+    background:linear-gradient(145deg,#091b28,#06111a)!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-hidden-data::before{
+    content:"🏦 Select Bank"!important;display:block!important;margin:0 0 5px!important;
+    color:#00d7df!important;font-size:13px!important;font-weight:850!important;
+  }
+  #valuation-main-sections > .s111-customer .s111-hidden-data label{
+    display:block!important;margin:0 0 6px!important;color:#a8bac6!important;font-size:11px!important;font-weight:750!important;
+  }
+  #valuation-main-sections > .s111-customer #bankName{
+    display:block!important;width:100%!important;height:48px!important;min-height:48px!important;
+    padding:0 13px!important;box-sizing:border-box!important;border:1px solid #29465a!important;
+    border-radius:12px!important;background:#06131e!important;color:#f3f7fa!important;font-size:15px!important;
+  }
+
+  /* Section cards remain separate; there is no master VALUATION box. */
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card{
+    display:block!important;width:100%!important;box-sizing:border-box!important;
+    margin:10px 0!important;border-radius:20px!important;
+  }
+  #valuation-main-sections > .s111-jewellery{padding:14px!important}
+  #valuation-main-sections > .s111-summary{padding:14px!important}
+  #valuation-main-sections > .s111-loan-card{padding:14px!important}
+}
+@media(max-width:520px){
+  #valuation-main-sections{padding:0 18px 92px!important}
+  #valuation-main-sections > .s111-customer{padding:13px 12px 11px!important;border-radius:18px!important}
+  #valuation-main-sections > .s111-customer .s111-card-head h2{font-size:20px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-grid{gap:7px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-tile{height:112px!important;min-height:112px!important;padding:11px 8px 9px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-tile label{font-size:9px!important;margin-bottom:7px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-tile input{height:47px!important;min-height:47px!important;padding:7px 8px!important;font-size:14px!important}
+  #valuation-main-sections > .s111-customer .s111-customer-tile:has(#customerName) input{font-size:16px!important}
+  #valuation-main-sections > .s111-customer .s111-saved{font-size:12px!important;padding:6px 9px!important}
+}
+</style>
 </head><body>
       <div class="head"><h1>RAJENDRA JEWELLERS</h1><h2>BANK-WISE CUSTOMER REPORT</h2></div>
       <div class="meta"><b>Bank:</b> ${esc31(bank)}<br><b>Report Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
