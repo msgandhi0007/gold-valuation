@@ -3731,6 +3731,44 @@ body.app-started>footer{display:flex!important}
   }
 }
 </style>
+
+<style id="step148-customer-date-layout">
+/* STEP 148 — Keep Valuation Date directly beside Mobile Number */
+@media (max-width:700px){
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile{
+    width:auto!important;
+    min-width:0!important;
+  }
+
+  /* Customer Name — large, full row */
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile:has(#customerName){
+    grid-column:1 / -1!important;
+    width:100%!important;
+  }
+
+  /* Mobile + Date — same row */
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile:has(#customerMobile){
+    grid-column:1!important;
+    width:100%!important;
+  }
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile:has(#valuationDate){
+    grid-column:2!important;
+    width:100%!important;
+  }
+
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile:has(#customerMobile),
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile:has(#valuationDate){
+    min-height:92px!important;
+    padding:13px 11px 10px!important;
+  }
+
+  #valuation-main-sections .s111-customer-grid > .s111-customer-tile:has(#valuationDate) input{
+    font-size:14px!important;
+    padding-left:8px!important;
+    padding-right:4px!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Rajendra Jewellers Gold Valuation App cover">
