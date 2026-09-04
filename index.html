@@ -3700,6 +3700,28 @@ body:not(.menu-viewing) .s111-rate{
   <div class="s111-eye">◉</div>
 </div>
 </header>
+
+
+<section id="bankValuationHome" class="bank-home-screen" aria-label="Select bank valuation">
+  <div class="bank-home-title">SELECT BANK VALUATION</div>
+  <div class="bank-home-sub">Choose a bank to open its dedicated valuation screen</div>
+  <div class="bank-home-grid">
+    <button type="button" onclick="openSpecificBankValuation('SBI BANK')"><b>SBI BANK</b><span>Open Valuation</span></button>
+    <button type="button" onclick="openSpecificBankValuation('IDBI BANK')"><b>IDBI BANK</b><span>Open Valuation</span></button>
+    <button type="button" onclick="openSpecificBankValuation('MAHARASHTRA GRAMIN BANK')"><b>MAHARASHTRA GRAMIN BANK</b><span>Open Valuation</span></button>
+    <button type="button" onclick="openSpecificBankValuation('DNYANDEEP CO-OP SOCIETY LTD')"><b>DNYANDEEP CO-OP SOCIETY LTD</b><span>Open Valuation</span></button>
+  </div>
+</section>
+
+
+<section id="standardBankScreenBanner" class="standard-bank-banner" style="display:none">
+  <div>
+    <small>BANK-SPECIFIC VALUATION</small>
+    <h2 id="standardBankScreenTitle">BANK VALUATION</h2>
+  </div>
+  <button type="button" onclick="showBankValuationHome()">← Change Bank</button>
+</section>
+
 <main>
 <section class="menu-section card dashboard-card" id="dashboard">
   <div class="itemhead">
@@ -10123,6 +10145,242 @@ body.menu-viewing{overflow:auto!important;}
     removeMenuUI();
   }
   setTimeout(removeMenuUI,100);
+})();
+</script>
+
+
+
+<style id="four-bank-specific-screens-css">
+.bank-home-screen{
+  max-width:520px;
+  margin:0 auto;
+  padding:18px 12px 110px;
+  background:#f8f4eb;
+  min-height:calc(100vh - 120px);
+}
+.bank-home-title{
+  font-size:20px;
+  font-weight:950;
+  color:#171717;
+  margin:4px 0 3px;
+}
+.bank-home-sub{
+  color:#6d685f;
+  font-size:12px;
+  margin-bottom:13px;
+}
+.bank-home-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+}
+.bank-home-grid button{
+  min-height:76px;
+  padding:12px 14px;
+  border:1px solid #ddc58c;
+  border-radius:13px;
+  background:#fffdf8;
+  color:#171717;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  box-shadow:0 2px 5px rgba(0,0,0,.045);
+}
+.bank-home-grid button b{
+  font-size:15px;
+  font-weight:950;
+}
+.bank-home-grid button span{
+  margin-top:4px;
+  color:#9a6b0a;
+  font-size:11px;
+  font-weight:800;
+}
+.standard-bank-banner{
+  max-width:520px;
+  margin:0 auto 9px;
+  padding:10px 11px;
+  border:1px solid #ddc58c;
+  border-radius:13px;
+  background:#fffdf8;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.standard-bank-banner small{
+  display:block;
+  color:#99731f;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.6px;
+}
+.standard-bank-banner h2{
+  margin:2px 0 0;
+  color:#171717;
+  font-size:17px;
+  font-weight:950;
+}
+.standard-bank-banner button,
+#idbi-valuation-screen .four-bank-back{
+  min-height:38px;
+  padding:7px 10px;
+  border:1px solid #d7bd82;
+  border-radius:9px;
+  background:#fff;
+  color:#222;
+  font-size:11px;
+  font-weight:850;
+}
+body.bank-home-mode>footer{
+  display:none!important;
+}
+body.standard-bank-mode #main-bank-selector{
+  display:none!important;
+}
+body.standard-bank-mode #valuation-main-sections{
+  display:flex!important;
+}
+@media(min-width:430px){
+  .bank-home-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+
+
+<script id="four-bank-specific-screens-js">
+(function(){
+  var BANKS=[
+    'SBI BANK',
+    'IDBI BANK',
+    'MAHARASHTRA GRAMIN BANK',
+    'DNYANDEEP CO-OP SOCIETY LTD'
+  ];
+  window._activeSpecificBank='';
+
+  function setBankValues(bank){
+    var hidden=document.getElementById('bankName');
+    if(hidden) hidden.value=bank||'';
+    var mainSelect=document.getElementById('mainBankSelect');
+    if(mainSelect) mainSelect.value=bank||'';
+  }
+
+  function hideHome(){
+    var home=document.getElementById('bankValuationHome');
+    if(home) home.style.display='none';
+    document.body.classList.remove('bank-home-mode');
+  }
+
+  window.showBankValuationHome=function(){
+    window._activeSpecificBank='';
+    document.body.classList.remove('standard-bank-mode','idbi-open');
+    document.body.classList.add('bank-home-mode');
+
+    var main=document.getElementById('valuation-main-sections');
+    if(main) main.style.setProperty('display','none','important');
+
+    var banner=document.getElementById('standardBankScreenBanner');
+    if(banner) banner.style.display='none';
+
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi) idbi.style.setProperty('display','none','important');
+
+    var home=document.getElementById('bankValuationHome');
+    if(home) home.style.display='block';
+
+    var footer=document.querySelector('body>footer');
+    if(footer) footer.style.setProperty('display','none','important');
+
+    window.scrollTo(0,0);
+  };
+
+  window.openSpecificBankValuation=function(bank){
+    bank=String(bank||'').trim();
+    if(BANKS.indexOf(bank)<0) return;
+    window._activeSpecificBank=bank;
+    hideHome();
+    setBankValues(bank);
+
+    if(bank==='IDBI BANK'){
+      document.body.classList.remove('standard-bank-mode');
+      document.body.classList.add('idbi-open');
+      if(typeof window.openIDBIValuation==='function') window.openIDBIValuation();
+      setTimeout(function(){
+        var idbi=document.getElementById('idbi-valuation-screen');
+        if(idbi) idbi.style.setProperty('display','block','important');
+        var back=idbi && idbi.querySelector('.idbi-back');
+        if(back){
+          back.textContent='← Change Bank';
+          back.onclick=window.showBankValuationHome;
+        }
+      },0);
+      return;
+    }
+
+    document.body.classList.remove('idbi-open');
+    document.body.classList.add('standard-bank-mode');
+
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi) idbi.style.setProperty('display','none','important');
+
+    var main=document.getElementById('valuation-main-sections');
+    if(main){
+      main.style.setProperty('display','flex','important');
+      main.style.setProperty('flex-direction','column','important');
+    }
+
+    var banner=document.getElementById('standardBankScreenBanner');
+    var title=document.getElementById('standardBankScreenTitle');
+    if(title) title.textContent=bank+' VALUATION';
+    if(banner) banner.style.display='flex';
+
+    var footer=document.querySelector('body>footer');
+    if(footer){
+      footer.style.setProperty('display','flex','important');
+      footer.style.setProperty('visibility','visible','important');
+      footer.style.setProperty('pointer-events','auto','important');
+    }
+
+    setBankValues(bank);
+    window.scrollTo(0,0);
+  };
+
+  /* Bank selector still works if exposed by older CSS/script */
+  window.handleMainBankSelection=function(value){
+    if(BANKS.indexOf(String(value||'').trim())>=0){
+      openSpecificBankValuation(String(value||'').trim());
+    }
+  };
+
+  /* Keep the chosen bank locked after resets. */
+  var oldClear=window.clearAll;
+  if(typeof oldClear==='function'){
+    window.clearAll=function(){
+      var bank=window._activeSpecificBank;
+      var r=oldClear.apply(this,arguments);
+      if(bank && bank!=='IDBI BANK') setBankValues(bank);
+      return r;
+    };
+  }
+
+  /* If the generic "Back to valuation" function is called while on IDBI,
+     return to bank choice rather than the old generic main screen. */
+  var oldShowValuation=window.showValuationScreen;
+  window.showValuationScreen=function(){
+    if(window._activeSpecificBank==='IDBI BANK'){
+      showBankValuationHome();
+      return;
+    }
+    if(window._activeSpecificBank && window._activeSpecificBank!=='IDBI BANK'){
+      openSpecificBankValuation(window._activeSpecificBank);
+      return;
+    }
+    showBankValuationHome();
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(showBankValuationHome,60);
+  });
 })();
 </script>
 
