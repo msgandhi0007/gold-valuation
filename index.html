@@ -3677,9 +3677,7 @@ body:not(.menu-viewing) .s111-rate{
 #idbi-valuation-screen .idbi-actions button:nth-child(4),#idbi-valuation-screen .idbi-actions button:nth-child(5){background:#f4b400!important;color:#111!important}
 @media(max-width:700px){#idbi-valuation-screen .idbi-actions{gap:6px!important}#idbi-valuation-screen .idbi-actions button{height:58px!important;font-size:13px!important;border-radius:14px!important}#idbi-valuation-screen .idbi-loan{grid-template-columns:1fr 1fr 1.35fr!important}}
 </style>
-<style id="idbi-reset-ui-final">
-#idbi-valuation-screen .idbi-item-card{transition:none!important}
-</style></head>
+</head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
   <div class="cover-inner">
@@ -7914,7 +7912,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   window.idbiReset=function(){
     document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
-      if(x.id==='idbiLoanRate') x.value=0; else x.value='20';
+      if(x.id==='idbiLoanRate') x.value=0; else x.value='';
     });
     idbiCalculate();
   };
@@ -8055,6 +8053,7 @@ window.handleMainBankSelection=function(value){
         try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
       }
       window._currentSavedRecord=rec; window._idbiEditingId=null;
+      if(typeof window.idbiReset==='function') window.idbiReset();
       alert('IDBI Bank valuation saved successfully.');
       if(typeof renderSaved==='function')renderSaved();
     }catch(e){console.error(e);alert('IDBI valuation could not be saved.');}
@@ -8086,14 +8085,46 @@ window.handleMainBankSelection=function(value){
   };
 
   window.idbiReset=function(){
-    document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
-      if(x.id==='idbiLoanRate')x.value=70;
-      else if(x.id.indexOf('idbiImpPct')===0)x.value=6;
-      else if(x.id.indexOf('idbiPurity')===0)x.value=20;
-      else x.value='';
+    var screen=document.getElementById('idbi-valuation-screen');
+    if(!screen)return;
+
+    // Clear all IDBI customer/rate/loan fields.
+    ['idbiCustomerName','idbiCustomerMobile','idbiValuationDate','idbiRate','idbiLoanRate','idbiLoan']
+      .forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+
+    // Reset every jewellery row. Keep row 1 visible; hide rows 2-10.
+    var cards=document.querySelectorAll('#idbiRows .idbi-item-card');
+    cards.forEach(function(card,index){
+      card.style.display=index===0?'block':'none';
     });
-    document.querySelectorAll('#idbi-valuation-screen select[id^="idbiItem"]').forEach(function(x){x.value='20';});
-    window._idbiEditingId=null; idbiCalculate();
+    for(var i=1;i<=10;i++){
+      var item=document.getElementById('idbiItem'+i);
+      var gw=document.getElementById('idbiGW'+i);
+      var less=document.getElementById('idbiLess'+i);
+      var pct=document.getElementById('idbiImpPct'+i);
+      var pur=document.getElementById('idbiPurity'+i);
+      if(item)item.value='';
+      if(gw)gw.value='';
+      if(less)less.value='';
+      if(pct)pct.value='6';
+      if(pur)pur.value='20';
+      var vals=[['idbiNot','0.000 g'],['idbiImp','0.000 g'],['idbiNet','0.000 g'],['idbi22k','0.000 g'],['idbiValue','₹0.00']];
+      vals.forEach(function(x){var e=document.getElementById(x[0]+i);if(e)e.textContent=x[1];});
+    }
+
+    // Reset summary and loan result displays.
+    ['idbiSummaryItems'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0';});
+    ['idbiSummaryGross','idbiSummary22k','idbiSumGross2','idbiSumLess2','idbiSumImp2','idbiSumNet2','idbiSum22k2'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0.000';});
+    ['idbiSummaryValue','idbiSumValue2','idbiEligible','idbiTotalValue'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='₹0.00';});
+    ['idbiTotalNot','idbiTotalImpurity','idbiTotalNet','idbiTotal22k'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0.000 g';});
+    var body=document.getElementById('idbiSummaryBody');
+    if(body)body.innerHTML='<tr><td colspan="8">No jewellery items entered</td></tr>';
+    var details=document.getElementById('idbi-summary-details');
+    if(details)details.style.display='none';
+
+    window._idbiEditingId=null;
+    window._currentSavedRecord=null;
+    if(typeof idbiCalculate==='function')idbiCalculate();
   };
 
   // When a saved IDBI record is opened, load it into the IDBI screen.
@@ -8107,7 +8138,7 @@ window.handleMainBankSelection=function(value){
         setv('idbiCustomerName',d.customer?.name||'');
         setv('idbiCustomerMobile',d.customer?.mobile||'');
         setv('idbiValuationDate',d.customer?.date||new Date().toISOString().slice(0,10));
-        setv('idbiRate',d.rate||0); setv('idbiLoanRate',d.ltv1||70); setv('idbiLoan',d.sanctionedLoan||0);
+        setv('idbiRate',d.rate||0); setv('idbiLoanRate',d.ltv1||0); setv('idbiLoan',d.sanctionedLoan||0);
         for(var j=1;j<=10;j++){setv('idbiGW'+j,'');setv('idbiLess'+j,'');setv('idbiImpPct'+j,'');setv('idbiPurity'+j,'');}
         (d.idbi?.rows||d.items||[]).forEach(function(x,j){
           var k=j+1;if(k>10)return;
@@ -8224,167 +8255,6 @@ window.handleMainBankSelection=function(value){
     if(e.target && e.target.id==='idbiLoanRate') updateLoan();
   });
   window.addEventListener('load',function(){setTimeout(updateLoan,100);});
-})();
-</script>
-<script id="idbi-complete-reset-fix">
-(function(){
-  function clearField(id, value){
-    var e=document.getElementById(id);
-    if(!e)return;
-    if(e.tagName==='SELECT') e.selectedIndex=0;
-    else e.value=(value===undefined?'':value);
-  }
-  window.resetIdbiValuationComplete=function(){
-    var screen=document.getElementById('idbi-valuation-screen');
-    if(!screen)return;
-
-    // Customer details
-    ['idbiCustomerName','idbiMobile','idbiDate'].forEach(function(id){clearField(id);});
-    clearField('idbiRate','');
-
-    // Loan fields
-    clearField('idbiLoanRate','');
-    clearField('idbiLoanAmount','');
-
-    // Keep exactly one default jewellery item and reset it.
-    var container=document.getElementById('idbi-items-container') ||
-                   document.getElementById('idbiItemsContainer') ||
-                   document.querySelector('#idbi-valuation-screen .idbi-items-container');
-    if(container){
-      var cards=container.querySelectorAll('.idbi-item-card');
-      for(var i=1;i<cards.length;i++) cards[i].remove();
-    }
-
-    for(var i=1;i<=10;i++){
-      clearField('idbiItem'+i);
-      clearField('idbiGW'+i,'0');
-      clearField('idbiLess'+i,'0');
-      clearField('idbiImpPct'+i,'6');
-      clearField('idbiPurity'+i,'20');
-    }
-
-    // Reset any visible summary/result fields.
-    ['idbiSummaryItems','idbiSummaryGross','idbiSummary22k','idbiSummaryValue',
-     'idbiSumGross2','idbiSumLess2','idbiSumImp2','idbiSumNet2','idbiSum22k2','idbiSumValue2',
-     'idbiTotalNot','idbiTotalImpurity','idbiTotalNet','idbiTotal22k','idbiTotalValue',
-     'idbiEligible'].forEach(function(id){
-       var e=document.getElementById(id);
-       if(e){
-         if(id==='idbiSummaryItems') e.textContent='0';
-         else if(id==='idbiEligible'||id==='idbiSummaryValue'||id==='idbiSumValue2'||id==='idbiTotalValue') e.textContent='₹0.00';
-         else e.textContent=id.indexOf('Summary')>=0?'0.000':'0.000';
-       }
-     });
-
-    // Recalculate/reset UI without leaving stale values.
-    if(typeof window.idbiCalculate==='function') window.idbiCalculate();
-    if(typeof window.updateIdbiSummary==='function') window.updateIdbiSummary();
-
-    // Scroll back to the top of the IDBI valuation screen.
-    try{screen.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}
-  }
-
-  // Capture the Reset button even if its original onclick runs first.
-  document.addEventListener('click',function(e){
-    var b=e.target.closest && e.target.closest('button');
-    if(!b)return;
-    var txt=(b.textContent||'').trim().toLowerCase();
-    if(txt==='reset' && b.closest('#idbi-valuation-screen')){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.resetIdbiValuationComplete();
-    }
-  },true);
-
-  // If the app calls a generic IDBI reset function, make it use the complete reset.
-  window.idbiReset=function(){window.resetIdbiValuationComplete();};
-})();
-</script>
-<script id="idbi-post-save-reset-definitive">
-(function(){
-  var resetRunning=false;
-
-  function setVal(el,v){
-    if(!el)return;
-    if(el.tagName==='SELECT'){
-      el.selectedIndex=0;
-      el.value='';
-    }else{
-      el.value=v;
-    }
-    el.dispatchEvent(new Event('input',{bubbles:true}));
-    el.dispatchEvent(new Event('change',{bubbles:true}));
-  }
-
-  function resetAllIdbiFields(){
-    if(resetRunning)return;
-    resetRunning=true;
-    try{
-      var screen=document.getElementById('idbi-valuation-screen');
-      if(!screen)return;
-
-      // Remove dynamically added jewellery cards, keeping Item 1.
-      var cards=screen.querySelectorAll('.idbi-item-card');
-      for(var i=1;i<cards.length;i++) cards[i].remove();
-
-      // Clear ALL customer/rate/loan inputs and selects in the IDBI screen.
-      screen.querySelectorAll('input,textarea,select').forEach(function(el){
-        var id=el.id||'';
-        if(id==='idbiImpPct1') setVal(el,'6');
-        else if(id==='idbiPurity1') setVal(el,'20');
-        else if(id==='idbiGW1'||id==='idbiLess1') setVal(el,'0');
-        else if(id==='idbiItem1'){
-          if(el.tagName==='SELECT') setVal(el,'');
-          else setVal(el,'');
-        }else if(id==='idbiLoanRate') setVal(el,'');
-        else if(id==='idbiLoanAmount') setVal(el,'');
-        else setVal(el,'');
-      });
-
-      // Reset generated rows hidden state/buttons if present.
-      var addBtn=screen.querySelector('#idbiAddItem, [data-idbi-add-item]');
-      if(addBtn)addBtn.style.display='';
-
-      // Reset result text nodes explicitly.
-      [
-        'idbiSummaryItems','idbiSummaryGross','idbiSummary22k','idbiSummaryValue',
-        'idbiSumGross2','idbiSumLess2','idbiSumImp2','idbiSumNet2',
-        'idbiSum22k2','idbiSumValue2','idbiTotalNot','idbiTotalImpurity',
-        'idbiTotalNet','idbiTotal22k','idbiTotalValue','idbiEligible'
-      ].forEach(function(id){
-        var e=document.getElementById(id);
-        if(!e)return;
-        if(id==='idbiSummaryItems')e.textContent='0';
-        else if(/Value|Eligible/i.test(id))e.textContent='₹0.00';
-        else e.textContent='0.000';
-      });
-
-      if(typeof window.idbiCalculate==='function')window.idbiCalculate();
-      if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary();
-    }finally{
-      setTimeout(function(){resetRunning=false;},0);
-    }
-  }
-
-  // Detect successful IDBI Save without interfering with the existing Save handler.
-  // Capture the click, then let the existing handler complete, and reset afterward.
-  document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('button');
-    if(!b||!b.closest('#idbi-valuation-screen'))return;
-    var txt=(b.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-    if(!txt.includes('save')||txt.includes('load'))return;
-    setTimeout(resetAllIdbiFields,350);
-  },false);
-
-  // Also expose the same reset for the IDBI Reset button.
-  document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('button');
-    if(!b||!b.closest('#idbi-valuation-screen'))return;
-    var txt=(b.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-    if(txt==='reset')setTimeout(resetAllIdbiFields,50);
-  },false);
-
-  window.resetIdbiAfterSave=resetAllIdbiFields;
 })();
 </script>
 </body>
