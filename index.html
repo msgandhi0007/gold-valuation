@@ -3618,6 +3618,28 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="idbi-final-main-match">
+/* Dedicated IDBI screen should look like the main valuation shell */
+#idbi-valuation-screen .idbi-head,
+#idbi-valuation-screen .idbi-customer,
+#idbi-valuation-screen .idbi-rate,
+#idbi-valuation-screen .idbi-items-section,
+#idbi-valuation-screen .idbi-loan{
+  box-sizing:border-box!important;
+}
+#idbi-valuation-screen .idbi-items-title{
+  min-height:48px!important;
+}
+#idbi-valuation-screen .idbi-item-card{
+  box-shadow:none!important;
+}
+#idbi-valuation-screen .idbi-input-grid input,
+#idbi-valuation-screen .idbi-item-select{
+  font-size:17px!important;
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -7870,7 +7892,7 @@ document.addEventListener('DOMContentLoaded',function(){
     var t=e.target;
     if(!t) return;
     var id=(t.id||'').toLowerCase();
-    if(id==='bankname' && String(t.value||'').toUpperCase().includes('IDBI')){
+    if(id==='bankname' && String(t.value||'').toUpperCase().includes('IDBI') && t.id!=='mainBankSelect'){
       openIDBIValuation();
     }
   });
@@ -7896,8 +7918,21 @@ function idbiBankChanged(){
 window.handleMainBankSelection=function(value){
   var old=document.getElementById('bankName');
   if(old) old.value=value||'';
-  if(String(value||'').toUpperCase()==='IDBI BANK'){
-    if(typeof openIDBIValuation==='function') openIDBIValuation();
+  var isIDBI=String(value||'').trim().toUpperCase()==='IDBI BANK';
+  if(isIDBI){
+    var main=document.getElementById('valuation-main-sections');
+    var cover=document.getElementById('cover-page');
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(main) main.style.setProperty('display','none','important');
+    if(cover) cover.style.setProperty('display','none','important');
+    if(idbi){
+      idbi.style.setProperty('display','block','important');
+      if(typeof idbiRows==='function') idbiRows();
+      if(typeof idbiCalculate==='function') idbiCalculate();
+    } else if(typeof openIDBIValuation==='function'){
+      openIDBIValuation();
+    }
+    window.scrollTo(0,0);
   }
 };
 </script>
