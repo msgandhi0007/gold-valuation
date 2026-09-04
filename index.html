@@ -8307,6 +8307,22 @@ window.handleMainBankSelection=function(value){
 body:not(.idbi-open) #idbi-valuation-screen .idbi-bottom-actions{display:none!important;}
 @media(min-width:521px){#idbi-valuation-screen .idbi-bottom-actions{left:50%;right:auto;width:520px;transform:translateX(-50%);}}
 </style>
+
+<style id="idbi-market-rate-gap-fix">
+/* Remove the empty main-area padding while the IDBI valuation screen is open.
+   This keeps SELECT BANK directly below the Market Rate card. */
+body.idbi-open main{
+  display:none!important;
+  margin:0!important;
+  padding:0!important;
+  min-height:0!important;
+  height:0!important;
+}
+body.idbi-open #idbi-valuation-screen{
+  margin-top:0!important;
+}
+</style>
+
 <script id="idbi-reference-button-layout-state">
 (function(){
   function syncIdbiButtonBar(){
