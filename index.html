@@ -8646,5 +8646,861 @@ body:has(#idbi-valuation-screen[style*="display:block"]) #idbi-valuation-screen{
 }
 </style>
 
+
+
+<style id="preview-exact-professional-ui">
+/* Professional cream / black / gold UI based on the approved preview.
+   Existing field IDs and valuation logic are preserved. */
+
+:root{
+  --pv-bg:#efe8d8;
+  --pv-card:#fffdf8;
+  --pv-card2:#fbf6eb;
+  --pv-border:#ddc58c;
+  --pv-border-soft:#e8dfcc;
+  --pv-text:#171717;
+  --pv-muted:#66635d;
+  --pv-gold:#b67b08;
+  --pv-gold2:#d9a322;
+  --pv-dark:#141414;
+  --pv-dark2:#272727;
+  --pv-red:#dc3545;
+}
+
+body{
+  background:var(--pv-bg)!important;
+  color:var(--pv-text)!important;
+}
+
+/* ---------- Top brand header ---------- */
+header.s111-header{
+  position:relative!important;
+  top:auto!important;
+  z-index:20!important;
+  max-width:520px!important;
+  margin:0 auto!important;
+  padding:14px 14px 13px!important;
+  min-height:128px!important;
+  border-radius:0!important;
+  background:
+    radial-gradient(circle at 87% 22%,rgba(214,159,35,.19),transparent 27%),
+    linear-gradient(125deg,#090909,#18140c 72%,#090909)!important;
+  border-bottom:1px solid #8e6a1e!important;
+  box-shadow:none!important;
+}
+header .s111-brand-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding-left:52px!important;
+}
+header .s111-rj-logo{
+  width:62px!important;
+  height:62px!important;
+  min-width:62px!important;
+  border-radius:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  background:#0c0c0c!important;
+  border:3px solid #d5a326!important;
+  color:#eac54f!important;
+  font-family:Georgia,serif!important;
+  font-size:23px!important;
+  font-weight:900!important;
+  box-shadow:0 0 0 3px rgba(205,154,31,.08)!important;
+}
+header .brand{
+  color:#e9c14f!important;
+  font-family:Georgia,serif!important;
+  font-size:25px!important;
+  line-height:.98!important;
+  letter-spacing:.3px!important;
+  font-weight:900!important;
+}
+header .sub{
+  color:#fff!important;
+  opacity:.95!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  letter-spacing:.55px!important;
+  margin-top:5px!important;
+}
+header .menu-btn{
+  position:absolute!important;
+  left:12px!important;
+  top:50px!important;
+  width:45px!important;
+  height:45px!important;
+  padding:0!important;
+  border:1px solid #666!important;
+  border-radius:11px!important;
+  background:#1b1b1b!important;
+  color:#fff!important;
+  font-size:27px!important;
+  line-height:1!important;
+}
+header .s111-top-tools{
+  position:absolute!important;
+  right:12px!important;
+  top:13px!important;
+  gap:7px!important;
+}
+header .s111-top-tools button{
+  width:39px!important;
+  height:39px!important;
+  min-width:39px!important;
+  border:1px solid #585858!important;
+  border-radius:50%!important;
+  background:#171717!important;
+  color:#e8d7a3!important;
+}
+
+/* The rate card is moved by JS from header to below Customer Details */
+.s111-rate{
+  margin:0 0 10px!important;
+  min-height:68px!important;
+  height:auto!important;
+  padding:8px 12px!important;
+  display:grid!important;
+  grid-template-columns:42px 1fr 42px!important;
+  align-items:center!important;
+  gap:7px!important;
+  border:1px solid var(--pv-border-soft)!important;
+  border-radius:13px!important;
+  background:var(--pv-card)!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.05)!important;
+}
+.s111-rate .s111-gold-orb{
+  width:36px!important;height:36px!important;
+  min-width:36px!important;
+  display:grid!important;place-items:center!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;
+  color:var(--pv-gold)!important;
+  font-size:29px!important;
+  box-shadow:none!important;
+}
+.s111-rate .s111-rate-content{
+  padding:0!important;
+  min-width:0!important;
+}
+.s111-rate label{
+  margin:0 0 4px!important;
+  display:block!important;
+  color:#202020!important;
+  font-size:13px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+}
+.s111-rate input{
+  width:100%!important;
+  min-height:38px!important;
+  height:38px!important;
+  margin:0!important;
+  padding:4px 9px!important;
+  border:1px solid #d8d2c7!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#111!important;
+  font-size:18px!important;
+  font-weight:850!important;
+  text-shadow:none!important;
+}
+.s111-rate .s111-updated{display:none!important;}
+.s111-rate .s111-eye{
+  width:34px!important;height:34px!important;
+  display:grid!important;place-items:center!important;
+  border:1px solid #d7d0c3!important;
+  border-radius:8px!important;
+  background:#fff!important;color:#333!important;
+  font-size:17px!important;
+}
+
+/* ---------- Main valuation white/cream surface ---------- */
+#valuation-main-sections{
+  max-width:520px!important;
+  margin:0 auto!important;
+  padding:10px 9px 104px!important;
+  background:#f8f4eb!important;
+  color:var(--pv-text)!important;
+}
+#valuation-main-sections>.card,
+#valuation-main-sections>.main-bank-selector,
+#valuation-main-sections>.s111-rate{
+  margin-bottom:9px!important;
+}
+#valuation-main-sections .card,
+#valuation-main-sections .main-bank-selector{
+  padding:11px!important;
+  border:1px solid var(--pv-border-soft)!important;
+  border-radius:13px!important;
+  background:var(--pv-card)!important;
+  color:var(--pv-text)!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.045)!important;
+}
+#valuation-main-sections .s111-card-head{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-height:34px!important;
+  margin-bottom:8px!important;
+}
+#valuation-main-sections .s111-card-head h2{
+  flex:1!important;
+  margin:0!important;
+  color:#171717!important;
+  font-size:15px!important;
+  line-height:1.1!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+}
+#valuation-main-sections .s111-head-icon{
+  width:30px!important;height:30px!important;min-width:30px!important;
+  display:grid!important;place-items:center!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;
+  color:var(--pv-gold)!important;
+  font-size:20px!important;
+}
+
+/* Select bank */
+#valuation-main-sections .main-bank-selector{
+  order:1!important;
+  padding:11px 12px!important;
+}
+#valuation-main-sections .main-bank-title{
+  margin:0 0 7px!important;
+  color:#171717!important;
+  font-size:14px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+}
+#valuation-main-sections #mainBankSelect{
+  width:100%!important;
+  min-height:44px!important;
+  padding:7px 11px!important;
+  border:1px solid #d6d0c5!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:16px!important;
+  font-weight:750!important;
+}
+
+/* Customer */
+#valuation-main-sections .s111-customer{order:2!important;}
+#valuation-main-sections .s111-customer-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr 1fr!important;
+  gap:7px!important;
+}
+#valuation-main-sections .s111-customer-tile{
+  padding:7px!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+}
+#valuation-main-sections .s111-customer-tile:nth-child(3){grid-column:auto!important;}
+#valuation-main-sections .s111-customer-tile label,
+#valuation-main-sections .field label{
+  display:block!important;
+  margin-bottom:4px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:700!important;
+}
+#valuation-main-sections .s111-field-icon{display:none!important;}
+#valuation-main-sections input,
+#valuation-main-sections select{
+  min-height:39px!important;
+  height:auto!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  box-shadow:none!important;
+}
+#valuation-main-sections input:focus,
+#valuation-main-sections select:focus{
+  border-color:#b98c2f!important;
+  box-shadow:0 0 0 2px rgba(185,140,47,.08)!important;
+}
+#valuation-main-sections .s111-saved{
+  min-height:32px!important;
+  padding:5px 8px!important;
+  border:1px solid #d7c18b!important;
+  border-radius:8px!important;
+  background:#fffaf0!important;
+  color:#6e5215!important;
+  font-size:10px!important;
+  font-weight:800!important;
+}
+
+/* Main rate after customer */
+#valuation-main-sections>.s111-rate{order:3!important;}
+
+/* Jewellery */
+#valuation-main-sections .s111-jewellery{order:4!important;padding:11px!important;}
+#valuation-main-sections .s111-jewel-head{flex-wrap:nowrap!important;}
+#valuation-main-sections .s111-add{
+  width:auto!important;
+  min-height:34px!important;
+  padding:6px 11px!important;
+  border:1px solid #a8740a!important;
+  border-radius:8px!important;
+  background:linear-gradient(#d9a42b,#b77a08)!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  box-shadow:none!important;
+}
+#items{gap:7px!important;}
+#items .item{
+  margin:0!important;
+  padding:9px!important;
+  border:1px solid #dfd8cc!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  color:#171717!important;
+  box-shadow:none!important;
+}
+#items .itemhead{
+  margin-bottom:7px!important;
+  color:#171717!important;
+  font-size:16px!important;
+  font-weight:950!important;
+}
+#items .remove{
+  min-height:31px!important;
+  padding:5px 9px!important;
+  border:1px solid #ec6674!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#df293b!important;
+  font-size:10px!important;
+  font-weight:850!important;
+}
+#items .grid{gap:7px!important;}
+#items input,#items select{
+  min-height:37px!important;
+  background:#fff!important;
+  border-color:#d8d2c8!important;
+  color:#171717!important;
+}
+#items .calc{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:6px!important;
+  margin-top:7px!important;
+}
+#items .metric{
+  min-height:56px!important;
+  padding:6px 4px!important;
+  border:1px solid #eadfc6!important;
+  border-radius:8px!important;
+  background:#fbf2dc!important;
+  text-align:center!important;
+}
+#items .metric small{color:#5f5c55!important;font-size:9px!important;}
+#items .metric b{color:#171717!important;font-size:14px!important;font-weight:950!important;}
+
+/* Summary */
+#valuation-main-sections .s111-summary{
+  order:5!important;
+  padding:10px!important;
+  border-color:#ddd6ca!important;
+  background:#fff!important;
+}
+#valuation-main-sections .s111-details{
+  min-height:30px!important;
+  padding:4px 9px!important;
+  border:1px solid #caa758!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#272727!important;
+  font-size:10px!important;
+  font-weight:850!important;
+}
+#valuation-main-sections .s111-summary-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:6px!important;
+}
+#valuation-main-sections .s111-stat{
+  min-height:61px!important;
+  padding:7px 3px!important;
+  border:1px solid #e3ddd3!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  text-align:center!important;
+}
+#valuation-main-sections .s111-stat small{
+  color:#5f5b55!important;
+  font-size:9px!important;
+  line-height:1.12!important;
+}
+#valuation-main-sections .s111-stat b{
+  display:block!important;
+  margin-top:5px!important;
+  color:#171717!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  text-shadow:none!important;
+}
+#valuation-main-sections .s111-stat:nth-child(4) b{color:#9b6706!important;}
+
+/* Hide sections not present in approved preview */
+#valuation-main-sections .s111-loan-card,
+#valuation-main-sections .s113-quick-actions{
+  display:none!important;
+}
+
+/* Reset / PDF row */
+#valuation-main-sections .s111-secondary-actions{
+  order:6!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#valuation-main-sections .s111-secondary-actions .actions{
+  display:grid!important;
+  grid-template-columns:1fr 1.35fr!important;
+  gap:7px!important;
+}
+#valuation-main-sections .s111-secondary-actions button{
+  min-height:45px!important;
+  padding:7px!important;
+  border-radius:9px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+#valuation-main-sections .s111-secondary-actions button:first-child{
+  border:1px solid #bd8b28!important;
+  background:#fff!important;
+  color:#1e1e1e!important;
+}
+#valuation-main-sections .s111-secondary-actions button:last-child{
+  border:1px solid #a76f05!important;
+  background:linear-gradient(#d5a028,#b87a08)!important;
+  color:#fff!important;
+}
+
+/* Main Save / Load / Share */
+body>footer{
+  position:fixed!important;
+  left:0!important;right:0!important;bottom:0!important;
+  max-width:520px!important;
+  margin:auto!important;
+  z-index:1300!important;
+  display:flex!important;
+  gap:7px!important;
+  padding:8px 9px max(8px,env(safe-area-inset-bottom))!important;
+  background:#111!important;
+  border-top:1px solid #6e5827!important;
+}
+body>footer button{
+  flex:1!important;
+  min-height:49px!important;
+  border-radius:8px!important;
+  border:1px solid #4c4c4c!important;
+  background:#292929!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:900!important;
+}
+body>footer button:first-child{
+  border-color:#a66f06!important;
+  background:linear-gradient(#d1a029,#ad7207)!important;
+}
+
+/* ---------- IDBI preview-matched screen ---------- */
+#idbi-valuation-screen{
+  max-width:520px!important;
+  margin:0 auto!important;
+  padding:10px 9px 103px!important;
+  background:#f8f4eb!important;
+  color:#171717!important;
+}
+#idbi-valuation-screen .idbi-bank-select-card{display:none!important;}
+#idbi-valuation-screen .idbi-feature-note{display:none!important;}
+#idbi-valuation-screen .idbi-loan{display:none!important;}
+
+#idbi-valuation-screen .idbi-head,
+#idbi-valuation-screen .idbi-customer,
+#idbi-valuation-screen .idbi-rate,
+#idbi-valuation-screen .idbi-item-card,
+#idbi-valuation-screen #idbi-summary-section{
+  margin:0 0 9px!important;
+  border:1px solid var(--pv-border-soft)!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  color:#171717!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.045)!important;
+}
+#idbi-valuation-screen .idbi-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:11px!important;
+}
+#idbi-valuation-screen .idbi-kicker{display:none!important;}
+#idbi-valuation-screen .idbi-head h2{
+  margin:0 0 3px!important;
+  color:#171717!important;
+  font-size:18px!important;
+  font-weight:950!important;
+}
+#idbi-valuation-screen .idbi-head p{
+  margin:0!important;
+  color:#666!important;
+  font-size:11px!important;
+}
+#idbi-valuation-screen .idbi-back{
+  min-height:39px!important;
+  padding:7px 12px!important;
+  border:1px solid #d7bd82!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#222!important;
+  font-size:12px!important;
+  font-weight:850!important;
+}
+
+#idbi-valuation-screen .idbi-customer{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:7px!important;
+  padding:10px!important;
+}
+#idbi-valuation-screen .idbi-customer::before{
+  content:"CUSTOMER DETAILS";
+  grid-column:1/-1;
+  color:#171717;
+  font-size:15px;
+  font-weight:950;
+}
+#idbi-valuation-screen .idbi-customer .idbi-field:nth-child(3){grid-column:auto!important;}
+#idbi-valuation-screen .idbi-field{
+  padding:6px!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+}
+#idbi-valuation-screen .idbi-field label,
+#idbi-valuation-screen .idbi-rate label{
+  margin-bottom:4px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:700!important;
+}
+#idbi-valuation-screen .idbi-field input,
+#idbi-valuation-screen .idbi-rate input,
+#idbi-valuation-screen .idbi-input-grid input,
+#idbi-valuation-screen .idbi-item-select{
+  width:100%!important;
+  min-height:38px!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  box-shadow:none!important;
+}
+
+#idbi-valuation-screen .idbi-rate{
+  display:grid!important;
+  grid-template-columns:45px 1fr minmax(115px,180px)!important;
+  align-items:center!important;
+  gap:7px!important;
+  padding:8px 11px!important;
+}
+#idbi-valuation-screen .idbi-rate::before{
+  content:"₹";
+  color:var(--pv-gold);
+  font-size:29px;
+  font-weight:950;
+  text-align:center;
+}
+#idbi-valuation-screen .idbi-rate label{
+  margin:0!important;
+  color:#202020!important;
+  font-size:13px!important;
+  font-weight:900!important;
+}
+#idbi-valuation-screen .idbi-rate input{
+  min-height:37px!important;
+  font-size:16px!important;
+}
+
+#idbi-valuation-screen .idbi-items-section{margin:0 0 9px!important;}
+#idbi-valuation-screen .idbi-items-title{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  margin:0 0 7px!important;
+  padding:0 4px!important;
+  color:#171717!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+}
+#idbi-valuation-screen .idbi-items-title button{
+  min-height:34px!important;
+  padding:6px 10px!important;
+  border:1px solid #a8740a!important;
+  border-radius:8px!important;
+  background:linear-gradient(#d9a42b,#b77a08)!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+#idbi-valuation-screen .idbi-item-cards{gap:7px!important;}
+#idbi-valuation-screen .idbi-item-card{
+  padding:9px!important;
+}
+#idbi-valuation-screen .idbi-item-head{
+  color:#171717!important;
+  font-size:16px!important;
+  font-weight:950!important;
+}
+#idbi-valuation-screen .idbi-item-remove{
+  min-height:30px!important;
+  padding:5px 9px!important;
+  border:1px solid #ec6674!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#df293b!important;
+  font-size:10px!important;
+}
+#idbi-valuation-screen .idbi-input-grid{gap:7px!important;}
+#idbi-valuation-screen .idbi-calc-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:6px!important;
+  margin-top:7px!important;
+}
+#idbi-valuation-screen .idbi-calc-grid>div{
+  min-height:56px!important;
+  padding:6px 4px!important;
+  border:1px solid #eadfc6!important;
+  border-radius:8px!important;
+  background:#fbf2dc!important;
+  text-align:center!important;
+}
+#idbi-valuation-screen .idbi-calc-grid .idbi-item-value{
+  grid-column:auto!important;
+}
+#idbi-valuation-screen .idbi-calc-grid span{
+  color:#5f5c55!important;
+  font-size:9px!important;
+}
+#idbi-valuation-screen .idbi-calc-grid b{
+  color:#171717!important;
+  font-size:14px!important;
+  font-weight:950!important;
+}
+
+#idbi-valuation-screen #idbi-summary-section{
+  padding:10px!important;
+}
+#idbi-valuation-screen .idbi-summary-head{
+  color:#171717!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+}
+#idbi-valuation-screen .idbi-summary-head button{
+  min-height:30px!important;
+  padding:4px 9px!important;
+  border:1px solid #caa758!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#272727!important;
+  font-size:10px!important;
+  font-weight:850!important;
+}
+#idbi-valuation-screen .idbi-summary-stats{
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:6px!important;
+  margin-top:7px!important;
+}
+#idbi-valuation-screen .idbi-summary-stats div{
+  min-height:61px!important;
+  padding:7px 3px!important;
+  border:1px solid #e3ddd3!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  text-align:center!important;
+}
+#idbi-valuation-screen .idbi-summary-stats span{
+  color:#5f5b55!important;
+  font-size:9px!important;
+}
+#idbi-valuation-screen .idbi-summary-stats b{
+  margin-top:5px!important;
+  color:#171717!important;
+  font-size:15px!important;
+  font-weight:950!important;
+}
+#idbi-valuation-screen .idbi-summary-stats div:nth-child(4) b{color:#9b6706!important;}
+
+#idbi-valuation-screen .idbi-secondary-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1.35fr!important;
+  gap:7px!important;
+  margin:0 0 9px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#idbi-valuation-screen .idbi-secondary-actions button{
+  min-height:45px!important;
+  padding:7px!important;
+  border-radius:9px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+#idbi-valuation-screen .idbi-secondary-actions button:first-child{
+  border:1px solid #bd8b28!important;
+  background:#fff!important;
+  color:#1e1e1e!important;
+}
+#idbi-valuation-screen .idbi-secondary-actions button:last-child{
+  border:1px solid #a76f05!important;
+  background:linear-gradient(#d5a028,#b87a08)!important;
+  color:#fff!important;
+}
+
+#idbi-valuation-screen .idbi-bottom-actions{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:0!important;
+  transform:translateX(-50%)!important;
+  width:min(100%,520px)!important;
+  z-index:1300!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:7px!important;
+  padding:8px 9px max(8px,env(safe-area-inset-bottom))!important;
+  background:#111!important;
+  border-top:1px solid #6e5827!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button{
+  min-height:49px!important;
+  border-radius:8px!important;
+  border:1px solid #4c4c4c!important;
+  background:#292929!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:900!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button:first-child{
+  border-color:#a66f06!important;
+  background:linear-gradient(#d1a029,#ad7207)!important;
+}
+
+/* Hide main footer on IDBI screen; existing logic also does this */
+body.idbi-open>footer{display:none!important;}
+
+/* ---------- Phone adjustments ---------- */
+@media(max-width:420px){
+  header .brand{font-size:22px!important;}
+  header .s111-rj-logo{width:55px!important;height:55px!important;min-width:55px!important;font-size:21px!important;}
+  #valuation-main-sections .s111-customer-grid,
+  #idbi-valuation-screen .idbi-customer{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #valuation-main-sections .s111-customer-tile:nth-child(3),
+  #idbi-valuation-screen .idbi-customer .idbi-field:nth-child(3){
+    grid-column:1/-1!important;
+  }
+  #valuation-main-sections .s111-summary-grid,
+  #idbi-valuation-screen .idbi-summary-stats{
+    grid-template-columns:repeat(2,1fr)!important;
+  }
+  #valuation-main-sections .s111-secondary-actions button,
+  #idbi-valuation-screen .idbi-secondary-actions button{
+    font-size:10px!important;
+  }
+}
+
+/* Keep all main sections in intended approved-preview order */
+#valuation-main-sections{
+  display:flex!important;
+  flex-direction:column!important;
+}
+</style>
+
+
+<script id="preview-exact-professional-ui-js">
+(function(){
+  function applyApprovedLayout(){
+    var main=document.getElementById('valuation-main-sections');
+    if(main){
+      var bank=document.getElementById('main-bank-selector');
+      var customer=main.querySelector('.s111-customer');
+      var rate=document.querySelector('header.s111-header .s111-rate') || document.querySelector('.s111-rate');
+
+      if(bank && customer && bank.nextElementSibling!==customer){
+        main.insertBefore(bank, main.firstChild);
+        main.insertBefore(customer, bank.nextSibling);
+      }
+
+      if(rate && customer){
+        var label=rate.querySelector('label');
+        if(label) label.textContent='Rate per gram (22K)';
+        var orb=rate.querySelector('.s111-gold-orb');
+        if(orb) orb.textContent='₹';
+        var edit=rate.querySelector('.s111-eye');
+        if(edit) edit.textContent='✎';
+        if(rate.parentElement!==main || rate.previousElementSibling!==customer){
+          customer.insertAdjacentElement('afterend',rate);
+        }
+      }
+    }
+
+    /* IDBI opens directly at the bank-specific screen in the approved layout */
+    var idbiSelect=document.querySelector('#idbi-valuation-screen .idbi-bank-select-card');
+    if(idbiSelect) idbiSelect.style.setProperty('display','none','important');
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',applyApprovedLayout);
+  }else{
+    applyApprovedLayout();
+  }
+
+  /* Re-apply after screen navigation in case another script restores original DOM order */
+  var oldOpen=window.openIDBIValuation;
+  if(typeof oldOpen==='function'){
+    window.openIDBIValuation=function(){
+      var r=oldOpen.apply(this,arguments);
+      applyApprovedLayout();
+      return r;
+    };
+  }
+  var oldShow=window.showValuationScreen;
+  if(typeof oldShow==='function'){
+    window.showValuationScreen=function(){
+      var r=oldShow.apply(this,arguments);
+      applyApprovedLayout();
+      return r;
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
