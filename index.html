@@ -8054,6 +8054,9 @@ window.handleMainBankSelection=function(value){
       window._currentSavedRecord=rec; window._idbiEditingId=null;
       alert('IDBI Bank valuation saved successfully.');
       if(typeof renderSaved==='function')renderSaved();
+      // STEP 151 - After a successful IDBI save, clear the complete IDBI valuation form.
+      if(typeof window.idbiReset==='function') window.idbiReset();
+      window.scrollTo(0,0);
     }catch(e){console.error(e);alert('IDBI valuation could not be saved.');}
   };
 
