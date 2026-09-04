@@ -3435,6 +3435,46 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="bank-selector-main-screen-fix">
+/* Make the existing Bank Name selector visible on the main Valuation screen */
+#valuation-main-sections .s111-customer .s111-hidden-data{
+  display:block !important;
+  grid-column:1 / -1 !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+#valuation-main-sections .s111-hidden-data label{
+  display:block !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  color:#aebdca !important;
+  margin-bottom:7px !important;
+}
+#valuation-main-sections .s111-hidden-data select{
+  display:block !important;
+  width:100% !important;
+  min-height:48px !important;
+  box-sizing:border-box !important;
+  border:1px solid #294a60 !important;
+  border-radius:13px !important;
+  background:#031822 !important;
+  color:#fff !important;
+  padding:9px 13px !important;
+  font-size:17px !important;
+  font-weight:700 !important;
+}
+@media(max-width:700px){
+  #valuation-main-sections .s111-customer .s111-hidden-data{
+    grid-column:1 / -1 !important;
+  }
+  #valuation-main-sections .s111-hidden-data select{
+    min-height:50px !important;
+    font-size:17px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
