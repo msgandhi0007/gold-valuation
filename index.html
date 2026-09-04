@@ -7903,11 +7903,8 @@ document.addEventListener('DOMContentLoaded',function(){
       set('idbiNot'+i,notW.toFixed(3)+' g');set('idbiImp'+i,impurity.toFixed(3)+' g');set('idbiNet'+i,netW.toFixed(3)+' g');set('idbi22k'+i,eq22.toFixed(3)+' g');set('idbiValue'+i,money(value));
     }
     set('idbiTotalNot',totalNot.toFixed(3)+' g');set('idbiTotalImpurity',totalImp.toFixed(3)+' g');set('idbiTotalNet',totalNet.toFixed(3)+' g');set('idbiTotal22k',total22.toFixed(3)+' g');set('idbiTotalValue',money(totalValue));
-    var loanRate=N('idbiLoanRate');
-     var summary22El=document.getElementById('idbiSummary22k');
-     var summary22=summary22El?parseFloat(String(summary22El.textContent||'').replace(/,/g,'')):NaN;
-     if(!isFinite(summary22)) summary22=total22;
-     var eligible=loanRate*summary22;
+    var ltvPct=Math.max(0,Math.min(100,N('idbiLoanRate')));
+     var eligible=totalValue*ltvPct/100;
      set('idbiEligible',money(eligible));
     if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary();
   };
@@ -9655,6 +9652,245 @@ body.idbi-open>footer{display:none!important;}
     window.showValuationScreen = function(){
       var r = oldShow.apply(this, arguments);
       moveRatesNearDate();
+      return r;
+    };
+  }
+})();
+</script>
+
+
+
+<style id="loan-ltv-both-ui">
+/* Loan / LTV area on Main + IDBI screens */
+
+/* MAIN: restore existing Loan/LTV card, but keep unused Loan Rate/gm row hidden */
+#valuation-main-sections .s111-loan-card{
+  display:block!important;
+  order:6!important;
+  margin:0 0 9px!important;
+  padding:11px!important;
+  border:1px solid #e3d9c4!important;
+  border-radius:13px!important;
+  background:#fffdf8!important;
+  color:#171717!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.045)!important;
+}
+#valuation-main-sections .s111-loan-card .s111-card-head{
+  margin-bottom:8px!important;
+}
+#valuation-main-sections .s111-loan-card .s111-card-head h2{
+  color:#171717!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+}
+#valuation-main-sections .s111-loan-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+}
+#valuation-main-sections .s111-loan-tile{
+  padding:8px!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+}
+#valuation-main-sections .s111-loan-title{
+  min-height:24px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections .s111-loan-title .s111-loan-icon{
+  color:#a97812!important;
+}
+#valuation-main-sections .s111-loan-tile input{
+  width:100%!important;
+  min-height:39px!important;
+  margin-top:4px!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:14px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections .s111-loan-tile b{
+  display:block!important;
+  margin-top:5px!important;
+  color:#976507!important;
+  font-size:15px!important;
+  font-weight:950!important;
+}
+#valuation-main-sections .s111-loan-note{
+  margin-top:7px!important;
+  color:#77716a!important;
+  font-size:9px!important;
+}
+#valuation-main-sections .s111-loan-rate{
+  display:none!important;
+}
+
+/* Put reset/PDF after loan card */
+#valuation-main-sections .s111-secondary-actions{
+  order:7!important;
+}
+
+/* IDBI: restore existing loan area and convert it visually/semantically to LTV */
+#idbi-valuation-screen .idbi-loan{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+  margin:0 0 9px!important;
+  padding:10px!important;
+  border:1px solid #e3d9c4!important;
+  border-radius:13px!important;
+  background:#fffdf8!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.045)!important;
+}
+#idbi-valuation-screen .idbi-loan::before{
+  content:"LOAN / LTV";
+  grid-column:1/-1;
+  color:#171717;
+  font-size:15px;
+  font-weight:950;
+}
+#idbi-valuation-screen .idbi-loan .idbi-field,
+#idbi-valuation-screen .idbi-loan .idbi-result{
+  padding:8px!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+}
+#idbi-valuation-screen .idbi-loan .idbi-field label,
+#idbi-valuation-screen .idbi-loan .idbi-result span{
+  display:block!important;
+  margin-bottom:4px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:800!important;
+}
+#idbi-valuation-screen .idbi-loan .idbi-field input{
+  width:100%!important;
+  min-height:39px!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:14px!important;
+  font-weight:800!important;
+}
+#idbi-valuation-screen .idbi-loan .idbi-result{
+  grid-column:1/-1!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  min-height:50px!important;
+}
+#idbi-valuation-screen .idbi-loan .idbi-result span{
+  margin:0!important;
+  font-size:12px!important;
+  color:#333!important;
+}
+#idbi-valuation-screen .idbi-loan .idbi-result b{
+  color:#976507!important;
+  font-size:18px!important;
+  font-weight:950!important;
+}
+
+/* Compact 3-column arrangement on wider phones */
+@media(min-width:430px){
+  #idbi-valuation-screen .idbi-loan{
+    grid-template-columns:1fr 1fr 1fr!important;
+  }
+  #idbi-valuation-screen .idbi-loan::before{
+    grid-column:1/-1!important;
+  }
+  #idbi-valuation-screen .idbi-loan .idbi-result{
+    grid-column:auto!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+  }
+}
+</style>
+
+
+<script id="loan-ltv-both-ui-js">
+(function(){
+  function setupLoanLtvUI(){
+    /* MAIN */
+    var mainCard=document.querySelector('#valuation-main-sections .s111-loan-card');
+    if(mainCard){
+      var h=mainCard.querySelector('.s111-card-head h2');
+      if(h) h.textContent='Loan / LTV';
+
+      var ltvTitle=mainCard.querySelector('.s111-loan-tile:first-child .s111-loan-title span:last-child');
+      if(ltvTitle) ltvTitle.textContent='LTV (%)';
+
+      var sanctionedTitle=mainCard.querySelector('.s111-loan-tile:nth-child(2) .s111-loan-title span:last-child');
+      if(sanctionedTitle) sanctionedTitle.textContent='Sanctioned Loan Amount';
+
+      var eligible=document.getElementById('l65');
+      if(eligible){
+        eligible.setAttribute('aria-label','Eligible Loan Amount');
+        var existing=mainCard.querySelector('.main-eligible-caption');
+        if(!existing){
+          var cap=document.createElement('div');
+          cap.className='main-eligible-caption';
+          cap.textContent='Eligible Loan Amount';
+          cap.style.cssText='font-size:9px;color:#77716a;margin-top:5px;font-weight:800';
+          eligible.parentNode.insertBefore(cap,eligible);
+        }
+      }
+    }
+
+    /* IDBI */
+    var idbiLtv=document.querySelector('#idbi-valuation-screen label[for="idbiLoanRate"]');
+    var idbiLtvInput=document.getElementById('idbiLoanRate');
+    if(idbiLtvInput){
+      var parent=idbiLtvInput.closest('.idbi-field');
+      var label=parent ? parent.querySelector('label') : null;
+      if(label) label.textContent='LTV (%)';
+      idbiLtvInput.min='0';
+      idbiLtvInput.max='100';
+      idbiLtvInput.step='0.01';
+      if(!idbiLtvInput.value || Number(idbiLtvInput.value)>100) idbiLtvInput.value='65';
+      idbiLtvInput.oninput=function(){
+        if(typeof idbiCalculate==='function') idbiCalculate();
+      };
+    }
+
+    var idbiLoan=document.getElementById('idbiLoan');
+    if(idbiLoan){
+      var p=idbiLoan.closest('.idbi-field');
+      var lab=p ? p.querySelector('label') : null;
+      if(lab) lab.textContent='Sanctioned Loan Amount';
+      idbiLoan.oninput=function(){
+        if(typeof idbiCalculate==='function') idbiCalculate();
+      };
+    }
+    var eligibleLabel=document.querySelector('#idbi-valuation-screen .idbi-result span');
+    if(eligibleLabel) eligibleLabel.textContent='Eligible Loan Amount';
+
+    if(typeof idbiCalculate==='function') idbiCalculate();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',setupLoanLtvUI);
+  }else{
+    setupLoanLtvUI();
+  }
+  setTimeout(setupLoanLtvUI,120);
+
+  var oldOpen=window.openIDBIValuation;
+  if(typeof oldOpen==='function'){
+    window.openIDBIValuation=function(){
+      var r=oldOpen.apply(this,arguments);
+      setupLoanLtvUI();
       return r;
     };
   }
