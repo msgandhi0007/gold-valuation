@@ -3475,6 +3475,31 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="step140-idbi-vertical-scroll">
+/* STEP 140 - Make the complete Bank-Specific Valuation form vertically scrollable on mobile */
+.idbi-screen{
+  max-height:calc(100dvh - 8px);
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  touch-action:pan-y;
+  padding-bottom:120px!important;
+}
+.idbi-screen .idbi-table-wrap{
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+  -webkit-overflow-scrolling:touch;
+}
+@media(max-width:700px){
+  .idbi-screen{
+    max-height:calc(100dvh - 6px);
+    padding-bottom:130px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
