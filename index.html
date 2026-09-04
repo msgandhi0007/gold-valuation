@@ -3640,6 +3640,19 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+<style id="idbi-summary-ui-final">
+#idbi-summary-section{margin-top:10px;border:1px solid #294a60;border-radius:17px;background:#071b29;padding:12px}
+.idbi-summary-head{display:flex;align-items:center;justify-content:space-between;color:#f4f7fa;font-size:20px;font-weight:900}
+.idbi-summary-head button{border:0;background:none;color:#c06cff;font-weight:900;font-size:14px}
+.idbi-summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
+.idbi-summary-stats div{border:1px solid #294a60;border-radius:11px;padding:8px;text-align:center}
+.idbi-summary-stats span{display:block;color:#9eb1bf;font-size:10px}.idbi-summary-stats b{display:block;color:#fff;font-size:17px;margin-top:3px}
+.idbi-summary-stats div:nth-child(3) b{color:#00d78a}.idbi-summary-stats div:nth-child(4) b{color:#f4bd35}
+.idbi-summary-scroll{overflow-x:auto;margin-top:10px}.idbi-summary-table{min-width:980px;width:100%;border-collapse:collapse;font-size:11px}
+.idbi-summary-table th,.idbi-summary-table td{border:1px solid #294a60;padding:7px;text-align:center;white-space:nowrap}
+.idbi-summary-table th{background:#0a1e2c;color:#f4bd35}.idbi-summary-table td{color:#e7edf2}
+@media(max-width:700px){.idbi-summary-stats{grid-template-columns:repeat(2,1fr)}}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -4117,7 +4130,21 @@ body:not(.menu-viewing) .s111-rate{
 </div>
   </div>
 
-  <div class="idbi-loan">
+  <section id="idbi-summary-section" class="idbi-summary-section">
+  <div class="idbi-summary-head"><span>▥ Valuation Summary</span><button type="button" onclick="toggleIdbiSummary()">View Details →</button></div>
+  <div class="idbi-summary-stats">
+    <div><span>Total Items</span><b id="idbiSummaryItems">0</b></div>
+    <div><span>Gross Weight (g)</span><b id="idbiSummaryGross">0.000</b></div>
+    <div><span>Net Weight (g)</span><b id="idbiSummaryNet">0.000</b></div>
+    <div><span>Total Value (₹)</span><b id="idbiSummaryValue">₹0</b></div>
+  </div>
+  <div id="idbi-summary-details" style="display:none"><div class="idbi-summary-scroll">
+  <table class="idbi-summary-table"><thead><tr>
+  <th>Item</th><th>Gross Wt (g)</th><th>Less Wt (g)</th><th>Not Wt (g)</th><th>Impurity %</th><th>Impurity (g)</th><th>Net Wt (g)</th><th>Purity (K)</th><th>22K Equivalent (g)</th><th>Value (₹)</th>
+  </tr></thead><tbody id="idbiSummaryBody"></tbody><tfoot><tr>
+  <th>TOTAL</th><th id="idbiSumGross2">0.000</th><th id="idbiSumLess2">0.000</th><th id="idbiSumNot2">0.000</th><th>—</th><th id="idbiSumImp2">0.000</th><th id="idbiSumNet2">0.000</th><th>—</th><th id="idbiSum22k2">0.000</th><th id="idbiSumValue2">₹0.00</th>
+  </tr></tfoot></table></div></div>
+</section><div class="idbi-loan">
     <div class="idbi-field"><label>Loan / LTV %</label><input id="idbiLtv" type="number" min="0" max="100" step="0.01" value="70"></div>
     <div class="idbi-field"><label>Loan Amount</label><input id="idbiLoan" type="number" min="0" step="0.01"></div>
     <div class="idbi-result"><span>Eligible Loan</span><b id="idbiEligible">₹0.00</b></div>
@@ -7810,18 +7837,25 @@ document.addEventListener('DOMContentLoaded',function(){
           '<div><span>22K Equivalent</span><b id="idbi22k'+i+'">0.000 g</b></div>'+
           '<div class="idbi-item-value"><span>Gold Ornament Value</span><b id="idbiValue'+i+'">₹0.00</b></div>'+
         '</div>';
+      if(i>1) card.style.display='none';
       el.appendChild(card);
     }
   }
 
   window.idbiAddRow=function(){
-    var el=document.getElementById('idbiRows');
-    if(!el) return;
-    var cards=el.querySelectorAll('.idbi-item-card');
+    var cards=document.querySelectorAll('#idbiRows .idbi-item-card');
     for(var i=0;i<cards.length;i++){
-      var gw=document.getElementById('idbiGW'+(i+1));
+      var card=cards[i], gw=document.getElementById('idbiGW'+(i+1));
+      if(card.style.display==='none'){
+        card.style.display='block';
+        var item=document.getElementById('idbiItem'+(i+1));
+        if(item)item.focus();
+        idbiCalculate();
+        return;
+      }
       if(gw && !gw.value){
-        document.getElementById('idbiItem'+(i+1)).focus();
+        var item2=document.getElementById('idbiItem'+(i+1));
+        if(item2)item2.focus();
         return;
       }
     }
@@ -7837,7 +7871,6 @@ document.addEventListener('DOMContentLoaded',function(){
     idbiCalculate();
   };
 
-  }
 
   window.idbiCalculate=function(){
     idbiRows();
@@ -8114,5 +8147,34 @@ window.handleMainBankSelection=function(value){
 })();
 </script>
 
+<script id="idbi-summary-engine">
+(function(){
+  function num(v){return Number(v)||0}
+  function money(v){return '₹'+num(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  window.toggleIdbiSummary=function(){var e=document.getElementById('idbi-summary-details');if(e)e.style.display=e.style.display==='none'?'block':'none'};
+  window.updateIdbiSummary=function(){
+    var body=document.getElementById('idbiSummaryBody');if(!body)return;
+    var rate=num(document.getElementById('idbiRate')?.value), rows=[],g=0,l=0,nw=0,impT=0,net=0,eq=0,v=0;
+    for(var i=1;i<=10;i++){
+      var gw=num(document.getElementById('idbiGW'+i)?.value), less=num(document.getElementById('idbiLess'+i)?.value), pct=num(document.getElementById('idbiImpPct'+i)?.value), pur=num(document.getElementById('idbiPurity'+i)?.value);
+      if(gw<=0&&less<=0)continue;
+      var notw=Math.max(0,gw-less), imp=notw*pct/100, netw=Math.max(0,notw-imp), e22=netw*pur/22, val=e22*rate;
+      g+=gw;l+=less;nw+=notw;impT+=imp;net+=netw;eq+=e22;v+=val;
+      var item=document.getElementById('idbiItem'+i)?.value||('Item '+i);
+      rows.push('<tr><td>'+item+'</td><td>'+gw.toFixed(3)+'</td><td>'+less.toFixed(3)+'</td><td>'+notw.toFixed(3)+'</td><td>'+pct.toFixed(2)+'%</td><td>'+imp.toFixed(3)+'</td><td>'+netw.toFixed(3)+'</td><td>'+pur.toFixed(2)+'K</td><td>'+e22.toFixed(3)+'</td><td>'+money(val)+'</td></tr>');
+    }
+    body.innerHTML=rows.join('')||'<tr><td colspan="10">No jewellery items entered</td></tr>';
+    document.getElementById('idbiSummaryItems').textContent=rows.length;
+    document.getElementById('idbiSummaryGross').textContent=g.toFixed(3);
+    document.getElementById('idbiSummaryNet').textContent=net.toFixed(3);
+    document.getElementById('idbiSummaryValue').textContent=money(v);
+    document.getElementById('idbiSumGross2').textContent=g.toFixed(3);document.getElementById('idbiSumLess2').textContent=l.toFixed(3);
+    document.getElementById('idbiSumNot2').textContent=nw.toFixed(3);document.getElementById('idbiSumImp2').textContent=impT.toFixed(3);
+    document.getElementById('idbiSumNet2').textContent=net.toFixed(3);document.getElementById('idbiSum22k2').textContent=eq.toFixed(3);document.getElementById('idbiSumValue2').textContent=money(v);
+  };
+  var old=window.idbiCalculate;
+  window.idbiCalculate=function(){if(old)old.apply(this,arguments);updateIdbiSummary()};
+})();
+</script>
 </body>
 </html>
