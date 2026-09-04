@@ -8053,7 +8053,6 @@ window.handleMainBankSelection=function(value){
         try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
       }
       window._currentSavedRecord=rec; window._idbiEditingId=null;
-      if(typeof window.idbiReset==='function') window.idbiReset();
       alert('IDBI Bank valuation saved successfully.');
       if(typeof renderSaved==='function')renderSaved();
     }catch(e){console.error(e);alert('IDBI valuation could not be saved.');}
@@ -8085,46 +8084,14 @@ window.handleMainBankSelection=function(value){
   };
 
   window.idbiReset=function(){
-    var screen=document.getElementById('idbi-valuation-screen');
-    if(!screen)return;
-
-    // Clear all IDBI customer/rate/loan fields.
-    ['idbiCustomerName','idbiCustomerMobile','idbiValuationDate','idbiRate','idbiLoanRate','idbiLoan']
-      .forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-
-    // Reset every jewellery row. Keep row 1 visible; hide rows 2-10.
-    var cards=document.querySelectorAll('#idbiRows .idbi-item-card');
-    cards.forEach(function(card,index){
-      card.style.display=index===0?'block':'none';
+    document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
+      if(x.id==='idbiLoanRate')x.value=70;
+      else if(x.id.indexOf('idbiImpPct')===0)x.value=6;
+      else if(x.id.indexOf('idbiPurity')===0)x.value=20;
+      else x.value='';
     });
-    for(var i=1;i<=10;i++){
-      var item=document.getElementById('idbiItem'+i);
-      var gw=document.getElementById('idbiGW'+i);
-      var less=document.getElementById('idbiLess'+i);
-      var pct=document.getElementById('idbiImpPct'+i);
-      var pur=document.getElementById('idbiPurity'+i);
-      if(item)item.value='';
-      if(gw)gw.value='';
-      if(less)less.value='';
-      if(pct)pct.value='6';
-      if(pur)pur.value='20';
-      var vals=[['idbiNot','0.000 g'],['idbiImp','0.000 g'],['idbiNet','0.000 g'],['idbi22k','0.000 g'],['idbiValue','₹0.00']];
-      vals.forEach(function(x){var e=document.getElementById(x[0]+i);if(e)e.textContent=x[1];});
-    }
-
-    // Reset summary and loan result displays.
-    ['idbiSummaryItems'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0';});
-    ['idbiSummaryGross','idbiSummary22k','idbiSumGross2','idbiSumLess2','idbiSumImp2','idbiSumNet2','idbiSum22k2'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0.000';});
-    ['idbiSummaryValue','idbiSumValue2','idbiEligible','idbiTotalValue'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='₹0.00';});
-    ['idbiTotalNot','idbiTotalImpurity','idbiTotalNet','idbiTotal22k'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='0.000 g';});
-    var body=document.getElementById('idbiSummaryBody');
-    if(body)body.innerHTML='<tr><td colspan="8">No jewellery items entered</td></tr>';
-    var details=document.getElementById('idbi-summary-details');
-    if(details)details.style.display='none';
-
-    window._idbiEditingId=null;
-    window._currentSavedRecord=null;
-    if(typeof idbiCalculate==='function')idbiCalculate();
+    document.querySelectorAll('#idbi-valuation-screen select[id^="idbiItem"]').forEach(function(x){x.value='';});
+    window._idbiEditingId=null; idbiCalculate();
   };
 
   // When a saved IDBI record is opened, load it into the IDBI screen.
@@ -8138,7 +8105,7 @@ window.handleMainBankSelection=function(value){
         setv('idbiCustomerName',d.customer?.name||'');
         setv('idbiCustomerMobile',d.customer?.mobile||'');
         setv('idbiValuationDate',d.customer?.date||new Date().toISOString().slice(0,10));
-        setv('idbiRate',d.rate||0); setv('idbiLoanRate',d.ltv1||0); setv('idbiLoan',d.sanctionedLoan||0);
+        setv('idbiRate',d.rate||0); setv('idbiLoanRate',d.ltv1||70); setv('idbiLoan',d.sanctionedLoan||0);
         for(var j=1;j<=10;j++){setv('idbiGW'+j,'');setv('idbiLess'+j,'');setv('idbiImpPct'+j,'');setv('idbiPurity'+j,'');}
         (d.idbi?.rows||d.items||[]).forEach(function(x,j){
           var k=j+1;if(k>10)return;
@@ -8255,6 +8222,71 @@ window.handleMainBankSelection=function(value){
     if(e.target && e.target.id==='idbiLoanRate') updateLoan();
   });
   window.addEventListener('load',function(){setTimeout(updateLoan,100);});
+})();
+</script>
+<script id="idbi-screen-isolation-fix">
+(function(){
+  function hideIdbi(){
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi) idbi.style.setProperty('display','none','important');
+  }
+  function showMainOnly(){
+    var main=document.getElementById('valuation-main-sections');
+    var cover=document.getElementById('cover-page');
+    hideIdbi();
+    if(cover) cover.style.setProperty('display','none','important');
+    if(main) main.style.setProperty('display','block','important');
+    if(typeof window.closeAppMenu==='function') window.closeAppMenu();
+  }
+
+  // Returning to the normal Valuation screen must never leave IDBI content visible.
+  var oldShow=window.showValuationScreen;
+  window.showValuationScreen=function(){
+    showMainOnly();
+    if(typeof oldShow==='function'){
+      try{ oldShow.apply(this,arguments); }catch(e){}
+    }
+    hideIdbi();
+    var main=document.getElementById('valuation-main-sections');
+    if(main) main.style.setProperty('display','block','important');
+    window.scrollTo(0,0);
+  };
+
+  // Opening IDBI must hide the complete main valuation screen.
+  var oldOpen=window.openIDBIValuation;
+  window.openIDBIValuation=function(){
+    var main=document.getElementById('valuation-main-sections');
+    var cover=document.getElementById('cover-page');
+    if(main) main.style.setProperty('display','none','important');
+    if(cover) cover.style.setProperty('display','none','important');
+    if(typeof window.closeAppMenu==='function') window.closeAppMenu();
+
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi) idbi.style.setProperty('display','block','important');
+
+    if(typeof window.idbiRows==='function') window.idbiRows();
+    if(typeof window.idbiCalculate==='function') window.idbiCalculate();
+    if(typeof window.updateIdbiSummary==='function') window.updateIdbiSummary();
+    window.scrollTo(0,0);
+
+    // Keep the original function available for any additional app logic,
+    // but do not let it re-show the main screen.
+    if(typeof oldOpen==='function'){
+      try{ oldOpen.apply(this,arguments); }catch(e){}
+      if(main) main.style.setProperty('display','none','important');
+      if(idbi) idbi.style.setProperty('display','block','important');
+    }
+  };
+
+  // Explicitly protect the main Valuation summary from IDBI IDs/styles.
+  var css=document.createElement('style');
+  css.id='idbi-isolation-css';
+  css.textContent=
+    '#valuation-main-sections #idbi-summary-section,'+
+    '#valuation-main-sections .idbi-summary-section,'+
+    '#valuation-main-sections .idbi-loan,'+
+    '#valuation-main-sections .idbi-actions{display:none!important;}';
+  document.head.appendChild(css);
 })();
 </script>
 </body>
