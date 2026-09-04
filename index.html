@@ -9502,5 +9502,164 @@ body.idbi-open>footer{display:none!important;}
 })();
 </script>
 
+
+
+<style id="rate-near-date-ui-fix">
+/* Put Rate per gram (22K) beside Valuation Date on both valuation screens */
+
+/* MAIN VALUATION */
+#valuation-main-sections .s111-customer-grid{
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+}
+#valuation-main-sections .s111-customer-tile:nth-child(3){
+  grid-column:auto!important;
+}
+#valuation-main-sections .s111-rate{
+  margin:0!important;
+  min-height:0!important;
+  padding:7px!important;
+  display:block!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+#valuation-main-sections .s111-rate .s111-gold-orb,
+#valuation-main-sections .s111-rate .s111-eye,
+#valuation-main-sections .s111-rate .s111-updated{
+  display:none!important;
+}
+#valuation-main-sections .s111-rate .s111-rate-content{
+  padding:0!important;
+}
+#valuation-main-sections .s111-rate label{
+  margin:0 0 4px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:700!important;
+}
+#valuation-main-sections .s111-rate input{
+  width:100%!important;
+  min-height:39px!important;
+  height:39px!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+
+/* IDBI */
+#idbi-valuation-screen .idbi-customer{
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+}
+#idbi-valuation-screen .idbi-customer .idbi-field:nth-child(3){
+  grid-column:auto!important;
+}
+#idbi-valuation-screen .idbi-rate{
+  margin:0!important;
+  padding:6px!important;
+  display:block!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+#idbi-valuation-screen .idbi-rate::before{
+  display:none!important;
+}
+#idbi-valuation-screen .idbi-rate label{
+  display:block!important;
+  margin:0 0 4px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:700!important;
+}
+#idbi-valuation-screen .idbi-rate input{
+  width:100%!important;
+  min-height:38px!important;
+  height:38px!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+
+@media(max-width:360px){
+  #valuation-main-sections .s111-customer-grid,
+  #idbi-valuation-screen .idbi-customer{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+</style>
+
+
+<script id="rate-near-date-ui-fix-js">
+(function(){
+  function moveRatesNearDate(){
+    /* MAIN: place rate as fourth tile, beside Valuation Date */
+    var main = document.getElementById('valuation-main-sections');
+    if(main){
+      var customer = main.querySelector('.s111-customer');
+      var grid = customer ? customer.querySelector('.s111-customer-grid') : null;
+      var rate = main.querySelector('.s111-rate') || document.querySelector('.s111-rate');
+      var dateTile = grid ? grid.querySelector('.s111-customer-tile:nth-child(3)') : null;
+
+      if(grid && rate && dateTile){
+        var label = rate.querySelector('label');
+        if(label) label.textContent = 'Rate per gram (22K)';
+        dateTile.insertAdjacentElement('afterend', rate);
+      }
+    }
+
+    /* IDBI: place its rate card as fourth tile, beside Valuation Date */
+    var idbi = document.getElementById('idbi-valuation-screen');
+    if(idbi){
+      var cgrid = idbi.querySelector('.idbi-customer');
+      var irate = idbi.querySelector('.idbi-rate');
+      var idate = cgrid ? cgrid.querySelector('.idbi-field:nth-child(3)') : null;
+      if(cgrid && irate && idate){
+        var ilabel = irate.querySelector('label');
+        if(ilabel) ilabel.textContent = 'Rate per gram (22K)';
+        idate.insertAdjacentElement('afterend', irate);
+      }
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', moveRatesNearDate);
+  } else {
+    moveRatesNearDate();
+  }
+
+  setTimeout(moveRatesNearDate, 100);
+
+  var oldOpen = window.openIDBIValuation;
+  if(typeof oldOpen === 'function'){
+    window.openIDBIValuation = function(){
+      var r = oldOpen.apply(this, arguments);
+      moveRatesNearDate();
+      return r;
+    };
+  }
+
+  var oldShow = window.showValuationScreen;
+  if(typeof oldShow === 'function'){
+    window.showValuationScreen = function(){
+      var r = oldShow.apply(this, arguments);
+      moveRatesNearDate();
+      return r;
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
