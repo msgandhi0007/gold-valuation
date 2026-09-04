@@ -3447,6 +3447,45 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="main-bank-selector-css">
+#main-bank-selector.main-bank-selector{
+  display:block!important;
+  width:calc(100% - 40px)!important;
+  margin:10px 20px 12px!important;
+  padding:12px 14px!important;
+  box-sizing:border-box!important;
+  border:1px solid #294a60!important;
+  border-radius:16px!important;
+  background:#071b29!important;
+  position:relative!important;
+  z-index:20!important;
+}
+#main-bank-selector .main-bank-title{
+  color:#f4bd35!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  margin-bottom:7px!important;
+}
+#main-bank-selector #mainBankSelect{
+  display:block!important;
+  width:100%!important;
+  height:48px!important;
+  box-sizing:border-box!important;
+  border:1px solid #3a6177!important;
+  border-radius:12px!important;
+  background:#03121d!important;
+  color:#fff!important;
+  padding:8px 12px!important;
+  font-size:17px!important;
+  font-weight:800!important;
+  outline:none!important;
+}
+@media(max-width:700px){
+ #main-bank-selector.main-bank-selector{width:calc(100% - 36px)!important;margin-left:18px!important;margin-right:18px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -3755,6 +3794,19 @@ body:not(.menu-viewing) .s111-rate{
         </select>
       </div>
     </div>
+  </section>
+
+
+  <section id="main-bank-selector" class="main-bank-selector">
+    <div class="main-bank-title">🏦 SELECT BANK</div>
+    <select id="mainBankSelect" aria-label="Select Bank" onchange="handleMainBankSelection(this.value)">
+      <option value="">Select Bank</option>
+      <option value="SBI BANK">SBI BANK</option>
+      <option value="IDBI BANK">IDBI BANK</option>
+      <option value="MAHARASHTRA GRAMIN BANK">MAHARASHTRA GRAMIN BANK</option>
+      <option value="DNYANDEEP CO-OP SOCIETY LTD">DNYANDEEP CO-OP SOCIETY LTD</option>
+      <option value="Other">Other</option>
+    </select>
   </section>
 
   <!-- REFERENCE: Jewellery -->
@@ -7682,6 +7734,29 @@ function idbiBankChanged(){
     openIDBIValuation();
   }
 }
+</script>
+
+
+<script id="main-bank-selector-js">
+window.handleMainBankSelection=function(value){
+  var old=document.getElementById('bankName');
+  if(old) old.value=value||'';
+  if(String(value||'').toUpperCase()==='IDBI BANK'){
+    if(typeof openIDBIValuation==='function') openIDBIValuation();
+  }
+};
+</script>
+
+
+<script id="idbi-return-fix">
+(function(){
+  var original=window.showValuationScreen;
+  window.showValuationScreen=function(){
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi) idbi.style.setProperty('display','none','important');
+    if(original) original.apply(this,arguments);
+  };
+})();
 </script>
 
 </body>
