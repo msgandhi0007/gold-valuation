@@ -3555,6 +3555,69 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="idbi-main-ui-match">
+#idbi-valuation-screen .idbi-table-wrap{border:0!important;background:transparent!important;overflow-x:auto!important}
+#idbi-valuation-screen .idbi-table{border-collapse:separate!important;border-spacing:0 8px!important;min-width:1120px!important}
+#idbi-valuation-screen .idbi-table thead th{
+  background:#071b29!important;border-bottom:1px solid #294a60!important;padding:10px 7px!important;
+}
+#idbi-valuation-screen .idbi-table tbody tr{background:#061722!important}
+#idbi-valuation-screen .idbi-table tbody td{
+  background:#061722!important;border-top:1px solid #203c4e!important;border-bottom:1px solid #203c4e!important;padding:9px 7px!important;
+}
+#idbi-valuation-screen .idbi-table tbody td:first-child{border-left:1px solid #203c4e!important;border-radius:14px 0 0 14px!important}
+#idbi-valuation-screen .idbi-table tbody td:last-child{border-right:1px solid #203c4e!important;border-radius:0 14px 14px 0!important}
+#idbi-valuation-screen .idbi-item-select{
+  min-width:145px!important;height:44px!important;box-sizing:border-box!important;
+  border:1px solid #294a60!important;border-radius:10px!important;background:#03121d!important;
+  color:#fff!important;padding:7px 9px!important;font-size:14px!important;font-weight:700!important;
+}
+#idbi-valuation-screen .idbi-table input{
+  min-width:92px!important;height:44px!important;border-radius:10px!important;
+}
+#idbi-valuation-screen .idbi-table tfoot th{
+  background:#0a1e2c!important;border-top:1px solid #294a60!important;padding:10px 7px!important;
+}
+</style>
+
+
+<style id="idbi-jewellery-card-ui">
+.idbi-items-section{margin-top:10px}
+.idbi-items-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;padding:8px 2px;color:#f4bd35;font-size:20px;font-weight:900}
+.idbi-items-title button{border:0;border-radius:13px;padding:12px 16px;background:#f4bd35;color:#071018;font-weight:900;font-size:15px}
+.idbi-item-cards{display:flex;flex-direction:column;gap:10px}
+.idbi-item-card{border:1px solid #294a60;border-radius:17px;background:linear-gradient(145deg,#071c29,#06151f);padding:12px}
+.idbi-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.idbi-item-head strong{font-size:22px;color:#f3f7fa}
+.idbi-item-head button{border:1px solid #d83b5b;background:transparent;color:#ff5a72;border-radius:11px;padding:8px 14px;font-weight:800}
+.idbi-item-card label{display:block;color:#9eb1bf;font-size:11px;font-weight:700;margin:6px 0 5px}
+.idbi-item-select{width:100%;height:48px;box-sizing:border-box;border:1px solid #294a60;border-radius:12px;background:#03121d;color:#fff;padding:8px 11px;font-size:17px;font-weight:700}
+.idbi-input-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:4px}
+.idbi-input-grid input{width:100%;height:46px;box-sizing:border-box;border:1px solid #294a60;border-radius:11px;background:#03121d;color:#fff;padding:8px 10px;font-size:16px;font-weight:700}
+.idbi-calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
+.idbi-calc-grid>div{border:1px solid #294a60;border-radius:11px;background:#07131e;padding:8px;text-align:center}
+.idbi-calc-grid span{display:block;color:#9eb1bf;font-size:10px}
+.idbi-calc-grid b{display:block;color:#00d78a;font-size:16px;margin-top:3px}
+.idbi-calc-grid .idbi-item-value{grid-column:span 4}
+.idbi-calc-grid .idbi-item-value b{color:#c06cff;font-size:20px}
+.idbi-total-card{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px;padding:10px;border:1px solid #f4bd35;border-radius:16px;background:#071b29}
+.idbi-total-card>div{padding:7px;text-align:center}
+.idbi-total-card span{display:block;color:#9eb1bf;font-size:10px}
+.idbi-total-card b{display:block;color:#fff;font-size:16px;margin-top:3px}
+.idbi-total-value{grid-column:span 4;border-top:1px solid #294a60}
+.idbi-total-value b{color:#f4bd35;font-size:21px}
+@media(max-width:700px){
+ .idbi-items-title{font-size:19px}
+ .idbi-items-title button{font-size:13px;padding:11px 12px}
+ .idbi-input-grid{grid-template-columns:repeat(2,1fr)}
+ .idbi-calc-grid{grid-template-columns:repeat(2,1fr)}
+ .idbi-calc-grid .idbi-item-value{grid-column:span 2}
+ .idbi-total-card{grid-template-columns:repeat(2,1fr)}
+ .idbi-total-value{grid-column:span 2}
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -4015,36 +4078,21 @@ body:not(.menu-viewing) .s111-rate{
     <input id="idbiRate" type="number" min="0" step="0.01" placeholder="₹ 0.00">
   </div>
 
-  <div class="idbi-table-wrap">
-    <table class="idbi-table">
-      <thead>
-        <tr>
-          <th>Sr.</th>
-          <th>Gross Weight</th>
-          <th>Wax / Stones / Dust etc.</th>
-          <th>Not Weight</th>
-          <th>Impurity %</th>
-          <th>Impurity</th>
-          <th>Net Weight</th>
-          <th>Purity (Carat)</th>
-          <th>22K Equivalent</th>
-          <th>Gold Ornament Value</th>
-        </tr>
-      </thead>
-      <tbody id="idbiRows"></tbody>
-      <tfoot>
-        <tr>
-          <th colspan="3">TOTAL</th>
-          <th id="idbiTotalNot">0.000</th>
-          <th></th>
-          <th id="idbiTotalImpurity">0.000</th>
-          <th id="idbiTotalNet">0.000</th>
-          <th></th>
-          <th id="idbiTotal22k">0.000</th>
-          <th id="idbiTotalValue">₹0.00</th>
-        </tr>
-      </tfoot>
-    </table>
+  
+<div class="idbi-items-section">
+  <div class="idbi-items-title">
+    <span>◆ Add Jewellery Item</span>
+    <button type="button" onclick="idbiAddRow()">＋ Add New Item</button>
+  </div>
+  <div id="idbiRows" class="idbi-item-cards"></div>
+  <div class="idbi-total-card">
+    <div><span>Not Weight</span><b id="idbiTotalNot">0.000 g</b></div>
+    <div><span>Impurity</span><b id="idbiTotalImpurity">0.000 g</b></div>
+    <div><span>Net Weight</span><b id="idbiTotalNet">0.000 g</b></div>
+    <div><span>22K Equivalent</span><b id="idbiTotal22k">0.000 g</b></div>
+    <div class="idbi-total-value"><span>Total Gold Value</span><b id="idbiTotalValue">₹0.00</b></div>
+  </div>
+</div>
   </div>
 
   <div class="idbi-loan">
@@ -7715,24 +7763,58 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <script id="idbi-bank-screen-js">
 (function(){
+  var idbiItemOptions='<option value="">Select Gold Item</option><option value="Chain">Chain</option><option value="Ring">Ring</option><option value="Necklace/long">Necklace/long haar</option><option value="Bangle">Bangle</option><option value="Bracelet">Bracelet</option><option value="Kada">Kada</option><option value="Pendant">Pendant</option><option value="Earrings">Earrings</option><option value="Tops">Tops</option><option value="L.Mangalsutra">L.Mangalsutra</option><option value="S.Mangalsutra">S.Mangalsutra</option><option value="Mala">Mala</option><option value="Other">Other</option>';
   function idbiRows(){
-    var rows='';
-    for(var i=1;i<=10;i++){
-      rows += '<tr>'+
-        '<td>'+i+'</td>'+
-        '<td><input id="idbiGW'+i+'" type="number" min="0" step="0.001" oninput="idbiCalculate()"></td>'+
-        '<td><input id="idbiLess'+i+'" type="number" min="0" step="0.001" oninput="idbiCalculate()"></td>'+
-        '<td><b id="idbiNot'+i+'">0.000</b></td>'+
-        '<td><input id="idbiImpPct'+i+'" type="number" min="0" max="100" step="0.01" oninput="idbiCalculate()"></td>'+
-        '<td><b id="idbiImp'+i+'">0.000</b></td>'+
-        '<td><b id="idbiNet'+i+'">0.000</b></td>'+
-        '<td><input id="idbiPurity'+i+'" type="number" min="0" max="24" step="0.01" oninput="idbiCalculate()"></td>'+
-        '<td><b id="idbi22k'+i+'">0.000</b></td>'+
-        '<td><b id="idbiValue'+i+'">₹0.00</b></td>'+
-      '</tr>';
-    }
     var el=document.getElementById('idbiRows');
-    if(el && !el.innerHTML) el.innerHTML=rows;
+    if(!el) return;
+    if(el.children.length) return;
+    for(var i=1;i<=10;i++){
+      var card=document.createElement('div');
+      card.className='idbi-item-card';
+      card.innerHTML=
+        '<div class="idbi-item-head"><strong>Item '+i+'</strong><button type="button" onclick="idbiRemoveRow('+i+')">Remove</button></div>'+
+        '<label>Jewellery Item Name</label>'+
+        '<select id="idbiItem'+i+'" class="idbi-item-select">'+idbiItemOptions+'</select>'+
+        '<div class="idbi-input-grid">'+
+          '<div><label>Gross Weight (g)</label><input id="idbiGW'+i+'" type="number" min="0" step="0.001" oninput="idbiCalculate()"></div>'+
+          '<div><label>Less (g)</label><input id="idbiLess'+i+'" type="number" min="0" step="0.001" oninput="idbiCalculate()"></div>'+
+          '<div><label>Impurity (%)</label><input id="idbiImpPct'+i+'" type="number" min="0" max="100" step="0.01" value="6" oninput="idbiCalculate()"></div>'+
+          '<div><label>Purity (Carat)</label><input id="idbiPurity'+i+'" type="number" min="0" max="24" step="0.01" value="20" oninput="idbiCalculate()"></div>'+
+        '</div>'+
+        '<div class="idbi-calc-grid">'+
+          '<div><span>Not Weight</span><b id="idbiNot'+i+'">0.000 g</b></div>'+
+          '<div><span>Impurity</span><b id="idbiImp'+i+'">0.000 g</b></div>'+
+          '<div><span>Net Weight</span><b id="idbiNet'+i+'">0.000 g</b></div>'+
+          '<div><span>22K Equivalent</span><b id="idbi22k'+i+'">0.000 g</b></div>'+
+          '<div class="idbi-item-value"><span>Gold Ornament Value</span><b id="idbiValue'+i+'">₹0.00</b></div>'+
+        '</div>';
+      el.appendChild(card);
+    }
+  }
+
+  window.idbiAddRow=function(){
+    var el=document.getElementById('idbiRows');
+    if(!el) return;
+    var cards=el.querySelectorAll('.idbi-item-card');
+    for(var i=0;i<cards.length;i++){
+      var gw=document.getElementById('idbiGW'+(i+1));
+      if(gw && !gw.value){
+        document.getElementById('idbiItem'+(i+1)).focus();
+        return;
+      }
+    }
+    alert('All 10 IDBI jewellery item rows are already available.');
+  };
+
+  window.idbiRemoveRow=function(i){
+    ['idbiItem','idbiGW','idbiLess','idbiImpPct','idbiPurity'].forEach(function(p){
+      var e=document.getElementById(p+i); if(e)e.value='';
+    });
+    var pcts=document.getElementById('idbiImpPct'+i), pur=document.getElementById('idbiPurity'+i);
+    if(pcts)pcts.value=6; if(pur)pur.value=20;
+    idbiCalculate();
+  };
+
   }
 
   window.idbiCalculate=function(){
@@ -7750,16 +7832,16 @@ document.addEventListener('DOMContentLoaded',function(){
       var eq22=net*purity/22;
       var value=eq22*rate;
       totalNot+=notW; totalImp+=imp; totalNet+=net; total22+=eq22; totalValue+=value;
-      document.getElementById('idbiNot'+i).textContent=notW.toFixed(3);
-      document.getElementById('idbiImp'+i).textContent=imp.toFixed(3);
-      document.getElementById('idbiNet'+i).textContent=net.toFixed(3);
-      document.getElementById('idbi22k'+i).textContent=eq22.toFixed(3);
+      document.getElementById('idbiNot'+i).textContent=notW.toFixed(3)+' g';
+      document.getElementById('idbiImp'+i).textContent=imp.toFixed(3)+' g';
+      document.getElementById('idbiNet'+i).textContent=net.toFixed(3)+' g';
+      document.getElementById('idbi22k'+i).textContent=eq22.toFixed(3)+' g';
       document.getElementById('idbiValue'+i).textContent='₹'+value.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
     }
-    document.getElementById('idbiTotalNot').textContent=totalNot.toFixed(3);
-    document.getElementById('idbiTotalImpurity').textContent=totalImp.toFixed(3);
-    document.getElementById('idbiTotalNet').textContent=totalNet.toFixed(3);
-    document.getElementById('idbiTotal22k').textContent=total22.toFixed(3);
+    document.getElementById('idbiTotalNot').textContent=totalNot.toFixed(3)+' g';
+    document.getElementById('idbiTotalImpurity').textContent=totalImp.toFixed(3)+' g';
+    document.getElementById('idbiTotalNet').textContent=totalNet.toFixed(3)+' g';
+    document.getElementById('idbiTotal22k').textContent=total22.toFixed(3)+' g';
     document.getElementById('idbiTotalValue').textContent='₹'+totalValue.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
     var ltv=Number(document.getElementById('idbiLtv')?.value)||0;
     var eligible=totalValue*ltv/100;
@@ -7847,7 +7929,7 @@ window.handleMainBankSelection=function(value){
       var gw=n(val('idbiGW'+i)), less=n(val('idbiLess'+i)), pct=n(val('idbiImpPct'+i)), purity=n(val('idbiPurity'+i));
       var notW=Math.max(0,gw-less), imp=notW*pct/100, net=Math.max(0,notW-imp), eq=net*purity/22;
       if(gw>0 || less>0 || purity>0) rows.push({
-        name:'Item '+i, gross:gw, stone:less, purity:purity,
+        name:val('idbiItem'+i)||('Item '+i), gross:gw, stone:less, purity:purity,
         less:less, impurityPct:pct, notWeight:notW, impurity:imp, netWeight:net, equivalent22k:eq,
         value:eq*n(val('idbiRate'))
       });
@@ -7927,7 +8009,13 @@ window.handleMainBankSelection=function(value){
   };
 
   window.idbiReset=function(){
-    document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){if(x.id==='idbiLtv')x.value=70;else x.value='';});
+    document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
+      if(x.id==='idbiLtv')x.value=70;
+      else if(x.id.indexOf('idbiImpPct')===0)x.value=6;
+      else if(x.id.indexOf('idbiPurity')===0)x.value=20;
+      else x.value='';
+    });
+    document.querySelectorAll('#idbi-valuation-screen select[id^="idbiItem"]').forEach(function(x){x.value='';});
     window._idbiEditingId=null; idbiCalculate();
   };
 
@@ -7946,7 +8034,7 @@ window.handleMainBankSelection=function(value){
         for(var j=1;j<=10;j++){setv('idbiGW'+j,'');setv('idbiLess'+j,'');setv('idbiImpPct'+j,'');setv('idbiPurity'+j,'');}
         (d.idbi?.rows||d.items||[]).forEach(function(x,j){
           var k=j+1;if(k>10)return;
-          setv('idbiGW'+k,x.gross||0);setv('idbiLess'+k,x.less||x.stone||0);setv('idbiImpPct'+k,x.impurityPct||0);setv('idbiPurity'+k,x.purity||0);
+          setv('idbiItem'+k,x.name||'');setv('idbiGW'+k,x.gross||0);setv('idbiLess'+k,x.less||x.stone||0);setv('idbiImpPct'+k,x.impurityPct!=null?x.impurityPct:6);setv('idbiPurity'+k,x.purity!=null?x.purity:20);
         });
         idbiCalculate(); if(typeof closeLoad==='function')closeLoad();
         var main=document.getElementById('valuation-main-sections');if(main)main.style.display='none';
