@@ -3436,67 +3436,14 @@ body:not(.menu-viewing) .s111-rate{
 </style>
 
 
-<style id="bank-selector-main-screen-fix">
-/* Make the existing Bank Name selector visible on the main Valuation screen */
-#valuation-main-sections .s111-customer .s111-hidden-data{
-  display:block !important;
-  grid-column:1 / -1 !important;
-  visibility:visible !important;
-  opacity:1 !important;
-}
-#valuation-main-sections .s111-hidden-data label{
-  display:block !important;
-  font-size:16px !important;
-  font-weight:800 !important;
-  color:#aebdca !important;
-  margin-bottom:7px !important;
-}
-#valuation-main-sections .s111-hidden-data select{
-  display:block !important;
-  width:100% !important;
-  min-height:48px !important;
-  box-sizing:border-box !important;
-  border:1px solid #294a60 !important;
-  border-radius:13px !important;
-  background:#031822 !important;
-  color:#fff !important;
-  padding:9px 13px !important;
-  font-size:17px !important;
-  font-weight:700 !important;
-}
-@media(max-width:700px){
-  #valuation-main-sections .s111-customer .s111-hidden-data{
-    grid-column:1 / -1 !important;
-  }
-  #valuation-main-sections .s111-hidden-data select{
-    min-height:50px !important;
-    font-size:17px !important;
-  }
-}
-</style>
-
-
-<style id="step140-idbi-vertical-scroll">
-/* STEP 140 - Make the complete Bank-Specific Valuation form vertically scrollable on mobile */
-.idbi-screen{
-  max-height:calc(100dvh - 8px);
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior-y:contain;
-  touch-action:pan-y;
-  padding-bottom:120px!important;
-}
-.idbi-screen .idbi-table-wrap{
-  overflow-x:auto!important;
-  overflow-y:visible!important;
-  -webkit-overflow-scrolling:touch;
-}
-@media(max-width:700px){
-  .idbi-screen{
-    max-height:calc(100dvh - 6px);
-    padding-bottom:130px!important;
-  }
+<style id="idbi-screen-position-fix">
+#idbi-valuation-screen{
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:1100px!important;
+  margin:0 auto!important;
+  clear:both!important;
 }
 </style>
 
@@ -3915,7 +3862,82 @@ body:not(.menu-viewing) .s111-rate{
 
 </div>
 
-</main></div>
+</main>
+<section id="idbi-valuation-screen" class="idbi-screen" style="display:none;">
+  
+<div class="idbi-bank-select-card">
+  <label>SELECT BANK</label>
+  <select id="idbiBankSelect" onchange="idbiBankChanged()">
+    <option value="">Select Bank</option>
+    <option value="IDBI BANK">IDBI BANK</option>
+  </select>
+  <button type="button" onclick="openIDBIValuation()">Open IDBI Valuation</button>
+</div>
+
+<div class="idbi-head">
+    <div>
+      <div class="idbi-kicker">BANK-SPECIFIC VALUATION</div>
+      <h2>🏦 IDBI BANK Valuation</h2>
+      <p>IDBI Impurity Calculator</p>
+    </div>
+    <button type="button" class="idbi-back" onclick="showValuationScreen()">← Back</button>
+  </div>
+
+  <div class="idbi-customer">
+    <div class="idbi-field"><label>Customer Name</label><input id="idbiCustomerName" type="text"></div>
+    <div class="idbi-field"><label>Mobile Number</label><input id="idbiCustomerMobile" type="tel"></div>
+    <div class="idbi-field"><label>Valuation Date</label><input id="idbiValuationDate" type="date"></div>
+  </div>
+
+  <div class="idbi-rate">
+    <label>Rate per gram (22K)</label>
+    <input id="idbiRate" type="number" min="0" step="0.01" placeholder="₹ 0.00">
+  </div>
+
+  <div class="idbi-table-wrap">
+    <table class="idbi-table">
+      <thead>
+        <tr>
+          <th>Sr.</th>
+          <th>Gross Weight</th>
+          <th>Wax / Stones / Dust etc.</th>
+          <th>Not Weight</th>
+          <th>Impurity %</th>
+          <th>Impurity</th>
+          <th>Net Weight</th>
+          <th>Purity (Carat)</th>
+          <th>22K Equivalent</th>
+          <th>Gold Ornament Value</th>
+        </tr>
+      </thead>
+      <tbody id="idbiRows"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3">TOTAL</th>
+          <th id="idbiTotalNot">0.000</th>
+          <th></th>
+          <th id="idbiTotalImpurity">0.000</th>
+          <th id="idbiTotalNet">0.000</th>
+          <th></th>
+          <th id="idbiTotal22k">0.000</th>
+          <th id="idbiTotalValue">₹0.00</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="idbi-loan">
+    <div class="idbi-field"><label>Loan / LTV %</label><input id="idbiLtv" type="number" min="0" max="100" step="0.01" value="70"></div>
+    <div class="idbi-field"><label>Loan Amount</label><input id="idbiLoan" type="number" min="0" step="0.01"></div>
+    <div class="idbi-result"><span>Eligible Loan</span><b id="idbiEligible">₹0.00</b></div>
+  </div>
+
+  <div class="idbi-actions">
+    <button type="button" onclick="idbiCalculate()">Calculate</button>
+    <button type="button" onclick="idbiReset()">Reset</button>
+  </div>
+</section>
+</div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
   <div class="save-box">
     <div class="save-top"><h2 id="savedManagerTitle">Saved Valuations</h2>
@@ -7563,80 +7585,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 
-<section id="idbi-valuation-screen" class="idbi-screen" style="display:none;">
-  
-<div class="idbi-bank-select-card">
-  <label>SELECT BANK</label>
-  <select id="idbiBankSelect" onchange="idbiBankChanged()">
-    <option value="">Select Bank</option>
-    <option value="IDBI BANK">IDBI BANK</option>
-  </select>
-  <button type="button" onclick="openIDBIValuation()">Open IDBI Valuation</button>
-</div>
 
-<div class="idbi-head">
-    <div>
-      <div class="idbi-kicker">BANK-SPECIFIC VALUATION</div>
-      <h2>🏦 IDBI BANK Valuation</h2>
-      <p>IDBI Impurity Calculator</p>
-    </div>
-    <button type="button" class="idbi-back" onclick="showValuationScreen()">← Back</button>
-  </div>
-
-  <div class="idbi-customer">
-    <div class="idbi-field"><label>Customer Name</label><input id="idbiCustomerName" type="text"></div>
-    <div class="idbi-field"><label>Mobile Number</label><input id="idbiCustomerMobile" type="tel"></div>
-    <div class="idbi-field"><label>Valuation Date</label><input id="idbiValuationDate" type="date"></div>
-  </div>
-
-  <div class="idbi-rate">
-    <label>Rate per gram (22K)</label>
-    <input id="idbiRate" type="number" min="0" step="0.01" placeholder="₹ 0.00">
-  </div>
-
-  <div class="idbi-table-wrap">
-    <table class="idbi-table">
-      <thead>
-        <tr>
-          <th>Sr.</th>
-          <th>Gross Weight</th>
-          <th>Wax / Stones / Dust etc.</th>
-          <th>Not Weight</th>
-          <th>Impurity %</th>
-          <th>Impurity</th>
-          <th>Net Weight</th>
-          <th>Purity (Carat)</th>
-          <th>22K Equivalent</th>
-          <th>Gold Ornament Value</th>
-        </tr>
-      </thead>
-      <tbody id="idbiRows"></tbody>
-      <tfoot>
-        <tr>
-          <th colspan="3">TOTAL</th>
-          <th id="idbiTotalNot">0.000</th>
-          <th></th>
-          <th id="idbiTotalImpurity">0.000</th>
-          <th id="idbiTotalNet">0.000</th>
-          <th></th>
-          <th id="idbiTotal22k">0.000</th>
-          <th id="idbiTotalValue">₹0.00</th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <div class="idbi-loan">
-    <div class="idbi-field"><label>Loan / LTV %</label><input id="idbiLtv" type="number" min="0" max="100" step="0.01" value="70"></div>
-    <div class="idbi-field"><label>Loan Amount</label><input id="idbiLoan" type="number" min="0" step="0.01"></div>
-    <div class="idbi-result"><span>Eligible Loan</span><b id="idbiEligible">₹0.00</b></div>
-  </div>
-
-  <div class="idbi-actions">
-    <button type="button" onclick="idbiCalculate()">Calculate</button>
-    <button type="button" onclick="idbiReset()">Reset</button>
-  </div>
-</section>
 
 
 <script id="idbi-bank-screen-js">
