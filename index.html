@@ -10384,5 +10384,49 @@ body.standard-bank-mode #valuation-main-sections{
 })();
 </script>
 
+
+
+<!-- COVER PAGE REMOVED -->
+<style id="remove-cover-page-css">
+/* Hide/remove every app cover/splash/welcome page while preserving valuation screens */
+#coverPage, #cover-page, #appCover, #app-cover, #splashScreen, #splash-screen,
+.cover-page, .coverPage, .app-cover, .splash-screen, .splashScreen,
+.welcome-screen, .welcomeScreen{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+</style>
+<script id="remove-cover-page-js">
+(function(){
+  function removeCoverPage(){
+    var selectors=[
+      '#coverPage','#cover-page','#appCover','#app-cover','#splashScreen','#splash-screen',
+      '.cover-page','.coverPage','.app-cover','.splash-screen','.splashScreen',
+      '.welcome-screen','.welcomeScreen'
+    ];
+    selectors.forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(el){ el.remove(); });
+    });
+
+    /* Clear common body states that can keep the real app hidden behind a cover */
+    document.body.classList.remove('cover-open','splash-open','welcome-open','cover-active');
+
+    /* Open directly to the four-bank valuation selector */
+    if(typeof window.showBankValuationHome==='function'){
+      window.showBankValuationHome();
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(removeCoverPage,80);
+    });
+  }else{
+    setTimeout(removeCoverPage,80);
+  }
+})();
+</script>
+
 </body>
 </html>
