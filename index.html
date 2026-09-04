@@ -3653,7 +3653,15 @@ body:not(.menu-viewing) .s111-rate{
 .idbi-summary-table th{background:#0a1e2c;color:#f4bd35}.idbi-summary-table td{color:#e7edf2}
 @media(max-width:700px){.idbi-summary-stats{grid-template-columns:repeat(2,1fr)}}
 </style>
-</head>
+<style id="idbi-step148-layout">
+#idbi-valuation-screen .idbi-calc-grid{grid-template-columns:repeat(3,1fr)!important}
+#idbi-valuation-screen .idbi-calc-grid .idbi-item-value{grid-column:span 3!important}
+@media(max-width:700px){
+ #idbi-valuation-screen .idbi-calc-grid{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+ #idbi-valuation-screen .idbi-calc-grid span{font-size:9px!important}
+ #idbi-valuation-screen .idbi-calc-grid b{font-size:15px!important}
+}
+</style></head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
   <div class="cover-inner">
@@ -4135,14 +4143,14 @@ body:not(.menu-viewing) .s111-rate{
   <div class="idbi-summary-stats">
     <div><span>Total Items</span><b id="idbiSummaryItems">0</b></div>
     <div><span>Gross Weight (g)</span><b id="idbiSummaryGross">0.000</b></div>
-    <div><span>Net Weight (g)</span><b id="idbiSummaryNet">0.000</b></div>
+    <div><span>22K Equivalent (g)</span><b id="idbiSummary22k">0.000</b></div>
     <div><span>Total Value (₹)</span><b id="idbiSummaryValue">₹0</b></div>
   </div>
   <div id="idbi-summary-details" style="display:none"><div class="idbi-summary-scroll">
   <table class="idbi-summary-table"><thead><tr>
-  <th>Item</th><th>Gross Wt (g)</th><th>Less Wt (g)</th><th>Not Wt (g)</th><th>Impurity %</th><th>Impurity (g)</th><th>Net Wt (g)</th><th>Purity (K)</th><th>22K Equivalent (g)</th><th>Value (₹)</th>
+  <th>Item</th><th>Gross Wt (g)</th><th>Less Wt (g)</th><th>Impurity (g)</th><th>Net Wt (g)</th><th>Purity (K)</th><th>22K Equivalent (g)</th><th>Value (₹)</th>
   </tr></thead><tbody id="idbiSummaryBody"></tbody><tfoot><tr>
-  <th>TOTAL</th><th id="idbiSumGross2">0.000</th><th id="idbiSumLess2">0.000</th><th id="idbiSumNot2">0.000</th><th>—</th><th id="idbiSumImp2">0.000</th><th id="idbiSumNet2">0.000</th><th>—</th><th id="idbiSum22k2">0.000</th><th id="idbiSumValue2">₹0.00</th>
+  <th>TOTAL</th><th id="idbiSumGross2">0.000</th><th id="idbiSumLess2">0.000</th><th id="idbiSumImp2">0.000</th><th id="idbiSumNet2">0.000</th><th>—</th><th id="idbiSum22k2">0.000</th><th id="idbiSumValue2">₹0.00</th>
   </tr></tfoot></table></div></div>
 </section><div class="idbi-loan">
     <div class="idbi-field"><label>Loan / LTV %</label><input id="idbiLtv" type="number" min="0" max="100" step="0.01" value="70"></div>
@@ -7831,7 +7839,6 @@ document.addEventListener('DOMContentLoaded',function(){
           '<div><label>Purity (Carat)</label><input id="idbiPurity'+i+'" type="number" min="0" max="24" step="0.01" value="20" oninput="idbiCalculate()"></div>'+
         '</div>'+
         '<div class="idbi-calc-grid">'+
-          '<div><span>Not Weight</span><b id="idbiNot'+i+'">0.000 g</b></div>'+
           '<div><span>Impurity</span><b id="idbiImp'+i+'">0.000 g</b></div>'+
           '<div><span>Net Weight</span><b id="idbiNet'+i+'">0.000 g</b></div>'+
           '<div><span>22K Equivalent</span><b id="idbi22k'+i+'">0.000 g</b></div>'+
@@ -8149,32 +8156,37 @@ window.handleMainBankSelection=function(value){
 
 <script id="idbi-summary-engine">
 (function(){
-  function num(v){return Number(v)||0}
-  function money(v){return '₹'+num(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
-  window.toggleIdbiSummary=function(){var e=document.getElementById('idbi-summary-details');if(e)e.style.display=e.style.display==='none'?'block':'none'};
-  window.updateIdbiSummary=function(){
-    var body=document.getElementById('idbiSummaryBody');if(!body)return;
-    var rate=num(document.getElementById('idbiRate')?.value), rows=[],g=0,l=0,nw=0,impT=0,net=0,eq=0,v=0;
-    for(var i=1;i<=10;i++){
-      var gw=num(document.getElementById('idbiGW'+i)?.value), less=num(document.getElementById('idbiLess'+i)?.value), pct=num(document.getElementById('idbiImpPct'+i)?.value), pur=num(document.getElementById('idbiPurity'+i)?.value);
-      if(gw<=0&&less<=0)continue;
-      var notw=Math.max(0,gw-less), imp=notw*pct/100, netw=Math.max(0,notw-imp), e22=netw*pur/22, val=e22*rate;
-      g+=gw;l+=less;nw+=notw;impT+=imp;net+=netw;eq+=e22;v+=val;
-      var item=document.getElementById('idbiItem'+i)?.value||('Item '+i);
-      rows.push('<tr><td>'+item+'</td><td>'+gw.toFixed(3)+'</td><td>'+less.toFixed(3)+'</td><td>'+notw.toFixed(3)+'</td><td>'+pct.toFixed(2)+'%</td><td>'+imp.toFixed(3)+'</td><td>'+netw.toFixed(3)+'</td><td>'+pur.toFixed(2)+'K</td><td>'+e22.toFixed(3)+'</td><td>'+money(val)+'</td></tr>');
-    }
-    body.innerHTML=rows.join('')||'<tr><td colspan="10">No jewellery items entered</td></tr>';
-    document.getElementById('idbiSummaryItems').textContent=rows.length;
-    document.getElementById('idbiSummaryGross').textContent=g.toFixed(3);
-    document.getElementById('idbiSummaryNet').textContent=net.toFixed(3);
-    document.getElementById('idbiSummaryValue').textContent=money(v);
-    document.getElementById('idbiSumGross2').textContent=g.toFixed(3);document.getElementById('idbiSumLess2').textContent=l.toFixed(3);
-    document.getElementById('idbiSumNot2').textContent=nw.toFixed(3);document.getElementById('idbiSumImp2').textContent=impT.toFixed(3);
-    document.getElementById('idbiSumNet2').textContent=net.toFixed(3);document.getElementById('idbiSum22k2').textContent=eq.toFixed(3);document.getElementById('idbiSumValue2').textContent=money(v);
-  };
-  var old=window.idbiCalculate;
-  window.idbiCalculate=function(){if(old)old.apply(this,arguments);updateIdbiSummary()};
+ function num(v){return Number(v)||0}
+ function money(v){return '₹'+num(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+ window.toggleIdbiSummary=function(){var e=document.getElementById('idbi-summary-details');if(e)e.style.display=e.style.display==='none'?'block':'none'};
+ window.updateIdbiSummary=function(){
+  var body=document.getElementById('idbiSummaryBody');if(!body)return;
+  var rate=num(document.getElementById('idbiRate')?.value),rows=[],g=0,l=0,impT=0,net=0,eq=0,v=0;
+  for(var i=1;i<=10;i++){
+   var gw=num(document.getElementById('idbiGW'+i)?.value),less=num(document.getElementById('idbiLess'+i)?.value),pct=num(document.getElementById('idbiImpPct'+i)?.value),pur=num(document.getElementById('idbiPurity'+i)?.value);
+   if(gw<=0&&less<=0)continue;
+   var notw=Math.max(0,gw-less),imp=notw*pct/100,netw=Math.max(0,notw-imp),e22=netw*pur/22,val=e22*rate;
+   g+=gw;l+=less;impT+=imp;net+=netw;eq+=e22;v+=val;
+   var item=document.getElementById('idbiItem'+i)?.value||('Item '+i);
+   rows.push('<tr><td>'+item+'</td><td>'+gw.toFixed(3)+'</td><td>'+less.toFixed(3)+'</td><td>'+imp.toFixed(3)+'</td><td>'+netw.toFixed(3)+'</td><td>'+pur.toFixed(2)+'K</td><td>'+e22.toFixed(3)+'</td><td>'+money(val)+'</td></tr>');
+  }
+  body.innerHTML=rows.join('')||'<tr><td colspan="8">No jewellery items entered</td></tr>';
+  document.getElementById('idbiSummaryItems').textContent=rows.length;
+  document.getElementById('idbiSummaryGross').textContent=g.toFixed(3);
+  document.getElementById('idbiSummary22k').textContent=eq.toFixed(3);
+  document.getElementById('idbiSummaryValue').textContent=money(v);
+  document.getElementById('idbiSumGross2').textContent=g.toFixed(3);document.getElementById('idbiSumLess2').textContent=l.toFixed(3);
+  document.getElementById('idbiSumImp2').textContent=impT.toFixed(3);document.getElementById('idbiSumNet2').textContent=net.toFixed(3);
+  document.getElementById('idbiSum22k2').textContent=eq.toFixed(3);document.getElementById('idbiSumValue2').textContent=money(v);
+ };
 })();
 </script>
-</body>
+<script id="idbi-auto-calc-final">
+(function(){
+ function calc(){if(typeof window.idbiCalculate==='function')window.idbiCalculate();if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary();}
+ document.addEventListener('input',function(e){if(e.target?.closest?.('#idbi-valuation-screen'))calc()});
+ document.addEventListener('change',function(e){if(e.target?.closest?.('#idbi-valuation-screen'))calc()});
+ window.addEventListener('load',function(){setTimeout(function(){var l=document.getElementById('idbiLtv');if(l&&!l.value)l.value='75';calc()},50)});
+})();
+</script></body>
 </html>
