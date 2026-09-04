@@ -8581,5 +8581,38 @@ body>footer button:nth-child(3){background:linear-gradient(135deg,#8d19d5,#cb0cc
 }
 </style>
 
+
+
+<style id="reset-pdf-one-row-fix">
+/* Keep Reset and Valuation Certificate / PDF side-by-side on both valuation screens */
+#valuation-main-sections .s111-secondary-actions .actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:9px!important;
+}
+#valuation-main-sections .s111-secondary-actions button{
+  width:100%!important;
+  min-width:0!important;
+}
+
+#idbi-valuation-screen .idbi-secondary-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:9px!important;
+}
+#idbi-valuation-screen .idbi-secondary-actions button{
+  width:100%!important;
+  min-width:0!important;
+}
+@media(max-width:380px){
+  #valuation-main-sections .s111-secondary-actions button,
+  #idbi-valuation-screen .idbi-secondary-actions button{
+    font-size:13px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+}
+</style>
+
 </body>
 </html>
