@@ -3661,6 +3661,10 @@ body:not(.menu-viewing) .s111-rate{
  #idbi-valuation-screen .idbi-calc-grid span{font-size:9px!important}
  #idbi-valuation-screen .idbi-calc-grid b{font-size:15px!important}
 }
+</style><style id="idbi-calc-working-ui">
+#idbi-valuation-screen .idbi-calc-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#idbi-valuation-screen .idbi-calc-grid>div{min-width:0!important}
+#idbi-valuation-screen .idbi-calc-grid .idbi-item-value{grid-column:1 / -1!important}
 </style></head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -7880,35 +7884,71 @@ document.addEventListener('DOMContentLoaded',function(){
 
 
   window.idbiCalculate=function(){
-    idbiRows();
-    var rate=Number(document.getElementById('idbiRate')?.value)||0;
-    var totalNot=0,totalImp=0,totalNet=0,total22=0,totalValue=0;
-    for(var i=1;i<=10;i++){
-      var gw=Number(document.getElementById('idbiGW'+i)?.value)||0;
-      var less=Number(document.getElementById('idbiLess'+i)?.value)||0;
-      var pct=Number(document.getElementById('idbiImpPct'+i)?.value)||0;
-      var purity=Number(document.getElementById('idbiPurity'+i)?.value)||0;
-      var notW=Math.max(0,gw-less);
-      var imp=notW*pct/100;
-      var net=Math.max(0,notW-imp);
-      var eq22=net*purity/22;
-      var value=eq22*rate;
-      totalNot+=notW; totalImp+=imp; totalNet+=net; total22+=eq22; totalValue+=value;
-      document.getElementById('idbiNot'+i).textContent=notW.toFixed(3)+' g';
-      document.getElementById('idbiImp'+i).textContent=imp.toFixed(3)+' g';
-      document.getElementById('idbiNet'+i).textContent=net.toFixed(3)+' g';
-      document.getElementById('idbi22k'+i).textContent=eq22.toFixed(3)+' g';
-      document.getElementById('idbiValue'+i).textContent='₹'+value.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    function N(id){
+      var e=document.getElementById(id);
+      var v=e?parseFloat(e.value):0;
+      return isFinite(v)?v:0;
     }
-    document.getElementById('idbiTotalNot').textContent=totalNot.toFixed(3)+' g';
-    document.getElementById('idbiTotalImpurity').textContent=totalImp.toFixed(3)+' g';
-    document.getElementById('idbiTotalNet').textContent=totalNet.toFixed(3)+' g';
-    document.getElementById('idbiTotal22k').textContent=total22.toFixed(3)+' g';
-    document.getElementById('idbiTotalValue').textContent='₹'+totalValue.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-    var ltv=Number(document.getElementById('idbiLtv')?.value)||0;
+    function set(id,text){
+      var e=document.getElementById(id);
+      if(e)e.textContent=text;
+    }
+    function money(v){
+      return '₹'+(isFinite(v)?v:0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    var rate=N('idbiRate');
+    var totalGross=0,totalLess=0,totalNot=0,totalImp=0,totalNet=0,total22=0,totalValue=0;
+
+    for(var i=1;i<=10;i++){
+      var gw=N('idbiGW'+i);
+      var less=N('idbiLess'+i);
+      var pct=N('idbiImpPct'+i);
+      var purity=N('idbiPurity'+i);
+
+      // IDBI formula:
+      // Not Weight = Gross - Less
+      // Impurity = Not Weight × Impurity %
+      // Net Weight = Not Weight - Impurity
+      // 22K Equivalent = Net Weight × Purity / 22
+      // Gold Value = 22K Equivalent × Rate
+      var notW=Math.max(0,gw-less);
+      var impurity=notW*pct/100;
+      var netW=Math.max(0,notW-impurity);
+      var eq22=netW*purity/22;
+      var value=eq22*rate;
+
+      totalGross+=gw; totalLess+=less; totalNot+=notW;
+      totalImp+=impurity; totalNet+=netW; total22+=eq22; totalValue+=value;
+
+      set('idbiNot'+i,notW.toFixed(3)+' g');
+      set('idbiImp'+i,impurity.toFixed(3)+' g');
+      set('idbiNet'+i,netW.toFixed(3)+' g');
+      set('idbi22k'+i,eq22.toFixed(3)+' g');
+      set('idbiValue'+i,money(value));
+    }
+
+    set('idbiTotalNot',totalNot.toFixed(3)+' g');
+    set('idbiTotalImpurity',totalImp.toFixed(3)+' g');
+    set('idbiTotalNet',totalNet.toFixed(3)+' g');
+    set('idbiTotal22k',total22.toFixed(3)+' g');
+    set('idbiTotalValue',money(totalValue));
+
+    // IDBI loan/LTV: default 75%, editable.
+    var ltvEl=document.getElementById('idbiLtv');
+    var ltv=ltvEl?parseFloat(ltvEl.value):75;
+    if(!isFinite(ltv))ltv=75;
     var eligible=totalValue*ltv/100;
-    document.getElementById('idbiEligible').textContent='₹'+eligible.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-  };
+    set('idbiEligible',money(eligible));
+
+    var loanEl=document.getElementById('idbiLoanAmount');
+    if(loanEl){
+      var loan=parseFloat(loanEl.value);
+      if(isFinite(loan) && loan>eligible) loanEl.value=eligible.toFixed(2);
+    }
+
+    if(typeof window.updateIdbiSummary==='function') window.updateIdbiSummary();
+  };;
 
   window.idbiReset=function(){
     document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
@@ -8188,5 +8228,17 @@ window.handleMainBankSelection=function(value){
  document.addEventListener('change',function(e){if(e.target?.closest?.('#idbi-valuation-screen'))calc()});
  window.addEventListener('load',function(){setTimeout(function(){var l=document.getElementById('idbiLtv');if(l&&!l.value)l.value='75';calc()},50)});
 })();
-</script></body>
+</script><script id="idbi-calc-init-final">
+(function(){
+  function init(){
+    if(typeof window.idbiRows==='function') window.idbiRows();
+    var l=document.getElementById('idbiLtv');
+    if(l && !l.value) l.value='75';
+    if(typeof window.idbiCalculate==='function') window.idbiCalculate();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else setTimeout(init,0);
+})();
+</script>
+</body>
 </html>
