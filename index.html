@@ -8614,5 +8614,37 @@ body>footer button:nth-child(3){background:linear-gradient(135deg,#8d19d5,#cb0cc
 }
 </style>
 
+
+
+<style id="idbi-top-gap-final-fix">
+/* Remove empty main-screen space above IDBI BANK Valuation */
+body.idbi-open main,
+body:has(#idbi-valuation-screen[style*="display: block"]) main,
+body:has(#idbi-valuation-screen[style*="display:block"]) main{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
+body.idbi-open #idbi-valuation-screen,
+body:has(#idbi-valuation-screen[style*="display: block"]) #idbi-valuation-screen,
+body:has(#idbi-valuation-screen[style*="display:block"]) #idbi-valuation-screen{
+  margin-top:0!important;
+  padding-top:8px!important;
+}
+
+/* Also neutralize any hidden main valuation wrapper height */
+#valuation-main-sections[style*="display: none"],
+#valuation-main-sections[style*="display:none"]{
+  min-height:0!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+</style>
+
 </body>
 </html>
