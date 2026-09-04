@@ -3356,6 +3356,41 @@ body:not(.menu-viewing) .s111-rate{
 @media (min-width:700px){#appCover img{width:auto!important;max-width:100%!important;height:100%!important;object-fit:contain!important;}}
 @media print{#appCover{display:none!important;}}
 </style>
+
+<style id="idbi-bank-screen-css">
+.idbi-screen{box-sizing:border-box;width:100%;max-width:1100px;margin:0 auto;padding:16px;background:#06121d;color:#f4f7fa}
+.idbi-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;margin-bottom:12px;border:1px solid #294a60;border-radius:18px;background:linear-gradient(145deg,#091c2a,#05111a)}
+.idbi-kicker{font-size:10px;letter-spacing:1.4px;color:#10d8dc;font-weight:800}
+.idbi-head h2{margin:4px 0;font-size:23px;color:#f4bd35}
+.idbi-head p{margin:0;color:#9fb1bf;font-size:12px}
+.idbi-back{border:1px solid #516678;background:#0a1b28;color:#fff;border-radius:12px;padding:10px 14px;font-weight:800}
+.idbi-customer,.idbi-loan{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:9px;margin-bottom:10px}
+.idbi-field,.idbi-result,.idbi-rate{box-sizing:border-box;border:1px solid #294a60;border-radius:15px;background:#071b29;padding:10px}
+.idbi-field label,.idbi-rate label{display:block;color:#9fb1bf;font-size:11px;font-weight:700;margin-bottom:5px}
+.idbi-field input,.idbi-rate input{width:100%;box-sizing:border-box;height:43px;border:1px solid #294a60;border-radius:11px;background:#03121d;color:#fff;padding:8px 10px;font-size:17px;font-weight:700}
+.idbi-rate{margin-bottom:10px}
+.idbi-table-wrap{overflow-x:auto;border:1px solid #294a60;border-radius:16px;background:#06131e}
+.idbi-table{width:100%;min-width:1050px;border-collapse:collapse;font-size:12px}
+.idbi-table th,.idbi-table td{border-bottom:1px solid #203c4e;padding:7px 6px;text-align:center}
+.idbi-table thead th{color:#f4bd35;background:#0a1e2c;position:sticky;top:0}
+.idbi-table input{width:100%;min-width:78px;box-sizing:border-box;background:#03121d;color:#fff;border:1px solid #294a60;border-radius:8px;padding:6px;font-size:14px}
+.idbi-loan{grid-template-columns:1fr 1fr 1.4fr;margin-top:10px}
+.idbi-result{display:flex;flex-direction:column;justify-content:center}
+.idbi-result span{color:#9fb1bf;font-size:11px}
+.idbi-result b{font-size:21px;color:#00d77a;margin-top:4px}
+.idbi-actions{display:flex;gap:9px;margin-top:10px}
+.idbi-actions button{flex:1;height:46px;border:0;border-radius:13px;background:#f4bd35;color:#071018;font-weight:900;font-size:15px}
+@media(max-width:700px){
+  .idbi-screen{padding:10px 12px 90px}
+  .idbi-head{padding:11px 12px}
+  .idbi-head h2{font-size:19px}
+  .idbi-customer{grid-template-columns:1.3fr 1fr 1fr;gap:6px}
+  .idbi-field{padding:8px}
+  .idbi-field input{font-size:16px}
+  .idbi-table{min-width:1000px}
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -7415,6 +7450,159 @@ document.addEventListener('DOMContentLoaded',function(){
       e.preventDefault();e.stopPropagation();window.unlockSavedValuation();
     }
   },true);
+})();
+</script>
+
+
+<section id="idbi-valuation-screen" class="idbi-screen" style="display:none;">
+  <div class="idbi-head">
+    <div>
+      <div class="idbi-kicker">BANK-SPECIFIC VALUATION</div>
+      <h2>🏦 IDBI BANK Valuation</h2>
+      <p>IDBI Impurity Calculator</p>
+    </div>
+    <button type="button" class="idbi-back" onclick="showValuationScreen()">← Back</button>
+  </div>
+
+  <div class="idbi-customer">
+    <div class="idbi-field"><label>Customer Name</label><input id="idbiCustomerName" type="text"></div>
+    <div class="idbi-field"><label>Mobile Number</label><input id="idbiCustomerMobile" type="tel"></div>
+    <div class="idbi-field"><label>Valuation Date</label><input id="idbiValuationDate" type="date"></div>
+  </div>
+
+  <div class="idbi-rate">
+    <label>Rate per gram (22K)</label>
+    <input id="idbiRate" type="number" min="0" step="0.01" placeholder="₹ 0.00">
+  </div>
+
+  <div class="idbi-table-wrap">
+    <table class="idbi-table">
+      <thead>
+        <tr>
+          <th>Sr.</th>
+          <th>Gross Weight</th>
+          <th>Wax / Stones / Dust etc.</th>
+          <th>Not Weight</th>
+          <th>Impurity %</th>
+          <th>Impurity</th>
+          <th>Net Weight</th>
+          <th>Purity (Carat)</th>
+          <th>22K Equivalent</th>
+          <th>Gold Ornament Value</th>
+        </tr>
+      </thead>
+      <tbody id="idbiRows"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3">TOTAL</th>
+          <th id="idbiTotalNot">0.000</th>
+          <th></th>
+          <th id="idbiTotalImpurity">0.000</th>
+          <th id="idbiTotalNet">0.000</th>
+          <th></th>
+          <th id="idbiTotal22k">0.000</th>
+          <th id="idbiTotalValue">₹0.00</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="idbi-loan">
+    <div class="idbi-field"><label>Loan / LTV %</label><input id="idbiLtv" type="number" min="0" max="100" step="0.01" value="70"></div>
+    <div class="idbi-field"><label>Loan Amount</label><input id="idbiLoan" type="number" min="0" step="0.01"></div>
+    <div class="idbi-result"><span>Eligible Loan</span><b id="idbiEligible">₹0.00</b></div>
+  </div>
+
+  <div class="idbi-actions">
+    <button type="button" onclick="idbiCalculate()">Calculate</button>
+    <button type="button" onclick="idbiReset()">Reset</button>
+  </div>
+</section>
+
+
+<script id="idbi-bank-screen-js">
+(function(){
+  function idbiRows(){
+    var rows='';
+    for(var i=1;i<=10;i++){
+      rows += '<tr>'+
+        '<td>'+i+'</td>'+
+        '<td><input id="idbiGW'+i+'" type="number" min="0" step="0.001" oninput="idbiCalculate()"></td>'+
+        '<td><input id="idbiLess'+i+'" type="number" min="0" step="0.001" oninput="idbiCalculate()"></td>'+
+        '<td><b id="idbiNot'+i+'">0.000</b></td>'+
+        '<td><input id="idbiImpPct'+i+'" type="number" min="0" max="100" step="0.01" oninput="idbiCalculate()"></td>'+
+        '<td><b id="idbiImp'+i+'">0.000</b></td>'+
+        '<td><b id="idbiNet'+i+'">0.000</b></td>'+
+        '<td><input id="idbiPurity'+i+'" type="number" min="0" max="24" step="0.01" oninput="idbiCalculate()"></td>'+
+        '<td><b id="idbi22k'+i+'">0.000</b></td>'+
+        '<td><b id="idbiValue'+i+'">₹0.00</b></td>'+
+      '</tr>';
+    }
+    var el=document.getElementById('idbiRows');
+    if(el && !el.innerHTML) el.innerHTML=rows;
+  }
+
+  window.idbiCalculate=function(){
+    idbiRows();
+    var rate=Number(document.getElementById('idbiRate')?.value)||0;
+    var totalNot=0,totalImp=0,totalNet=0,total22=0,totalValue=0;
+    for(var i=1;i<=10;i++){
+      var gw=Number(document.getElementById('idbiGW'+i)?.value)||0;
+      var less=Number(document.getElementById('idbiLess'+i)?.value)||0;
+      var pct=Number(document.getElementById('idbiImpPct'+i)?.value)||0;
+      var purity=Number(document.getElementById('idbiPurity'+i)?.value)||0;
+      var notW=Math.max(0,gw-less);
+      var imp=notW*pct/100;
+      var net=Math.max(0,notW-imp);
+      var eq22=net*purity/22;
+      var value=eq22*rate;
+      totalNot+=notW; totalImp+=imp; totalNet+=net; total22+=eq22; totalValue+=value;
+      document.getElementById('idbiNot'+i).textContent=notW.toFixed(3);
+      document.getElementById('idbiImp'+i).textContent=imp.toFixed(3);
+      document.getElementById('idbiNet'+i).textContent=net.toFixed(3);
+      document.getElementById('idbi22k'+i).textContent=eq22.toFixed(3);
+      document.getElementById('idbiValue'+i).textContent='₹'+value.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    document.getElementById('idbiTotalNot').textContent=totalNot.toFixed(3);
+    document.getElementById('idbiTotalImpurity').textContent=totalImp.toFixed(3);
+    document.getElementById('idbiTotalNet').textContent=totalNet.toFixed(3);
+    document.getElementById('idbiTotal22k').textContent=total22.toFixed(3);
+    document.getElementById('idbiTotalValue').textContent='₹'+totalValue.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var ltv=Number(document.getElementById('idbiLtv')?.value)||0;
+    var eligible=totalValue*ltv/100;
+    document.getElementById('idbiEligible').textContent='₹'+eligible.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  };
+
+  window.idbiReset=function(){
+    document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
+      if(x.id==='idbiLtv') x.value=70; else x.value='';
+    });
+    idbiCalculate();
+  };
+
+  window.openIDBIValuation=function(){
+    var main=document.getElementById('valuation-main-sections');
+    if(main) main.style.display='none';
+    var cover=document.getElementById('cover-page');
+    if(cover) cover.style.display='none';
+    var s=document.getElementById('idbi-valuation-screen');
+    if(s){s.style.display='block'; idbiRows(); idbiCalculate();}
+    window.scrollTo(0,0);
+  };
+
+  // Only intercept selection of IDBI BANK. Other banks keep the existing screen.
+  document.addEventListener('change',function(e){
+    var t=e.target;
+    if(!t) return;
+    var id=(t.id||'').toLowerCase();
+    if(id==='bankname' && String(t.value||'').toUpperCase().includes('IDBI')){
+      openIDBIValuation();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded',function(){
+    idbiRows();
+  });
 })();
 </script>
 
