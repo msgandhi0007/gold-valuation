@@ -3486,6 +3486,61 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="idbi-mobile-table-fix">
+/* IDBI mobile layout */
+#idbi-valuation-screen .idbi-table-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:thin!important;
+}
+#idbi-valuation-screen .idbi-table{
+  min-width:1080px!important;
+  table-layout:auto!important;
+}
+#idbi-valuation-screen .idbi-table th,
+#idbi-valuation-screen .idbi-table td{
+  white-space:nowrap!important;
+}
+#idbi-valuation-screen .idbi-table thead th{
+  position:sticky!important;
+  top:0!important;
+  z-index:2!important;
+}
+#idbi-valuation-screen .idbi-table input{
+  min-width:90px!important;
+  height:44px!important;
+  font-size:16px!important;
+}
+
+/* Keep the screen from being forced wider than the phone */
+#idbi-valuation-screen{
+  overflow-x:hidden!important;
+  max-width:100%!important;
+}
+
+/* Compact the top section on small Android screens */
+@media(max-width:700px){
+  #idbi-valuation-screen{
+    padding:8px 10px 90px!important;
+  }
+  #idbi-valuation-screen .idbi-head{
+    margin-bottom:8px!important;
+  }
+  #idbi-valuation-screen .idbi-bank-select-card{
+    margin-bottom:8px!important;
+  }
+  #idbi-valuation-screen .idbi-customer{
+    gap:6px!important;
+  }
+  #idbi-valuation-screen .idbi-rate{
+    margin-bottom:8px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
