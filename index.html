@@ -4167,14 +4167,18 @@ body:not(.menu-viewing) .s111-rate{
     <div class="idbi-result"><span>Eligible Loan</span><b id="idbiEligible">₹0.00</b></div>
   </div>
 
-  <div class="idbi-actions">
+  <div class="idbi-secondary-actions">
+    <button type="button" onclick="idbiReset()">Reset</button>
+    <button type="button" onclick="idbiPrintCertificate()">📜 Valuation Certificate / PDF</button>
+  </div>
+
+  <div class="idbi-feature-note">Saved IDBI valuations use the same Saved Valuations, Customer History, Customer Summary, Reports, Backup/Restore and Storage Folder system as the main valuation.</div>
+
+  <div class="idbi-bottom-actions">
     <button type="button" onclick="idbiSaveData()">💾 Save</button>
     <button type="button" onclick="idbiLoadData()">↻ Load</button>
     <button type="button" onclick="idbiShareData()">↗ Share</button>
-    <button type="button" onclick="idbiPrintCertificate()">📜 Certificate</button>
-    <button type="button" onclick="idbiReset()">Reset</button>
   </div>
-  <div class="idbi-feature-note">Saved IDBI valuations use the same Saved Valuations, Customer History, Customer Summary, Reports, Backup/Restore and Storage Folder system as the main valuation.</div>
 </section>
 </div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
@@ -6315,6 +6319,76 @@ document.addEventListener('DOMContentLoaded',()=>{
       
 
 
+
+
+<style id="idbi-reference-button-layout">
+/* IDBI buttons arranged to match the main valuation reference screen */
+#idbi-valuation-screen{padding-bottom:96px!important;}
+#idbi-valuation-screen .idbi-secondary-actions{
+  margin:12px 0 18px!important;
+  padding:14px!important;
+  border:1px solid #23465a!important;
+  border-radius:20px!important;
+  background:#061d2a!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:14px!important;
+}
+#idbi-valuation-screen .idbi-secondary-actions button{
+  width:100%!important;
+  min-height:64px!important;
+  border:1px solid #274d61!important;
+  border-radius:18px!important;
+  background:#061825!important;
+  color:#f4f7fa!important;
+  font-size:18px!important;
+  font-weight:800!important;
+  padding:13px 16px!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions{
+  position:fixed!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  bottom:0!important;
+  width:min(100%,520px)!important;
+  z-index:1200!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom))!important;
+  background:#020b12!important;
+  border-top:1px solid #23465a!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button{
+  min-width:0!important;
+  min-height:58px!important;
+  border:0!important;
+  border-radius:16px!important;
+  color:#fff!important;
+  font-size:17px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(1){background:linear-gradient(135deg,#00a95d,#02ca70)!important;}
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(2){background:linear-gradient(135deg,#0874df,#0794ff)!important;}
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(3){background:linear-gradient(135deg,#8f17cf,#ce0dc7)!important;}
+body:not(.idbi-open) #idbi-valuation-screen .idbi-bottom-actions{display:none!important;}
+@media(min-width:521px){
+  #idbi-valuation-screen .idbi-bottom-actions{bottom:0!important;}
+}
+</style>
+<script id="idbi-reference-button-layout-state">
+(function(){
+  function syncIdbiButtonBar(){
+    var s=document.getElementById('idbi-valuation-screen');
+    if(!s)return;
+    var visible=getComputedStyle(s).display!=='none';
+    document.body.classList.toggle('idbi-open',visible);
+  }
+  document.addEventListener('DOMContentLoaded',function(){syncIdbiButtonBar();setTimeout(syncIdbiButtonBar,100)});
+  new MutationObserver(syncIdbiButtonBar).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['style','class']});
+})();
+</script>
 
 </body></html>`;
     try{
