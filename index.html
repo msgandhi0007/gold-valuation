@@ -3541,6 +3541,20 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="idbi-all-features-css">
+#idbi-valuation-screen .idbi-actions{display:grid!important;grid-template-columns:repeat(5,1fr)!important}
+#idbi-valuation-screen .idbi-actions button{min-width:0!important}
+#idbi-valuation-screen .idbi-feature-note{
+ margin-top:8px;padding:8px 10px;border:1px solid #294a60;border-radius:10px;
+ color:#91a7b5;font-size:10px;text-align:center;background:#061722
+}
+@media(max-width:700px){
+ #idbi-valuation-screen .idbi-actions{grid-template-columns:repeat(2,1fr)!important}
+ #idbi-valuation-screen .idbi-actions button:first-child{grid-column:span 2}
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -4040,9 +4054,13 @@ body:not(.menu-viewing) .s111-rate{
   </div>
 
   <div class="idbi-actions">
-    <button type="button" onclick="idbiCalculate()">Calculate</button>
+    <button type="button" onclick="idbiSaveData()">💾 Save</button>
+    <button type="button" onclick="idbiLoadData()">↻ Load</button>
+    <button type="button" onclick="idbiShareData()">↗ Share</button>
+    <button type="button" onclick="idbiPrintCertificate()">📜 Certificate</button>
     <button type="button" onclick="idbiReset()">Reset</button>
   </div>
+  <div class="idbi-feature-note">Saved IDBI valuations use the same Saved Valuations, Customer History, Customer Summary, Reports, Backup/Restore and Storage Folder system as the main valuation.</div>
 </section>
 </div>
 <div id="saveManager" class="save-manager" onclick="if(event.target.id==='saveManager')closeLoad()">
@@ -7810,6 +7828,165 @@ window.handleMainBankSelection=function(value){
     var idbi=document.getElementById('idbi-valuation-screen');
     if(idbi) idbi.style.setProperty('display','none','important');
     if(original) original.apply(this,arguments);
+  };
+})();
+</script>
+
+
+<script id="idbi-all-features-js">
+(function(){
+  function n(v){return Number(v)||0;}
+  function money(v){return '₹'+n(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function val(id){var e=document.getElementById(id);return e?e.value:'';}
+  function setv(id,v){var e=document.getElementById(id);if(e)e.value=v==null?'':v;}
+
+  window.idbiRecord=function(){
+    idbiCalculate();
+    var rows=[];
+    for(var i=1;i<=10;i++){
+      var gw=n(val('idbiGW'+i)), less=n(val('idbiLess'+i)), pct=n(val('idbiImpPct'+i)), purity=n(val('idbiPurity'+i));
+      var notW=Math.max(0,gw-less), imp=notW*pct/100, net=Math.max(0,notW-imp), eq=net*purity/22;
+      if(gw>0 || less>0 || purity>0) rows.push({
+        name:'Item '+i, gross:gw, stone:less, purity:purity,
+        less:less, impurityPct:pct, notWeight:notW, impurity:imp, netWeight:net, equivalent22k:eq,
+        value:eq*n(val('idbiRate'))
+      });
+    }
+    var totalValue=rows.reduce(function(a,r){return a+r.value},0);
+    var eligible=n(document.getElementById('idbiEligible')?.textContent.replace(/[₹,]/g,''))||0;
+    var loan=n(val('idbiLoan'));
+    var now=new Date().toISOString();
+    return {
+      id:Date.now()+Math.floor(Math.random()*1000),
+      valuationType:'IDBI_BANK',
+      bankSpecific:true,
+      customer:{name:val('idbiCustomerName').trim(),mobile:val('idbiCustomerMobile').trim(),date:val('idbiValuationDate'),bank:'IDBI BANK',sanctionedLoan:loan},
+      bank:'IDBI BANK', rate:n(val('idbiRate')), ltv1:n(val('idbiLtv')),
+      sanctionedLoan:loan, loanRate:n(val('idbiRate')),
+      totalValue:totalValue, valuationTotal:totalValue, value:totalValue,
+      eligibleLoan:eligible, idbi:{rows:rows, totalNotWeight:n(document.getElementById('idbiTotalNot')?.textContent), totalImpurity:n(document.getElementById('idbiTotalImpurity')?.textContent), totalNetWeight:n(document.getElementById('idbiTotalNet')?.textContent), total22k:n(document.getElementById('idbiTotal22k')?.textContent), totalValue:totalValue},
+      items:rows, createdAt:now, modifiedAt:now, auditStatus:'Created'
+    };
+  };
+
+  window.idbiSaveData=async function(){
+    try{
+      if(!val('idbiCustomerName').trim()){alert('Customer Name is required.');return;}
+      if(n(val('idbiRate'))<=0){alert('Rate per gram (22K) is required.');return;}
+      var has=false;
+      for(var i=1;i<=10;i++){if(n(val('idbiGW'+i))>0){has=true;break;}}
+      if(!has){alert('Enter at least one Gross Weight.');return;}
+      idbiCalculate();
+      var rec=idbiRecord();
+      if(rec.sanctionedLoan>rec.eligibleLoan+0.01){alert('Loan Amount cannot exceed the eligible loan of '+money(rec.eligibleLoan)+'.');return;}
+      var a=typeof getSaved==='function'?getSaved():[];
+      var existing=window._idbiEditingId ? a.findIndex(function(x){return String(x.id)===String(window._idbiEditingId)}) : -1;
+      if(existing>=0){
+        rec.id=a[existing].id; rec.createdAt=a[existing].createdAt||rec.createdAt; rec.modifiedAt=new Date().toISOString(); rec.auditStatus='Edited';
+        a[existing]=rec;
+      }else{
+        if(typeof makeCertificateNo==='function')rec.certificateNo=makeCertificateNo();
+        a.push(rec);
+      }
+      localStorage.setItem('goldValuations',JSON.stringify(a));
+      if(window.saveBlobToStorageFolder){
+        var safe=(rec.customer.name||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').slice(0,60);
+        var filename='IDBI-Valuation-'+safe+'-'+String(rec.id)+'.json';
+        try{await window.saveBlobToStorageFolder(filename,new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Valuations');}catch(e){}
+        try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
+      }
+      window._currentSavedRecord=rec; window._idbiEditingId=null;
+      alert('IDBI Bank valuation saved successfully.');
+      if(typeof renderSaved==='function')renderSaved();
+    }catch(e){console.error(e);alert('IDBI valuation could not be saved.');}
+  };
+
+  window.idbiLoadData=function(){
+    if(typeof openLoad==='function'){openLoad();return;}
+    alert('Saved Valuations manager is unavailable.');
+  };
+
+  window.idbiShareData=async function(){
+    var r=idbiRecord(), text='IDBI BANK GOLD VALUATION\n-----------------------------\nCustomer: '+r.customer.name+'\nMobile: '+r.customer.mobile+'\nDate: '+r.customer.date+'\nRate (22K): '+money(r.rate)+'/g\n\n';
+    r.items.forEach(function(x,i){text+=(i+1)+'. '+x.name+'\nGross: '+x.gross.toFixed(3)+' g\nLess: '+x.less.toFixed(3)+' g\nNot Weight: '+x.notWeight.toFixed(3)+' g\nImpurity: '+x.impurity.toFixed(3)+' g ('+x.impurityPct+'%)\nNet Weight: '+x.netWeight.toFixed(3)+' g\nPurity: '+x.purity+'K\n22K Equivalent: '+x.equivalent22k.toFixed(3)+' g\nValue: '+money(x.value)+'\n\n';});
+    text+='TOTAL VALUE: '+money(r.totalValue)+'\nEligible Loan: '+money(r.eligibleLoan)+'\nLoan Amount: '+money(r.sanctionedLoan);
+    try{
+      if(navigator.share) await navigator.share({title:'IDBI Bank Gold Valuation',text:text});
+      else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('IDBI valuation copied.');}
+      else prompt('Copy IDBI valuation:',text);
+    }catch(e){if(e.name!=='AbortError')alert('Share cancelled.');}
+  };
+
+  window.idbiPrintCertificate=function(){
+    var r=idbiRecord();
+    var rows=r.items.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+x.gross.toFixed(3)+'</td><td>'+x.less.toFixed(3)+'</td><td>'+x.notWeight.toFixed(3)+'</td><td>'+x.impurityPct.toFixed(2)+'%</td><td>'+x.impurity.toFixed(3)+'</td><td>'+x.netWeight.toFixed(3)+'</td><td>'+x.purity.toFixed(2)+'K</td><td>'+x.equivalent22k.toFixed(3)+'</td><td>'+money(x.value)+'</td></tr>';}).join('');
+    var w=window.open('','_blank');
+    if(!w){alert('Please allow pop-ups to print the IDBI certificate.');return;}
+    w.document.write('<!doctype html><html><head><title>IDBI BANK Valuation</title><style>body{font-family:Arial;color:#111;padding:25px}h1{text-align:center;color:#9b6b00;margin:0}h2{text-align:center}table{width:100%;border-collapse:collapse;font-size:10px;margin-top:18px}th,td{border:1px solid #777;padding:5px;text-align:center}th{background:#eee}.meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px}.box{border:1px solid #aaa;padding:8px}.total{font-size:16px;font-weight:bold;margin-top:15px} @media print{@page{size:A4 landscape;margin:10mm}}</style></head><body><h1>RAJENDRA JEWELLERS</h1><h2>IDBI BANK GOLD VALUATION</h2><div class="meta"><div class="box"><b>Customer</b><br>'+r.customer.name+'</div><div class="box"><b>Mobile</b><br>'+r.customer.mobile+'</div><div class="box"><b>Date</b><br>'+r.customer.date+'</div></div><div class="box" style="margin-top:10px"><b>Rate per gram (22K):</b> '+money(r.rate)+'</div><table><thead><tr><th>Sr</th><th>Gross</th><th>Less</th><th>Not Weight</th><th>Impurity %</th><th>Impurity</th><th>Net Weight</th><th>Purity</th><th>22K Equivalent</th><th>Gold Ornament Value</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><th colspan="3">TOTAL</th><th>'+r.idbi.totalNotWeight.toFixed(3)+'</th><th></th><th>'+r.idbi.totalImpurity.toFixed(3)+'</th><th>'+r.idbi.totalNetWeight.toFixed(3)+'</th><th></th><th>'+r.idbi.total22k.toFixed(3)+'</th><th>'+money(r.totalValue)+'</th></tr></tfoot></table><div class="total">Eligible Loan: '+money(r.eligibleLoan)+' &nbsp;&nbsp; Loan Amount: '+money(r.sanctionedLoan)+'</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
+    w.document.close();
+  };
+
+  window.idbiReset=function(){
+    document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){if(x.id==='idbiLtv')x.value=70;else x.value='';});
+    window._idbiEditingId=null; idbiCalculate();
+  };
+
+  // When a saved IDBI record is opened, load it into the IDBI screen.
+  var oldLoadSaved=window.loadSaved;
+  if(oldLoadSaved){
+    window.loadSaved=function(i){
+      var a=typeof getSaved==='function'?getSaved():[], d=a[i];
+      if(d && d.valuationType==='IDBI_BANK'){
+        ensureCertificateNo(d);
+        window._idbiEditingId=d.id;
+        setv('idbiCustomerName',d.customer?.name||'');
+        setv('idbiCustomerMobile',d.customer?.mobile||'');
+        setv('idbiValuationDate',d.customer?.date||new Date().toISOString().slice(0,10));
+        setv('idbiRate',d.rate||0); setv('idbiLtv',d.ltv1||70); setv('idbiLoan',d.sanctionedLoan||0);
+        for(var j=1;j<=10;j++){setv('idbiGW'+j,'');setv('idbiLess'+j,'');setv('idbiImpPct'+j,'');setv('idbiPurity'+j,'');}
+        (d.idbi?.rows||d.items||[]).forEach(function(x,j){
+          var k=j+1;if(k>10)return;
+          setv('idbiGW'+k,x.gross||0);setv('idbiLess'+k,x.less||x.stone||0);setv('idbiImpPct'+k,x.impurityPct||0);setv('idbiPurity'+k,x.purity||0);
+        });
+        idbiCalculate(); if(typeof closeLoad==='function')closeLoad();
+        var main=document.getElementById('valuation-main-sections');if(main)main.style.display='none';
+        var cover=document.getElementById('cover-page');if(cover)cover.style.display='none';
+        var screen=document.getElementById('idbi-valuation-screen');if(screen)screen.style.display='block';
+        window.scrollTo(0,0); return;
+      }
+      return oldLoadSaved.apply(this,arguments);
+    };
+  }
+
+  // Saved-record PDF/share buttons should also support IDBI records.
+  var oldPrintSaved=window.printSaved;
+  if(oldPrintSaved) window.printSaved=function(i){
+    var a=getSaved(),d=a[i];
+    if(d && d.valuationType==='IDBI_BANK'){
+      window.loadSaved(i); setTimeout(function(){idbiPrintCertificate()},120); return;
+    }
+    return oldPrintSaved.apply(this,arguments);
+  };
+  var oldShareSavedPdf=window.shareSavedPdf;
+  if(oldShareSavedPdf) window.shareSavedPdf=async function(i){
+    var a=getSaved(),d=a[i];
+    if(d && d.valuationType==='IDBI_BANK'){
+      window.loadSaved(i); setTimeout(function(){idbiShareData()},120); return;
+    }
+    return oldShareSavedPdf.apply(this,arguments);
+  };
+
+  // Duplicate IDBI records as IDBI drafts.
+  var oldDuplicate=window.duplicateSaved;
+  if(oldDuplicate) window.duplicateSaved=function(i){
+    var a=getSaved(),d=a[i];
+    if(d && d.valuationType==='IDBI_BANK'){
+      var copy=JSON.parse(JSON.stringify(d)); copy.id=Date.now()+Math.floor(Math.random()*1000);
+      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo():'';
+      copy.createdAt=new Date().toISOString();copy.modifiedAt=copy.createdAt;copy.auditStatus='Duplicated';copy.duplicatedFromId=d.id;
+      a.push(copy);localStorage.setItem('goldValuations',JSON.stringify(a));alert('IDBI valuation duplicated as a new draft.');renderSaved();return;
+    }
+    return oldDuplicate.apply(this,arguments);
   };
 })();
 </script>
