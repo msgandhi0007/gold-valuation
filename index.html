@@ -3391,6 +3391,50 @@ body:not(.menu-viewing) .s111-rate{
 }
 </style>
 
+
+<style id="idbi-bank-selector-fix">
+.idbi-bank-select-card{
+  display:grid;
+  grid-template-columns:150px 1fr 190px;
+  gap:10px;
+  align-items:center;
+  margin-bottom:12px;
+  padding:12px;
+  border:1px solid #294a60;
+  border-radius:16px;
+  background:#071b29;
+}
+.idbi-bank-select-card label{
+  color:#f4bd35;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+.idbi-bank-select-card select{
+  height:44px;
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #294a60;
+  border-radius:11px;
+  background:#03121d;
+  color:#fff;
+  padding:8px 10px;
+  font-size:16px;
+  font-weight:800;
+}
+.idbi-bank-select-card button{
+  height:44px;
+  border:0;
+  border-radius:11px;
+  background:#f4bd35;
+  color:#071018;
+  font-weight:900;
+}
+@media(max-width:700px){
+  .idbi-bank-select-card{grid-template-columns:1fr;gap:7px}
+}
+</style>
+
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -7455,7 +7499,17 @@ document.addEventListener('DOMContentLoaded',function(){
 
 
 <section id="idbi-valuation-screen" class="idbi-screen" style="display:none;">
-  <div class="idbi-head">
+  
+<div class="idbi-bank-select-card">
+  <label>SELECT BANK</label>
+  <select id="idbiBankSelect" onchange="idbiBankChanged()">
+    <option value="">Select Bank</option>
+    <option value="IDBI BANK">IDBI BANK</option>
+  </select>
+  <button type="button" onclick="openIDBIValuation()">Open IDBI Valuation</button>
+</div>
+
+<div class="idbi-head">
     <div>
       <div class="idbi-kicker">BANK-SPECIFIC VALUATION</div>
       <h2>🏦 IDBI BANK Valuation</h2>
@@ -7604,6 +7658,16 @@ document.addEventListener('DOMContentLoaded',function(){
     idbiRows();
   });
 })();
+</script>
+
+
+<script id="idbi-bank-selector-fix-js">
+function idbiBankChanged(){
+  var s=document.getElementById('idbiBankSelect');
+  if(s && s.value==='IDBI BANK'){
+    openIDBIValuation();
+  }
+}
 </script>
 
 </body>
