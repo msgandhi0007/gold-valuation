@@ -7902,8 +7902,11 @@ document.addEventListener('DOMContentLoaded',function(){
     }
     set('idbiTotalNot',totalNot.toFixed(3)+' g');set('idbiTotalImpurity',totalImp.toFixed(3)+' g');set('idbiTotalNet',totalNet.toFixed(3)+' g');set('idbiTotal22k',total22.toFixed(3)+' g');set('idbiTotalValue',money(totalValue));
     var loanRate=N('idbiLoanRate');
-    var eligible=loanRate*total22;
-    set('idbiEligible',money(eligible));
+     var summary22El=document.getElementById('idbiSummary22k');
+     var summary22=summary22El?parseFloat(String(summary22El.textContent||'').replace(/,/g,'')):NaN;
+     if(!isFinite(summary22)) summary22=total22;
+     var eligible=loanRate*summary22;
+     set('idbiEligible',money(eligible));
     if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary();
   };
 
@@ -8199,6 +8202,27 @@ window.handleMainBankSelection=function(value){
 </script>
 <script id="idbi-step150-clean-autocalc">
 (function(){function run(){if(typeof window.idbiCalculate==='function')window.idbiCalculate();if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary();}document.addEventListener('input',function(e){if(e.target&&e.target.closest&&e.target.closest('#idbi-valuation-screen'))run()});document.addEventListener('change',function(e){if(e.target&&e.target.closest&&e.target.closest('#idbi-valuation-screen'))run()});})();
+</script>
+<script id="idbi-loan-rate-fix">
+(function(){
+  function updateLoan(){
+    var r=document.getElementById('idbiLoanRate');
+    var q=document.getElementById('idbiSummary22k');
+    var out=document.getElementById('idbiEligible');
+    if(!r||!q||!out)return;
+    var rate=parseFloat(r.value)||0;
+    var eq=parseFloat(String(q.textContent||'').replace(/,/g,''))||0;
+    var v=rate*eq;
+    out.textContent='₹'+v.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  document.addEventListener('input',function(e){
+    if(e.target && e.target.id==='idbiLoanRate') updateLoan();
+  });
+  document.addEventListener('change',function(e){
+    if(e.target && e.target.id==='idbiLoanRate') updateLoan();
+  });
+  window.addEventListener('load',function(){setTimeout(updateLoan,100);});
+})();
 </script>
 </body>
 </html>
