@@ -7918,6 +7918,7 @@ document.addEventListener('DOMContentLoaded',function(){
   };
 
   window.openIDBIValuation=function(){
+    document.body.classList.add('idbi-mode');
     var main=document.getElementById('valuation-main-sections');
     if(main) main.style.display='none';
     var cover=document.getElementById('cover-page');
@@ -8224,6 +8225,33 @@ window.handleMainBankSelection=function(value){
   window.addEventListener('load',function(){setTimeout(updateLoan,100);});
 })();
 </script>
+<style id="idbi-hard-screen-isolation">
+/* FINAL IDBI isolation: IDBI-only blocks must never leak into Main Valuation */
+body:not(.idbi-mode) #idbi-valuation-screen,
+body:not(.idbi-mode) #idbi-summary-section,
+body:not(.idbi-mode) .idbi-summary-section,
+body:not(.idbi-mode) .idbi-loan,
+body:not(.idbi-mode) .idbi-actions,
+body:not(.idbi-mode) .idbi-feature-note{display:none!important;}
+body.idbi-mode #valuation-main-sections{display:none!important;}
+body.idbi-mode #idbi-valuation-screen{display:block!important;}
+body.idbi-mode > footer{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+</style>
+<script id="idbi-mode-controller">
+(function(){
+  function mainMode(){document.body.classList.remove('idbi-mode');}
+  function idbiMode(){document.body.classList.add('idbi-mode');}
+  document.addEventListener('DOMContentLoaded',mainMode);
+  window.addEventListener('load',mainMode);
+  var install=function(){
+    var show=window.showValuationScreen;
+    window.showValuationScreen=function(){mainMode(); return typeof show==='function'?show.apply(this,arguments):undefined;};
+    var open=window.openIDBIValuation;
+    window.openIDBIValuation=function(){idbiMode(); var r=typeof open==='function'?open.apply(this,arguments):undefined; idbiMode(); return r;};
+  };
+  setTimeout(install,0);
+})();
+</script>
 <script id="idbi-screen-isolation-fix">
 (function(){
   function hideIdbi(){
@@ -8231,6 +8259,7 @@ window.handleMainBankSelection=function(value){
     if(idbi) idbi.style.setProperty('display','none','important');
   }
   function showMainOnly(){
+    document.body.classList.remove('idbi-mode');
     var main=document.getElementById('valuation-main-sections');
     var cover=document.getElementById('cover-page');
     hideIdbi();
@@ -8255,6 +8284,7 @@ window.handleMainBankSelection=function(value){
   // Opening IDBI must hide the complete main valuation screen.
   var oldOpen=window.openIDBIValuation;
   window.openIDBIValuation=function(){
+    document.body.classList.add('idbi-mode');
     var main=document.getElementById('valuation-main-sections');
     var cover=document.getElementById('cover-page');
     if(main) main.style.setProperty('display','none','important');
