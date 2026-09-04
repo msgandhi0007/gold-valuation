@@ -9897,5 +9897,170 @@ body.idbi-open>footer{display:none!important;}
 })();
 </script>
 
+
+
+<style id="main-loan-match-idbi-ui">
+/* MAIN Loan/LTV now mirrors the IDBI Loan/LTV card exactly */
+#valuation-main-sections .s111-loan-card{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+  margin:0 0 9px!important;
+  padding:10px!important;
+  border:1px solid #e3d9c4!important;
+  border-radius:13px!important;
+  background:#fffdf8!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.045)!important;
+}
+#valuation-main-sections .s111-loan-card>.s111-card-head{
+  grid-column:1/-1!important;
+  margin:0!important;
+  min-height:auto!important;
+}
+#valuation-main-sections .s111-loan-card>.s111-card-head .s111-head-icon{
+  display:none!important;
+}
+#valuation-main-sections .s111-loan-card>.s111-card-head h2{
+  margin:0!important;
+  color:#171717!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+}
+#valuation-main-sections .s111-loan-grid{
+  display:contents!important;
+}
+#valuation-main-sections .s111-loan-tile,
+#valuation-main-sections .main-loan-eligible-result{
+  padding:8px!important;
+  border:1px solid #e0d9cc!important;
+  border-radius:9px!important;
+  background:#fff!important;
+}
+#valuation-main-sections .s111-loan-title{
+  display:block!important;
+  min-height:0!important;
+  margin-bottom:4px!important;
+  color:#5e5b55!important;
+  font-size:10px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections .s111-loan-icon{
+  display:none!important;
+}
+#valuation-main-sections .s111-loan-tile input{
+  width:100%!important;
+  min-height:39px!important;
+  height:39px!important;
+  margin:0!important;
+  padding:7px 8px!important;
+  border:1px solid #d8d2c8!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#171717!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  box-shadow:none!important;
+}
+#valuation-main-sections .s111-loan-tile>b{
+  display:none!important;
+}
+#valuation-main-sections .main-loan-eligible-result{
+  grid-column:1/-1!important;
+  min-height:50px!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+}
+#valuation-main-sections .main-loan-eligible-result span{
+  color:#333!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections .main-loan-eligible-result b{
+  color:#976507!important;
+  font-size:18px!important;
+  font-weight:950!important;
+}
+#valuation-main-sections .s111-loan-note,
+#valuation-main-sections .s111-loan-rate,
+#valuation-main-sections .main-eligible-caption{
+  display:none!important;
+}
+
+@media(min-width:430px){
+  #valuation-main-sections .s111-loan-card{
+    grid-template-columns:1fr 1fr 1fr!important;
+  }
+  #valuation-main-sections .s111-loan-card>.s111-card-head{
+    grid-column:1/-1!important;
+  }
+  #valuation-main-sections .main-loan-eligible-result{
+    grid-column:auto!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+  }
+}
+</style>
+
+
+<script id="main-loan-match-idbi-js">
+(function(){
+  function matchMainLoanToIdbi(){
+    var card=document.querySelector('#valuation-main-sections .s111-loan-card');
+    if(!card) return;
+
+    var heading=card.querySelector('.s111-card-head h2');
+    if(heading) heading.textContent='LOAN / LTV';
+
+    var tiles=card.querySelectorAll('.s111-loan-tile');
+    if(tiles[0]){
+      var title=tiles[0].querySelector('.s111-loan-title span:last-child');
+      if(title) title.textContent='LTV (%)';
+    }
+    if(tiles[1]){
+      var title2=tiles[1].querySelector('.s111-loan-title span:last-child');
+      if(title2) title2.textContent='Sanctioned Loan Amount';
+    }
+
+    var eligible=document.getElementById('l65');
+    if(eligible){
+      var result=card.querySelector('.main-loan-eligible-result');
+      if(!result){
+        result=document.createElement('div');
+        result.className='main-loan-eligible-result';
+        result.innerHTML='<span>Eligible Loan Amount</span>';
+        result.appendChild(eligible);
+        card.appendChild(result);
+      }else if(eligible.parentElement!==result){
+        result.appendChild(eligible);
+      }
+      eligible.style.display='block';
+    }
+
+    var oldCap=card.querySelector('.main-eligible-caption');
+    if(oldCap) oldCap.remove();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',matchMainLoanToIdbi);
+  }else{
+    matchMainLoanToIdbi();
+  }
+  setTimeout(matchMainLoanToIdbi,100);
+
+  var oldShow=window.showValuationScreen;
+  if(typeof oldShow==='function'){
+    window.showValuationScreen=function(){
+      var r=oldShow.apply(this,arguments);
+      matchMainLoanToIdbi();
+      return r;
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
