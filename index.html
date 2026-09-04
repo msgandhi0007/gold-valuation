@@ -10428,5 +10428,108 @@ body.standard-bank-mode #valuation-main-sections{
 })();
 </script>
 
+
+
+<!-- FIX VERTICAL SCROLLING ON ALL VALUATION SCREENS -->
+<style id="all-bank-scroll-fix-css">
+html, body{
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:auto!important;
+}
+body.bank-home-mode,
+body.standard-bank-mode,
+body.idbi-open{
+  height:auto!important;
+  min-height:100vh!important;
+  overflow-y:auto!important;
+  touch-action:pan-y!important;
+}
+.app,
+main,
+#valuation-main-sections,
+#idbi-valuation-screen,
+#bankValuationHome{
+  height:auto!important;
+  max-height:none!important;
+  overflow-y:visible!important;
+  touch-action:pan-y!important;
+}
+#idbi-valuation-screen{
+  padding-bottom:92px!important;
+}
+#valuation-main-sections{
+  padding-bottom:18px!important;
+}
+#bankValuationHome{
+  padding-bottom:110px!important;
+}
+</style>
+<script id="all-bank-scroll-fix-js">
+(function(){
+  function enableVerticalScroll(){
+    try{
+      document.documentElement.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('height');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('height');
+      document.body.style.overflowY='auto';
+      document.body.style.overflowX='hidden';
+    }catch(e){}
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      enableVerticalScroll();
+      setTimeout(enableVerticalScroll,100);
+      setTimeout(enableVerticalScroll,400);
+    });
+  }else{
+    enableVerticalScroll();
+    setTimeout(enableVerticalScroll,100);
+  }
+
+  /* Cover-page code in older builds can set body overflow:hidden.
+     Re-enable scrolling whenever a bank screen is opened. */
+  var oldHome=window.showBankValuationHome;
+  if(typeof oldHome==='function'){
+    window.showBankValuationHome=function(){
+      var r=oldHome.apply(this,arguments);
+      enableVerticalScroll();
+      setTimeout(enableVerticalScroll,30);
+      return r;
+    };
+  }
+
+  var oldSpecific=window.openSpecificBankValuation;
+  if(typeof oldSpecific==='function'){
+    window.openSpecificBankValuation=function(){
+      var r=oldSpecific.apply(this,arguments);
+      enableVerticalScroll();
+      setTimeout(enableVerticalScroll,30);
+      return r;
+    };
+  }
+
+  var oldIdbi=window.openIDBIValuation;
+  if(typeof oldIdbi==='function'){
+    window.openIDBIValuation=function(){
+      var r=oldIdbi.apply(this,arguments);
+      enableVerticalScroll();
+      setTimeout(enableVerticalScroll,30);
+      return r;
+    };
+  }
+
+  /* Also fix immediately after any touch/click navigation. */
+  document.addEventListener('click',function(){
+    setTimeout(enableVerticalScroll,20);
+  },true);
+})();
+</script>
+
 </body>
 </html>
