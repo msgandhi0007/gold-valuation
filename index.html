@@ -8307,22 +8307,6 @@ window.handleMainBankSelection=function(value){
 body:not(.idbi-open) #idbi-valuation-screen .idbi-bottom-actions{display:none!important;}
 @media(min-width:521px){#idbi-valuation-screen .idbi-bottom-actions{left:50%;right:auto;width:520px;transform:translateX(-50%);}}
 </style>
-
-<style id="idbi-market-rate-gap-fix">
-/* Remove the empty main-area padding while the IDBI valuation screen is open.
-   This keeps SELECT BANK directly below the Market Rate card. */
-body.idbi-open main{
-  display:none!important;
-  margin:0!important;
-  padding:0!important;
-  min-height:0!important;
-  height:0!important;
-}
-body.idbi-open #idbi-valuation-screen{
-  margin-top:0!important;
-}
-</style>
-
 <script id="idbi-reference-button-layout-state">
 (function(){
   function syncIdbiButtonBar(){
@@ -8337,5 +8321,265 @@ body.idbi-open #idbi-valuation-screen{
   window.addEventListener('load',function(){setTimeout(syncIdbiButtonBar,150)});
 })();
 </script>
+
+
+<style id="premium-main-idbi-ui-v1">
+/* Premium mobile-first UI refresh for Main Valuation + IDBI Valuation.
+   Visual only: existing IDs, calculations, save/load/share/PDF logic remain unchanged. */
+:root{
+  --ui-bg:#02070d;
+  --ui-panel:#071824;
+  --ui-panel2:#091d2b;
+  --ui-line:#294b61;
+  --ui-line2:#355d75;
+  --ui-text:#f6f8fa;
+  --ui-muted:#9eb0bd;
+  --ui-gold:#ffbf19;
+  --ui-gold2:#e39c00;
+  --ui-cyan:#18d2d0;
+  --ui-green:#00d783;
+  --ui-purple:#c45cff;
+}
+
+/* ---------- Shared app surface ---------- */
+body{background:var(--ui-bg)!important;}
+#valuation-main-sections,
+#idbi-valuation-screen{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(24,210,208,.055),transparent 26%),
+    radial-gradient(circle at 0% 42%,rgba(255,191,25,.04),transparent 30%),
+    linear-gradient(180deg,#03101a 0%,#02080e 100%)!important;
+  color:var(--ui-text)!important;
+}
+#valuation-main-sections{padding:10px 10px 112px!important;}
+#idbi-valuation-screen{padding:10px 10px 110px!important;}
+
+/* Market rate: make it the visual anchor */
+.s111-rate{
+  margin:8px 10px 10px!important;
+  padding:15px 16px!important;
+  border:1px solid rgba(255,191,25,.72)!important;
+  border-radius:22px!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(255,191,25,.17),transparent 28%),
+    linear-gradient(135deg,#42114e 0%,#190b3b 50%,#06111d 100%)!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.s111-rate label,.s111-rate .label{color:#ffd35d!important;font-weight:900!important;letter-spacing:.35px!important;}
+.s111-rate input{color:#fff!important;font-size:34px!important;font-weight:900!important;}
+
+/* ---------- Main Valuation ---------- */
+#valuation-main-sections>.card,
+#valuation-main-sections>.main-bank-selector{
+  margin:0 0 11px!important;
+}
+#valuation-main-sections .card,
+#valuation-main-sections .main-bank-selector{
+  border:1px solid var(--ui-line)!important;
+  border-radius:20px!important;
+  background:
+    linear-gradient(145deg,rgba(10,30,43,.98),rgba(4,14,22,.99))!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+#valuation-main-sections .card{padding:14px!important;}
+#valuation-main-sections .s111-card-head{
+  display:flex!important;align-items:center!important;gap:9px!important;margin-bottom:12px!important;
+}
+#valuation-main-sections .s111-card-head h2{
+  flex:1!important;margin:0!important;font-size:19px!important;line-height:1.2!important;font-weight:900!important;color:#fff!important;
+}
+#valuation-main-sections .s111-head-icon{
+  width:38px!important;height:38px!important;min-width:38px!important;border-radius:12px!important;
+  display:grid!important;place-items:center!important;background:#07131d!important;border:1px solid #34546a!important;
+}
+#valuation-main-sections .s111-head-icon.cyan{color:var(--ui-cyan)!important;}
+#valuation-main-sections .s111-head-icon.gold{color:var(--ui-gold)!important;}
+
+/* Customer fields: 2 + 1 layout on phone, relaxed on wider screens */
+#valuation-main-sections .s111-customer-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important;}
+#valuation-main-sections .s111-customer-tile{
+  position:relative!important;border:1px solid #2d4c61!important;border-radius:16px!important;padding:10px!important;
+  background:linear-gradient(145deg,#0a1d2b,#06131d)!important;
+}
+#valuation-main-sections .s111-customer-tile:nth-child(3){grid-column:1/-1!important;}
+#valuation-main-sections .s111-customer-tile label{font-size:12px!important;color:var(--ui-muted)!important;font-weight:800!important;}
+#valuation-main-sections input,#valuation-main-sections select{
+  min-height:50px!important;border-radius:13px!important;background:#03111b!important;color:#fff!important;
+  border:1px solid #34546a!important;font-size:16px!important;font-weight:750!important;padding:10px 12px!important;
+}
+#valuation-main-sections input:focus,#valuation-main-sections select:focus{
+  border-color:var(--ui-gold)!important;box-shadow:0 0 0 3px rgba(255,191,25,.10)!important;outline:none!important;
+}
+#valuation-main-sections .s111-saved{
+  min-height:40px!important;padding:8px 12px!important;border-radius:12px!important;
+  background:#071723!important;border:1px solid #31566e!important;color:#dce8ef!important;
+}
+
+/* Bank selector */
+#valuation-main-sections .main-bank-selector{padding:14px!important;}
+#valuation-main-sections .main-bank-title{font-size:14px!important;font-weight:950!important;color:var(--ui-gold)!important;letter-spacing:.45px!important;margin-bottom:9px!important;}
+#valuation-main-sections #mainBankSelect{width:100%!important;min-height:54px!important;font-size:17px!important;font-weight:850!important;}
+
+/* Jewellery */
+#valuation-main-sections .s111-jewellery{padding:14px!important;}
+#valuation-main-sections .s111-jewel-head{flex-wrap:wrap!important;}
+#valuation-main-sections .s111-add{
+  width:auto!important;min-height:44px!important;padding:10px 14px!important;border-radius:14px!important;border:0!important;
+  background:linear-gradient(135deg,var(--ui-gold),#ff9f0a)!important;color:#12100a!important;font-size:14px!important;font-weight:950!important;
+  box-shadow:0 8px 18px rgba(227,156,0,.18)!important;
+}
+#items{display:flex!important;flex-direction:column!important;gap:10px!important;}
+#items .item{
+  border:1px solid #31536a!important;border-radius:18px!important;padding:12px!important;margin:0!important;
+  background:linear-gradient(145deg,#0a1d2b,#05111b)!important;box-shadow:none!important;
+}
+#items .itemhead{font-size:18px!important;color:#fff!important;margin-bottom:10px!important;}
+#items .remove{border:1px solid #703345!important;background:#210d15!important;color:#ff7186!important;border-radius:11px!important;}
+#items .grid{gap:9px!important;}
+#items .field label{font-size:11px!important;color:var(--ui-muted)!important;font-weight:800!important;}
+#items .calc{gap:7px!important;margin-top:9px!important;}
+#items .metric{min-height:68px!important;border:1px solid #2b4a60!important;border-radius:13px!important;background:#061723!important;text-align:center!important;}
+#items .metric small{font-size:10px!important;color:#94a9b7!important;}
+#items .metric b{font-size:16px!important;color:var(--ui-green)!important;}
+
+/* Summary */
+#valuation-main-sections .s111-summary{
+  border-color:#31576f!important;background:
+  radial-gradient(circle at 100% 0%,rgba(196,92,255,.06),transparent 35%),linear-gradient(145deg,#081c2a,#04101a)!important;
+}
+#valuation-main-sections .s111-details{background:none!important;border:0!important;color:var(--ui-purple)!important;font-size:13px!important;font-weight:900!important;}
+#valuation-main-sections .s111-summary-grid{grid-template-columns:repeat(2,1fr)!important;gap:9px!important;}
+#valuation-main-sections .s111-stat{
+  min-height:86px!important;padding:11px 7px!important;border:1px solid #315169!important;border-radius:15px!important;
+  background:linear-gradient(145deg,#0a1f2e,#061520)!important;text-align:center!important;
+}
+#valuation-main-sections .s111-stat small{font-size:11px!important;line-height:1.25!important;color:var(--ui-muted)!important;}
+#valuation-main-sections .s111-stat b{font-size:21px!important;margin-top:6px!important;display:block!important;color:#fff!important;}
+#valuation-main-sections .s111-stat:nth-child(3) b{color:var(--ui-green)!important;}
+#valuation-main-sections .s111-stat:nth-child(4) b{color:var(--ui-gold)!important;}
+
+/* Loan / LTV */
+#valuation-main-sections .s111-loan-card{border-color:#31556c!important;}
+#valuation-main-sections .s111-loan-grid{grid-template-columns:1fr 1fr!important;gap:9px!important;}
+#valuation-main-sections .s111-loan-tile{
+  border:1px solid #315069!important;border-radius:15px!important;padding:11px!important;background:#071925!important;
+}
+#valuation-main-sections .s111-loan-tile:first-child{border-left:3px solid var(--ui-purple)!important;}
+#valuation-main-sections .s111-loan-tile:nth-child(2){border-left:3px solid var(--ui-green)!important;}
+#valuation-main-sections .s111-loan-rate{margin-top:9px!important;border:1px solid #315069!important;border-radius:15px!important;background:#061620!important;padding:10px!important;}
+
+/* Quick actions */
+#valuation-main-sections .s113-quick-actions{padding:13px!important;}
+#valuation-main-sections .s113-quick-heading{font-size:20px!important;margin-bottom:11px!important;}
+#valuation-main-sections .s113-quick-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:8px!important;}
+#valuation-main-sections .s113-quick-grid button{
+  min-width:0!important;min-height:86px!important;padding:7px 3px!important;border:1px solid #2d4d62!important;border-radius:15px!important;
+  background:#061722!important;color:#eef5f8!important;
+}
+#valuation-main-sections .s113-quick-grid .q{width:35px!important;height:35px!important;border-radius:11px!important;margin:0 auto 5px!important;}
+#valuation-main-sections .s113-quick-grid small{font-size:9px!important;line-height:1.08!important;font-weight:800!important;}
+
+/* Reset + certificate */
+#valuation-main-sections .s111-secondary-actions .actions{grid-template-columns:1fr!important;gap:9px!important;}
+#valuation-main-sections .s111-secondary-actions button{
+  min-height:54px!important;border-radius:15px!important;border:1px solid #31546b!important;background:#061722!important;color:#f4f7fa!important;font-size:15px!important;font-weight:900!important;
+}
+#valuation-main-sections .s111-secondary-actions button:last-child{border-color:#6a5521!important;color:#ffd05a!important;}
+
+/* Main fixed footer */
+body>footer{background:rgba(2,7,13,.97)!important;border-top:1px solid #27485c!important;backdrop-filter:blur(10px)!important;}
+body>footer button{min-height:58px!important;border-radius:17px!important;font-size:15px!important;font-weight:950!important;}
+body>footer button:nth-child(1){background:linear-gradient(135deg,#00a85e,#00cc72)!important;color:#fff!important;}
+body>footer button:nth-child(2){background:linear-gradient(135deg,#0875df,#0799ff)!important;color:#fff!important;}
+body>footer button:nth-child(3){background:linear-gradient(135deg,#8d19d5,#cb0cc9)!important;color:#fff!important;}
+
+/* ---------- IDBI Valuation ---------- */
+#idbi-valuation-screen .idbi-bank-select-card,
+#idbi-valuation-screen .idbi-head,
+#idbi-valuation-screen .idbi-customer,
+#idbi-valuation-screen .idbi-rate,
+#idbi-valuation-screen .idbi-item-card,
+#idbi-valuation-screen #idbi-summary-section,
+#idbi-valuation-screen .idbi-loan,
+#idbi-valuation-screen .idbi-secondary-actions{
+  border:1px solid var(--ui-line)!important;border-radius:20px!important;
+  background:linear-gradient(145deg,#091d2b,#05111a)!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.16)!important;
+}
+#idbi-valuation-screen .idbi-bank-select-card{padding:14px!important;margin:0 0 11px!important;}
+#idbi-valuation-screen .idbi-bank-select-card label{font-size:14px!important;color:var(--ui-gold)!important;font-weight:950!important;letter-spacing:.45px!important;}
+#idbi-valuation-screen .idbi-bank-select-card select{width:100%!important;min-height:54px!important;margin-top:8px!important;border-radius:14px!important;background:#03111b!important;color:#fff!important;border:1px solid #34556b!important;font-size:17px!important;font-weight:850!important;padding:10px 12px!important;}
+#idbi-valuation-screen .idbi-bank-select-card button{width:100%!important;min-height:52px!important;margin-top:10px!important;border:0!important;border-radius:14px!important;background:linear-gradient(135deg,var(--ui-gold),#ff9f0a)!important;color:#111!important;font-size:16px!important;font-weight:950!important;}
+
+#idbi-valuation-screen .idbi-head{padding:14px!important;margin:0 0 11px!important;}
+#idbi-valuation-screen .idbi-kicker{font-size:11px!important;letter-spacing:1px!important;color:var(--ui-cyan)!important;font-weight:950!important;}
+#idbi-valuation-screen .idbi-head h2{margin:5px 0 2px!important;font-size:22px!important;color:var(--ui-gold)!important;font-weight:950!important;}
+#idbi-valuation-screen .idbi-head p{margin:0!important;color:var(--ui-muted)!important;}
+#idbi-valuation-screen .idbi-back{min-height:46px!important;padding:0 15px!important;border-radius:14px!important;border:1px solid #3a6077!important;background:#071925!important;color:#fff!important;font-size:15px!important;font-weight:900!important;}
+
+#idbi-valuation-screen .idbi-customer{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important;padding:12px!important;margin-bottom:11px!important;}
+#idbi-valuation-screen .idbi-customer .idbi-field:nth-child(3){grid-column:1/-1!important;}
+#idbi-valuation-screen .idbi-field label,#idbi-valuation-screen .idbi-rate label{font-size:12px!important;color:var(--ui-muted)!important;font-weight:800!important;}
+#idbi-valuation-screen .idbi-field input,#idbi-valuation-screen .idbi-rate input,#idbi-valuation-screen .idbi-input-grid input,#idbi-valuation-screen .idbi-item-select,#idbi-valuation-screen .idbi-loan input{
+  min-height:50px!important;border-radius:13px!important;background:#03111b!important;color:#fff!important;border:1px solid #34556b!important;font-size:16px!important;font-weight:800!important;padding:10px 12px!important;
+}
+#idbi-valuation-screen input:focus,#idbi-valuation-screen select:focus{border-color:var(--ui-gold)!important;box-shadow:0 0 0 3px rgba(255,191,25,.1)!important;outline:none!important;}
+#idbi-valuation-screen .idbi-rate{padding:12px!important;margin-bottom:11px!important;}
+
+#idbi-valuation-screen .idbi-items-section{margin:0 0 11px!important;}
+#idbi-valuation-screen .idbi-items-title{font-size:20px!important;color:var(--ui-gold)!important;padding:7px 2px 9px!important;margin:0!important;}
+#idbi-valuation-screen .idbi-items-title button{min-height:44px!important;border-radius:14px!important;background:linear-gradient(135deg,var(--ui-gold),#ff9f0a)!important;color:#111!important;font-weight:950!important;}
+#idbi-valuation-screen .idbi-item-card{padding:12px!important;margin:0!important;}
+#idbi-valuation-screen .idbi-item-head{font-size:19px!important;font-weight:950!important;color:#fff!important;}
+#idbi-valuation-screen .idbi-input-grid{gap:9px!important;}
+#idbi-valuation-screen .idbi-calc-grid{gap:7px!important;margin-top:9px!important;}
+#idbi-valuation-screen .idbi-calc-grid>div{border:1px solid #2d4d63!important;border-radius:13px!important;background:#061722!important;padding:9px 5px!important;}
+#idbi-valuation-screen .idbi-calc-grid span{color:var(--ui-muted)!important;}
+#idbi-valuation-screen .idbi-calc-grid b{color:var(--ui-green)!important;font-size:17px!important;}
+#idbi-valuation-screen .idbi-item-value b{color:var(--ui-purple)!important;font-size:21px!important;}
+
+#idbi-valuation-screen #idbi-summary-section{padding:13px!important;margin:0 0 11px!important;}
+#idbi-valuation-screen .idbi-summary-head{font-size:20px!important;}
+#idbi-valuation-screen .idbi-summary-head button{color:var(--ui-purple)!important;}
+#idbi-valuation-screen .idbi-summary-stats{grid-template-columns:repeat(2,1fr)!important;gap:9px!important;}
+#idbi-valuation-screen .idbi-summary-stats div{min-height:82px!important;border-radius:14px!important;border:1px solid #315169!important;background:#071925!important;padding:10px 6px!important;}
+#idbi-valuation-screen .idbi-summary-stats span{font-size:11px!important;color:var(--ui-muted)!important;}
+#idbi-valuation-screen .idbi-summary-stats b{font-size:20px!important;color:#fff!important;}
+#idbi-valuation-screen .idbi-summary-stats div:nth-child(3) b{color:var(--ui-green)!important;}
+#idbi-valuation-screen .idbi-summary-stats div:nth-child(4) b{color:var(--ui-gold)!important;}
+
+#idbi-valuation-screen .idbi-loan{padding:12px!important;margin-bottom:11px!important;gap:9px!important;}
+#idbi-valuation-screen .idbi-loan>div{border-radius:15px!important;}
+#idbi-valuation-screen .idbi-secondary-actions{padding:10px!important;margin:0 0 12px!important;gap:9px!important;}
+#idbi-valuation-screen .idbi-secondary-actions button{min-height:54px!important;border-radius:15px!important;background:#061722!important;border:1px solid #31546b!important;color:#fff!important;font-size:15px!important;font-weight:900!important;}
+#idbi-valuation-screen .idbi-secondary-actions button:last-child{border-color:#6a5521!important;color:#ffd05a!important;}
+
+#idbi-valuation-screen .idbi-bottom-actions{padding:9px max(10px,calc((100vw - 520px)/2 + 10px))!important;gap:9px!important;background:rgba(2,7,13,.98)!important;border-top:1px solid #29495e!important;backdrop-filter:blur(10px)!important;}
+#idbi-valuation-screen .idbi-bottom-actions button{min-height:58px!important;border-radius:17px!important;font-size:15px!important;font-weight:950!important;}
+
+/* ---------- Small Android screens ---------- */
+@media(max-width:420px){
+  #valuation-main-sections,#idbi-valuation-screen{padding-left:8px!important;padding-right:8px!important;}
+  #valuation-main-sections .card{padding:12px!important;}
+  #valuation-main-sections .s111-card-head h2{font-size:18px!important;}
+  #valuation-main-sections .s113-quick-grid{grid-template-columns:repeat(5,1fr)!important;gap:6px!important;}
+  #valuation-main-sections .s113-quick-grid button{min-height:80px!important;padding:6px 2px!important;}
+  #valuation-main-sections .s113-quick-grid small{font-size:8px!important;}
+  #idbi-valuation-screen .idbi-head h2{font-size:20px!important;}
+  #idbi-valuation-screen .idbi-back{padding:0 12px!important;}
+}
+
+/* ---------- Tablet / desktop ---------- */
+@media(min-width:700px){
+  #valuation-main-sections,#idbi-valuation-screen{max-width:720px!important;margin-left:auto!important;margin-right:auto!important;padding-left:16px!important;padding-right:16px!important;}
+  #valuation-main-sections .s111-customer-grid{grid-template-columns:1.4fr 1fr 1fr!important;}
+  #valuation-main-sections .s111-customer-tile:nth-child(3){grid-column:auto!important;}
+  #valuation-main-sections .s111-summary-grid{grid-template-columns:repeat(4,1fr)!important;}
+  #idbi-valuation-screen .idbi-customer{grid-template-columns:1.4fr 1fr 1fr!important;}
+  #idbi-valuation-screen .idbi-customer .idbi-field:nth-child(3){grid-column:auto!important;}
+  #idbi-valuation-screen .idbi-summary-stats{grid-template-columns:repeat(4,1fr)!important;}
+}
+</style>
+
 </body>
 </html>
