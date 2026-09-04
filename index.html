@@ -10062,5 +10062,69 @@ body.idbi-open>footer{display:none!important;}
 })();
 </script>
 
+
+
+<!-- REMOVE ALL MENU FUNCTIONS / UI -->
+<style id="remove-all-menu-functions">
+/* Remove hamburger/menu UI, Quick Actions and all menu-only screens */
+#appMenu,
+.menu-overlay,
+.menu-panel,
+.menu-section,
+.s113-quick-actions,
+.menu-back-btn,
+button[onclick*="openAppMenu"],
+button[onclick*="toggleAppMenu"],
+button[onclick*="showMenuSection"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+/* Keep valuation screens normal after menu removal */
+body{overflow-x:hidden!important;}
+body.menu-viewing{overflow:auto!important;}
+#valuation-main-sections{display:block;}
+</style>
+<script id="remove-all-menu-functions-js">
+(function(){
+  function removeMenuUI(){
+    try{
+      document.body.classList.remove('menu-viewing');
+
+      var menu=document.getElementById('appMenu');
+      if(menu) menu.remove();
+
+      document.querySelectorAll(
+        '.s113-quick-actions,.menu-back-btn,' +
+        'button[onclick*="openAppMenu"],button[onclick*="toggleAppMenu"],' +
+        'button[onclick*="showMenuSection"]'
+      ).forEach(function(el){ el.remove(); });
+
+      document.querySelectorAll('.menu-section').forEach(function(el){
+        if(el.id!=='valuation-main-sections') el.remove();
+      });
+
+      var valuation=document.getElementById('valuation-main-sections');
+      if(valuation){
+        valuation.classList.remove('menu-section','menu-active');
+        valuation.style.removeProperty('display');
+      }
+    }catch(e){ console.warn('Menu removal:',e); }
+  }
+
+  window.openAppMenu=function(){};
+  window.closeAppMenu=function(){};
+  window.toggleAppMenu=function(){};
+  window.showMenuSection=function(){ return false; };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',removeMenuUI);
+  }else{
+    removeMenuUI();
+  }
+  setTimeout(removeMenuUI,100);
+})();
+</script>
+
 </body>
 </html>
