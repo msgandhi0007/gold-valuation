@@ -13076,3 +13076,120 @@ body.savedHomeMode #saveManager .save-box{display:block!important;visibility:vis
   document.addEventListener('DOMContentLoaded',function(){setup161();setTimeout(function(){updateCustomerHistory();updateCustomerGroups();},50);});
 })();
 </script>
+
+
+<!-- STEP 163 - Saved Valuations standalone visibility fix -->
+<style id="step163-saved-standalone-final">
+body.savedHomeMode{background:#f8f4eb!important;overflow:hidden!important;}
+body.savedHomeMode > #saveManager{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  z-index:2147483646!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  background:#f8f4eb!important;
+  padding:0!important;
+  margin:0!important;
+}
+body.savedHomeMode > #saveManager > .save-box{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:min(100%,620px)!important;
+  max-width:620px!important;
+  min-height:100dvh!important;
+  margin:0 auto!important;
+  padding:16px 14px 110px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#f8f4eb!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+body.savedHomeMode > #saveManager .save-top{
+  position:sticky!important;top:0!important;z-index:20!important;
+  margin:-16px -14px 12px!important;padding:16px 14px 12px!important;
+  background:#f8f4eb!important;border-bottom:1px solid #e4d6b9!important;border-radius:0!important;
+}
+body.savedHomeMode > #saveManager #savedList{display:block!important;visibility:visible!important;opacity:1!important;}
+body.savedHomeMode > #saveManager .saved-card{display:block!important;visibility:visible!important;}
+body.savedHomeMode > #bankHome,
+body.savedHomeMode > #dashboardHome,
+body.savedHomeMode > #customersHomeScreen,
+body.savedHomeMode > #storageBackupScreen,
+body.savedHomeMode > .app,
+body.savedHomeMode > header,
+body.savedHomeMode > footer,
+body.savedHomeMode .app-footer,
+body.savedHomeMode .bottom-actions,
+body.savedHomeMode .bottom-bar,
+body.savedHomeMode #bottomBar,
+body.savedHomeMode #fixedBottomActions,
+body.savedHomeMode .fixed-bottom-actions{display:none!important;visibility:hidden!important;}
+</style>
+<script id="step163-saved-standalone-final-js">
+(function(){
+  function prepareSavedManager163(){
+    var m=document.getElementById('saveManager');
+    if(!m) return null;
+    if(m.parentElement!==document.body) document.body.appendChild(m);
+    m.style.setProperty('display','block','important');
+    m.style.setProperty('visibility','visible','important');
+    m.style.setProperty('opacity','1','important');
+    return m;
+  }
+
+  window.openSavedValuationsHome=function(){
+    document.body.classList.remove('customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
+    document.body.classList.add('savedHomeMode','saved-manager-open');
+    var m=prepareSavedManager163();
+    if(!m){alert('Saved Valuations screen is not available.');return;}
+
+    var title=document.getElementById('savedManagerTitle'); if(title) title.textContent='📂 Saved Valuations';
+    var search=document.getElementById('saveSearch'); if(search) search.value='';
+    var sort=document.getElementById('saveSort'); if(sort) sort.value='newest';
+    var df=document.getElementById('saveDateFilter'); if(df) df.value='all';
+    try{ if(typeof window.setSavedBankFilter==='function') window.setSavedBankFilter('ALL'); }catch(e){}
+    try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){console.error(e);}
+    try{ if(typeof window.refreshSavedManager84==='function') window.refreshSavedManager84(true); }catch(e){}
+
+    requestAnimationFrame(function(){
+      prepareSavedManager163();
+      try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){}
+      m.scrollTop=0;
+      window.scrollTo(0,0);
+    });
+  };
+
+  window.closeSavedValuationsHome=function(){
+    document.body.classList.remove('savedHomeMode','saved-manager-open');
+    var m=document.getElementById('saveManager');
+    if(m){m.style.setProperty('display','none','important');}
+    try{
+      if(typeof window.showBankHome==='function') window.showBankHome();
+      else if(typeof window.showBankValuationHome==='function') window.showBankValuationHome();
+      else {var h=document.getElementById('bankHome');if(h)h.style.display='block';}
+    }catch(e){var h=document.getElementById('bankHome');if(h)h.style.display='block';}
+    window.scrollTo(0,0);
+  };
+
+  // Route all home Saved Valuations cards to the final standalone opener.
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.savedHomeBtn');
+    if(!b)return;
+    e.preventDefault();e.stopImmediatePropagation();window.openSavedValuationsHome();
+  },true);
+
+  // Close button always returns to Bank Selection when opened as a standalone page.
+  document.addEventListener('click',function(e){
+    if(!document.body.classList.contains('savedHomeMode'))return;
+    var c=e.target.closest&&e.target.closest('#saveManager .close');
+    if(c){e.preventDefault();e.stopImmediatePropagation();window.closeSavedValuationsHome();}
+  },true);
+})();
+</script>
