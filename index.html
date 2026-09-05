@@ -11497,6 +11497,32 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
   .dashboard-grid{grid-template-columns:repeat(3,1fr)}
   .dashboard-card.wide{grid-column:auto}
 }
+/* STEP 160 — Professional bank dashboard: readable bank cards, consistent cream/gold theme */
+#dashboardHome .dashboard-bank{
+  display:block!important;width:100%!important;min-width:0!important;overflow:visible!important;
+  border:1px solid #e2d1aa!important;border-radius:14px!important;padding:12px!important;
+  margin:9px 0 0!important;background:#fff!important;color:#171717!important;box-sizing:border-box!important;
+  box-shadow:0 2px 8px rgba(111,78,15,.055)!important;
+}
+#dashboardHome .dashboard-bank-top{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:10px!important}
+#dashboardHome .dashboard-bank-name{font-size:15px!important;line-height:1.25!important;font-weight:950!important;color:#171717!important;word-break:normal!important;overflow-wrap:break-word!important}
+#dashboardHome .dashboard-bank-count{margin-top:3px!important;font-size:10px!important;color:#9a6b0b!important;font-weight:850!important}
+#dashboardHome .dashboard-bank-badge{flex:0 0 auto;border:1px solid #e0c989;border-radius:999px;background:#fff9e9;color:#8a610b;padding:4px 7px;font-size:8px;font-weight:900;letter-spacing:.3px}
+#dashboardHome .dashboard-bank-stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin-top:10px!important}
+#dashboardHome .dashboard-bank-stat{min-width:0!important;background:#fbf6ea!important;border:1px solid #eee2c9!important;border-radius:10px!important;padding:8px 5px!important;text-align:center!important}
+#dashboardHome .dashboard-bank-stat span{display:block!important;font-size:7.5px!important;line-height:1.15!important;color:#756d60!important;font-weight:800!important;margin:0 0 4px!important}
+#dashboardHome .dashboard-bank-stat b{display:block!important;font-size:12px!important;line-height:1.2!important;color:#171717!important;overflow-wrap:anywhere!important}
+#dashboardHome .dashboard-bank-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;margin-top:9px!important}
+#dashboardHome .dashboard-bank-actions button{min-width:0!important;min-height:40px!important;border:1px solid #d7bc7c!important;border-radius:10px!important;background:#fffdf8!important;color:#171717!important;font-size:10px!important;font-weight:900!important}
+#dashboardHome .dashboard-bank-actions button:first-child{background:linear-gradient(180deg,#e4a500,#c98b00)!important;color:#fff!important;border-color:#c98b00!important}
+#dashboardHome .dashboard-section{box-shadow:0 2px 8px rgba(111,78,15,.045)!important}
+#dashboardHome .dashboard-card b{font-variant-numeric:tabular-nums!important}
+#dashboardHome .dashboard-card:nth-child(3) b{color:#9a6900!important}
+#dashboardHome .dashboard-card:nth-child(4) b{color:#167a48!important}
+@media(max-width:380px){
+  #dashboardHome .dashboard-bank-stat b{font-size:11px!important}
+  #dashboardHome .dashboard-bank-name{font-size:14px!important}
+}
 </style>
 
 <section id="dashboardHome" aria-label="Dashboard">
@@ -11518,8 +11544,8 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
     <div class="dashboard-card"><small>VALUATIONS</small><b id="dashValuations">0</b></div>
     <div class="dashboard-card"><small>GROSS WEIGHT</small><b id="dashGross">0.00 g</b></div>
     <div class="dashboard-card"><small>VALUATION AMOUNT</small><b id="dashValue">₹0</b></div>
-    <div class="dashboard-card"><small>SANCTIONED LOANS</small><b id="dashLoan">₹0</b></div>
-    <div class="dashboard-card"><small>CUSTOMERS</small><b id="dashCustomers">0</b></div>
+    <div class="dashboard-card"><small>SANCTIONED LOANS</small><b id="dashHomeLoan">₹0</b></div>
+    <div class="dashboard-card"><small>CUSTOMERS</small><b id="dashHomeCustomers">0</b></div>
     <div class="dashboard-card"><small>ACTIVE BANKS</small><b id="dashBankCount">0</b></div>
   </div>
 
@@ -11551,18 +11577,46 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
   }
   function num(x){const n=Number(x);return Number.isFinite(n)?n:0;}
   function valDate(v){return String(v?.customer?.date||v?.valuationDate||v?.date||'').slice(0,10);}
-  function bankOf(v){return String(v?.customer?.bank||v?.bank||'').trim();}
+  function normalizeBankName(name){
+    const raw=String(name||'').trim().replace(/\s+/g,' ');
+    const key=raw.toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+    if(key.includes('IDBI')) return 'IDBI BANK';
+    if(key.includes('MAHARASHTRA') && key.includes('GRAMIN')) return 'MAHARASHTRA GRAMIN BANK';
+    if(key.includes('DNYANDEEP')) return 'DNYANDEEP CO-OP SOCIETY LTD';
+    if(key==='SBI' || key.includes('STATE BANK OF INDIA') || key.includes('SBI BANK')) return 'SBI BANK';
+    return raw;
+  }
+  function bankOf(v){return normalizeBankName(v?.customer?.bank||v?.bank||v?.bankName||'');}
   function customerOf(v){return String(v?.customer?.name||v?.customerName||'').trim();}
   function mobileOf(v){return String(v?.customer?.mobile||v?.customerMobile||v?.mobile||'').trim();}
   function grossOf(v){
-    if(Array.isArray(v?.items)) return v.items.reduce((s,x)=>s+num(x?.gross||x?.grossWeight||x?.grossWt),0);
-    return num(v?.totalGross||v?.grossWeight||v?.gross);
+    const items=Array.isArray(v?.items)?v.items:(Array.isArray(v?.idbi?.rows)?v.idbi.rows:[]);
+    if(items.length) return items.reduce((s,x)=>s+num(x?.gross??x?.grossWeight??x?.grossWt),0);
+    return num(v?.totalGross??v?.grossWeight??v?.gross);
+  }
+  function calculatedStandardValue(v){
+    const rate=num(v?.rate??v?.marketRate??v?.goldRate);
+    const items=Array.isArray(v?.items)?v.items:[];
+    if(!(rate>0) || !items.length) return 0;
+    return items.reduce((sum,it)=>{
+      const gross=num(it?.gross??it?.grossWeight??it?.grossWt);
+      const less=num(it?.stone??it?.stoneWeight??it?.less??it?.lessWeight);
+      const purity=num(it?.purity??it?.purityPct??it?.purityPercent);
+      const net=Math.max(0,gross-less);
+      const pure=net*purity/100;
+      const rounded=Math.floor((pure+1e-9)*10)/10;
+      return sum+(rounded*rate);
+    },0);
   }
   function valueOf(v){
-    return num(v?.totals?.value||v?.totalValue||v?.valuationAmount||v?.value||v?.eligibleValue);
+    const stored=[v?.totals?.value,v?.totalValue,v?.valuationTotal,v?.valuationAmount,v?.value,v?.eligibleValue,v?.idbi?.totalValue];
+    for(const x of stored){const n=Number(x);if(Number.isFinite(n) && n>0)return n;}
+    return calculatedStandardValue(v);
   }
   function loanOf(v){
-    return num(v?.sanctionedLoan||v?.loan?.sanctioned||v?.sanctionedAmount||v?.customer?.sanctionedLoan||v?.idbiLoan);
+    const values=[v?.sanctionedLoan,v?.loan?.sanctioned,v?.sanctionedAmount,v?.loanAmount,v?.customer?.sanctionedLoan,v?.idbiLoan];
+    for(const x of values){const n=Number(x);if(Number.isFinite(n) && n>0)return n;}
+    return 0;
   }
   function getAll(){
     try{
@@ -11599,8 +11653,8 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
     set('dashValuations',all.length);
     set('dashGross',gross.toFixed(2)+' g');
     set('dashValue',money(value));
-    set('dashLoan',money(loan));
-    set('dashCustomers',customers.size);
+    set('dashHomeLoan',money(loan));
+    set('dashHomeCustomers',customers.size);
     set('dashBankCount',activeBanks.size);
 
     ['today','month','all'].forEach(p=>{
@@ -11610,24 +11664,29 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
 
     const banksEl=document.getElementById('dashboardBanks');
     if(banksEl){
-      banksEl.innerHTML=BANKS.map(bank=>{
+      const usedBanks=Array.from(new Set(all.map(bankOf).filter(Boolean)));
+      const ordered=BANKS.concat(usedBanks.filter(b=>!BANKS.includes(b)));
+      banksEl.innerHTML=ordered.map(bank=>{
         const rows=all.filter(v=>bankOf(v)===bank);
         const gw=rows.reduce((s,v)=>s+grossOf(v),0);
         const vv=rows.reduce((s,v)=>s+valueOf(v),0);
         const ln=rows.reduce((s,v)=>s+loanOf(v),0);
         return `<div class="dashboard-bank">
           <div class="dashboard-bank-top">
-            <div class="dashboard-bank-name">${esc(bank)}</div>
-            <div class="dashboard-bank-count">${rows.length} valuation(s)</div>
+            <div>
+              <div class="dashboard-bank-name">${esc(bank)}</div>
+              <div class="dashboard-bank-count">${rows.length} valuation${rows.length===1?'':'s'}</div>
+            </div>
+            <div class="dashboard-bank-badge">${rows.length?'ACTIVE':'NO DATA'}</div>
           </div>
           <div class="dashboard-bank-stats">
-            <div class="dashboard-bank-stat"><b>${gw.toFixed(2)} g</b><span>GROSS</span></div>
-            <div class="dashboard-bank-stat"><b>${money(vv)}</b><span>VALUE</span></div>
-            <div class="dashboard-bank-stat"><b>${money(ln)}</b><span>LOAN</span></div>
+            <div class="dashboard-bank-stat"><span>GROSS WEIGHT</span><b>${gw.toFixed(2)} g</b></div>
+            <div class="dashboard-bank-stat"><span>VALUATION</span><b>${money(vv)}</b></div>
+            <div class="dashboard-bank-stat"><span>SANCTIONED LOAN</span><b>${money(ln)}</b></div>
           </div>
           <div class="dashboard-bank-actions">
-            <button type="button" onclick="dashboardOpenBank('${bank.replace(/'/g,"\\'")}')">Open Valuation</button>
-            <button type="button" onclick="dashboardOpenSavedBank('${bank.replace(/'/g,"\\'")}')">View Saved</button>
+            <button type="button" onclick="dashboardOpenBank('${bank.replace(/'/g,"\\'")}')">＋ Open Valuation</button>
+            <button type="button" onclick="dashboardOpenSavedBank('${bank.replace(/'/g,"\\'")}')">▣ View Saved</button>
           </div>
         </div>`;
       }).join('');
