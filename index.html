@@ -10131,6 +10131,7 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     <button onclick="openBank('DNYANDEEP CO-OP SOCIETY LTD')">DNYANDEEP CO-OP SOCIETY LTD<small>Open Valuation</small></button>
     <button class="dashboardHomeBtn" onclick="openDashboardHome()">📊 DASHBOARD<small>Today • Month • Bank Summary • Reports</small></button>
     <button class="savedHomeBtn" onclick="openSavedValuationsHome()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
+    <button class="customersHomeBtn" onclick="openCustomersHome()">👥 CUSTOMERS<small>History • Customer Summary • Statements</small></button>
     <button class="storageBtn" onclick="openStorageBackupScreen()">💾 STORAGE & BACKUP<small>Folder • Backup • Restore • Sync</small></button>
   </div>
 </section>
@@ -12696,6 +12697,24 @@ body>footer button:active,
 })();
 </script>
 
+
+<script id="customers-home-card-final">
+(function(){
+  window.openCustomersHome=function(){
+    document.body.classList.remove('bankHomeMode','bank-home-mode','storageMode','storage-backup-mode','savedHomeMode','dashboardHomeMode');
+    var bh=document.getElementById('bankHome'); if(bh) bh.style.display='none';
+    var dh=document.getElementById('dashboardHome'); if(dh) dh.style.display='none';
+    if(typeof window.showMenuSection==='function'){
+      window.showMenuSection('customerHistory');
+      setTimeout(function(){
+        if(typeof window.updateCustomerHistory==='function') window.updateCustomerHistory();
+        if(typeof window.updateCustomerGroups==='function') window.updateCustomerGroups();
+        window.scrollTo({top:0,behavior:'smooth'});
+      },100);
+    }
+  };
+})();
+</script>
 </body>
 </html>
 
