@@ -4363,7 +4363,7 @@ body:not(.menu-viewing) .s111-rate{
   <div id="backupStatus" style="font-size:12px;margin-top:10px;opacity:.78"></div>
 </section>
 
-<footer><button onclick="saveData()">💾 Save</button><button onclick="loadData()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
+<footer><button onclick="saveData()">💾 Save</button><button onclick="openSavedStandalone165();return false">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 <nav class="s113-bottom-nav" aria-label="Main navigation">
   <button type="button" class="active" onclick="showValuationScreen()"><span>⌂</span><small>Valuation</small></button>
   <button type="button" onclick="showMenuSection('dashboard')"><span>▦</span><small>Dashboard</small></button>
@@ -10130,7 +10130,7 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     <button onclick="openBank('MAHARASHTRA GRAMIN BANK')">MAHARASHTRA GRAMIN BANK<small>Open Valuation</small></button>
     <button onclick="openBank('DNYANDEEP CO-OP SOCIETY LTD')">DNYANDEEP CO-OP SOCIETY LTD<small>Open Valuation</small></button>
     <button class="dashboardHomeBtn" onclick="openDashboardHome()">📊 DASHBOARD<small>Today • Month • Bank Summary • Reports</small></button>
-    <button class="savedHomeBtn" onclick="openSavedValuationsHome()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
+    <button class="savedHomeBtn" onclick="openSavedStandalone165();return false">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
     <button class="customersHomeBtn" onclick="openCustomersHome()">👥 CUSTOMERS<small>History • Customer Summary • Statements</small></button>
     <button class="storageBtn" onclick="openStorageBackupScreen()">💾 STORAGE & BACKUP<small>Folder • Backup • Restore • Sync</small></button>
   </div>
@@ -13052,7 +13052,7 @@ body.savedHomeMode .fixed-bottom-actions{display:none!important;visibility:hidde
 
   // Route all home Saved Valuations cards to the final standalone opener.
   document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('.savedHomeBtn');
+    var b=e.target.closest&&e.target.closest('.savedHomeBtnLegacy163');
     if(!b)return;
     e.preventDefault();e.stopImmediatePropagation();window.openSavedValuationsHome();
   },true);
@@ -13156,7 +13156,7 @@ body.savedHomeMode .bottom-bar,body.savedHomeMode #bottomBar{display:none!import
   });
 
   document.addEventListener('click',function(e){
-    var home=e.target.closest&&e.target.closest('.savedHomeBtn');
+    var home=e.target.closest&&e.target.closest('.savedHomeBtnLegacy164');
     if(home){ e.preventDefault();e.stopImmediatePropagation();openSavedUniversal();return; }
     if(document.body.classList.contains('savedHomeMode')){
       var close=e.target.closest&&e.target.closest('#saveManager .close');
@@ -13258,6 +13258,26 @@ body.savedStandaloneMode>header,body.savedStandaloneMode>footer,body.savedStanda
 })();
 </script>
 
+
+<!-- STEP 166 - Direct Saved Valuations routing, bypasses legacy capture handlers -->
+<script id="step166-direct-saved-routing">
+(function(){
+  function openNow(ev){
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    if(typeof window.openSavedStandalone165==='function'){window.openSavedStandalone165();return false;}
+    var x=document.getElementById('savedStandalone165');
+    if(x){document.body.classList.add('savedStandaloneMode');x.style.setProperty('display','block','important');x.setAttribute('aria-hidden','false');if(typeof window.renderSavedStandalone165==='function')window.renderSavedStandalone165();window.scrollTo(0,0);return false;}
+    alert('Saved Valuations screen could not be opened.');return false;
+  }
+  window.openSavedDirect166=openNow;
+  document.addEventListener('DOMContentLoaded',function(){
+    var home=document.querySelector('#bankHome .savedHomeBtn');
+    if(home){home.onclick=function(ev){return openNow(ev);};}
+    var footerBtns=document.querySelectorAll('body > footer button, footer button');
+    footerBtns.forEach(function(b){if((b.textContent||'').toLowerCase().indexOf('load')>=0)b.onclick=function(ev){return openNow(ev);};});
+  });
+})();
+</script>
 </body>
 </html>
 
