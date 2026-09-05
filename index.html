@@ -11033,5 +11033,220 @@ footer button:not(.save):not([class*="save"]),
 })();
 </script>
 
+
+
+<!-- MATCH TOP BRAND AREA + BOTTOM ACTION BAR TO CURRENT THEME -->
+<style id="header-footer-current-theme-css">
+:root{
+  --rj-bg:#f8f4eb;
+  --rj-card:#fffdf8;
+  --rj-card2:#fffaf0;
+  --rj-text:#171717;
+  --rj-muted:#756d60;
+  --rj-gold:#b78320;
+  --rj-gold-dark:#93690f;
+  --rj-border:#ddc997;
+  --rj-soft:#eee3cb;
+}
+
+/* ===== TOP RAJENDRA JEWELLERS AREA ===== */
+header,
+.app-header,
+.top-header,
+.brand-header,
+#appHeader{
+  background:linear-gradient(180deg,#fffdf8 0%,#f8f1e4 100%)!important;
+  color:var(--rj-text)!important;
+  border-bottom:1px solid var(--rj-border)!important;
+  box-shadow:0 3px 10px rgba(116,85,20,.08)!important;
+}
+
+/* Brand text */
+header h1, header h2, header h3,
+.app-header h1,.app-header h2,.app-header h3,
+.brand-header h1,.brand-header h2,.brand-header h3,
+#appHeader h1,#appHeader h2,#appHeader h3{
+  color:var(--rj-gold-dark)!important;
+}
+header p,header small,header span,
+.app-header p,.app-header small,.app-header span,
+.brand-header p,.brand-header small,.brand-header span,
+#appHeader p,#appHeader small,#appHeader span{
+  color:var(--rj-text)!important;
+}
+
+/* Logo ring / RJ mark */
+header .logo,
+header .brand-logo,
+header .logo-circle,
+.app-header .logo,
+.brand-header .logo,
+#appHeader .logo{
+  background:#fff!important;
+  border-color:var(--rj-gold)!important;
+  box-shadow:0 2px 8px rgba(183,131,32,.14)!important;
+}
+
+/* Header round buttons/icons */
+header button,
+.app-header button,
+.brand-header button,
+#appHeader button{
+  background:#fffdf8!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+  box-shadow:none!important;
+}
+header button:hover,
+header button:active,
+.app-header button:hover,
+.app-header button:active,
+.brand-header button:hover,
+.brand-header button:active,
+#appHeader button:hover,
+#appHeader button:active{
+  background:var(--rj-soft)!important;
+}
+
+/* If header uses custom icon circles */
+header .icon-btn,
+header .header-btn,
+header .round-btn,
+header .menu-btn,
+.app-header .icon-btn,
+.brand-header .icon-btn{
+  background:#fff!important;
+  color:var(--rj-gold-dark)!important;
+  border:1px solid var(--rj-border)!important;
+}
+
+/* Notification badge stays visible but less harsh */
+header .badge,
+header .notification-badge,
+.app-header .badge,
+.brand-header .badge{
+  background:var(--rj-gold)!important;
+  color:#fff!important;
+  border:2px solid #fffdf8!important;
+}
+
+/* ===== BOTTOM SAVE / LOAD / SHARE BAR ===== */
+footer,
+.app-footer,
+.bottom-actions,
+.bottom-bar,
+#bottomBar{
+  background:#f8f4eb!important;
+  border-top:1px solid var(--rj-border)!important;
+  box-shadow:0 -4px 14px rgba(116,85,20,.08)!important;
+}
+
+/* Make all three buttons match current theme */
+footer button,
+.app-footer button,
+.bottom-actions button,
+.bottom-bar button,
+#bottomBar button{
+  background:#fffdf8!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+  box-shadow:none!important;
+  border-radius:12px!important;
+  font-weight:850!important;
+}
+
+/* Save gets gold emphasis */
+footer button:first-child,
+.app-footer button:first-child,
+.bottom-actions button:first-child,
+.bottom-bar button:first-child,
+#bottomBar button:first-child,
+footer .save,
+.app-footer .save,
+.bottom-actions .save{
+  background:linear-gradient(180deg,#c9931f,#b78320)!important;
+  color:#fff!important;
+  border-color:#b78320!important;
+}
+
+/* Load / Share remain light */
+footer button:nth-child(2),
+footer button:nth-child(3),
+.app-footer button:nth-child(2),
+.app-footer button:nth-child(3),
+.bottom-actions button:nth-child(2),
+.bottom-actions button:nth-child(3),
+.bottom-bar button:nth-child(2),
+.bottom-bar button:nth-child(3),
+#bottomBar button:nth-child(2),
+#bottomBar button:nth-child(3){
+  background:#fffdf8!important;
+  color:var(--rj-text)!important;
+  border-color:var(--rj-border)!important;
+}
+
+/* Tap state */
+footer button:active,
+.app-footer button:active,
+.bottom-actions button:active,
+.bottom-bar button:active,
+#bottomBar button:active{
+  transform:translateY(1px);
+  background:var(--rj-soft)!important;
+}
+footer button:first-child:active,
+.app-footer button:first-child:active,
+.bottom-actions button:first-child:active,
+.bottom-bar button:first-child:active,
+#bottomBar button:first-child:active{
+  background:var(--rj-gold-dark)!important;
+}
+
+/* Prevent old inline dark footer/header backgrounds from winning */
+body:not(.bankHomeMode):not(.storageMode):not(.savedHomeMode) > header,
+body:not(.bankHomeMode):not(.storageMode):not(.savedHomeMode) > footer{
+  background-color:var(--rj-bg)!important;
+}
+</style>
+
+<script id="header-footer-current-theme-js">
+(function(){
+  function stripDarkInline(){
+    const selectors=[
+      'header','.app-header','.top-header','.brand-header','#appHeader',
+      'footer','.app-footer','.bottom-actions','.bottom-bar','#bottomBar'
+    ];
+    selectors.forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(root){
+        root.style.removeProperty('background');
+        root.style.removeProperty('background-color');
+        root.style.removeProperty('color');
+        root.querySelectorAll('button').forEach(function(btn){
+          const s=(btn.getAttribute('style')||'').toLowerCase();
+          if(s.includes('#000')||s.includes('#111')||s.includes('#1f1f1f')||
+             s.includes('rgb(0')||s.includes('background: black')){
+            btn.style.removeProperty('background');
+            btn.style.removeProperty('background-color');
+            btn.style.removeProperty('color');
+          }
+        });
+      });
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(stripDarkInline,100);
+      setTimeout(stripDarkInline,500);
+    });
+  }else{
+    setTimeout(stripDarkInline,50);
+  }
+  document.addEventListener('click',function(){
+    setTimeout(stripDarkInline,20);
+  },true);
+})();
+</script>
+
 </body>
 </html>
