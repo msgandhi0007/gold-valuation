@@ -13170,6 +13170,84 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 })();
 </script>
 <!-- /CUSTOMER TO VALUATION CLEAN ROUTER 169 -->\n
+
+<!-- IDBI SAVED RECORD DIRECT LOAD FIX 171 -->
+<script id="idbi-saved-record-direct-load-fix-171">
+(function(){
+  function saved(){
+    try{return (typeof window.getSaved==='function')?(window.getSaved()||[]):JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){return []}
+  }
+  function bankOf(r){return String((r&&r.customer&&r.customer.bank)||(r&&r.bank)||'').trim().toUpperCase()}
+  function isIdbi(r){return !!r && (r.valuationType==='IDBI_BANK' || r.bankSpecific===true || bankOf(r)==='IDBI BANK' || bankOf(r).indexOf('IDBI')>=0)}
+  function setv(id,v){var e=document.getElementById(id);if(e)e.value=(v==null?'':v)}
+  function num(v,d){var n=Number(v);return Number.isFinite(n)?n:(d||0)}
+  function hideOtherScreens(){
+    document.body.classList.remove('customersHomeMode','savedHomeMode','savedClean168Open','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
+    ['customersHomeScreen','savedClean168','savedValuationsHome','dashboardHome','storageBackupScreen','bankHome','cover-page'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.setProperty('display','none','important')});
+    var sm=document.getElementById('saveManager');if(sm)sm.style.setProperty('display','none','important');
+  }
+  function loadIdbiRecord(r){
+    hideOtherScreens();
+    try{if(typeof window.ensureCertificateNo==='function')window.ensureCertificateNo(r)}catch(e){}
+    window._currentSavedRecord=r;
+    window._idbiEditingId=r.id!=null?r.id:null;
+    if(r.certificateNo!=null)window._activeCertificateNoOverride=String(r.certificateNo);
+
+    setv('mainBankSelect','IDBI BANK');setv('bankName','IDBI BANK');
+    setv('idbiCustomerName',(r.customer&&r.customer.name)||r.customerName||'');
+    setv('idbiCustomerMobile',(r.customer&&r.customer.mobile)||r.mobile||'');
+    setv('idbiValuationDate',(r.customer&&r.customer.date)||r.date||new Date().toISOString().slice(0,10));
+    setv('idbiRate',num(r.rate,0));
+    setv('idbiLoanRate',r.ltv1!=null?r.ltv1:(r.ltv!=null?r.ltv:75));
+    var loan=(r.sanctionedLoan!=null&&String(r.sanctionedLoan)!=='')?r.sanctionedLoan:((r.customer&&r.customer.sanctionedLoan)!=null?r.customer.sanctionedLoan:0);
+    setv('idbiLoan',loan);
+
+    for(var j=1;j<=10;j++){
+      setv('idbiItem'+j,'');setv('idbiGW'+j,'');setv('idbiLess'+j,'');setv('idbiImpPct'+j,6);setv('idbiPurity'+j,20);
+    }
+    var rows=(r.idbi&&Array.isArray(r.idbi.rows))?r.idbi.rows:(Array.isArray(r.items)?r.items:[]);
+    rows.forEach(function(x,j){
+      var k=j+1;if(k>10)return;
+      setv('idbiItem'+k,x.name||x.itemName||('Item '+k));
+      setv('idbiGW'+k,num(x.gross!=null?x.gross:x.grossWeight,0));
+      setv('idbiLess'+k,num(x.less!=null?x.less:(x.stone!=null?x.stone:x.stoneWeight),0));
+      setv('idbiImpPct'+k,x.impurityPct!=null?x.impurityPct:(x.impurityPercent!=null?x.impurityPercent:6));
+      setv('idbiPurity'+k,x.purity!=null?x.purity:20);
+    });
+
+    var main=document.getElementById('valuation-main-sections');if(main)main.style.setProperty('display','none','important');
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi){idbi.style.setProperty('display','block','important');idbi.style.setProperty('visibility','visible','important');}
+    document.body.classList.add('idbi-open');
+    try{if(typeof window.idbiCalculate==='function')window.idbiCalculate()}catch(e){}
+    try{if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary()}catch(e){}
+    window.scrollTo(0,0);
+    return true;
+  }
+
+  var previousLoadSaved=window.loadSaved;
+  window.loadSaved=function(i){
+    var a=saved(),r=a[i];
+    if(r&&isIdbi(r))return loadIdbiRecord(r);
+    document.body.classList.remove('idbi-open');
+    if(typeof previousLoadSaved==='function')return previousLoadSaved.apply(this,arguments);
+  };
+
+  // Saved Valuations and Customers both use this direct opener. Detect IDBI by bank too,
+  // so older IDBI records that do not contain valuationType still reopen as saved IDBI valuations.
+  window.openSavedDirectFinal=function(i){
+    var a=saved(),r=a[i];
+    if(!r){alert('Saved valuation could not be found.');return;}
+    if(isIdbi(r))return loadIdbiRecord(r);
+    hideOtherScreens();
+    document.body.classList.remove('idbi-open');
+    if(typeof window.loadSaved==='function')return window.loadSaved(i);
+  };
+  window.custOpen=function(i){return window.openSavedDirectFinal(i)};
+})();
+</script>
+<!-- /IDBI SAVED RECORD DIRECT LOAD FIX 171 -->
+
 <!-- APP HISTORY NAVIGATION FIX 170 -->
 <script id="app-history-navigation-fix-170">
 (function(){
