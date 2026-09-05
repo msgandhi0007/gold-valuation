@@ -12171,5 +12171,157 @@ body:has(#bankHome:not([style*="display: none"])) footer{
 })();
 </script>
 
+
+
+<!-- ALL BANK ACTION BUTTONS = EXACT SAVE BUTTON STYLE -->
+<style id="all-bank-action-buttons-gold-css">
+:root{
+  --save-gold-top:#d1a029;
+  --save-gold-bottom:#ad7207;
+  --save-gold-border:#a66f06;
+  --save-gold-text:#ffffff;
+}
+
+/* MAIN / SBI / MAHARASHTRA GRAMIN / DNYANDEEP
+   Save + Load + Share: all exactly like Save */
+body>footer button,
+body>footer button:first-child,
+body>footer button:nth-child(2),
+body>footer button:nth-child(3){
+  border:1px solid var(--save-gold-border)!important;
+  background:linear-gradient(var(--save-gold-top),var(--save-gold-bottom))!important;
+  background-color:var(--save-gold-bottom)!important;
+  color:var(--save-gold-text)!important;
+  text-shadow:none!important;
+  box-shadow:none!important;
+  font-weight:900!important;
+}
+
+/* MAIN valuation Reset + Valuation Certificate / PDF */
+#valuation-main-sections .s111-secondary-actions button,
+#valuation-main-sections .s111-secondary-actions button:first-child,
+#valuation-main-sections .s111-secondary-actions button:last-child{
+  border:1px solid var(--save-gold-border)!important;
+  background:linear-gradient(var(--save-gold-top),var(--save-gold-bottom))!important;
+  background-color:var(--save-gold-bottom)!important;
+  color:var(--save-gold-text)!important;
+  text-shadow:none!important;
+  box-shadow:none!important;
+  font-weight:900!important;
+}
+
+/* IDBI Save + Load + Share: all exactly like Save */
+#idbi-valuation-screen .idbi-bottom-actions button,
+#idbi-valuation-screen .idbi-bottom-actions button:first-child,
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(2),
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(3){
+  border:1px solid var(--save-gold-border)!important;
+  background:linear-gradient(var(--save-gold-top),var(--save-gold-bottom))!important;
+  background-color:var(--save-gold-bottom)!important;
+  color:var(--save-gold-text)!important;
+  text-shadow:none!important;
+  box-shadow:none!important;
+  font-weight:900!important;
+}
+
+/* IDBI Reset + Valuation Certificate / PDF */
+#idbi-valuation-screen .idbi-secondary-actions button,
+#idbi-valuation-screen .idbi-secondary-actions button:first-child,
+#idbi-valuation-screen .idbi-secondary-actions button:last-child{
+  border:1px solid var(--save-gold-border)!important;
+  background:linear-gradient(var(--save-gold-top),var(--save-gold-bottom))!important;
+  background-color:var(--save-gold-bottom)!important;
+  color:var(--save-gold-text)!important;
+  text-shadow:none!important;
+  box-shadow:none!important;
+  font-weight:900!important;
+}
+
+/* Any bank-specific standard valuation action buttons carrying these labels/classes */
+#valuation-main-sections button[onclick*="clearAll"],
+#valuation-main-sections button[onclick*="Certificate"],
+#valuation-main-sections button[onclick*="certificate"],
+#valuation-main-sections button[onclick*="Pdf"],
+#valuation-main-sections button[onclick*="PDF"],
+#valuation-main-sections button[onclick*="pdf"],
+#idbi-valuation-screen button[onclick*="idbiReset"],
+#idbi-valuation-screen button[onclick*="Certificate"],
+#idbi-valuation-screen button[onclick*="certificate"],
+#idbi-valuation-screen button[onclick*="Pdf"],
+#idbi-valuation-screen button[onclick*="PDF"],
+#idbi-valuation-screen button[onclick*="pdf"]{
+  border:1px solid var(--save-gold-border)!important;
+  background:linear-gradient(var(--save-gold-top),var(--save-gold-bottom))!important;
+  background-color:var(--save-gold-bottom)!important;
+  color:var(--save-gold-text)!important;
+}
+
+/* Tap state: remain gold */
+body>footer button:active,
+#valuation-main-sections .s111-secondary-actions button:active,
+#idbi-valuation-screen .idbi-bottom-actions button:active,
+#idbi-valuation-screen .idbi-secondary-actions button:active{
+  background:linear-gradient(#bd8b17,#946006)!important;
+  color:#fff!important;
+}
+</style>
+
+<script id="all-bank-action-buttons-gold-js">
+(function(){
+  const GOLD='linear-gradient(#d1a029,#ad7207)';
+  const BORDER='#a66f06';
+
+  function makeGold(btn){
+    if(!btn)return;
+    btn.style.setProperty('background',GOLD,'important');
+    btn.style.setProperty('background-color','#ad7207','important');
+    btn.style.setProperty('color','#fff','important');
+    btn.style.setProperty('border','1px solid '+BORDER,'important');
+    btn.style.setProperty('box-shadow','none','important');
+    btn.style.setProperty('text-shadow','none','important');
+    btn.style.setProperty('font-weight','900','important');
+  }
+
+  function applyGoldButtons(){
+    /* Standard banks footer */
+    document.querySelectorAll('body>footer button').forEach(makeGold);
+
+    /* Standard banks reset/PDF */
+    document.querySelectorAll('#valuation-main-sections .s111-secondary-actions button').forEach(makeGold);
+
+    /* IDBI footer and reset/PDF */
+    document.querySelectorAll('#idbi-valuation-screen .idbi-bottom-actions button').forEach(makeGold);
+    document.querySelectorAll('#idbi-valuation-screen .idbi-secondary-actions button').forEach(makeGold);
+  }
+
+  ['openBank','openSpecificBankValuation','openIDBIValuation','showValuationScreen','clearAll','idbiReset'].forEach(function(name){
+    const old=window[name];
+    if(typeof old!=='function'||old._goldActionWrapped)return;
+    const fn=function(){
+      const r=old.apply(this,arguments);
+      applyGoldButtons();
+      setTimeout(applyGoldButtons,30);
+      setTimeout(applyGoldButtons,150);
+      return r;
+    };
+    fn._goldActionWrapped=true;
+    window[name]=fn;
+  });
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(applyGoldButtons,100);
+      setTimeout(applyGoldButtons,500);
+    });
+  }else{
+    setTimeout(applyGoldButtons,50);
+  }
+
+  document.addEventListener('click',function(){
+    setTimeout(applyGoldButtons,20);
+  },true);
+})();
+</script>
+
 </body>
 </html>
