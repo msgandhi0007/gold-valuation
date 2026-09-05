@@ -12055,9 +12055,9 @@ body:has(#bankHome:not([style*="display: none"])) footer{
 }
 #idbi-valuation-screen .idbi-bottom-actions button:nth-child(2),
 #idbi-valuation-screen .idbi-bottom-actions button:nth-child(3){
-  background:#fffdf8!important;
-  color:#171717!important;
-  border-color:var(--rj-border)!important;
+  background:linear-gradient(180deg,#c9931f,#b78320)!important;
+  color:#fff!important;
+  border-color:#b78320!important;
 }
 
 /* REAL top app header */
@@ -12107,11 +12107,14 @@ body:has(#bankHome:not([style*="display: none"])) footer{
       const bar=idbi.querySelector('.idbi-bottom-actions');
       if(bar){
         bar.style.setProperty('background','#f8f4eb','important');
-        bar.querySelectorAll('button').forEach(function(btn,i){
-          btn.style.setProperty('background',i===0?'linear-gradient(180deg,#c9931f,#b78320)':'#fffdf8','important');
-          btn.style.setProperty('color',i===0?'#fff':'#171717','important');
-          btn.style.setProperty('border','1px solid '+(i===0?'#b78320':'#ddc997'),'important');
+        bar.querySelectorAll('button').forEach(function(btn){
+          btn.style.setProperty('background','linear-gradient(#d1a029,#ad7207)','important');
+          btn.style.setProperty('background-color','#ad7207','important');
+          btn.style.setProperty('color','#fff','important');
+          btn.style.setProperty('border','1px solid #a66f06','important');
           btn.style.setProperty('box-shadow','none','important');
+          btn.style.setProperty('text-shadow','none','important');
+          btn.style.setProperty('font-weight','900','important');
         });
       }
     }
@@ -12323,5 +12326,19 @@ body>footer button:active,
 })();
 </script>
 
+
+<style id="idbi-save-match-final-fix">
+/* Final requested styling: IDBI Load, Share and Reset exactly match Save */
+#idbi-valuation-screen .idbi-bottom-actions button,
+#idbi-valuation-screen .idbi-secondary-actions button:first-child{
+  background:linear-gradient(#d1a029,#ad7207)!important;
+  background-color:#ad7207!important;
+  color:#fff!important;
+  border:1px solid #a66f06!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  font-weight:900!important;
+}
+</style>
 </body>
 </html>
