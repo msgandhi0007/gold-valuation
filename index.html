@@ -10098,6 +10098,7 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     <button onclick="openBank('IDBI BANK')">IDBI BANK<small>Open Valuation</small></button>
     <button onclick="openBank('MAHARASHTRA GRAMIN BANK')">MAHARASHTRA GRAMIN BANK<small>Open Valuation</small></button>
     <button onclick="openBank('DNYANDEEP CO-OP SOCIETY LTD')">DNYANDEEP CO-OP SOCIETY LTD<small>Open Valuation</small></button>
+    <button class="dashboardHomeBtn" onclick="openDashboardHome()">📊 DASHBOARD<small>Today • Month • Bank Summary • Reports</small></button>
     <button class="savedHomeBtn" onclick="openSavedValuationsHome()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
     <button class="storageBtn" onclick="openStorageBackupScreen()">💾 STORAGE & BACKUP<small>Folder • Backup • Restore • Sync</small></button>
   </div>
@@ -11374,6 +11375,297 @@ body > .app header:first-of-type,
    });
  }else setTimeout(forceLightHeader,50);
  document.addEventListener('click',function(){setTimeout(forceLightHeader,20)},true);
+})();
+</script>
+
+
+
+<!-- DASHBOARD - BUSINESS OVERVIEW -->
+<style id="dashboard-home-css">
+#bankHome .dashboardHomeBtn{
+  background:#fffdf8!important;
+  color:#171717!important;
+  border:1px solid #ddc997!important;
+}
+#bankHome .dashboardHomeBtn small{color:#93690f!important}
+
+#dashboardHome{
+  display:none;
+  max-width:560px;
+  margin:0 auto;
+  padding:14px 12px 120px;
+  min-height:100vh;
+  background:#f8f4eb;
+  color:#171717;
+}
+.dashboard-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:10px;
+}
+.dashboard-head h2{margin:0;font-size:22px;font-weight:950}
+.dashboard-head .back{
+  min-height:40px;padding:8px 11px;border-radius:10px;
+  border:1px solid #ddc997;background:#fffdf8;color:#171717;font-weight:850;
+}
+.dashboard-filter{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;
+}
+.dashboard-filter button{
+  min-height:40px;border-radius:10px;border:1px solid #ddc997;
+  background:#fffdf8;color:#171717;font-weight:850;
+}
+.dashboard-filter button.active{
+  background:#b78320!important;color:#fff!important;border-color:#b78320!important;
+}
+.dashboard-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px;
+}
+.dashboard-card{
+  background:#fffdf8;border:1px solid #e0d1ad;border-radius:13px;
+  padding:11px;box-shadow:0 2px 7px rgba(116,85,20,.06);
+}
+.dashboard-card small{display:block;color:#756d60;font-size:10px;font-weight:800;margin-bottom:4px}
+.dashboard-card b{display:block;color:#171717;font-size:20px;line-height:1.2}
+.dashboard-card.wide{grid-column:1/-1}
+.dashboard-section{
+  background:#fffdf8;border:1px solid #e0d1ad;border-radius:13px;
+  padding:11px;margin-bottom:10px;
+}
+.dashboard-section h3{margin:0 0 8px;font-size:16px}
+.dashboard-bank{
+  border:1px solid #eadcbf;border-radius:11px;padding:10px;margin-top:7px;background:#fff;
+}
+.dashboard-bank-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dashboard-bank-name{font-weight:900;font-size:13px}
+.dashboard-bank-count{font-size:11px;color:#93690f;font-weight:850}
+.dashboard-bank-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;
+}
+.dashboard-bank-stat{
+  background:#f8f4eb;border-radius:8px;padding:7px;text-align:center;
+}
+.dashboard-bank-stat b{display:block;font-size:13px}
+.dashboard-bank-stat span{display:block;font-size:8px;color:#756d60;margin-top:2px}
+.dashboard-bank-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.dashboard-bank-actions button{
+  min-height:36px;border-radius:8px;border:1px solid #ddc997;
+  background:#fffdf8;color:#171717;font-size:10px;font-weight:850;
+}
+.dashboard-empty{padding:18px;text-align:center;color:#777;font-size:12px}
+body.dashboardHomeMode > .app,
+body.dashboardHomeMode #bankHome,
+body.dashboardHomeMode #saveManager,
+body.dashboardHomeMode #storageBackupScreen,
+body.dashboardHomeMode > footer{
+  display:none!important;
+}
+body.dashboardHomeMode #dashboardHome{display:block!important}
+@media(min-width:480px){
+  .dashboard-grid{grid-template-columns:repeat(3,1fr)}
+  .dashboard-card.wide{grid-column:auto}
+}
+</style>
+
+<section id="dashboardHome" aria-label="Dashboard">
+  <div class="dashboard-head">
+    <div>
+      <div style="font-size:9px;font-weight:900;letter-spacing:.7px;color:#93690f">BUSINESS OVERVIEW</div>
+      <h2>📊 Dashboard</h2>
+    </div>
+    <button class="back" type="button" onclick="closeDashboardHome()">← Back</button>
+  </div>
+
+  <div class="dashboard-filter">
+    <button id="dashTodayBtn" type="button" onclick="setDashboardPeriod('today')">Today</button>
+    <button id="dashMonthBtn" type="button" onclick="setDashboardPeriod('month')">This Month</button>
+    <button id="dashAllBtn" type="button" onclick="setDashboardPeriod('all')">All Time</button>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card"><small>VALUATIONS</small><b id="dashValuations">0</b></div>
+    <div class="dashboard-card"><small>GROSS WEIGHT</small><b id="dashGross">0.00 g</b></div>
+    <div class="dashboard-card"><small>VALUATION AMOUNT</small><b id="dashValue">₹0</b></div>
+    <div class="dashboard-card"><small>SANCTIONED LOANS</small><b id="dashLoan">₹0</b></div>
+    <div class="dashboard-card"><small>CUSTOMERS</small><b id="dashCustomers">0</b></div>
+    <div class="dashboard-card"><small>ACTIVE BANKS</small><b id="dashBankCount">0</b></div>
+  </div>
+
+  <div class="dashboard-section">
+    <h3>🏦 Bank-wise Summary</h3>
+    <div id="dashboardBanks"></div>
+  </div>
+
+  <div class="dashboard-section">
+    <h3>🕘 Recent Valuations</h3>
+    <div id="dashboardRecent"></div>
+  </div>
+</section>
+
+<script id="dashboard-home-js">
+(function(){
+  const BANKS=[
+    'SBI BANK',
+    'IDBI BANK',
+    'MAHARASHTRA GRAMIN BANK',
+    'DNYANDEEP CO-OP SOCIETY LTD'
+  ];
+  let dashPeriod='today';
+
+  function money(n){
+    n=Number(n)||0;
+    try{return '₹'+Math.round(n).toLocaleString('en-IN');}
+    catch(e){return '₹'+Math.round(n);}
+  }
+  function num(x){const n=Number(x);return Number.isFinite(n)?n:0;}
+  function valDate(v){return String(v?.customer?.date||v?.valuationDate||v?.date||'').slice(0,10);}
+  function bankOf(v){return String(v?.customer?.bank||v?.bank||'').trim();}
+  function customerOf(v){return String(v?.customer?.name||v?.customerName||'').trim();}
+  function mobileOf(v){return String(v?.customer?.mobile||v?.customerMobile||v?.mobile||'').trim();}
+  function grossOf(v){
+    if(Array.isArray(v?.items)) return v.items.reduce((s,x)=>s+num(x?.gross||x?.grossWeight||x?.grossWt),0);
+    return num(v?.totalGross||v?.grossWeight||v?.gross);
+  }
+  function valueOf(v){
+    return num(v?.totals?.value||v?.totalValue||v?.valuationAmount||v?.value||v?.eligibleValue);
+  }
+  function loanOf(v){
+    return num(v?.sanctionedLoan||v?.loan?.sanctioned||v?.sanctionedAmount||v?.customer?.sanctionedLoan||v?.idbiLoan);
+  }
+  function getAll(){
+    try{
+      if(typeof window.getSaved==='function'){
+        const a=window.getSaved(); if(Array.isArray(a))return a;
+      }
+    }catch(e){}
+    try{
+      const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return []}
+  }
+  function isInPeriod(v){
+    if(dashPeriod==='all')return true;
+    const d=valDate(v); if(!d)return false;
+    const now=new Date();
+    const y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), day=String(now.getDate()).padStart(2,'0');
+    if(dashPeriod==='today')return d===`${y}-${m}-${day}`;
+    if(dashPeriod==='month')return d.startsWith(`${y}-${m}`);
+    return true;
+  }
+  function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function filtered(){return getAll().filter(isInPeriod)}
+
+  function render(){
+    const all=filtered();
+    const gross=all.reduce((s,v)=>s+grossOf(v),0);
+    const value=all.reduce((s,v)=>s+valueOf(v),0);
+    const loan=all.reduce((s,v)=>s+loanOf(v),0);
+    const customers=new Set(all.map(v=>(customerOf(v)+'|'+mobileOf(v)).toLowerCase()).filter(x=>x!=='|'));
+    const activeBanks=new Set(all.map(bankOf).filter(Boolean));
+
+    const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+    set('dashValuations',all.length);
+    set('dashGross',gross.toFixed(2)+' g');
+    set('dashValue',money(value));
+    set('dashLoan',money(loan));
+    set('dashCustomers',customers.size);
+    set('dashBankCount',activeBanks.size);
+
+    ['today','month','all'].forEach(p=>{
+      const b=document.getElementById('dash'+p.charAt(0).toUpperCase()+p.slice(1)+'Btn');
+      if(b)b.classList.toggle('active',dashPeriod===p);
+    });
+
+    const banksEl=document.getElementById('dashboardBanks');
+    if(banksEl){
+      banksEl.innerHTML=BANKS.map(bank=>{
+        const rows=all.filter(v=>bankOf(v)===bank);
+        const gw=rows.reduce((s,v)=>s+grossOf(v),0);
+        const vv=rows.reduce((s,v)=>s+valueOf(v),0);
+        const ln=rows.reduce((s,v)=>s+loanOf(v),0);
+        return `<div class="dashboard-bank">
+          <div class="dashboard-bank-top">
+            <div class="dashboard-bank-name">${esc(bank)}</div>
+            <div class="dashboard-bank-count">${rows.length} valuation(s)</div>
+          </div>
+          <div class="dashboard-bank-stats">
+            <div class="dashboard-bank-stat"><b>${gw.toFixed(2)} g</b><span>GROSS</span></div>
+            <div class="dashboard-bank-stat"><b>${money(vv)}</b><span>VALUE</span></div>
+            <div class="dashboard-bank-stat"><b>${money(ln)}</b><span>LOAN</span></div>
+          </div>
+          <div class="dashboard-bank-actions">
+            <button type="button" onclick="dashboardOpenBank('${bank.replace(/'/g,"\\'")}')">Open Valuation</button>
+            <button type="button" onclick="dashboardOpenSavedBank('${bank.replace(/'/g,"\\'")}')">View Saved</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const recentEl=document.getElementById('dashboardRecent');
+    if(recentEl){
+      const recent=getAll().slice().sort((a,b)=>String(valDate(b)).localeCompare(String(valDate(a)))).slice(0,5);
+      if(!recent.length){
+        recentEl.innerHTML='<div class="dashboard-empty">No saved valuations yet.</div>';
+      }else{
+        recentEl.innerHTML=recent.map(v=>`
+          <div class="dashboard-bank">
+            <div class="dashboard-bank-top">
+              <div class="dashboard-bank-name">${esc(customerOf(v)||'Customer')}</div>
+              <div class="dashboard-bank-count">${esc(valDate(v)||'')}</div>
+            </div>
+            <div style="font-size:10px;color:#756d60;margin-top:4px">${esc(bankOf(v)||'Bank not set')}</div>
+            <div style="font-size:12px;font-weight:850;margin-top:5px">${money(valueOf(v))}</div>
+          </div>`).join('');
+      }
+    }
+  }
+
+  window.openDashboardHome=function(){
+    document.body.classList.remove('bankHomeMode','bank-home-mode','storageMode','storage-backup-mode','savedHomeMode');
+    document.body.classList.add('dashboardHomeMode');
+    const d=document.getElementById('dashboardHome'); if(d)d.style.display='block';
+    dashPeriod='today';
+    render();
+    window.scrollTo(0,0);
+  };
+
+  window.closeDashboardHome=function(){
+    document.body.classList.remove('dashboardHomeMode');
+    const d=document.getElementById('dashboardHome');if(d)d.style.display='none';
+    if(typeof window.showBankHome==='function')window.showBankHome();
+    else if(typeof window.showBankValuationHome==='function')window.showBankValuationHome();
+  };
+
+  window.setDashboardPeriod=function(p){
+    dashPeriod=p;
+    render();
+    window.scrollTo(0,0);
+  };
+
+  window.dashboardOpenBank=function(bank){
+    document.body.classList.remove('dashboardHomeMode');
+    if(typeof window.openBank==='function')window.openBank(bank);
+    else if(typeof window.openSpecificBankValuation==='function')window.openSpecificBankValuation(bank);
+  };
+
+  window.dashboardOpenSavedBank=function(bank){
+    document.body.classList.remove('dashboardHomeMode');
+    if(typeof window.openSavedValuationsHome==='function'){
+      window.openSavedValuationsHome();
+      setTimeout(function(){
+        const f=document.getElementById('savedHomeBankFilter');
+        if(f){f.value=bank;if(typeof window.setSavedBankFilter==='function')window.setSavedBankFilter(bank)}
+      },80);
+    }
+  };
+
+  // Refresh dashboard when app data changes.
+  window.refreshDashboardHome=render;
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(render,200);
+    });
+  }
 })();
 </script>
 
