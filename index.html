@@ -13169,5 +13169,113 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
   }
 })();
 </script>
-<!-- /CUSTOMER TO VALUATION CLEAN ROUTER 169 -->\n</body>
+<!-- /CUSTOMER TO VALUATION CLEAN ROUTER 169 -->\n
+<!-- APP HISTORY NAVIGATION FIX 170 -->
+<script id="app-history-navigation-fix-170">
+(function(){
+  var suppress=false, ready=false;
+  var orig={};
+
+  function state(screen,extra){
+    var o={gvNav:true,screen:screen};
+    if(extra) for(var k in extra) o[k]=extra[k];
+    return o;
+  }
+  function push(screen,extra){
+    if(suppress||!ready) return;
+    try{ history.pushState(state(screen,extra),'',location.href); }catch(e){}
+  }
+  function currentScreen(){
+    var b=document.body;
+    if(b.classList.contains('customersHomeMode')) return 'customers';
+    if(b.classList.contains('savedClean168Open')) return 'saved';
+    if(b.classList.contains('dashboardHomeMode')) return 'dashboard';
+    if(b.classList.contains('storageMode')||b.classList.contains('storage-backup-mode')) return 'storage';
+    if(b.classList.contains('bankHomeMode')||b.classList.contains('bank-home-mode')) return 'bankHome';
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi && getComputedStyle(idbi).display!=='none') return 'valuation';
+    var main=document.getElementById('valuation-main-sections');
+    if(main && getComputedStyle(main).display!=='none') return 'valuation';
+    return 'bankHome';
+  }
+  function bankNow(){
+    var s=document.getElementById('mainBankSelect'), h=document.getElementById('bankName');
+    return String((s&&s.value)||(h&&h.value)||'').trim();
+  }
+  function hideOverlays(){
+    document.body.classList.remove('customersHomeMode','savedClean168Open','savedHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','menu-viewing');
+    ['customersHomeScreen','savedClean168','savedValuationsHome','dashboardHome','storageBackupScreen'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
+    var sc=document.getElementById('savedClean168'); if(sc) sc.setAttribute('aria-hidden','true');
+  }
+  function restore(st){
+    if(!st||!st.gvNav) st=state('bankHome');
+    suppress=true;
+    try{
+      hideOverlays();
+      if(st.screen==='customers' && orig.openCustomersHome){ orig.openCustomersHome(); }
+      else if(st.screen==='saved' && orig.openSavedClean168){ orig.openSavedClean168(); }
+      else if(st.screen==='dashboard' && orig.openDashboardHome){ orig.openDashboardHome(); }
+      else if(st.screen==='storage' && orig.openStorageBackupScreen){ orig.openStorageBackupScreen(); }
+      else if(st.screen==='valuation'){
+        if(Number.isInteger(st.savedIndex) && orig.openSavedDirectFinal) orig.openSavedDirectFinal(st.savedIndex);
+        else if(st.bank && orig.openBank) orig.openBank(st.bank);
+        else if(orig.showBankHome) orig.showBankHome();
+      } else if(orig.showBankHome){ orig.showBankHome(); }
+    }catch(e){ try{ if(orig.showBankHome) orig.showBankHome(); }catch(x){} }
+    suppress=false;
+    setTimeout(function(){window.scrollTo(0,st.scrollY||0)},0);
+  }
+  function wrap(name,screen,extraFn){
+    if(typeof window[name]!=='function') return;
+    orig[name]=window[name];
+    window[name]=function(){
+      var args=[].slice.call(arguments), prev=suppress;
+      suppress=true;
+      var out;
+      try{ out=orig[name].apply(this,args); } finally { suppress=prev; }
+      var extra=extraFn?extraFn.apply(this,args):null;
+      push(screen,extra);
+      return out;
+    };
+  }
+  function setup(){
+    if(ready) return;
+    ['showBankHome','openBank','openStorageBackupScreen','openCustomersHome','openSavedClean168','openDashboardHome','openSavedDirectFinal'].forEach(function(n){if(typeof window[n]==='function')orig[n]=window[n];});
+    try{ history.replaceState(state(currentScreen(), currentScreen()==='valuation'?{bank:bankNow()}:null),'',location.href); }catch(e){}
+    ready=true;
+
+    wrap('openBank','valuation',function(bank){return {bank:String(bank||'')};});
+    wrap('openStorageBackupScreen','storage');
+    wrap('openCustomersHome','customers');
+    wrap('openSavedClean168','saved');
+    // aliases must point to wrapped saved opener
+    if(typeof window.openSavedClean168==='function'){
+      window.openSavedValuationsHome=window.openSavedClean168;
+      window.openLoad=window.openSavedClean168;
+      window.loadData=window.openSavedClean168;
+      window.idbiLoadData=window.openSavedClean168;
+      window.dashboardOpenSaved87=window.openSavedClean168;
+    }
+    wrap('openDashboardHome','dashboard');
+    wrap('openSavedDirectFinal','valuation',function(i){return {savedIndex:Number(i)};});
+
+    window.addEventListener('popstate',function(ev){ restore(ev.state); });
+
+    // Make visible in-app Back buttons follow the same history as Android Back.
+    document.addEventListener('click',function(ev){
+      var btn=ev.target && ev.target.closest ? ev.target.closest('button') : null;
+      if(!btn) return;
+      var txt=(btn.textContent||'').trim().toLowerCase();
+      var inSub=btn.closest('#customersHomeScreen,#savedClean168,#dashboardHome,#storageBackupScreen');
+      if(inSub && (txt==='← back'||txt==='back'||txt.indexOf('← back')===0)){
+        ev.preventDefault(); ev.stopImmediatePropagation(); history.back();
+      }
+    },true);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(setup,250)});
+  else setTimeout(setup,250);
+})();
+</script>
+<!-- /APP HISTORY NAVIGATION FIX 170 -->
+</body>
 </html>
