@@ -8018,7 +8018,7 @@ window.handleMainBankSelection=function(value){
     for(var i=1;i<=10;i++){
       var gw=n(val('idbiGW'+i)), less=n(val('idbiLess'+i)), pct=n(val('idbiImpPct'+i)), purity=n(val('idbiPurity'+i));
       var notW=Math.max(0,gw-less), imp=notW*pct/100, net=Math.max(0,notW-imp), eq=net*purity/22;
-      if(gw>0 || less>0 || purity>0) rows.push({
+      if(gw>0 || less>0 || val('idbiItem'+i)) rows.push({
         name:val('idbiItem'+i)||('Item '+i), gross:gw, stone:less, purity:purity,
         less:less, impurityPct:pct, notWeight:notW, impurity:imp, netWeight:net, equivalent22k:eq,
         value:eq*n(val('idbiRate'))
@@ -13709,5 +13709,76 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 })();
 </script>
 <!-- /STORAGE BANK-FOLDER + BACKUP + SYNC FINAL FIX 171 -->
+
+<!-- IDBI PDF SHARE FIX 174 -->
+<script id="idbi-pdf-share-fix-174">
+(function(){
+  function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c;});}
+  function num(v){return Number(v)||0;}
+  function money174(v){return '₹'+num(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function safeFilePart(v){return String(v||'Customer').replace(/[\\/:*?\"<>|]+/g,'_').replace(/\s+/g,' ').trim().slice(0,60)||'Customer';}
+
+  async function buildIdbiPdf174(record){
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
+    var r=record;
+    var rows=(r.items||[]).filter(function(x){return num(x.gross)>0 || num(x.less)>0 || (x.name && !/^Item\s+\d+$/i.test(x.name));});
+    var holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-12000px;top:0;width:1120px;background:#fff;color:#111;font-family:Arial,sans-serif;padding:34px;box-sizing:border-box;z-index:-1;';
+    var tr=rows.map(function(x,i){
+      return '<tr><td>'+(i+1)+'</td><td>'+esc(x.name||('Item '+(i+1)))+'</td><td>'+num(x.gross).toFixed(3)+'</td><td>'+num(x.less).toFixed(3)+'</td><td>'+num(x.notWeight).toFixed(3)+'</td><td>'+num(x.impurityPct).toFixed(2)+'%</td><td>'+num(x.impurity).toFixed(3)+'</td><td>'+num(x.netWeight).toFixed(3)+'</td><td>'+num(x.purity).toFixed(2)+'K</td><td>'+num(x.equivalent22k).toFixed(3)+'</td><td>'+money174(x.value)+'</td></tr>';
+    }).join('');
+    holder.innerHTML='<div style="text-align:center;border-bottom:3px solid #b07a00;padding-bottom:12px;margin-bottom:18px">'+
+      '<div style="font-size:30px;font-weight:800;color:#9b6b00;letter-spacing:.5px">RAJENDRA JEWELLERS</div>'+
+      '<div style="font-size:20px;font-weight:700;margin-top:5px">IDBI BANK GOLD VALUATION</div></div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:15px;margin-bottom:14px"><tr>'+
+      '<td style="border:1px solid #999;padding:9px"><b>Customer</b><br>'+esc(r.customer&&r.customer.name)+'</td>'+
+      '<td style="border:1px solid #999;padding:9px"><b>Mobile</b><br>'+esc(r.customer&&r.customer.mobile)+'</td>'+
+      '<td style="border:1px solid #999;padding:9px"><b>Date</b><br>'+esc(r.customer&&r.customer.date)+'</td>'+
+      '<td style="border:1px solid #999;padding:9px"><b>Rate (22K)</b><br>'+money174(r.rate)+'/g</td></tr></table>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#f2e5c4">'+
+      '<th style="border:1px solid #777;padding:6px">Sr</th><th style="border:1px solid #777;padding:6px">Item</th><th style="border:1px solid #777;padding:6px">Gross</th><th style="border:1px solid #777;padding:6px">Less</th><th style="border:1px solid #777;padding:6px">Not Wt.</th><th style="border:1px solid #777;padding:6px">Imp.%</th><th style="border:1px solid #777;padding:6px">Impurity</th><th style="border:1px solid #777;padding:6px">Net Wt.</th><th style="border:1px solid #777;padding:6px">Purity</th><th style="border:1px solid #777;padding:6px">22K Eq.</th><th style="border:1px solid #777;padding:6px">Value</th></tr></thead><tbody>'+tr+'</tbody></table>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:18px">'+
+      '<div style="border:1px solid #999;padding:12px;font-size:16px"><b>Total Value</b><br>'+money174(r.totalValue)+'</div>'+
+      '<div style="border:1px solid #999;padding:12px;font-size:16px"><b>Eligible Loan</b><br>'+money174(r.eligibleLoan)+'</div>'+
+      '<div style="border:1px solid #999;padding:12px;font-size:16px"><b>Loan Amount</b><br>'+money174(r.sanctionedLoan)+'</div></div>'+
+      '<div style="margin-top:34px;display:flex;justify-content:space-between;font-size:12px"><div><b>MAHENDRA SHANTILAL GANDHI</b><br>REGISTERED GOLD APPRAISER<br>PPDC/GA/2026/244642</div><div style="text-align:center;padding-top:28px;border-top:1px solid #777;width:220px">Authorised Signatory</div></div>';
+    document.body.appendChild(holder);
+    try{
+      var canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      var jsPDF=window.jspdf.jsPDF;
+      var pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
+      var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+      var img=canvas.toDataURL('image/jpeg',0.96);
+      var ratio=Math.min((pw-12)/canvas.width,(ph-12)/canvas.height);
+      var w=canvas.width*ratio,h=canvas.height*ratio;
+      pdf.addImage(img,'JPEG',(pw-w)/2,(ph-h)/2,w,h,undefined,'FAST');
+      var blob=pdf.output('blob');
+      var filename=safeFilePart(r.customer&&r.customer.name)+' - '+String((r.customer&&r.customer.date)||new Date().toISOString().slice(0,10))+'.pdf';
+      return {blob:blob,filename:filename};
+    }finally{holder.remove();}
+  }
+
+  window.idbiShareData=async function(){
+    try{
+      var r=typeof window.idbiRecord==='function'?window.idbiRecord():null;
+      if(!r) throw new Error('IDBI valuation is unavailable.');
+      var out=await buildIdbiPdf174(r);
+      var file=new File([out.blob],out.filename,{type:'application/pdf'});
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({title:'IDBI Bank Gold Valuation',text:'IDBI Bank Gold Valuation PDF',files:[file]});
+        return;
+      }
+      var url=URL.createObjectURL(out.blob),a=document.createElement('a');
+      a.href=url;a.download=out.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);
+      alert('PDF sharing is not supported by this browser. The IDBI valuation PDF has been downloaded instead.');
+    }catch(e){
+      if(e && e.name==='AbortError') return;
+      console.error('IDBI PDF share:',e);
+      alert('IDBI PDF could not be shared. '+(e&&e.message?e.message:''));
+    }
+  };
+  window.buildIdbiPdf174=buildIdbiPdf174;
+})();
+</script>
 </body>
 </html>
