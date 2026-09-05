@@ -3677,6 +3677,7 @@ body:not(.menu-viewing) .s111-rate{
 #idbi-valuation-screen .idbi-actions button:nth-child(4),#idbi-valuation-screen .idbi-actions button:nth-child(5){background:#f4b400!important;color:#111!important}
 @media(max-width:700px){#idbi-valuation-screen .idbi-actions{gap:6px!important}#idbi-valuation-screen .idbi-actions button{height:58px!important;font-size:13px!important;border-radius:14px!important}#idbi-valuation-screen .idbi-loan{grid-template-columns:1fr 1fr 1.35fr!important}}
 </style>
+<meta name="app-build" content="20260905-1940-saved-fix">
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -5296,8 +5297,11 @@ window.addEventListener('appinstalled',()=>{
   if(b)b.style.display='none';
 });
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker registration failed',err));
+  window.addEventListener('load',async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register('./sw.js?v=20260905-1940',{updateViaCache:'none'});
+      try{ await reg.update(); }catch(_){}
+    }catch(err){ console.warn('Service worker registration failed',err); }
   });
 }
 </script>
