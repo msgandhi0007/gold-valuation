@@ -10203,5 +10203,112 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
 })();
 </script>
 
+
+
+<!-- FINAL: REMOVE MENU + REMOVE COVER, KEEP BANK HOME + STORAGE -->
+<style id="final-no-menu-no-cover-css">
+#coverPage,#cover-page,#appCover,#app-cover,#splashScreen,#splash-screen,
+.cover-page,.coverPage,.app-cover,.splash-screen,.splashScreen,
+.welcome-screen,.welcomeScreen{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#appMenu,.menu-overlay,.menu-panel,.menu-section,.menu-back-btn,
+.s113-quick-actions,
+button[onclick*="openAppMenu"],
+button[onclick*="toggleAppMenu"],
+button[onclick*="showMenuSection"]{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html,body{
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+body{
+  min-height:100vh!important;
+  touch-action:pan-y!important;
+}
+</style>
+
+<script id="final-no-menu-no-cover-js">
+(function(){
+  function removeOldUI(){
+    const selectors=[
+      '#coverPage','#cover-page','#appCover','#app-cover','#splashScreen','#splash-screen',
+      '.cover-page','.coverPage','.app-cover','.splash-screen','.splashScreen',
+      '.welcome-screen','.welcomeScreen',
+      '#appMenu','.menu-overlay','.menu-panel','.menu-section','.menu-back-btn',
+      '.s113-quick-actions'
+    ];
+    selectors.forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(el){
+        try{el.remove();}catch(e){el.style.display='none';}
+      });
+    });
+
+    document.querySelectorAll(
+      'button[onclick*="openAppMenu"],button[onclick*="toggleAppMenu"],button[onclick*="showMenuSection"]'
+    ).forEach(function(el){
+      try{el.remove();}catch(e){el.style.display='none';}
+    });
+
+    document.body.classList.remove(
+      'cover-open','splash-open','welcome-open','cover-active',
+      'menu-open','app-menu-open','menu-viewing'
+    );
+
+    document.documentElement.style.overflowY='auto';
+    document.body.style.overflowY='auto';
+    document.body.style.overflowX='hidden';
+  }
+
+  window.openAppMenu=function(){};
+  window.closeAppMenu=function(){};
+  window.toggleAppMenu=function(){};
+  window.showMenuSection=function(){};
+
+  function openCorrectHome(){
+    removeOldUI();
+
+    if(typeof window.showBankHome==='function'){
+      window.showBankHome();
+    }else if(typeof window.showBankValuationHome==='function'){
+      window.showBankValuationHome();
+    }else{
+      const h=document.getElementById('bankHome');
+      if(h)h.style.display='block';
+    }
+    window.scrollTo(0,0);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(openCorrectHome,80);
+      setTimeout(removeOldUI,250);
+      setTimeout(removeOldUI,700);
+    });
+  }else{
+    setTimeout(openCorrectHome,80);
+    setTimeout(removeOldUI,250);
+  }
+
+  document.addEventListener('click',function(){
+    setTimeout(removeOldUI,20);
+  },true);
+
+  try{
+    const obs=new MutationObserver(function(){removeOldUI();});
+    obs.observe(document.documentElement,{childList:true,subtree:true});
+    setTimeout(function(){try{obs.disconnect();}catch(e){}},5000);
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
