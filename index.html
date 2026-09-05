@@ -12698,3 +12698,129 @@ body>footer button:active,
 
 </body>
 </html>
+
+<!-- STEP 161 - Professional Customer History + Customer Summary -->
+<style id="step161-professional-customer-history">
+#customerHistory{background:#f7f2e7!important;border:1px solid #e3d6bf!important;color:#201b14!important;border-radius:18px!important;padding:14px!important;box-shadow:0 8px 24px rgba(74,52,20,.08)!important}
+#customerHistory .itemhead h2,#customerHistory .itemhead h3{color:#201b14!important;font-weight:950!important;letter-spacing:-.2px}
+#customerHistory .itemhead>div>div{color:#766b5b!important;opacity:1!important}
+#customerHistory .itemhead button{border:1px solid #d7bd82!important;background:#fff!important;color:#6b4b0f!important;border-radius:10px!important;font-weight:850!important}
+#customerHistory .history-filter-grid{gap:8px!important;background:#fffaf0!important;border:1px solid #eadfc9!important;border-radius:14px!important;padding:10px!important}
+#customerHistory .history-filter-grid input,#customerHistory .history-filter-grid select,#customerSummaryEmbedded input{min-height:42px!important;border:1px solid #d8ccba!important;border-radius:10px!important;background:#fff!important;color:#211c15!important;font-size:13px!important;font-weight:700!important;padding:9px 10px!important}
+#customerHistory .history-filter-grid button{min-height:42px!important;border:1px solid #d8ccba!important;border-radius:10px!important;background:#fff!important;color:#6d521d!important;font-weight:850!important}
+#historySummary,#groupSummary{margin-top:10px!important;padding:9px 11px!important;border-radius:10px!important;background:#efe5d1!important;color:#594727!important;opacity:1!important;font-weight:800!important}
+.s161-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0 12px}
+.s161-overview>div{background:#fff!important;border:1px solid #e1d5c2;border-radius:12px;padding:9px;text-align:center;min-width:0}
+.s161-overview span{display:block;color:#7a6d5b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.25px}
+.s161-overview b{display:block;color:#201b14;font-size:16px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s161-overview .gold b{color:#a36f12}.s161-overview .green b{color:#177148}
+#customerHistoryRows{display:grid!important;gap:9px!important}
+#customerHistoryRows .history-row{margin:0!important;background:#fff!important;border:1px solid #e1d5c2!important;border-radius:14px!important;padding:12px!important;color:#201b14!important;box-shadow:0 2px 7px rgba(73,50,18,.045)!important}
+#customerHistoryRows .history-top{align-items:flex-start!important}
+#customerHistoryRows .customer-name-link{border:0!important;background:transparent!important;padding:0!important;color:#201b14!important;font-size:17px!important;font-weight:950!important;text-align:left!important}
+#customerHistoryRows .customer-click-hint{display:none!important}
+#customerHistoryRows .history-meta{color:#746957!important;opacity:1!important;font-size:11px!important;line-height:1.55!important}
+#customerHistoryRows .history-amount{color:#a36f12!important;font-weight:950!important;font-size:18px!important;white-space:nowrap}
+.s161-record-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.s161-tag{display:inline-flex;align-items:center;min-height:24px;padding:4px 7px;border-radius:999px;background:#f5eee0;border:1px solid #e9dcc4;color:#67563b;font-size:10px;font-weight:800}.s161-tag.bank{background:#fff7df;color:#79550e}.s161-tag.idbi{background:#eaf3ff;color:#225b94}
+.s161-record-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}.s161-record-metrics>div{border:1px solid #eadfcf;border-radius:9px;background:#fffaf2;padding:7px;text-align:center}.s161-record-metrics span{display:block;color:#837460;font-size:9px;font-weight:750}.s161-record-metrics b{display:block;color:#201b14;font-size:12px;margin-top:2px}
+#customerHistoryRows .history-actions{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin-top:10px!important}
+#customerHistoryRows .history-actions button{min-height:38px!important;border:1px solid #d9c9ad!important;border-radius:9px!important;background:#fff!important;color:#5d471e!important;font-size:10px!important;font-weight:900!important;padding:6px 4px!important}
+#customerHistoryRows .history-actions button.s161-open{background:#b78320!important;border-color:#b78320!important;color:#fff!important}.s161-danger{color:#ad2c2c!important}
+#customerSummaryEmbedded{margin-top:14px!important;padding:14px 0 0!important;border-top:1px solid #d9c9ad!important;background:transparent!important;color:#201b14!important}
+#customerGroupRows{display:grid!important;gap:10px!important;margin-top:10px!important}
+#customerSummaryEmbedded .customer-group{margin:0!important;background:#fff!important;border:1px solid #e1d5c2!important;border-radius:14px!important;padding:12px!important;color:#201b14!important;box-shadow:0 2px 7px rgba(73,50,18,.045)!important}
+.s161-customer-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.s161-customer-name{color:#201b14;font-size:17px;font-weight:950}.s161-customer-contact{color:#746957;font-size:11px;margin-top:3px}.s161-count{background:#f2e4c5;color:#6c4a0b;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;white-space:nowrap}
+.s161-customer-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}.s161-customer-stat{background:#fffaf2;border:1px solid #eadfcf;border-radius:9px;padding:7px;text-align:center}.s161-customer-stat span{display:block;color:#837460;font-size:9px}.s161-customer-stat b{display:block;color:#201b14;font-size:12px;margin-top:2px}.s161-customer-stat.value b{color:#a36f12}.s161-customer-stat.loan b{color:#177148}
+.s161-customer-dates{margin-top:8px;padding:7px 9px;background:#f7f1e6;border-radius:9px;color:#6d604d;font-size:10px;line-height:1.55}.s161-customer-banks{font-weight:850;color:#5c4519}
+.s161-customer-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}.s161-customer-actions button{min-height:38px;border:1px solid #d8c7aa;border-radius:9px;background:#fff;color:#60491d;font-size:10px;font-weight:900}.s161-customer-actions .primary-history{background:#b78320;border-color:#b78320;color:#fff}
+.s161-history-list{margin-top:9px;border-top:1px solid #eee1cc;padding-top:7px}.s161-history-entry{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #f0e7d8;font-size:10px}.s161-history-entry:last-child{border-bottom:0}.s161-history-entry b{color:#31291d}.s161-history-entry span{color:#786b59}.s161-mini-actions{display:flex;gap:4px}.s161-mini-actions button{border:1px solid #ddcfb8;border-radius:7px;background:#fff;color:#655027;font-size:9px;font-weight:850;padding:5px 6px}
+@media(max-width:440px){.s161-overview{grid-template-columns:1fr 1fr}.s161-customer-stats{grid-template-columns:1fr 1fr}#customerHistoryRows .history-actions{grid-template-columns:1fr 1fr!important}.s161-record-metrics{grid-template-columns:1fr 1fr}.s161-record-metrics>div:last-child{grid-column:1/-1}.s161-history-entry{align-items:flex-start;flex-direction:column}.s161-mini-actions{width:100%}.s161-mini-actions button{flex:1}.history-filter-grid{grid-template-columns:1fr 1fr!important}}
+@media(max-width:350px){.history-filter-grid{grid-template-columns:1fr!important}}
+</style>
+<script id="step161-professional-customer-history-js">
+(function(){
+  function esc161(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function money161(n){try{return typeof money==='function'?money(Number(n||0)):'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});}catch(e){return '₹0';}}
+  function recs161(){try{return typeof historyRecords==='function'?historyRecords():JSON.parse(localStorage.getItem('goldValuations')||'[]');}catch(e){return[];}}
+  function cust161(r){return r&&r.customer?r.customer:{};}
+  function name161(r){return String(cust161(r).name||r.customerName||'').trim();}
+  function mobile161(r){return String(cust161(r).mobile||r.mobile||'').trim();}
+  function bank161(r){return String(cust161(r).bank||r.bank||'').trim();}
+  function date161(r){return String(cust161(r).date||r.date||'').slice(0,10);}
+  function value161(r){try{return typeof dashboardValue==='function'?Number(dashboardValue(r)||0):Number(r.totalValue||r.valuationTotal||r.value||0);}catch(e){return 0;}}
+  function loan161(r){try{return typeof reportLoanAmount==='function'?Number(reportLoanAmount(r)||0):Number(r.sanctionedLoan||cust161(r).sanctionedLoan||0);}catch(e){return 0;}}
+  function items161(r){return Array.isArray(r&&r.items)?r.items:(Array.isArray(r&&r.idbi&&r.idbi.rows)?r.idbi.rows:[]);}
+  function gross161(r){return items161(r).reduce(function(s,x){return s+Number(x.gross!=null?x.gross:(x.grossWeight!=null?x.grossWeight:0));},0);}
+  function net161(r){
+    if(r&&r.valuationType==='IDBI_BANK'){
+      if(r.idbi&&Number.isFinite(Number(r.idbi.total22k)))return Number(r.idbi.total22k);
+      return items161(r).reduce(function(s,x){return s+Number(x.equivalent22k||x.gold22k||0);},0);
+    }
+    return items161(r).reduce(function(s,x){
+      var n=x.roundedWeight!=null?x.roundedWeight:(x.rounded!=null?x.rounded:(x.netWeightR!=null?x.netWeightR:(x.netWeight!=null?x.netWeight:0)));
+      return s+Number(n||0);
+    },0);
+  }
+  function cert161(r){return String(r&&r.certificateNo||r&&r.certNo||'').trim();}
+  function idx161(r,all){var i=all.indexOf(r);if(i>=0)return i;var c=cert161(r);if(c)return all.findIndex(function(x){return cert161(x)===c;});return -1;}
+  function open161(i){if(i<0)return alert('Saved valuation could not be found.');if(typeof loadSaved==='function')loadSaved(i);}
+  function revalue161(i){if(i<0)return alert('Saved valuation could not be found.');if(typeof duplicateSaved==='function')duplicateSaved(i);else alert('Revalue function is unavailable.');}
+  function print161(i){if(i<0)return alert('Saved valuation could not be found.');if(typeof printSaved==='function')printSaved(i);else if(typeof printHistoryRecord==='function')printHistoryRecord(recs161()[i]);}
+  function share161(i){if(i<0)return alert('Saved valuation could not be found.');if(typeof shareSavedPdf==='function')shareSavedPdf(i);else if(typeof shareHistoryRecord==='function')shareHistoryRecord(recs161()[i]);}
+  window.s161Open=open161;window.s161Revalue=revalue161;window.s161Print=print161;window.s161Share=share161;
+  function setup161(){
+    var section=document.getElementById('customerHistory');if(!section)return;
+    if(!document.getElementById('s161Overview')){
+      var filters=section.querySelector('.history-filter-grid');
+      if(filters)filters.insertAdjacentHTML('beforebegin','<div id="s161Overview" class="s161-overview"></div>');
+    }
+    var date=document.getElementById('historyDateFilter');
+    if(date&&!date.dataset.s161){date.dataset.s161='1';date.innerHTML='<option value="">All Dates</option><option value="__TODAY__">Today</option><option value="__MONTH__">This Month</option><option value="__YEAR__">This Year</option>';}
+    var q=document.getElementById('historySearch');if(q)q.placeholder='🔎 Name / mobile / certificate / bank...';
+  }
+  function dateMatch161(filter,d){
+    if(!filter)return true;if(!d)return false;
+    var now=new Date(), today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+    if(filter==='__TODAY__')return d===today;if(filter==='__MONTH__')return d.slice(0,7)===today.slice(0,7);if(filter==='__YEAR__')return d.slice(0,4)===today.slice(0,4);return d===filter;
+  }
+  window.updateCustomerHistory=function(){
+    setup161();
+    var q=String(document.getElementById('historySearch')&&document.getElementById('historySearch').value||'').trim().toLowerCase();
+    var bankF=String(document.getElementById('historyBankFilter')&&document.getElementById('historyBankFilter').value||'').trim().toLowerCase();
+    var dateF=String(document.getElementById('historyDateFilter')&&document.getElementById('historyDateFilter').value||'').trim();
+    var rows=document.getElementById('customerHistoryRows'),sum=document.getElementById('historySummary');if(!rows)return;
+    var all=recs161();
+    var bankEl=document.getElementById('historyBankFilter');if(bankEl){var cur=bankEl.value;var banks=[...new Set(all.map(bank161).filter(Boolean))].sort();bankEl.innerHTML='<option value="">All Banks</option>'+banks.map(function(b){return '<option value="'+esc161(b)+'">'+esc161(b)+'</option>';}).join('');if(banks.includes(cur))bankEl.value=cur;}
+    var records=all.filter(function(r){var hay=[name161(r),mobile161(r),bank161(r),cert161(r),date161(r)].join(' ').toLowerCase();return (!q||hay.includes(q))&&(!bankF||bank161(r).toLowerCase()===bankF)&&dateMatch161(dateF,date161(r));});
+    records.sort(function(a,b){return String(b.modifiedAt||b.createdAt||date161(b)).localeCompare(String(a.modifiedAt||a.createdAt||date161(a)));});
+    var tv=records.reduce(function(s,r){return s+value161(r);},0),tl=records.reduce(function(s,r){return s+loan161(r);},0),tg=records.reduce(function(s,r){return s+gross161(r);},0);
+    if(sum)sum.textContent=records.length+' valuation(s) · '+money161(tv)+' valuation · '+money161(tl)+' loan';
+    var ov=document.getElementById('s161Overview');if(ov)ov.innerHTML='<div><span>Valuations</span><b>'+records.length+'</b></div><div><span>Gross Weight</span><b>'+tg.toFixed(3)+' g</b></div><div class="gold"><span>Total Value</span><b>'+money161(tv)+'</b></div><div class="green"><span>Total Loan</span><b>'+money161(tl)+'</b></div>';
+    window._historyShown=records;
+    if(!records.length){rows.innerHTML='<div class="history-empty">No customer valuations found for the selected filters.</div>';return;}
+    rows.innerHTML=records.map(function(r,i){
+      var ci=idx161(r,all),isIdbi=r&&r.valuationType==='IDBI_BANK',label=isIdbi?'22K Equivalent':'Net Weight (R)';
+      return '<div class="history-row"><div class="history-top"><div><button type="button" class="customer-name-link" onclick="s161Open('+ci+')">'+esc161(name161(r)||'Unnamed Customer')+'</button><div class="history-meta">📱 '+esc161(mobile161(r)||'No mobile')+' · 📅 '+esc161(date161(r)||'—')+'</div></div><div class="history-amount">'+money161(value161(r))+'</div></div>'+
+      '<div class="s161-record-tags"><span class="s161-tag bank '+(isIdbi?'idbi':'')+'">🏦 '+esc161(bank161(r)||'No Bank')+'</span>'+(cert161(r)?'<span class="s161-tag">Cert. '+esc161(cert161(r))+'</span>':'')+'<span class="s161-tag">'+items161(r).length+' item(s)</span></div>'+
+      '<div class="s161-record-metrics"><div><span>Gross Weight</span><b>'+gross161(r).toFixed(3)+' g</b></div><div><span>'+label+'</span><b>'+net161(r).toFixed(3)+' g</b></div><div><span>Sanctioned Loan</span><b>'+money161(loan161(r))+'</b></div></div>'+
+      '<div class="history-actions"><button class="s161-open" onclick="s161Open('+ci+')">Open</button><button onclick="s161Revalue('+ci+')">♻ Revalue</button><button onclick="s161Print('+ci+')">▤ Print PDF</button><button onclick="s161Share('+ci+')">↗ Share PDF</button></div></div>';
+    }).join('');
+  };
+  window.clearCustomerHistoryFilters=function(){var ids=['historySearch','historyBankFilter','historyDateFilter'];ids.forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});updateCustomerHistory();};
+  window.updateCustomerGroups=function(){
+    setup161();var q=String(document.getElementById('groupSearch')&&document.getElementById('groupSearch').value||'').trim().toLowerCase();var rows=document.getElementById('customerGroupRows'),sum=document.getElementById('groupSummary');if(!rows)return;
+    var all=recs161(),map=new Map();all.forEach(function(r){var n=name161(r),m=mobile161(r),hay=(n+' '+m+' '+bank161(r)+' '+cert161(r)).toLowerCase();if(q&&!hay.includes(q))return;var key=(m?('m:'+m):('n:'+n.toLowerCase()));if(!map.has(key))map.set(key,{name:n||'Unnamed Customer',mobile:m,records:[]});map.get(key).records.push(r);});
+    var groups=[...map.values()].sort(function(a,b){var ad=Math.max.apply(null,a.records.map(function(r){return Date.parse(date161(r))||0;})),bd=Math.max.apply(null,b.records.map(function(r){return Date.parse(date161(r))||0;}));return bd-ad||a.name.localeCompare(b.name);});window._customerGroups=groups;
+    if(sum)sum.textContent=groups.length+' customer(s) · complete history across all banks';if(!groups.length){rows.innerHTML='<div class="history-empty">No customers found.</div>';return;}
+    rows.innerHTML=groups.map(function(g,gi){
+      g.records.sort(function(a,b){return date161(b).localeCompare(date161(a));});var tv=g.records.reduce(function(s,r){return s+value161(r);},0),tl=g.records.reduce(function(s,r){return s+loan161(r);},0),tg=g.records.reduce(function(s,r){return s+gross161(r);},0);var ds=g.records.map(date161).filter(Boolean).sort(),first=ds[0]||'—',last=ds[ds.length-1]||'—',banks=[...new Set(g.records.map(bank161).filter(Boolean))];var latest=idx161(g.records[0],all);
+      var entries=g.records.slice(0,5).map(function(r){var i=idx161(r,all);return '<div class="s161-history-entry"><div><b>'+esc161(date161(r)||'—')+' · '+esc161(bank161(r)||'No Bank')+'</b><br><span>'+money161(value161(r))+' · Loan '+money161(loan161(r))+'</span></div><div class="s161-mini-actions"><button onclick="s161Open('+i+')">Open</button><button onclick="s161Print('+i+')">PDF</button></div></div>';}).join('');
+      return '<div class="customer-group"><div class="s161-customer-head"><div><div class="s161-customer-name">'+esc161(g.name)+'</div><div class="s161-customer-contact">📱 '+esc161(g.mobile||'No mobile')+'</div></div><div class="s161-count">'+g.records.length+' valuation'+(g.records.length===1?'':'s')+'</div></div>'+
+      '<div class="s161-customer-stats"><div class="s161-customer-stat"><span>Gross Weight</span><b>'+tg.toFixed(3)+' g</b></div><div class="s161-customer-stat value"><span>Total Valuation</span><b>'+money161(tv)+'</b></div><div class="s161-customer-stat loan"><span>Total Loan</span><b>'+money161(tl)+'</b></div><div class="s161-customer-stat"><span>Banks Used</span><b>'+banks.length+'</b></div></div>'+
+      '<div class="s161-customer-dates"><b>First:</b> '+esc161(first)+' &nbsp; · &nbsp; <b>Latest:</b> '+esc161(last)+'<br><span class="s161-customer-banks">'+esc161(banks.join(' · ')||'No bank recorded')+'</span></div>'+
+      '<div class="s161-customer-actions"><button class="primary-history" onclick="s161Open('+latest+')">Open Latest Valuation</button><button onclick="openCustomerStatementByIndex('+gi+')">Customer Statement</button></div><div class="s161-history-list">'+entries+(g.records.length>5?'<div style="font-size:10px;color:#7d6e58;padding-top:6px">+'+(g.records.length-5)+' older valuation(s) available in the customer statement.</div>':'')+'</div></div>';
+    }).join('');
+  };
+  document.addEventListener('DOMContentLoaded',function(){setup161();setTimeout(function(){updateCustomerHistory();updateCustomerGroups();},50);});
+})();
+</script>
