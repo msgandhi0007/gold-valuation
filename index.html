@@ -11248,5 +11248,134 @@ body:not(.bankHomeMode):not(.storageMode):not(.savedHomeMode) > footer{
 })();
 </script>
 
+
+
+<!-- FORCE TOP BRAND HEADER TO LIGHT CREAM / GOLD THEME -->
+<style id="top-light-theme-final">
+/* Target the actual visible first app header, including nested header wrappers. */
+body > .app > header,
+body > .app header:first-of-type,
+.app > header,
+.app .topbar,
+.app .top-bar,
+.app .brand-bar,
+.app .brand-header,
+.app .app-header,
+.app .header-shell,
+.app .hero-header,
+.app .header{
+  background:#fffdf8!important;
+  background-image:linear-gradient(180deg,#fffdf8 0%,#f8f1e4 100%)!important;
+  color:#171717!important;
+  border-bottom:1px solid #ddc997!important;
+  box-shadow:0 3px 10px rgba(116,85,20,.08)!important;
+}
+
+/* Brand / title area */
+.app header [class*="brand"],
+.app header [class*="title"],
+.app header [class*="name"],
+.app header h1,.app header h2,.app header h3,
+.app .brand-header h1,.app .brand-header h2,.app .brand-header h3{
+  color:#93690f!important;
+  text-shadow:none!important;
+}
+.app header p,.app header small,.app header .subtitle,
+.app header [class*="subtitle"]{
+  color:#5f584e!important;
+  text-shadow:none!important;
+}
+
+/* Circular header action buttons */
+.app header button,
+.app header .icon-btn,
+.app header .header-btn,
+.app header [class*="icon-button"],
+.app header [class*="round"]{
+  background:#fff!important;
+  color:#93690f!important;
+  border:1px solid #ddc997!important;
+  box-shadow:0 2px 6px rgba(116,85,20,.08)!important;
+}
+
+/* Any SVG/icon lines in header */
+.app header button svg,
+.app header .icon-btn svg{
+  color:#93690f!important;
+  stroke:#93690f!important;
+}
+
+/* Logo holder gets clean cream background; preserve actual RJ image/logo artwork. */
+.app header .logo,
+.app header .brand-logo,
+.app header [class*="logo-wrap"],
+.app header [class*="logo-circle"]{
+  background:#fffdf8!important;
+  border-color:#b78320!important;
+}
+
+/* Notification badge remains strong gold/red only where needed */
+.app header .badge,
+.app header [class*="badge"]{
+  color:#fff!important;
+  border-color:#fffdf8!important;
+}
+
+/* Remove black gradient/pseudo overlays often used by the old header. */
+.app header::before,
+.app header::after,
+.app .brand-header::before,
+.app .brand-header::after{
+  background:transparent!important;
+  background-image:none!important;
+}
+
+/* Header images should not carry a black wrapper behind them. */
+.app header img{
+  background-color:transparent!important;
+}
+</style>
+
+<script id="top-light-theme-final-js">
+(function(){
+ function forceLightHeader(){
+   const roots=[
+     document.querySelector('body > .app > header'),
+     document.querySelector('.app > header'),
+     document.querySelector('.app .brand-header'),
+     document.querySelector('.app .app-header'),
+     document.querySelector('.app .topbar'),
+     document.querySelector('.app .top-bar')
+   ].filter(Boolean);
+
+   roots.forEach(function(h){
+     h.style.setProperty('background','#fffdf8','important');
+     h.style.setProperty('background-image','linear-gradient(180deg,#fffdf8 0%,#f8f1e4 100%)','important');
+     h.style.setProperty('color','#171717','important');
+     h.style.setProperty('border-bottom','1px solid #ddc997','important');
+
+     /* Remove inline black backgrounds from nested layout wrappers,
+        but do not alter the actual logo image. */
+     h.querySelectorAll('div,section,nav').forEach(function(el){
+       const cs=getComputedStyle(el);
+       const bg=cs.backgroundColor;
+       if(bg==='rgb(0, 0, 0)' || bg==='rgb(17, 17, 17)' || bg==='rgb(31, 31, 31)' ||
+          bg==='rgb(10, 10, 10)' || bg==='rgb(8, 8, 8)'){
+         el.style.setProperty('background','transparent','important');
+         el.style.setProperty('background-image','none','important');
+       }
+     });
+   });
+ }
+ if(document.readyState==='loading'){
+   document.addEventListener('DOMContentLoaded',function(){
+     setTimeout(forceLightHeader,80);
+     setTimeout(forceLightHeader,400);
+   });
+ }else setTimeout(forceLightHeader,50);
+ document.addEventListener('click',function(){setTimeout(forceLightHeader,20)},true);
+})();
+</script>
+
 </body>
 </html>
