@@ -11669,5 +11669,184 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
 })();
 </script>
 
+
+
+<!-- DASHBOARD MOBILE THEME / LAYOUT FIX -->
+<style id="dashboard-mobile-fix-css">
+/* Light current theme for all six dashboard summary cards */
+body.dashboardHomeMode .dashboard-card{
+  background:#fffdf8!important;
+  color:#171717!important;
+  border:1px solid #ddc997!important;
+  box-shadow:0 2px 7px rgba(116,85,20,.06)!important;
+}
+body.dashboardHomeMode .dashboard-card small{
+  color:#756d60!important;
+}
+body.dashboardHomeMode .dashboard-card b{
+  color:#171717!important;
+}
+
+/* Hide the valuation action footer while Dashboard is open */
+body.dashboardHomeMode footer,
+body.dashboardHomeMode > footer,
+body.dashboardHomeMode .app-footer,
+body.dashboardHomeMode .bottom-actions,
+body.dashboardHomeMode .bottom-bar,
+body.dashboardHomeMode #bottomBar{
+  display:none!important;
+}
+
+/* Dashboard should scroll vertically only */
+body.dashboardHomeMode,
+body.dashboardHomeMode #dashboardHome{
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+body.dashboardHomeMode #dashboardHome{
+  width:100%!important;
+  max-width:560px!important;
+  box-sizing:border-box!important;
+}
+
+/* Mobile-friendly bank cards: stacked, never wider than screen */
+body.dashboardHomeMode .dashboard-section{
+  overflow:hidden!important;
+}
+body.dashboardHomeMode .dashboard-bank{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  padding:10px!important;
+}
+body.dashboardHomeMode .dashboard-bank-top{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:3px!important;
+}
+body.dashboardHomeMode .dashboard-bank-name{
+  width:100%!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+}
+body.dashboardHomeMode .dashboard-bank-count{
+  font-size:10px!important;
+}
+
+/* Stats remain in three equal columns */
+body.dashboardHomeMode .dashboard-bank-stats{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+  width:100%!important;
+}
+body.dashboardHomeMode .dashboard-bank-stat{
+  min-width:0!important;
+  padding:7px 4px!important;
+}
+body.dashboardHomeMode .dashboard-bank-stat b{
+  font-size:12px!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+body.dashboardHomeMode .dashboard-bank-stat span{
+  font-size:8px!important;
+}
+
+/* Actions go full-width below the stats */
+body.dashboardHomeMode .dashboard-bank-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+  width:100%!important;
+}
+body.dashboardHomeMode .dashboard-bank-actions button{
+  width:100%!important;
+  min-width:0!important;
+  min-height:42px!important;
+  white-space:normal!important;
+  line-height:1.15!important;
+  padding:7px 5px!important;
+  background:#fffdf8!important;
+  color:#171717!important;
+  border:1px solid #ddc997!important;
+  font-size:10px!important;
+}
+
+/* Remove accidental horizontal scrolling from children */
+body.dashboardHomeMode #dashboardBanks,
+body.dashboardHomeMode #dashboardRecent{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:hidden!important;
+}
+
+/* Compact on very small phones */
+@media(max-width:380px){
+  body.dashboardHomeMode .dashboard-grid{
+    grid-template-columns:1fr 1fr!important;
+  }
+  body.dashboardHomeMode .dashboard-card b{
+    font-size:17px!important;
+  }
+  body.dashboardHomeMode .dashboard-bank-actions{
+    grid-template-columns:1fr!important;
+  }
+}
+</style>
+
+<script id="dashboard-mobile-fix-js">
+(function(){
+  function fixDashboard(){
+    if(!document.body.classList.contains('dashboardHomeMode')) return;
+
+    /* Ensure old footer cannot leave space even if inline styles are present. */
+    document.querySelectorAll('footer,.app-footer,.bottom-actions,.bottom-bar,#bottomBar').forEach(function(el){
+      el.style.setProperty('display','none','important');
+    });
+
+    /* Strip dark inline backgrounds from dashboard cards/buttons. */
+    document.querySelectorAll('#dashboardHome .dashboard-card,#dashboardHome .dashboard-bank,#dashboardHome .dashboard-bank-stat,#dashboardHome .dashboard-bank-actions button').forEach(function(el){
+      const cs=getComputedStyle(el);
+      const bg=cs.backgroundColor;
+      if(bg==='rgb(0, 0, 0)' || bg==='rgb(0, 17, 28)' || bg==='rgb(1, 20, 31)' ||
+         bg==='rgb(17, 17, 17)' || bg==='rgb(31, 31, 31)'){
+        el.style.setProperty('background','#fffdf8','important');
+        el.style.setProperty('color','#171717','important');
+      }
+    });
+
+    document.documentElement.style.setProperty('overflow-x','hidden','important');
+    document.body.style.setProperty('overflow-x','hidden','important');
+  }
+
+  const oldOpen=window.openDashboardHome;
+  if(typeof oldOpen==='function' && !oldOpen._mobileFixWrapped){
+    const fn=function(){
+      const r=oldOpen.apply(this,arguments);
+      fixDashboard();
+      setTimeout(fixDashboard,30);
+      setTimeout(fixDashboard,150);
+      return r;
+    };
+    fn._mobileFixWrapped=true;
+    window.openDashboardHome=fn;
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(fixDashboard,120);
+    });
+  }else{
+    setTimeout(fixDashboard,60);
+  }
+  document.addEventListener('click',function(){setTimeout(fixDashboard,20)},true);
+})();
+</script>
+
 </body>
 </html>
