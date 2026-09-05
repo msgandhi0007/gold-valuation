@@ -10228,18 +10228,94 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     const h=await getHandle();if(!h){set('sbFolderStatus','No storage folder selected.');return}
     try{await ensure(h);set('sbFolderStatus','Selected folder: '+h.name+' ✓\nValuations folders:\n'+banks.join('\n'))}catch(e){set('sbFolderStatus','Selected folder permission required. Choose the folder again.')}
   }
+  function sbRawLocalStorage(){
+    const out={};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      out[k]=localStorage.getItem(k);
+    }
+    return out;
+  }
+  function sbValuationsFromRaw(raw){
+    try{
+      const a=JSON.parse(raw.goldValuations||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return []}
+  }
+  function sbBankOf(r){return String((r&&r.customer&&r.customer.bank)||r&&r.bank||'').trim()}
+  function sbSummary(raw){
+    const vals=sbValuationsFromRaw(raw);
+    const used=[...new Set(vals.map(sbBankOf).filter(Boolean))];
+    return {valuations:vals.length,banks:used,storageKeys:Object.keys(raw).length};
+  }
+  function sbRefreshAfterRestore(){
+    try{if(typeof window.renderSavedClean168==='function')window.renderSavedClean168()}catch(e){}
+    try{if(typeof window.renderCustomersHome==='function')window.renderCustomersHome()}catch(e){}
+    try{if(typeof window.renderDashboardHome==='function')window.renderDashboardHome()}catch(e){}
+    try{if(typeof window.updateReports==='function')window.updateReports()}catch(e){}
+  }
   window.backupSB=async function(){
-    const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),v=localStorage.getItem(k);try{data[k]=JSON.parse(v)}catch(e){data[k]=v}}
-    const payload={app:'Gold Valuation',createdAt:new Date().toISOString(),data:data};
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-    const fn='Gold_Valuation_Backup_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
-    const h=await getHandle();
-    if(h){try{const d=await h.getDirectoryHandle('Backups',{create:true});const f=await d.getFileHandle(fn,{create:true});const w=await f.createWritable();await w.write(blob);await w.close();set('sbDataStatus','Backup saved in Backups/'+fn);return}catch(e){}}
-    const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);set('sbDataStatus','Backup downloaded: '+fn);
+    try{
+      const raw=sbRawLocalStorage();
+      const summary=sbSummary(raw);
+      const payload={
+        app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+        format:'GOLD_VALUATION_BACKUP_V2',
+        version:2,
+        createdAt:new Date().toISOString(),
+        summary:summary,
+        rawData:raw
+      };
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const fn='Gold_Valuation_Backup_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+      const h=await getHandle();
+      if(h){
+        try{
+          const d=await h.getDirectoryHandle('Backups',{create:true});
+          const f=await d.getFileHandle(fn,{create:true});
+          const w=await f.createWritable();await w.write(blob);await w.close();
+          set('sbDataStatus','Backup complete ✓  '+summary.valuations+' valuations • '+summary.banks.length+' banks • '+summary.storageKeys+' settings/data keys\nSaved in Backups/'+fn);
+          return;
+        }catch(e){}
+      }
+      const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);
+      set('sbDataStatus','Backup complete ✓  '+summary.valuations+' valuations • '+summary.banks.length+' banks • '+summary.storageKeys+' settings/data keys\nDownloaded: '+fn);
+    }catch(e){set('sbDataStatus','Backup failed. Please try again.');}
   }
   document.getElementById('sbRestore').addEventListener('change',function(){
-    const f=this.files&&this.files[0];if(!f)return;
-    const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);const d=p.data||p;Object.keys(d).forEach(k=>localStorage.setItem(k,typeof d[k]==='string'?d[k]:JSON.stringify(d[k])));set('sbDataStatus','Backup restored successfully.')}catch(e){set('sbDataStatus','Invalid backup file.')}};r.readAsText(f);this.value='';
+    const input=this,f=input.files&&input.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const p=JSON.parse(r.result);
+        let raw=null;
+        if(p&&p.format==='GOLD_VALUATION_BACKUP_V2'&&p.rawData&&typeof p.rawData==='object'){
+          raw=p.rawData;
+        }else if(p&&p.rawData&&typeof p.rawData==='object'){
+          raw=p.rawData;
+        }else if(p&&p.data&&typeof p.data==='object'){
+          /* Compatibility with older backups. Re-create localStorage strings. */
+          raw={};Object.keys(p.data).forEach(k=>{const v=p.data[k];raw[k]=typeof v==='string'?v:JSON.stringify(v)});
+        }else if(p&&typeof p==='object'&&!Array.isArray(p)){
+          /* Compatibility with very old raw-object backups. */
+          raw={};Object.keys(p).forEach(k=>{const v=p[k];raw[k]=typeof v==='string'?v:JSON.stringify(v)});
+        }
+        if(!raw||!Object.keys(raw).length)throw new Error('empty');
+        const summary=sbSummary(raw);
+        const msg='Restore this backup?\n\n'+summary.valuations+' valuations\n'+summary.banks.length+' banks\n'+summary.storageKeys+' settings/data keys\n\nCurrent app data will be replaced by the backup. Your selected storage-folder permission will be kept.';
+        if(!confirm(msg)){set('sbDataStatus','Restore cancelled.');input.value='';return}
+        /* Exact restore: remove stale localStorage keys, then put back the backup. IndexedDB folder permission is intentionally preserved. */
+        localStorage.clear();
+        Object.keys(raw).forEach(k=>localStorage.setItem(k,raw[k]==null?'':String(raw[k])));
+        sbRefreshAfterRestore();
+        set('sbDataStatus','Restore complete ✓  '+summary.valuations+' valuations • '+summary.banks.length+' banks restored.');
+        alert('Backup restored successfully. The app will refresh now.');
+        setTimeout(()=>location.reload(),120);
+      }catch(e){set('sbDataStatus','Invalid or unsupported backup file. No data was changed.');}
+      input.value='';
+    };
+    r.onerror=()=>{set('sbDataStatus','Could not read backup file. No data was changed.');input.value=''};
+    r.readAsText(f);
   });
   window.syncSB=async function(){const h=await getHandle();if(!h){set('sbSyncStatus','Choose a storage folder first.');return}try{await ensure(h);set('sbSyncStatus','All four bank folders are ready for valuation sync.')}catch(e){set('sbSyncStatus','Sync failed.')}}
   document.addEventListener('DOMContentLoaded',()=>setTimeout(showBankHome,80));
@@ -13355,5 +13431,9 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 })();
 </script>
 <!-- /APP HISTORY NAVIGATION FIX 170 -->
+
+<style id="backup-restore-audit-final-css">
+#storageBackupScreen .sbStatus,#storageBackupScreen .sb-status{white-space:pre-line!important;line-height:1.5!important}
+</style>
 </body>
 </html>
