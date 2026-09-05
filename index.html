@@ -4364,7 +4364,7 @@ body:not(.menu-viewing) .s111-rate{
   <div id="backupStatus" style="font-size:12px;margin-top:10px;opacity:.78"></div>
 </section>
 
-<footer><button onclick="saveData()">💾 Save</button><button class="loadDirect167" onclick="return openSavedEmergency167()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
+<footer><button onclick="saveData()">💾 Save</button><button onclick="return openSavedClean168()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 <nav class="s113-bottom-nav" aria-label="Main navigation">
   <button type="button" class="active" onclick="showValuationScreen()"><span>⌂</span><small>Valuation</small></button>
   <button type="button" onclick="showMenuSection('dashboard')"><span>▦</span><small>Dashboard</small></button>
@@ -10126,61 +10126,8 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
 </style>
 
 
-<!-- STEP 167 - EARLY SELF-CONTAINED SAVED VALUATIONS SCREEN -->
-<style id="step167-saved-direct-css">
-#savedDirect167{display:none;position:fixed;inset:0;z-index:2147483647;background:#f8f4eb;color:#1d1d1d;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit}
-#savedDirect167 .sd167-wrap{max-width:680px;margin:0 auto;padding:14px 14px 110px;box-sizing:border-box;min-height:100dvh}
-#savedDirect167 .sd167-head{position:sticky;top:0;z-index:3;background:#f8f4eb;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0 14px;border-bottom:1px solid #dfcfac}
-#savedDirect167 h2{margin:0;font-size:26px;color:#171717;font-weight:950}
-#savedDirect167 .sd167-back{min-height:48px;padding:0 18px;border:1px solid #d5bb7b;border-radius:14px;background:#fff;color:#6b4b0f;font-weight:900;font-size:15px}
-#savedDirect167 .sd167-sub{color:#73695a;margin:12px 0;font-size:13px}
-#savedDirect167 .sd167-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
-#savedDirect167 .sd167-stat{background:#fff;border:1px solid #e1d3b7;border-radius:14px;padding:11px 8px;text-align:center}
-#savedDirect167 .sd167-stat b{display:block;font-size:21px;color:#1c1c1c}#savedDirect167 .sd167-stat small{display:block;margin-top:4px;color:#7d7365;font-size:9px;font-weight:800;text-transform:uppercase}
-#savedDirect167 input,#savedDirect167 select{width:100%;box-sizing:border-box;min-height:50px;border:1px solid #173247;border-radius:14px;background:#061521;color:#fff;padding:10px 13px;font-size:15px}
-#savedDirect167 input::placeholder{color:#90a0ad}
-#savedDirect167 .sd167-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 10px}
-#savedDirect167 .sd167-count{font-size:11px;color:#786e5f;margin:7px 2px 10px;font-weight:750}
-#savedDirect167 .sd167-card{background:#fffdf8;border:1px solid #dfd1b4;border-radius:18px;padding:13px;margin:10px 0;box-shadow:0 5px 14px rgba(70,50,20,.05)}
-#savedDirect167 .sd167-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.sd167-name{font-size:19px;font-weight:950}.sd167-value{font-size:18px;font-weight:950;color:#a66f00;white-space:nowrap}
-#savedDirect167 .sd167-meta{color:#746b5e;font-size:11px;line-height:1.55;margin-top:4px}.sd167-bank{display:inline-block;margin-top:7px;background:#f6ead0;border:1px solid #dec688;border-radius:999px;padding:5px 8px;color:#755512;font-size:10px;font-weight:900}
-#savedDirect167 .sd167-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.sd167-metric{background:#fff;border:1px solid #e6dcc8;border-radius:11px;padding:8px}.sd167-metric small{display:block;color:#7c7467;font-size:9px}.sd167-metric b{display:block;margin-top:3px;font-size:12px;color:#24201a}
-#savedDirect167 .sd167-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.sd167-actions button{min-height:43px;border:1px solid #ded1b9;border-radius:11px;background:#f1e8d8;color:#2b241a;font-weight:850}.sd167-actions .open{background:linear-gradient(#d99b00,#c38300);color:#fff;border-color:#bd7e00}.sd167-actions .delete{color:#a8251d}
-#savedDirect167 .sd167-empty{text-align:center;padding:36px 12px;color:#796f60;background:#fff;border:1px dashed #d9c9aa;border-radius:16px}
-@media(max-width:430px){#savedDirect167 h2{font-size:23px}#savedDirect167 .sd167-metrics{grid-template-columns:1fr 1fr}#savedDirect167 .sd167-metric:last-child{grid-column:1/-1}}
-</style>
-<div id="savedDirect167" aria-hidden="true">
- <div class="sd167-wrap">
-  <div class="sd167-head"><h2>📂 SAVED VALUATIONS</h2><button type="button" class="sd167-back" onclick="closeSavedEmergency167()">← Back</button></div>
-  <div class="sd167-sub">Search and manage saved valuations from all four banks.</div>
-  <div class="sd167-stats"><div class="sd167-stat"><b id="sd167Total">0</b><small>Total</small></div><div class="sd167-stat"><b id="sd167Today">0</b><small>Today</small></div><div class="sd167-stat"><b id="sd167Banks">0</b><small>Banks</small></div></div>
-  <input id="sd167Search" type="search" placeholder="🔎 Customer / mobile / certificate / bank" oninput="renderSavedEmergency167()">
-  <div class="sd167-filters"><select id="sd167Bank" onchange="renderSavedEmergency167()"><option value="ALL">All Banks</option><option>SBI BANK</option><option>IDBI BANK</option><option>MAHARASHTRA GRAMIN BANK</option><option>DNYANDEEP CO-OP SOCIETY LTD</option></select><select id="sd167Date" onchange="renderSavedEmergency167()"><option value="all">All Dates</option><option value="today">Today</option><option value="month">This Month</option><option value="older">Older</option></select></div>
-  <div id="sd167Count" class="sd167-count"></div><div id="sd167List"></div>
- </div>
-</div>
-<script id="step167-saved-direct-js">
-(function(){
- function vals(){try{var a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
- function bank(r){return String((r&&r.customer&&r.customer.bank)||r.bank||(r&&r.valuationType==='IDBI_BANK'?'IDBI BANK':'')).trim()||'Unknown Bank'}
- function date(r){return String((r&&r.customer&&r.customer.date)||r.date||r.createdAt||'').slice(0,10)}
- function rows(r){return Array.isArray(r&&r.items)?r.items:(Array.isArray(r&&r.idbi&&r.idbi.rows)?r.idbi.rows:[])}
- function num(v){var n=Number(String(v==null?'':v).replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:0}
- function gross(r){return rows(r).reduce(function(t,x){return t+num(x&&x.gross)},0)}
- function value(r){var direct=[r&&r.totalValue,r&&r.valuationTotal,r&&r.value,r&&r.idbi&&r.idbi.totalValue];for(var j=0;j<direct.length;j++){if(String(direct[j]??'').trim()!==''){var n=num(direct[j]);if(n>0)return n}}var rate=num(r&&r.rate);return rows(r).reduce(function(t,x){var g=num(x&&x.gross),st=num(x&&x.stone),p=num(x&&x.purity),pure=Math.max(0,g-st)*p/100,rd=Math.floor((pure+1e-9)*10)/10;return t+rd*rate},0)}
- function loan(r){var a=[r&&r.sanctionedLoan,r&&r.customer&&r.customer.sanctionedLoan,r&&r.loanAmount,r&&r.loan];for(var j=0;j<a.length;j++){if(a[j]!=null&&String(a[j]).trim()!=='')return num(a[j])}return 0}
- function money(n){try{return '₹'+Math.round(num(n)).toLocaleString('en-IN')}catch(e){return '₹0'}}
- function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c})}
- window.renderSavedEmergency167=function(){var all=vals(),q=(document.getElementById('sd167Search').value||'').trim().toLowerCase(),bf=document.getElementById('sd167Bank').value,df=document.getElementById('sd167Date').value,now=new Date(),today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0'),month=today.slice(0,7);document.getElementById('sd167Total').textContent=all.length;document.getElementById('sd167Today').textContent=all.filter(function(r){return date(r)===today}).length;document.getElementById('sd167Banks').textContent=new Set(all.map(bank).filter(Boolean)).size;var arr=all.map(function(r,i){return {r:r,i:i}}).filter(function(o){var r=o.r,d=date(r),b=bank(r);if(bf!=='ALL'&&b!==bf)return false;if(df==='today'&&d!==today)return false;if(df==='month'&&!d.startsWith(month))return false;if(df==='older'&&d.startsWith(month))return false;if(!q)return true;return [r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,b,d,r&&r.certificateNo].join(' ').toLowerCase().includes(q)}).sort(function(a,b){return date(b.r).localeCompare(date(a.r))||b.i-a.i});document.getElementById('sd167Count').textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';var list=document.getElementById('sd167List');if(!arr.length){list.innerHTML='<div class="sd167-empty"><b>No saved valuations found</b><br><small>Change the filters or clear the search.</small></div>';return}list.innerHTML=arr.map(function(o){var r=o.r,i=o.i,n=(r&&r.customer&&r.customer.name)||'Unnamed Customer',m=(r&&r.customer&&r.customer.mobile)||'No mobile',cert=(r&&r.certificateNo)||'—',rw=rows(r),gw=gross(r),v=value(r),l=loan(r);return '<div class="sd167-card"><div class="sd167-top"><div class="sd167-name">'+esc(n)+'</div><div class="sd167-value">'+money(v)+'</div></div><div class="sd167-meta">📱 '+esc(m)+' &nbsp; • &nbsp; 📅 '+esc(date(r))+'<br>Certificate: '+esc(cert)+'</div><div class="sd167-bank">🏦 '+esc(bank(r))+'</div><div class="sd167-metrics"><div class="sd167-metric"><small>Items / Gross</small><b>'+rw.length+' / '+gw.toFixed(3)+' g</b></div><div class="sd167-metric"><small>Valuation</small><b>'+money(v)+'</b></div><div class="sd167-metric"><small>Sanctioned Loan</small><b>'+money(l)+'</b></div></div><div class="sd167-actions"><button class="open" onclick="openSavedEmergencyItem167('+i+')">Open</button><button onclick="revalueSavedEmergency167('+i+')">Revalue</button><button onclick="printSavedEmergency167('+i+')">Print PDF</button><button onclick="shareSavedEmergency167('+i+')">Share PDF</button><button class="delete" onclick="deleteSavedEmergency167('+i+')">Delete</button></div></div>'}).join('')};
- window.openSavedEmergency167=function(){var x=document.getElementById('savedDirect167');if(!x)return false;x.style.display='block';x.setAttribute('aria-hidden','false');document.getElementById('sd167Search').value='';document.getElementById('sd167Bank').value='ALL';document.getElementById('sd167Date').value='all';window.renderSavedEmergency167();x.scrollTop=0;window.scrollTo(0,0);return false};
- window.closeSavedEmergency167=function(){var x=document.getElementById('savedDirect167');if(x){x.style.display='none';x.setAttribute('aria-hidden','true')}window.scrollTo(0,0);return false};
- window.openSavedEmergencyItem167=function(i){window.closeSavedEmergency167();try{if(typeof window.loadSaved==='function'){window.loadSaved(i);return} }catch(e){}alert('Could not open this valuation.')};
- window.revalueSavedEmergency167=function(i){window.closeSavedEmergency167();try{if(typeof window.duplicateSaved==='function'){window.duplicateSaved(i);return}}catch(e){}try{if(typeof window.loadSaved==='function')window.loadSaved(i)}catch(e){}};
- window.printSavedEmergency167=function(i){try{if(typeof window.printSaved==='function')window.printSaved(i)}catch(e){}};
- window.shareSavedEmergency167=function(i){try{if(typeof window.shareSavedPdf==='function')window.shareSavedPdf(i)}catch(e){}};
- window.deleteSavedEmergency167=function(i){try{if(typeof window.deleteSaved==='function'){window.deleteSaved(i);setTimeout(window.renderSavedEmergency167,0);return}}catch(e){}var a=vals();if(i>=0&&i<a.length&&confirm('Delete this saved valuation?')){a.splice(i,1);localStorage.setItem('goldValuations',JSON.stringify(a));window.renderSavedEmergency167()}};
-})();
-</script>
+
+
 <section id="bankHome">
   <h2>SELECT BANK VALUATION</h2>
   <p>Choose a bank or open Storage & Backup</p>
@@ -10190,7 +10137,7 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     <button onclick="openBank('MAHARASHTRA GRAMIN BANK')">MAHARASHTRA GRAMIN BANK<small>Open Valuation</small></button>
     <button onclick="openBank('DNYANDEEP CO-OP SOCIETY LTD')">DNYANDEEP CO-OP SOCIETY LTD<small>Open Valuation</small></button>
     <button class="dashboardHomeBtn" onclick="openDashboardHome()">📊 DASHBOARD<small>Today • Month • Bank Summary • Reports</small></button>
-    <button class="savedHomeDirect167" onclick="return openSavedEmergency167()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
+    <button class="savedHomeBtn" onclick="return openSavedClean168()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
     <button class="customersHomeBtn" onclick="openCustomersHome()">👥 CUSTOMERS<small>History • Customer Summary • Statements</small></button>
     <button class="storageBtn" onclick="openStorageBackupScreen()">💾 STORAGE & BACKUP<small>Folder • Backup • Restore • Sync</small></button>
   </div>
@@ -12937,409 +12884,23 @@ body.customersHomeMode .app-footer,body.customersHomeMode .bottom-actions,body.c
 </style>
 
 
-<!-- STEP 162 - Saved Valuations blank-screen final fix -->
-<style id="saved-valuations-blank-screen-final-fix">
-/* Keep the app container alive because #saveManager lives inside it. */
-body.savedHomeMode > .app{display:block!important;visibility:visible!important;}
-body.savedHomeMode > .app > *{display:none!important;}
-body.savedHomeMode > .app > #saveManager{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  position:fixed!important;
-  inset:0!important;
-  width:100%!important;
-  height:100dvh!important;
-  z-index:2147483000!important;
-  overflow-y:auto!important;
-  background:#f8f4eb!important;
-}
-body.savedHomeMode > header,
-body.savedHomeMode > footer,
-body.savedHomeMode .app-footer,
-body.savedHomeMode .bottom-actions,
-body.savedHomeMode .bottom-bar,
-body.savedHomeMode #bottomBar{display:none!important;}
-body.savedHomeMode #saveManager .save-box{display:block!important;visibility:visible!important;opacity:1!important;}
-</style>
-<script id="saved-valuations-blank-screen-final-fix-js">
-(function(){
-  function showSavedManagerFinal(){
-    document.body.classList.remove('customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
-    document.body.classList.add('savedHomeMode','saved-manager-open');
-    var bankHome=document.getElementById('bankHome'); if(bankHome) bankHome.style.display='none';
-    var m=document.getElementById('saveManager');
-    if(!m){ alert('Saved Valuations screen is not available.'); return; }
-    m.style.setProperty('display','block','important');
-    m.style.setProperty('visibility','visible','important');
-    m.style.setProperty('opacity','1','important');
-    var title=document.getElementById('savedManagerTitle'); if(title) title.textContent='📂 Saved Valuations';
-    var search=document.getElementById('saveSearch'); if(search) search.value='';
-    var sort=document.getElementById('saveSort'); if(sort) sort.value='newest';
-    var date=document.getElementById('saveDateFilter'); if(date) date.value='all';
-    if(typeof window.ensureSavedHomeControls==='function'){ try{window.ensureSavedHomeControls();}catch(e){} }
-    try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){ console.error('renderSaved failed',e); }
-    try{ if(typeof window.refreshSavedManager84==='function') window.refreshSavedManager84(true); }catch(e){}
-    setTimeout(function(){
-      document.body.classList.add('savedHomeMode','saved-manager-open');
-      m.style.setProperty('display','block','important');
-      try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){}
-      m.scrollTop=0;
-    },50);
-    window.scrollTo(0,0);
-  }
-
-  window.openSavedValuationsHome=showSavedManagerFinal;
-
-  var oldCloseFinal=window.closeSavedValuationsHome;
-  window.closeSavedValuationsHome=function(){
-    document.body.classList.remove('savedHomeMode','saved-manager-open');
-    var m=document.getElementById('saveManager'); if(m) m.style.display='none';
-    var h=document.getElementById('bankHome'); if(h) h.style.display='block';
-    if(typeof window.showBankHome==='function'){ try{window.showBankHome();}catch(e){} }
-    else if(typeof window.showBankValuationHome==='function'){ try{window.showBankValuationHome();}catch(e){} }
-    window.scrollTo(0,0);
-  };
-
-  document.addEventListener('click',function(e){
-    if(!document.body.classList.contains('savedHomeMode')) return;
-    var c=e.target.closest&&e.target.closest('#saveManager .close');
-    if(c){ e.preventDefault(); e.stopImmediatePropagation(); window.closeSavedValuationsHome(); }
-  },true);
-})();
-</script>
 
 
-<!-- STEP 163 - Saved Valuations standalone visibility fix -->
-<style id="step163-saved-standalone-final">
-body.savedHomeMode{background:#f8f4eb!important;overflow:hidden!important;}
-body.savedHomeMode > #saveManager{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  position:fixed!important;
-  inset:0!important;
-  width:100vw!important;
-  height:100dvh!important;
-  z-index:2147483646!important;
-  overflow-y:auto!important;
-  -webkit-overflow-scrolling:touch!important;
-  background:#f8f4eb!important;
-  padding:0!important;
-  margin:0!important;
-}
-body.savedHomeMode > #saveManager > .save-box{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  width:min(100%,620px)!important;
-  max-width:620px!important;
-  min-height:100dvh!important;
-  margin:0 auto!important;
-  padding:16px 14px 110px!important;
-  border:0!important;
-  border-radius:0!important;
-  background:#f8f4eb!important;
-  box-shadow:none!important;
-  overflow:visible!important;
-}
-body.savedHomeMode > #saveManager .save-top{
-  position:sticky!important;top:0!important;z-index:20!important;
-  margin:-16px -14px 12px!important;padding:16px 14px 12px!important;
-  background:#f8f4eb!important;border-bottom:1px solid #e4d6b9!important;border-radius:0!important;
-}
-body.savedHomeMode > #saveManager #savedList{display:block!important;visibility:visible!important;opacity:1!important;}
-body.savedHomeMode > #saveManager .saved-card{display:block!important;visibility:visible!important;}
-body.savedHomeMode > #bankHome,
-body.savedHomeMode > #dashboardHome,
-body.savedHomeMode > #customersHomeScreen,
-body.savedHomeMode > #storageBackupScreen,
-body.savedHomeMode > .app,
-body.savedHomeMode > header,
-body.savedHomeMode > footer,
-body.savedHomeMode .app-footer,
-body.savedHomeMode .bottom-actions,
-body.savedHomeMode .bottom-bar,
-body.savedHomeMode #bottomBar,
-body.savedHomeMode #fixedBottomActions,
-body.savedHomeMode .fixed-bottom-actions{display:none!important;visibility:hidden!important;}
-</style>
-<script id="step163-saved-standalone-final-js">
-(function(){
-  function prepareSavedManager163(){
-    var m=document.getElementById('saveManager');
-    if(!m) return null;
-    if(m.parentElement!==document.body) document.body.appendChild(m);
-    m.style.setProperty('display','block','important');
-    m.style.setProperty('visibility','visible','important');
-    m.style.setProperty('opacity','1','important');
-    return m;
-  }
-
-  window.openSavedValuationsHome=function(){
-    document.body.classList.remove('customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
-    document.body.classList.add('savedHomeMode','saved-manager-open');
-    var m=prepareSavedManager163();
-    if(!m){alert('Saved Valuations screen is not available.');return;}
-
-    var title=document.getElementById('savedManagerTitle'); if(title) title.textContent='📂 Saved Valuations';
-    var search=document.getElementById('saveSearch'); if(search) search.value='';
-    var sort=document.getElementById('saveSort'); if(sort) sort.value='newest';
-    var df=document.getElementById('saveDateFilter'); if(df) df.value='all';
-    try{ if(typeof window.setSavedBankFilter==='function') window.setSavedBankFilter('ALL'); }catch(e){}
-    try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){console.error(e);}
-    try{ if(typeof window.refreshSavedManager84==='function') window.refreshSavedManager84(true); }catch(e){}
-
-    requestAnimationFrame(function(){
-      prepareSavedManager163();
-      try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){}
-      m.scrollTop=0;
-      window.scrollTo(0,0);
-    });
-  };
-
-  window.closeSavedValuationsHome=function(){
-    document.body.classList.remove('savedHomeMode','saved-manager-open');
-    var m=document.getElementById('saveManager');
-    if(m){m.style.setProperty('display','none','important');}
-    try{
-      if(typeof window.showBankHome==='function') window.showBankHome();
-      else if(typeof window.showBankValuationHome==='function') window.showBankValuationHome();
-      else {var h=document.getElementById('bankHome');if(h)h.style.display='block';}
-    }catch(e){var h=document.getElementById('bankHome');if(h)h.style.display='block';}
-    window.scrollTo(0,0);
-  };
-
-  // Route all home Saved Valuations cards to the final standalone opener.
-  document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('.savedHomeBtnLegacy163');
-    if(!b)return;
-    e.preventDefault();e.stopImmediatePropagation();window.openSavedValuationsHome();
-  },true);
-
-  // Close button always returns to Bank Selection when opened as a standalone page.
-  document.addEventListener('click',function(e){
-    if(!document.body.classList.contains('savedHomeMode'))return;
-    var c=e.target.closest&&e.target.closest('#saveManager .close');
-    if(c){e.preventDefault();e.stopImmediatePropagation();window.closeSavedValuationsHome();}
-  },true);
-})();
-</script>
-
-<!-- STEP 164 - Universal Saved Valuations opener routing fix -->
-<style id="step164-universal-saved-opener-css">
-body.savedHomeMode #saveManager{
-  display:block!important;visibility:visible!important;opacity:1!important;
-  position:fixed!important;inset:0!important;z-index:2147483647!important;
-  width:100vw!important;height:100dvh!important;overflow:auto!important;
-  background:#f8f4eb!important;
-}
-body.savedHomeMode #saveManager .save-box{display:block!important;visibility:visible!important;opacity:1!important;}
-body.savedHomeMode footer,body.savedHomeMode .app-footer,body.savedHomeMode .bottom-actions,
-body.savedHomeMode .bottom-bar,body.savedHomeMode #bottomBar{display:none!important;visibility:hidden!important;}
-</style>
-<script id="step164-universal-saved-opener-js">
-(function(){
-  function ensureManagerAtBody(){
-    var m=document.getElementById('saveManager');
-    if(!m) return null;
-    if(m.parentNode!==document.body) document.body.appendChild(m);
-    return m;
-  }
-
-  function openSavedUniversal(){
-    var m=ensureManagerAtBody();
-    if(!m){ alert('Saved Valuations screen is not available.'); return; }
-
-    document.body.classList.remove(
-      'customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode',
-      'bankHomeMode','bank-home-mode','menu-viewing','idbi-open'
-    );
-    document.body.classList.add('savedHomeMode','saved-manager-open');
-
-    ['bankHome','dashboardHome','customersHomeScreen','storageBackupScreen','idbi-valuation-screen'].forEach(function(id){
-      var el=document.getElementById(id); if(el) el.style.setProperty('display','none','important');
-    });
-
-    m.style.setProperty('display','block','important');
-    m.style.setProperty('visibility','visible','important');
-    m.style.setProperty('opacity','1','important');
-    m.style.setProperty('position','fixed','important');
-    m.style.setProperty('inset','0','important');
-    m.style.setProperty('z-index','2147483647','important');
-
-    var title=document.getElementById('savedManagerTitle'); if(title) title.textContent='📂 Saved Valuations';
-    var s=document.getElementById('saveSearch'); if(s) s.value='';
-    var sort=document.getElementById('saveSort'); if(sort) sort.value='newest';
-    var df=document.getElementById('saveDateFilter'); if(df) df.value='all';
-
-    try{ if(typeof window.setSavedBankFilter==='function') window.setSavedBankFilter('ALL'); }catch(e){}
-    try{ if(typeof window.ensureSavedHomeControls==='function') window.ensureSavedHomeControls(); }catch(e){}
-    try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){ console.error('renderSaved failed',e); }
-    try{ if(typeof window.refreshSavedManager84==='function') window.refreshSavedManager84(true); }catch(e){}
-
-    setTimeout(function(){
-      ensureManagerAtBody();
-      document.body.classList.add('savedHomeMode','saved-manager-open');
-      m.style.setProperty('display','block','important');
-      m.style.setProperty('visibility','visible','important');
-      m.style.setProperty('opacity','1','important');
-      try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){}
-      m.scrollTop=0;
-    },30);
-    window.scrollTo(0,0);
-  }
-
-  function closeSavedUniversal(){
-    var m=ensureManagerAtBody();
-    if(m) m.style.setProperty('display','none','important');
-    document.body.classList.remove('savedHomeMode','saved-manager-open');
-    try{
-      if(typeof window.showBankHome==='function') return window.showBankHome();
-      if(typeof window.showBankValuationHome==='function') return window.showBankValuationHome();
-    }catch(e){}
-    var h=document.getElementById('bankHome');
-    if(h) h.style.removeProperty('display');
-  }
-
-  // One opener for every path: home Saved Valuations card, footer Load, top Saved button, and IDBI Load.
-  window.openSavedValuationsHome=openSavedUniversal;
-  window.openLoad=openSavedUniversal;
-  window.loadData=openSavedUniversal;
-  window.idbiLoadData=openSavedUniversal;
-  window.closeLoad=closeSavedUniversal;
-  window.closeSavedValuationsHome=closeSavedUniversal;
-
-  document.addEventListener('DOMContentLoaded',function(){
-    var m=ensureManagerAtBody();
-    if(m && !document.body.classList.contains('savedHomeMode')) m.style.setProperty('display','none','important');
-  });
-
-  document.addEventListener('click',function(e){
-    var home=e.target.closest&&e.target.closest('.savedHomeBtnLegacy164');
-    if(home){ e.preventDefault();e.stopImmediatePropagation();openSavedUniversal();return; }
-    if(document.body.classList.contains('savedHomeMode')){
-      var close=e.target.closest&&e.target.closest('#saveManager .close');
-      if(close){e.preventDefault();e.stopImmediatePropagation();closeSavedUniversal();}
-    }
-  },true);
-})();
-</script>
 
 
-<!-- STEP 165 - Independent Saved Valuations Screen (does not reuse legacy modal) -->
-<style id="step165-independent-saved-screen-css">
-#savedStandalone165{display:none;position:fixed;inset:0;z-index:2147483647;background:#f8f4eb;overflow:auto;-webkit-overflow-scrolling:touch;color:#1d1d1d;font-family:inherit}
-body.savedStandaloneMode{overflow:hidden!important;background:#f8f4eb!important}
-body.savedStandaloneMode>header,body.savedStandaloneMode>footer,body.savedStandaloneMode .app-footer,body.savedStandaloneMode .bottom-actions,body.savedStandaloneMode .bottom-bar,body.savedStandaloneMode #bottomBar,body.savedStandaloneMode #fixedBottomActions,body.savedStandaloneMode .fixed-bottom-actions{display:none!important;visibility:hidden!important}
-#savedStandalone165 .sv165-wrap{width:min(100%,680px);min-height:100dvh;margin:0 auto;padding:16px 16px 110px;box-sizing:border-box}
-#savedStandalone165 .sv165-head{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-16px -16px 14px;padding:18px 16px 14px;background:rgba(248,244,235,.98);border-bottom:1px solid #e1d1ad;backdrop-filter:blur(8px)}
-#savedStandalone165 h1{margin:0;font-size:27px;line-height:1.1;font-weight:950;color:#171717;letter-spacing:-.4px}
-#savedStandalone165 .sv165-back{min-width:96px;min-height:48px;border:1px solid #d4ba79;border-radius:15px;background:#fff;color:#6f5117;font-size:15px;font-weight:900}
-#savedStandalone165 .sv165-sub{margin:0 0 14px;color:#756d61;font-size:13px;line-height:1.4}
-#savedStandalone165 .sv165-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-#savedStandalone165 .sv165-stat{background:#fffdf8;border:1px solid #dfd1b3;border-radius:16px;padding:12px 8px;text-align:center}
-#savedStandalone165 .sv165-stat b{display:block;font-size:22px;color:#171717;line-height:1}
-#savedStandalone165 .sv165-stat small{display:block;margin-top:5px;font-size:9px;font-weight:850;letter-spacing:.35px;text-transform:uppercase;color:#746e65}
-#savedStandalone165 .sv165-search{width:100%;min-height:52px;box-sizing:border-box;border:1px solid #173047;border-radius:16px;background:#061521;color:#fff;padding:12px 14px;font-size:15px;font-weight:700;outline:none}
-#savedStandalone165 .sv165-search::placeholder{color:#8e9eac}
-#savedStandalone165 .sv165-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
-#savedStandalone165 select{width:100%;min-height:48px;border:1px solid #183247;border-radius:15px;background:#061521;color:#fff;padding:10px 12px;font-size:14px;font-weight:750}
-#savedStandalone165 .sv165-count{margin:8px 2px 10px;color:#766e62;font-size:11px;font-weight:750}
-#savedStandalone165 .sv165-card{margin:11px 0;padding:14px;border:1px solid #dfd1b3;border-radius:20px;background:#fffdf8;box-shadow:0 6px 18px rgba(61,45,17,.06)}
-#savedStandalone165 .sv165-cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-#savedStandalone165 .sv165-name{font-size:20px;font-weight:950;color:#171717;overflow-wrap:anywhere}
-#savedStandalone165 .sv165-amount{font-size:18px;font-weight:950;color:#9a6800;white-space:nowrap}
-#savedStandalone165 .sv165-meta{margin-top:5px;color:#69645b;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
-#savedStandalone165 .sv165-badge{display:inline-block;margin-top:7px;padding:5px 8px;border:1px solid #ddc583;border-radius:999px;background:#fff3cf;color:#7d5a12;font-size:10px;font-weight:900;max-width:100%;overflow-wrap:anywhere}
-#savedStandalone165 .sv165-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}
-#savedStandalone165 .sv165-metric{min-width:0;padding:10px 6px;border:1px solid #ece0c8;border-radius:13px;background:#fffaf0;text-align:center}
-#savedStandalone165 .sv165-metric small{display:block;font-size:8px;font-weight:850;text-transform:uppercase;color:#7a746b}
-#savedStandalone165 .sv165-metric b{display:block;margin-top:4px;font-size:12px;color:#1c1c1c;overflow-wrap:anywhere}
-#savedStandalone165 .sv165-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-#savedStandalone165 .sv165-actions button{min-height:44px;border:1px solid #d8c9a5;border-radius:13px;background:#f4ede0;color:#26221b;font-size:12px;font-weight:900}
-#savedStandalone165 .sv165-actions .open{background:linear-gradient(180deg,#e2a400,#c98400);border-color:#c48500;color:#fff}
-#savedStandalone165 .sv165-actions .delete{grid-column:1/-1;background:#fffafa;color:#b52c42;border-color:#e0a8b1}
-#savedStandalone165 .sv165-empty{padding:34px 16px;text-align:center;border:1px dashed #d5c49d;border-radius:18px;background:#fffdf8;color:#746d61}
-@media(max-width:430px){#savedStandalone165 .sv165-wrap{padding:14px 14px 100px}#savedStandalone165 .sv165-head{margin:-14px -14px 12px;padding:16px 14px 12px}#savedStandalone165 h1{font-size:24px}#savedStandalone165 .sv165-metrics{grid-template-columns:1fr 1fr}#savedStandalone165 .sv165-metric:last-child{grid-column:1/-1}}
-</style>
-<div id="savedStandalone165" aria-hidden="true">
-  <div class="sv165-wrap">
-    <div class="sv165-head"><h1>📂 SAVED VALUATIONS</h1><button type="button" class="sv165-back" onclick="closeSavedStandalone165()">← Back</button></div>
-    <p class="sv165-sub">Search and manage valuations from SBI, IDBI, Maharashtra Gramin and Dnyandeep.</p>
-    <div class="sv165-overview"><div class="sv165-stat"><b id="sv165Total">0</b><small>Total</small></div><div class="sv165-stat"><b id="sv165Today">0</b><small>Today</small></div><div class="sv165-stat"><b id="sv165Banks">0</b><small>Banks</small></div></div>
-    <input id="sv165Search" class="sv165-search" type="search" placeholder="🔎 Customer / mobile / certificate / bank" oninput="renderSavedStandalone165()">
-    <div class="sv165-filters"><select id="sv165Bank" onchange="renderSavedStandalone165()"><option value="ALL">All Banks</option></select><select id="sv165Date" onchange="renderSavedStandalone165()"><option value="all">All Dates</option><option value="today">Today</option><option value="month">This Month</option><option value="older">Older</option></select></div>
-    <div id="sv165Count" class="sv165-count"></div><div id="sv165List"></div>
-  </div>
-</div>
-<script id="step165-independent-saved-screen-js">
-(function(){
-  function n(v){var x=Number(String(v??'').replace(/[^0-9.-]/g,''));return Number.isFinite(x)?x:0}
-  function e(v){return String(v??'').replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]})}
-  function money165(v){return '₹'+n(v).toLocaleString('en-IN',{maximumFractionDigits:0})}
-  function rows165(r){return Array.isArray(r&&r.idbi&&r.idbi.rows)?r.idbi.rows:(Array.isArray(r&&r.items)?r.items:[])}
-  function bank165(r){return String((r&&r.customer&&r.customer.bank)||r&&r.bank||'').trim()||'—'}
-  function date165(r){return String((r&&r.customer&&r.customer.date)||r&&r.date||'').slice(0,10)||'—'}
-  function gross165(r){return rows165(r).reduce(function(t,x){return t+n(x&&x.gross)},0)}
-  function value165(r){
-    var vals=[r&&r.totalValue,r&&r.valuationTotal,r&&r.value,r&&r.idbi&&r.idbi.totalValue];
-    for(var i=0;i<vals.length;i++){if(vals[i]!==''&&vals[i]!=null&&n(vals[i])!==0)return n(vals[i])}
-    var rate=n(r&&r.rate),total=0;
-    rows165(r).forEach(function(it){
-      if(it&&it.value!==''&&it.value!=null&&n(it.value)!==0){total+=n(it.value);return}
-      if(r&&r.valuationType==='IDBI_BANK'){total+=n(it&& (it.equivalent22k??it.eq22k??it.rounded))*rate;return}
-      var net=Math.max(0,n(it&&it.gross)-n(it&&(it.stone??it.less)));var pure=net*n(it&&it.purity)/100;var round=Math.floor((pure+1e-9)*10)/10;total+=round*rate;
-    });return total;
-  }
-  function loan165(r){var vals=[r&&r.sanctionedLoan,r&&r.customer&&r.customer.sanctionedLoan,r&&r.loanAmount,r&&r.loan];for(var i=0;i<vals.length;i++){if(vals[i]!==''&&vals[i]!=null)return n(vals[i])}return 0}
-  function saved165(){try{if(typeof window.getSaved==='function'){var a=window.getSaved();if(Array.isArray(a))return a}}catch(_){ }try{var b=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(b)?b:[]}catch(_){return []}}
-  window.renderSavedStandalone165=function(){
-    var all=saved165(),today=(new Date()).toISOString().slice(0,10),month=today.slice(0,7),q=(document.getElementById('sv165Search')?.value||'').trim().toLowerCase(),bf=document.getElementById('sv165Bank')?.value||'ALL',df=document.getElementById('sv165Date')?.value||'all';
-    var banks=[...new Set(all.map(bank165).filter(function(x){return x&&x!=='—'}))];var sel=document.getElementById('sv165Bank');if(sel){var old=bf;sel.innerHTML='<option value="ALL">All Banks</option>'+banks.map(function(b){return '<option value="'+e(b)+'">'+e(b)+'</option>'}).join('');sel.value=banks.includes(old)||old==='ALL'?old:'ALL';bf=sel.value}
-    document.getElementById('sv165Total').textContent=all.length;document.getElementById('sv165Today').textContent=all.filter(function(r){return date165(r)===today}).length;document.getElementById('sv165Banks').textContent=banks.length;
-    var arr=all.map(function(r,i){return {r:r,i:i}}).filter(function(o){var r=o.r,d=date165(r),b=bank165(r);if(bf!=='ALL'&&b!==bf)return false;if(df==='today'&&d!==today)return false;if(df==='month'&&!d.startsWith(month))return false;if(df==='older'&&d.startsWith(month))return false;if(!q)return true;return [r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,b,d,r&&r.certificateNo,r&&r.id].join(' ').toLowerCase().includes(q)}).sort(function(a,b){return date165(b.r).localeCompare(date165(a.r))||b.i-a.i});
-    document.getElementById('sv165Count').textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';var list=document.getElementById('sv165List');if(!arr.length){list.innerHTML='<div class="sv165-empty"><b>No saved valuations found</b><br><small>Change the filters or clear the search.</small></div>';return}
-    list.innerHTML=arr.map(function(o){var r=o.r,i=o.i,name=(r&&r.customer&&r.customer.name)||'Unnamed Customer',mobile=(r&&r.customer&&r.customer.mobile)||'No mobile',cert=(r&&r.certificateNo)||'—',items=rows165(r),gross=gross165(r),val=value165(r),loan=loan165(r);return '<div class="sv165-card"><div class="sv165-cardhead"><div class="sv165-name">'+e(name)+'</div><div class="sv165-amount">'+money165(val)+'</div></div><div class="sv165-meta">📱 '+e(mobile)+' &nbsp; • &nbsp; 📅 '+e(date165(r))+'<br>Certificate: '+e(cert)+'</div><div class="sv165-badge">🏦 '+e(bank165(r))+'</div><div class="sv165-metrics"><div class="sv165-metric"><small>Items / Gross</small><b>'+items.length+' / '+gross.toFixed(3)+' g</b></div><div class="sv165-metric"><small>Valuation</small><b>'+money165(val)+'</b></div><div class="sv165-metric"><small>Sanctioned Loan</small><b>'+money165(loan)+'</b></div></div><div class="sv165-actions"><button class="open" onclick="openSavedFrom165('+i+')">Open</button><button onclick="revalueSaved165('+i+')">Revalue</button><button onclick="printSaved165('+i+')">Print PDF</button><button onclick="shareSaved165('+i+')">Share PDF</button><button class="delete" onclick="deleteSaved165('+i+')">Delete</button></div></div>'}).join('');
-  };
-  window.openSavedStandalone165=function(){
-    document.body.classList.remove('customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','savedHomeMode','saved-manager-open');document.body.classList.add('savedStandaloneMode');
-    var x=document.getElementById('savedStandalone165');x.style.setProperty('display','block','important');x.setAttribute('aria-hidden','false');var old=document.getElementById('saveManager');if(old)old.style.setProperty('display','none','important');
-    document.getElementById('sv165Search').value='';document.getElementById('sv165Date').value='all';document.getElementById('sv165Bank').value='ALL';renderSavedStandalone165();x.scrollTop=0;window.scrollTo(0,0);
-  };
-  window.closeSavedStandalone165=function(){var x=document.getElementById('savedStandalone165');if(x){x.style.setProperty('display','none','important');x.setAttribute('aria-hidden','true')}document.body.classList.remove('savedStandaloneMode');try{if(typeof window.showBankHome==='function')window.showBankHome();else if(typeof window.showBankValuationHome==='function')window.showBankValuationHome();else{var h=document.getElementById('bankHome');if(h)h.style.display='block'}}catch(_){var h=document.getElementById('bankHome');if(h)h.style.display='block'}window.scrollTo(0,0)};
-  window.openSavedFrom165=function(i){closeSavedStandalone165();setTimeout(function(){try{if(typeof window.openSavedDirectFinal==='function')window.openSavedDirectFinal(i);else if(typeof window.loadSaved==='function')window.loadSaved(i)}catch(err){console.error(err);alert('Could not open this valuation.')}},0)};
-  window.revalueSaved165=function(i){closeSavedStandalone165();setTimeout(function(){try{if(typeof window.duplicateSaved==='function')window.duplicateSaved(i);else if(typeof window.loadSaved==='function')window.loadSaved(i)}catch(err){console.error(err)}},0)};
-  window.printSaved165=function(i){try{if(typeof window.printSaved==='function')window.printSaved(i)}catch(err){console.error(err)}};
-  window.shareSaved165=function(i){try{if(typeof window.shareSavedPdf==='function')window.shareSavedPdf(i)}catch(err){console.error(err)}};
-  window.deleteSaved165=function(i){try{if(typeof window.deleteSaved==='function'){window.deleteSaved(i);setTimeout(renderSavedStandalone165,0)}}catch(err){console.error(err)}};
-  window.openSavedValuationsHome=window.openSavedStandalone165;window.openLoad=window.openSavedStandalone165;window.loadData=window.openSavedStandalone165;window.idbiLoadData=window.openSavedStandalone165;
-  document.addEventListener('click',function(ev){var b=ev.target.closest&&ev.target.closest('.savedHomeBtn');if(b){ev.preventDefault();ev.stopImmediatePropagation();window.openSavedStandalone165()}},true);
-})();
-</script>
 
 
-<!-- STEP 166 - Direct Saved Valuations routing, bypasses legacy capture handlers -->
-<script id="step166-direct-saved-routing">
-(function(){
-  function openNow(ev){
-    if(ev){ev.preventDefault();ev.stopPropagation();}
-    if(typeof window.openSavedStandalone165==='function'){window.openSavedStandalone165();return false;}
-    var x=document.getElementById('savedStandalone165');
-    if(x){document.body.classList.add('savedStandaloneMode');x.style.setProperty('display','block','important');x.setAttribute('aria-hidden','false');if(typeof window.renderSavedStandalone165==='function')window.renderSavedStandalone165();window.scrollTo(0,0);return false;}
-    alert('Saved Valuations screen could not be opened.');return false;
-  }
-  window.openSavedDirect166=openNow;
-  document.addEventListener('DOMContentLoaded',function(){
-    var home=document.querySelector('#bankHome .savedHomeBtn');
-    if(home){home.onclick=function(ev){return openNow(ev);};}
-    var footerBtns=document.querySelectorAll('body > footer button, footer button');
-    footerBtns.forEach(function(b){if((b.textContent||'').toLowerCase().indexOf('load')>=0)b.onclick=function(ev){return openNow(ev);};});
-  });
-})();
-</script>
-</body>
-</html>
+
+
+
+
+
+
+
+
+
+
+
 
 <!-- STEP 161 - Professional Customer History + Customer Summary -->
 <style id="step161-professional-customer-history">
@@ -13467,4 +13028,39 @@ body.savedStandaloneMode>header,body.savedStandaloneMode>footer,body.savedStanda
 })();
 </script>
 
-
+<!-- STEP 168 - CLEAN SINGLE SAVED VALUATIONS ROUTER -->
+<style id="step168-clean-saved-css">
+#savedClean168{display:none;position:fixed;inset:0;z-index:2147483647;background:#f8f4eb;color:#1b1b1b;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#savedClean168 .sc-wrap{max-width:680px;margin:auto;padding:14px 14px 105px;min-height:100dvh}
+#savedClean168 .sc-head{position:sticky;top:0;z-index:4;background:#f8f4eb;display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #ddc997}
+#savedClean168 h1{font-size:25px;margin:0;font-weight:950}#savedClean168 .sc-back{min-height:46px;padding:0 17px;border:1px solid #d5bb7b;border-radius:14px;background:#fff;color:#6b4b0f;font-weight:900}
+#savedClean168 .sc-sub{margin:12px 0;color:#73695a;font-size:13px}.sc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.sc-stat{background:#fff;border:1px solid #e1d3b7;border-radius:14px;padding:10px;text-align:center}.sc-stat b{display:block;font-size:21px}.sc-stat small{font-size:9px;color:#776d5f;font-weight:800}
+#savedClean168 input,#savedClean168 select{width:100%;min-height:50px;border:1px solid #173247;border-radius:14px;background:#061521;color:#fff;padding:10px 13px;font-size:15px;box-sizing:border-box}#savedClean168 input::placeholder{color:#90a0ad}.sc-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.sc-count{font-size:11px;color:#786e5f;margin:8px 2px;font-weight:800}
+.sc-card{background:#fffdf8;border:1px solid #dfd1b4;border-radius:18px;padding:13px;margin:10px 0}.sc-top{display:flex;justify-content:space-between;gap:10px}.sc-name{font-size:19px;font-weight:950}.sc-value{font-size:18px;font-weight:950;color:#a66f00}.sc-meta{font-size:11px;color:#746b5e;margin-top:4px}.sc-bank{display:inline-block;margin-top:7px;background:#f6ead0;border:1px solid #dec688;border-radius:999px;padding:5px 8px;color:#755512;font-size:10px;font-weight:900}.sc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.sc-metric{background:#fff;border:1px solid #e6dcc8;border-radius:11px;padding:8px}.sc-metric small{display:block;color:#7c7467;font-size:9px}.sc-metric b{font-size:12px}.sc-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.sc-actions button{min-height:43px;border:1px solid #ded1b9;border-radius:11px;background:#f1e8d8;font-weight:850}.sc-actions .open{background:linear-gradient(#e2a400,#c98400);color:#fff}.sc-actions .delete{color:#b42318}.sc-empty{text-align:center;padding:35px 12px;background:#fff;border:1px dashed #d9c9aa;border-radius:16px;color:#796f60}
+body.savedClean168Open>footer{display:none!important}body.savedClean168Open{overflow:hidden!important}
+</style>
+<div id="savedClean168" aria-hidden="true"><div class="sc-wrap"><div class="sc-head"><h1>📂 SAVED VALUATIONS</h1><button class="sc-back" type="button" onclick="return closeSavedClean168()">← Back</button></div><div class="sc-sub">Search and manage saved valuations from all four banks.</div><div class="sc-stats"><div class="sc-stat"><b id="scTotal">0</b><small>TOTAL</small></div><div class="sc-stat"><b id="scToday">0</b><small>TODAY</small></div><div class="sc-stat"><b id="scBanks">0</b><small>BANKS</small></div></div><input id="scSearch" type="search" placeholder="🔎 Customer / mobile / certificate / bank" oninput="renderSavedClean168()"><div class="sc-filters"><select id="scBank" onchange="renderSavedClean168()"><option value="ALL">All Banks</option><option>SBI BANK</option><option>IDBI BANK</option><option>MAHARASHTRA GRAMIN BANK</option><option>DNYANDEEP CO-OP SOCIETY LTD</option></select><select id="scDate" onchange="renderSavedClean168()"><option value="all">All Dates</option><option value="today">Today</option><option value="month">This Month</option><option value="older">Older</option></select></div><div id="scCount" class="sc-count"></div><div id="scList"></div></div></div>
+<script id="step168-clean-saved-js">
+(function(){
+ function N(v){var x=Number(String(v==null?'':v).replace(/[^0-9.-]/g,''));return Number.isFinite(x)?x:0}
+ function E(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c})}
+ function vals(){try{var a=(typeof window.getSaved==='function')?window.getSaved():JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+ function bank(r){return String((r&&r.customer&&r.customer.bank)||(r&&r.bank)||((r&&r.valuationType)==='IDBI_BANK'?'IDBI BANK':'')).trim()||'Unknown Bank'}
+ function date(r){return String((r&&r.customer&&r.customer.date)||(r&&r.date)||(r&&r.createdAt)||'').slice(0,10)}
+ function rows(r){return Array.isArray(r&&r.idbi&&r.idbi.rows)?r.idbi.rows:(Array.isArray(r&&r.items)?r.items:[])}
+ function gross(r){return rows(r).reduce(function(t,x){return t+N(x&&x.gross)},0)}
+ function value(r){var a=[r&&r.totalValue,r&&r.valuationTotal,r&&r.value,r&&r.idbi&&r.idbi.totalValue];for(var i=0;i<a.length;i++){if(a[i]!=null&&String(a[i]).trim()!==''&&N(a[i])!==0)return N(a[i])}var rate=N(r&&r.rate),t=0;rows(r).forEach(function(x){if(x&&x.value!=null&&String(x.value).trim()!==''&&N(x.value)!==0){t+=N(x.value);return}var net=Math.max(0,N(x&&x.gross)-N(x&&(x.stone!=null?x.stone:x.less)));var pure=net*N(x&&x.purity)/100;t+=Math.floor((pure+1e-9)*10)/10*rate});return t}
+ function loan(r){var a=[r&&r.sanctionedLoan,r&&r.customer&&r.customer.sanctionedLoan,r&&r.loanAmount,r&&r.loan];for(var i=0;i<a.length;i++){if(a[i]!=null&&String(a[i]).trim()!=='')return N(a[i])}return 0}
+ function money(v){return '₹'+Math.round(N(v)).toLocaleString('en-IN')}
+ window.renderSavedClean168=function(){var all=vals(),q=(document.getElementById('scSearch').value||'').trim().toLowerCase(),bf=document.getElementById('scBank').value,df=document.getElementById('scDate').value,d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),month=today.slice(0,7);document.getElementById('scTotal').textContent=all.length;document.getElementById('scToday').textContent=all.filter(function(r){return date(r)===today}).length;document.getElementById('scBanks').textContent=new Set(all.map(bank).filter(Boolean)).size;var arr=all.map(function(r,i){return {r:r,i:i}}).filter(function(o){var r=o.r,b=bank(r),dt=date(r),hay=[r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,r&&r.certificateNo,b].join(' ').toLowerCase();if(q&&hay.indexOf(q)<0)return false;if(bf!=='ALL'&&b!==bf)return false;if(df==='today'&&dt!==today)return false;if(df==='month'&&dt.slice(0,7)!==month)return false;if(df==='older'&&dt.slice(0,7)===month)return false;return true});document.getElementById('scCount').textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';var list=document.getElementById('scList');if(!arr.length){list.innerHTML='<div class="sc-empty"><b>No saved valuations found</b><br><small>Change filters or clear search.</small></div>';return}list.innerHTML=arr.map(function(o){var r=o.r,i=o.i,name=(r&&r.customer&&r.customer.name)||'Unnamed Customer',mobile=(r&&r.customer&&r.customer.mobile)||'No mobile';return '<div class="sc-card"><div class="sc-top"><div><div class="sc-name">'+E(name)+'</div><div class="sc-meta">📱 '+E(mobile)+' · 📅 '+E(date(r)||'—')+'</div></div><div class="sc-value">'+money(value(r))+'</div></div><span class="sc-bank">🏦 '+E(bank(r))+'</span><div class="sc-metrics"><div class="sc-metric"><small>Gross Weight</small><b>'+gross(r).toFixed(3)+' g</b></div><div class="sc-metric"><small>Items</small><b>'+rows(r).length+'</b></div><div class="sc-metric"><small>Sanctioned Loan</small><b>'+money(loan(r))+'</b></div></div><div class="sc-actions"><button class="open" onclick="openSavedCleanItem168('+i+')">Open</button><button onclick="revalueSavedClean168('+i+')">Revalue</button><button onclick="printSavedClean168('+i+')">Print PDF</button><button onclick="shareSavedClean168('+i+')">Share PDF</button><button class="delete" onclick="deleteSavedClean168('+i+')">Delete</button></div></div>'}).join('')}
+ window.openSavedClean168=function(){var x=document.getElementById('savedClean168');if(!x)return false;document.body.classList.add('savedClean168Open');x.style.display='block';x.setAttribute('aria-hidden','false');document.getElementById('scSearch').value='';document.getElementById('scBank').value='ALL';document.getElementById('scDate').value='all';renderSavedClean168();x.scrollTop=0;return false}
+ window.closeSavedClean168=function(){var x=document.getElementById('savedClean168');if(x){x.style.display='none';x.setAttribute('aria-hidden','true')}document.body.classList.remove('savedClean168Open');if(typeof window.showBankHome==='function')try{window.showBankHome()}catch(e){}window.scrollTo(0,0);return false}
+ window.openSavedCleanItem168=function(i){closeSavedClean168();setTimeout(function(){try{if(typeof window.openSavedDirectFinal==='function')window.openSavedDirectFinal(i);else if(typeof window.loadSaved==='function')window.loadSaved(i)}catch(e){alert('Could not open this valuation.')}},0)}
+ window.revalueSavedClean168=function(i){closeSavedClean168();setTimeout(function(){if(typeof window.duplicateSaved==='function')window.duplicateSaved(i);else if(typeof window.loadSaved==='function')window.loadSaved(i)},0)}
+ window.printSavedClean168=function(i){if(typeof window.printSaved==='function')window.printSaved(i)};window.shareSavedClean168=function(i){if(typeof window.shareSavedPdf==='function')window.shareSavedPdf(i)};window.deleteSavedClean168=function(i){if(typeof window.deleteSaved==='function'){window.deleteSaved(i);setTimeout(renderSavedClean168,0);return}var a=vals();if(i>=0&&i<a.length&&confirm('Delete this saved valuation?')){a.splice(i,1);localStorage.setItem('goldValuations',JSON.stringify(a));renderSavedClean168()}}
+ window.openSavedValuationsHome=window.openSavedClean168;window.openLoad=window.openSavedClean168;window.loadData=window.openSavedClean168;window.idbiLoadData=window.openSavedClean168;window.dashboardOpenSaved87=window.openSavedClean168;
+ document.addEventListener('DOMContentLoaded',function(){var hb=document.querySelector('#bankHome button.savedHomeBtn,#bankHome button[class*=savedHome]');if(hb)hb.onclick=function(){return window.openSavedClean168()};var f=document.querySelectorAll('body>footer button');for(var i=0;i<f.length;i++){if((f[i].textContent||'').toLowerCase().indexOf('load')>=0)f[i].onclick=function(){return window.openSavedClean168()}}});
+})();
+</script>
+</body>
+</html>
