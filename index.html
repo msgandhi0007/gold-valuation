@@ -13193,3 +13193,103 @@ body.savedHomeMode .fixed-bottom-actions{display:none!important;visibility:hidde
   },true);
 })();
 </script>
+
+<!-- STEP 164 - Universal Saved Valuations opener routing fix -->
+<style id="step164-universal-saved-opener-css">
+body.savedHomeMode #saveManager{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  position:fixed!important;inset:0!important;z-index:2147483647!important;
+  width:100vw!important;height:100dvh!important;overflow:auto!important;
+  background:#f8f4eb!important;
+}
+body.savedHomeMode #saveManager .save-box{display:block!important;visibility:visible!important;opacity:1!important;}
+body.savedHomeMode footer,body.savedHomeMode .app-footer,body.savedHomeMode .bottom-actions,
+body.savedHomeMode .bottom-bar,body.savedHomeMode #bottomBar{display:none!important;visibility:hidden!important;}
+</style>
+<script id="step164-universal-saved-opener-js">
+(function(){
+  function ensureManagerAtBody(){
+    var m=document.getElementById('saveManager');
+    if(!m) return null;
+    if(m.parentNode!==document.body) document.body.appendChild(m);
+    return m;
+  }
+
+  function openSavedUniversal(){
+    var m=ensureManagerAtBody();
+    if(!m){ alert('Saved Valuations screen is not available.'); return; }
+
+    document.body.classList.remove(
+      'customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode',
+      'bankHomeMode','bank-home-mode','menu-viewing','idbi-open'
+    );
+    document.body.classList.add('savedHomeMode','saved-manager-open');
+
+    ['bankHome','dashboardHome','customersHomeScreen','storageBackupScreen','idbi-valuation-screen'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.style.setProperty('display','none','important');
+    });
+
+    m.style.setProperty('display','block','important');
+    m.style.setProperty('visibility','visible','important');
+    m.style.setProperty('opacity','1','important');
+    m.style.setProperty('position','fixed','important');
+    m.style.setProperty('inset','0','important');
+    m.style.setProperty('z-index','2147483647','important');
+
+    var title=document.getElementById('savedManagerTitle'); if(title) title.textContent='📂 Saved Valuations';
+    var s=document.getElementById('saveSearch'); if(s) s.value='';
+    var sort=document.getElementById('saveSort'); if(sort) sort.value='newest';
+    var df=document.getElementById('saveDateFilter'); if(df) df.value='all';
+
+    try{ if(typeof window.setSavedBankFilter==='function') window.setSavedBankFilter('ALL'); }catch(e){}
+    try{ if(typeof window.ensureSavedHomeControls==='function') window.ensureSavedHomeControls(); }catch(e){}
+    try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){ console.error('renderSaved failed',e); }
+    try{ if(typeof window.refreshSavedManager84==='function') window.refreshSavedManager84(true); }catch(e){}
+
+    setTimeout(function(){
+      ensureManagerAtBody();
+      document.body.classList.add('savedHomeMode','saved-manager-open');
+      m.style.setProperty('display','block','important');
+      m.style.setProperty('visibility','visible','important');
+      m.style.setProperty('opacity','1','important');
+      try{ if(typeof window.renderSaved==='function') window.renderSaved(); }catch(e){}
+      m.scrollTop=0;
+    },30);
+    window.scrollTo(0,0);
+  }
+
+  function closeSavedUniversal(){
+    var m=ensureManagerAtBody();
+    if(m) m.style.setProperty('display','none','important');
+    document.body.classList.remove('savedHomeMode','saved-manager-open');
+    try{
+      if(typeof window.showBankHome==='function') return window.showBankHome();
+      if(typeof window.showBankValuationHome==='function') return window.showBankValuationHome();
+    }catch(e){}
+    var h=document.getElementById('bankHome');
+    if(h) h.style.removeProperty('display');
+  }
+
+  // One opener for every path: home Saved Valuations card, footer Load, top Saved button, and IDBI Load.
+  window.openSavedValuationsHome=openSavedUniversal;
+  window.openLoad=openSavedUniversal;
+  window.loadData=openSavedUniversal;
+  window.idbiLoadData=openSavedUniversal;
+  window.closeLoad=closeSavedUniversal;
+  window.closeSavedValuationsHome=closeSavedUniversal;
+
+  document.addEventListener('DOMContentLoaded',function(){
+    var m=ensureManagerAtBody();
+    if(m && !document.body.classList.contains('savedHomeMode')) m.style.setProperty('display','none','important');
+  });
+
+  document.addEventListener('click',function(e){
+    var home=e.target.closest&&e.target.closest('.savedHomeBtn');
+    if(home){ e.preventDefault();e.stopImmediatePropagation();openSavedUniversal();return; }
+    if(document.body.classList.contains('savedHomeMode')){
+      var close=e.target.closest&&e.target.closest('#saveManager .close');
+      if(close){e.preventDefault();e.stopImmediatePropagation();closeSavedUniversal();}
+    }
+  },true);
+})();
+</script>
