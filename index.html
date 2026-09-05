@@ -4409,11 +4409,17 @@ function shareSavedPdf(i){
 
 
 function setBankValue(v){
+  const value=String(v||'').trim();
   const sel=document.getElementById('bankName');
-  if(!sel)return;
-  const exists=[...sel.options].some(o=>o.value===v);
-  if(exists){sel.value=v;}
-  else{sel.value='';}
+  if(sel){
+    const exists=[...sel.options].some(o=>o.value===value);
+    sel.value=exists?value:'';
+  }
+  const mainSel=document.getElementById('mainBankSelect');
+  if(mainSel){
+    const existsMain=[...mainSel.options].some(o=>o.value===value);
+    if(existsMain) mainSel.value=value;
+  }
 }
 
 
@@ -4668,7 +4674,7 @@ function setupLoanLimit(){
 }
 function currentData(){
 return{id:window._currentSavedRecord?.id||Date.now(),certificateNo:window._currentSavedRecord?.certificateNo||window._draftCertificateNo||'',
-customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:bankName.value.trim()},
+customer:{name:customerName.value,mobile:customerMobile.value,date:valuationDate.value,bank:String((document.getElementById('mainBankSelect')?.value||bankName.value||'')).trim()},
 rate:rate.value,
 sanctionedLoan:String(document.getElementById('sanctionedLoan')?.value??''),
 ltv1:String(document.getElementById('ltv1')?.value??'65'),
@@ -10166,6 +10172,8 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     document.getElementById('bankHome').style.display='none';
     if(bank==='IDBI BANK' && typeof window.openIDBIValuation==='function'){window.openIDBIValuation();return}
     const s=document.getElementById('mainBankSelect');if(s)s.value=bank;
+    const hiddenBank=document.getElementById('bankName');if(hiddenBank)hiddenBank.value=bank;
+    if(typeof window.handleMainBankSelection==='function') window.handleMainBankSelection(bank);
     const m=document.getElementById('valuation-main-sections');if(m)m.style.display='block';
     const main=document.querySelector('main');if(main)main.style.display='block';
     const f=document.querySelector('footer');if(f)f.style.display='flex';
@@ -12340,5 +12348,25 @@ body>footer button:active,
   font-weight:900!important;
 }
 </style>
+
+<script id="bank-save-sync-final-fix">
+(function(){
+  function syncBank(value){
+    value=String(value||'').trim();
+    if(!value)return;
+    var main=document.getElementById('mainBankSelect');
+    var hidden=document.getElementById('bankName');
+    if(main && main.value!==value) main.value=value;
+    if(hidden && hidden.value!==value) hidden.value=value;
+  }
+  document.addEventListener('change',function(e){
+    if(e.target && e.target.id==='mainBankSelect') syncBank(e.target.value);
+  });
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function'){
+    window.openBank=function(bank){syncBank(bank);return oldOpen.apply(this,arguments);};
+  }
+})();
+</script>
 </body>
 </html>
