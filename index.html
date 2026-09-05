@@ -4021,7 +4021,7 @@ body:not(.menu-viewing) .s111-rate{
     <div class="s111-summary-grid">
       <div class="s111-stat"><small>Total Items</small><b id="s111-items">0</b></div>
       <div class="s111-stat"><small>Gross Weight<br>(Gram)</small><b id="s111-gross">0.000</b></div>
-      <div class="s111-stat"><small>Rounded<br>(Gram)</small><b id="s111-net">0.000</b></div>
+      <div class="s111-stat"><small>Net Weight<br>(R)</small><b id="s111-net">0.000</b></div>
       <div class="s111-stat"><small>Total Value<br>(₹)</small><b id="s111-value">₹0</b></div>
     </div>
 
@@ -4034,7 +4034,7 @@ body:not(.menu-viewing) .s111-rate{
             <th style="padding:10px;text-align:right">Gross Wt (g)</th>
             <th style="padding:10px;text-align:right">Stone Wt (g)</th>
             <th style="padding:10px;text-align:right">Purity %</th>
-            <th style="padding:10px;text-align:right">Rounded (g)</th>
+            <th style="padding:10px;text-align:right">Net Weight (R)</th>
             <th style="padding:10px;text-align:right">Value (₹)</th>
           </tr></thead>
           <tbody id="summaryRows"></tbody>
@@ -4607,7 +4607,7 @@ d.innerHTML=`<div class="itemhead"><span>Item ${count}</span><button class="remo
 <div class="grid"><div class="field"><label>Gross Weight (g)</label><input class="gross" type="number" step="0.01" inputmode="decimal" value="${data.gross}" oninput="calculate()"></div>
 <div class="field"><label>Stone Weight (g)</label><input class="stone" type="number" step="0.01" inputmode="decimal" value="${data.stone}" oninput="calculate()"></div>
 <div class="field"><label>Purity (%)</label><input class="purity" type="number" step="0.01" inputmode="decimal" value="${data.purity}" oninput="calculate()"></div></div>
-<div class="calc"><div class="metric"><small>Net Weight</small><b class="net">0.00 g</b></div><div class="metric"><small>Rounded (g)</small><b class="pure">0.00 g</b></div><div class="metric"><small>Value</small><b class="value">₹0</b></div></div>`;
+<div class="calc"><div class="metric"><small>Net Weight</small><b class="net">0.00 g</b></div><div class="metric"><small>Net Weight (R)</small><b class="pure">0.00 g</b></div><div class="metric"><small>Value</small><b class="value">₹0</b></div></div>`;
 document.getElementById('items').appendChild(d);
 const itemSelect=d.querySelector('.itemName');
 if(itemSelect){
