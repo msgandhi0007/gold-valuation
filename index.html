@@ -12762,12 +12762,119 @@ body.customersHomeMode #bankHome,body.customersHomeMode #dashboardHome,body.cust
  window.custOpen=function(i){if(i>=0&&typeof window.loadSaved==='function')window.loadSaved(i)};window.custRevalue=function(i){if(i>=0&&typeof window.duplicateSaved==='function')window.duplicateSaved(i)};window.custPrint=function(i){if(i>=0&&typeof window.printSaved==='function')window.printSaved(i)};window.custShare=function(i){if(i>=0&&typeof window.shareSavedPdf==='function')window.shareSavedPdf(i)};
  window.custSwitchTab=function(t){document.getElementById('custPanelHistory')?.classList.toggle('active',t==='history');document.getElementById('custPanelSummary')?.classList.toggle('active',t==='summary');document.getElementById('custTabHistory')?.classList.toggle('active',t==='history');document.getElementById('custTabSummary')?.classList.toggle('active',t==='summary');if(t==='summary')renderCustomerSummaryHome();else renderCustomersHome();window.scrollTo(0,0)}
  window.renderCustomersHome=function(){var all=recs(),q=(document.getElementById('custSearch')?.value||'').trim().toLowerCase(),bf=document.getElementById('custBank')?.value||'',df=document.getElementById('custDate')?.value||'',td=today();var be=document.getElementById('custBank');if(be){var cur=be.value,banks=[...new Set(all.map(bank).filter(Boolean))].sort();be.innerHTML='<option value="">All Banks</option>'+banks.map(b=>'<option value="'+esc(b)+'">'+esc(b)+'</option>').join('');if(banks.includes(cur))be.value=cur;bf=be.value}var rows=all.filter(function(r){var d=date(r);if(bf&&bank(r)!==bf)return false;if(df==='today'&&d!==td)return false;if(df==='month'&&d.slice(0,7)!==td.slice(0,7))return false;if(df==='year'&&d.slice(0,4)!==td.slice(0,4))return false;var h=[name(r),mobile(r),cert(r),bank(r),d].join(' ').toLowerCase();return !q||h.includes(q)}).sort((a,b)=>date(b).localeCompare(date(a)));var ov=document.getElementById('custOverview');if(ov){var tg=rows.reduce((s,r)=>s+gross(r),0),tv=rows.reduce((s,r)=>s+value(r),0),tl=rows.reduce((s,r)=>s+loan(r),0);ov.innerHTML='<div class="custStat"><span>Valuations</span><b>'+rows.length+'</b></div><div class="custStat"><span>Gross Weight</span><b>'+tg.toFixed(3)+' g</b></div><div class="custStat gold"><span>Total Value</span><b>'+money(tv)+'</b></div><div class="custStat green"><span>Total Loan</span><b>'+money(tl)+'</b></div>'}var list=document.getElementById('custHistoryList');if(!list)return;if(!rows.length){list.innerHTML='<div class="custEmpty"><b>No customer valuations found</b><br><small>Change the search or filters.</small></div>';return}list.innerHTML=rows.map(function(r){var i=idx(r,all),isI=r?.valuationType==='IDBI_BANK';return '<div class="custCard"><div class="custCardHead"><div><div class="custName">'+esc(name(r)||'Unnamed Customer')+'</div><div class="custMeta">📱 '+esc(mobile(r)||'No mobile')+' · 📅 '+esc(date(r)||'—')+'</div></div><div class="custAmount">'+money(value(r))+'</div></div><div class="custTags"><span class="custTag">🏦 '+esc(bank(r)||'No Bank')+'</span>'+(cert(r)?'<span class="custTag">Cert. '+esc(cert(r))+'</span>':'')+'<span class="custTag">'+items(r).length+' item(s)</span></div><div class="custMetrics"><div class="custMetric"><span>Gross Weight</span><b>'+gross(r).toFixed(3)+' g</b></div><div class="custMetric"><span>'+(isI?'22K Equivalent':'Net Weight (R)')+'</span><b>'+netr(r).toFixed(3)+' g</b></div><div class="custMetric"><span>Sanctioned Loan</span><b>'+money(loan(r))+'</b></div></div><div class="custActions"><button class="open" onclick="custOpen('+i+')">Open</button><button onclick="custRevalue('+i+')">Revalue</button><button onclick="custPrint('+i+')">Print PDF</button><button onclick="custShare('+i+')">Share PDF</button></div></div>'}).join('')}
- window.renderCustomerSummaryHome=function(){var all=recs(),q=(document.getElementById('custGroupSearch2')?.value||'').trim().toLowerCase(),map=new Map();all.forEach(function(r){var n=name(r),m=mobile(r),h=(n+' '+m+' '+bank(r)+' '+cert(r)).toLowerCase();if(q&&!h.includes(q))return;var k=m?'m:'+m:'n:'+n.toLowerCase();if(!map.has(k))map.set(k,{name:n||'Unnamed Customer',mobile:m,records:[]});map.get(k).records.push(r)});var groups=[...map.values()].sort((a,b)=>Math.max(...b.records.map(r=>Date.parse(date(r))||0))-Math.max(...a.records.map(r=>Date.parse(date(r))||0)));var ov=document.getElementById('custGroupOverview');if(ov){var vals=groups.reduce((s,g)=>s+g.records.length,0),tv=groups.reduce((s,g)=>s+g.records.reduce((x,r)=>x+value(r),0),0),tl=groups.reduce((s,g)=>s+g.records.reduce((x,r)=>x+loan(r),0),0);ov.innerHTML='<div class="custStat"><span>Customers</span><b>'+groups.length+'</b></div><div class="custStat"><span>Valuations</span><b>'+vals+'</b></div><div class="custStat gold"><span>Total Value</span><b>'+money(tv)+'</b></div><div class="custStat green"><span>Total Loan</span><b>'+money(tl)+'</b></div>'}var list=document.getElementById('custSummaryList');if(!list)return;if(!groups.length){list.innerHTML='<div class="custEmpty">No customers found.</div>';return}list.innerHTML=groups.map(function(g){g.records.sort((a,b)=>date(b).localeCompare(date(a)));var tv=g.records.reduce((s,r)=>s+value(r),0),tl=g.records.reduce((s,r)=>s+loan(r),0),tg=g.records.reduce((s,r)=>s+gross(r),0),ds=g.records.map(date).filter(Boolean).sort(),banks=[...new Set(g.records.map(bank).filter(Boolean))],i=idx(g.records[0],all);return '<div class="custGroupCard"><div class="custCardHead"><div><div class="custName">'+esc(g.name)+'</div><div class="custMeta">📱 '+esc(g.mobile||'No mobile')+'</div></div><div class="custAmount">'+g.records.length+' valuation'+(g.records.length===1?'':'s')+'</div></div><div class="custGroupStats"><div><span>Gross Weight</span><b>'+tg.toFixed(3)+' g</b></div><div><span>Total Valuation</span><b>'+money(tv)+'</b></div><div><span>Total Loan</span><b>'+money(tl)+'</b></div><div><span>Banks Used</span><b>'+banks.length+'</b></div></div><div class="custGroupBanks"><b>First:</b> '+esc(ds[0]||'—')+' · <b>Latest:</b> '+esc(ds[ds.length-1]||'—')+'<br>'+esc(banks.join(' · ')||'No bank recorded')+'</div><div class="custGroupAction"><button class="open" onclick="custOpen('+i+')">Open Latest Valuation</button><button onclick="custSwitchTab(\'history\');document.getElementById(\'custSearch\').value='+JSON.stringify(g.mobile||g.name)+';renderCustomersHome()">View History</button></div></div>'}).join('')}
+ window.renderCustomerSummaryHome=function(){var all=recs(),q=(document.getElementById('custGroupSearch2')?.value||'').trim().toLowerCase(),map=new Map();all.forEach(function(r){var n=name(r),m=mobile(r),h=(n+' '+m+' '+bank(r)+' '+cert(r)).toLowerCase();if(q&&!h.includes(q))return;var k=m?'m:'+m:'n:'+n.toLowerCase();if(!map.has(k))map.set(k,{name:n||'Unnamed Customer',mobile:m,records:[]});map.get(k).records.push(r)});var groups=[...map.values()].sort((a,b)=>Math.max(...b.records.map(r=>Date.parse(date(r))||0))-Math.max(...a.records.map(r=>Date.parse(date(r))||0)));var ov=document.getElementById('custGroupOverview');if(ov){var vals=groups.reduce((s,g)=>s+g.records.length,0),tv=groups.reduce((s,g)=>s+g.records.reduce((x,r)=>x+value(r),0),0),tl=groups.reduce((s,g)=>s+g.records.reduce((x,r)=>x+loan(r),0),0);ov.innerHTML='<div class="custStat"><span>Customers</span><b>'+groups.length+'</b></div><div class="custStat"><span>Valuations</span><b>'+vals+'</b></div><div class="custStat gold"><span>Total Value</span><b>'+money(tv)+'</b></div><div class="custStat green"><span>Total Loan</span><b>'+money(tl)+'</b></div>'}var list=document.getElementById('custSummaryList');if(!list)return;if(!groups.length){list.innerHTML='<div class="custEmpty">No customers found.</div>';return}list.innerHTML=groups.map(function(g){g.records.sort((a,b)=>date(b).localeCompare(date(a)));var tv=g.records.reduce((s,r)=>s+value(r),0),tl=g.records.reduce((s,r)=>s+loan(r),0),tg=g.records.reduce((s,r)=>s+gross(r),0),ds=g.records.map(date).filter(Boolean).sort(),banks=[...new Set(g.records.map(bank).filter(Boolean))],i=idx(g.records[0],all);return '<div class="custGroupCard"><div class="custCardHead"><div><div class="custName">'+esc(g.name)+'</div><div class="custMeta">📱 '+esc(g.mobile||'No mobile')+'</div></div><div class="custAmount">'+g.records.length+' valuation'+(g.records.length===1?'':'s')+'</div></div><div class="custGroupStats"><div><span>Gross Weight</span><b>'+tg.toFixed(3)+' g</b></div><div><span>Total Valuation</span><b>'+money(tv)+'</b></div><div><span>Total Loan</span><b>'+money(tl)+'</b></div><div><span>Banks Used</span><b>'+banks.length+'</b></div></div><div class="custGroupBanks"><b>First:</b> '+esc(ds[0]||'—')+' · <b>Latest:</b> '+esc(ds[ds.length-1]||'—')+'<br>'+esc(banks.join(' · ')||'No bank recorded')+'</div><div class="custGroupAction"><button class="open" onclick="custOpen('+i+')">Open Latest Valuation</button><button onclick="custViewHistory('+i+')">View History</button></div></div>'}).join('')}
  window.openCustomersHome=function(){document.body.classList.remove('bankHomeMode','bank-home-mode','storageMode','storage-backup-mode','savedHomeMode','dashboardHomeMode');document.body.classList.add('customersHomeMode');var h=document.getElementById('bankHome');if(h)h.style.display='none';var s=document.getElementById('customersHomeScreen');if(s)s.style.display='block';custSwitchTab('history');renderCustomersHome();window.scrollTo(0,0)};
  window.closeCustomersHome=function(){document.body.classList.remove('customersHomeMode');var s=document.getElementById('customersHomeScreen');if(s)s.style.display='none';if(typeof window.showBankHome==='function')window.showBankHome();else{var h=document.getElementById('bankHome');if(h)h.style.display='block';document.body.classList.add('bankHomeMode')}window.scrollTo(0,0)};
 })();
 </script>
 
+
+<!-- CUSTOMER OPEN / LATEST / VIEW HISTORY FINAL ROUTER -->
+<script id="customer-open-router-final">
+(function(){
+  function allRecords(){
+    try{ if(typeof window.getStoredValuations==='function'){ var a=window.getStoredValuations(); if(Array.isArray(a)) return a; } }catch(e){}
+    try{ if(typeof window.getSaved==='function'){ var a2=window.getSaved(); if(Array.isArray(a2)) return a2; } }catch(e){}
+    for(const k of ['goldValuations','valuations','savedValuations']){
+      try{ var v=JSON.parse(localStorage.getItem(k)||'[]'); if(Array.isArray(v)&&v.length) return v; }catch(e){}
+    }
+    return [];
+  }
+  function recName(r){ return String(r?.customer?.name||r?.customerName||r?.name||'').trim(); }
+  function recMobile(r){ return String(r?.customer?.mobile||r?.mobile||'').trim(); }
+
+  function leaveOverlayModes(){
+    document.body.classList.remove('customersHomeMode','savedHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
+    ['customersHomeScreen','savedValuationsHome','dashboardHome','storageBackupScreen','bankHome'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.style.display='none';
+    });
+    var sm=document.getElementById('saveManager');
+    if(sm){ sm.classList.remove('open'); sm.style.removeProperty('display'); }
+  }
+
+  function forceCurrentValuationVisible(record){
+    var isIdbi=record && record.valuationType==='IDBI_BANK';
+    var main=document.getElementById('valuation-main-sections');
+    var idbi=document.getElementById('idbi-valuation-screen');
+    var cover=document.getElementById('cover-page');
+    if(cover) cover.style.setProperty('display','none','important');
+    if(isIdbi){
+      if(main) main.style.setProperty('display','none','important');
+      if(idbi){ idbi.style.setProperty('display','block','important'); idbi.style.setProperty('visibility','visible','important'); }
+    }else{
+      if(idbi) idbi.style.setProperty('display','none','important');
+      if(main){ main.style.setProperty('display','block','important'); main.style.setProperty('visibility','visible','important'); }
+      if(typeof window.showValuationScreen==='function'){
+        try{ window.showValuationScreen(); }catch(e){}
+      }
+    }
+    window.scrollTo(0,0);
+  }
+
+  window.openSavedDirectFinal=function(i){
+    var all=allRecords(), r=all[i];
+    if(!r){ alert('Saved valuation could not be found.'); return; }
+    leaveOverlayModes();
+    try{
+      if(typeof window.loadSaved==='function') window.loadSaved(i);
+      else { alert('Open valuation function is not available.'); return; }
+    }catch(e){ console.error(e); alert('Could not open this saved valuation.'); return; }
+    setTimeout(function(){ leaveOverlayModes(); forceCurrentValuationVisible(r); },80);
+    setTimeout(function(){ forceCurrentValuationVisible(r); },220);
+  };
+
+  // Customer History/Open and Customer Summary/Open Latest both use the same direct router.
+  window.custOpen=function(i){ window.openSavedDirectFinal(i); };
+
+  window.custViewHistory=function(i){
+    var all=allRecords(), r=all[i];
+    if(!r) return;
+    var key=recMobile(r)||recName(r);
+    if(typeof window.custSwitchTab==='function') window.custSwitchTab('history');
+    var q=document.getElementById('custSearch');
+    if(q) q.value=key;
+    if(typeof window.renderCustomersHome==='function') window.renderCustomersHome();
+    window.scrollTo(0,0);
+  };
+
+  // Rebuild summary button handlers without embedding raw customer text inside onclick HTML.
+  var oldSummary=window.renderCustomerSummaryHome;
+  if(typeof oldSummary==='function'){
+    window.renderCustomerSummaryHome=function(){
+      oldSummary.apply(this,arguments);
+      var list=document.getElementById('custSummaryList'); if(!list) return;
+      var cards=list.querySelectorAll('.custGroupCard');
+      cards.forEach(function(card){
+        var openBtn=card.querySelector('.custGroupAction .open');
+        var histBtn=card.querySelector('.custGroupAction button:not(.open)');
+        if(!openBtn) return;
+        var m=(openBtn.getAttribute('onclick')||'').match(/custOpen\((\d+)\)/);
+        if(!m) return;
+        var i=Number(m[1]);
+        openBtn.onclick=function(e){ e.preventDefault(); window.openSavedDirectFinal(i); };
+        if(histBtn){
+          histBtn.removeAttribute('onclick');
+          histBtn.onclick=function(e){ e.preventDefault(); window.custViewHistory(i); };
+        }
+      });
+    };
+  }
+
+  // Saved Valuations Manager Open buttons also go straight to the correct valuation screen.
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest && e.target.closest('#saveManager .load-btn');
+    if(!btn) return;
+    var raw=btn.getAttribute('onclick')||'';
+    var m=raw.match(/loadSaved\((\d+)\)/);
+    if(!m) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    window.openSavedDirectFinal(Number(m[1]));
+  },true);
+})();
+</script>
+<style id="customer-open-router-final-css">
+body.customersHomeMode .app-footer,body.customersHomeMode .bottom-actions,body.customersHomeMode .bottom-bar,body.customersHomeMode #bottomBar,body.customersHomeMode footer{display:none!important}
+</style>
 </body>
 </html>
 
