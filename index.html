@@ -13372,6 +13372,62 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 </script>
 <!-- /CUSTOMER OPEN BLANK SCREEN FIX 172 -->
 
+<!-- CUSTOMER OPEN APP SHELL RESTORE FIX 173 -->
+<script id="customer-open-app-shell-restore-fix-173">
+(function(){
+  function restoreAppShell(){
+    var b=document.body;
+    if(b){
+      b.classList.remove('customersHomeMode','savedHomeMode','savedClean168Open','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
+      b.style.removeProperty('padding-top');
+      b.style.removeProperty('margin-top');
+    }
+    var app=document.querySelector('body > .app');
+    if(app){
+      ['display','height','min-height','margin','padding','overflow','visibility','opacity'].forEach(function(k){app.style.removeProperty(k)});
+      app.style.setProperty('display','block','important');
+      app.style.setProperty('height','auto','important');
+      app.style.setProperty('min-height','100vh','important');
+      app.style.setProperty('overflow','visible','important');
+      app.style.setProperty('visibility','visible','important');
+      app.style.setProperty('opacity','1','important');
+    }
+    ['customersHomeScreen','savedClean168','savedValuationsHome','dashboardHome','storageBackupScreen','bankHome','cover-page'].forEach(function(id){
+      var e=document.getElementById(id); if(e)e.style.setProperty('display','none','important');
+    });
+  }
+
+  var prior=window.openSavedDirectFinal;
+  window.openSavedDirectFinal=function(i){
+    restoreAppShell();
+    var result=typeof prior==='function'?prior.call(this,Number(i)):undefined;
+    setTimeout(restoreAppShell,0);
+    setTimeout(function(){
+      restoreAppShell();
+      var a=[];try{a=typeof window.getSaved==='function'?(window.getSaved()||[]):JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){}
+      var r=a[Number(i)]||{};
+      var bn=String((r.customer&&r.customer.bank)||r.bank||'').toUpperCase();
+      var idbi=(r.valuationType==='IDBI_BANK'||r.bankSpecific===true||bn.indexOf('IDBI')>=0);
+      var main=document.getElementById('valuation-main-sections');
+      var ids=document.getElementById('idbi-valuation-screen');
+      if(idbi){
+        if(main)main.style.setProperty('display','none','important');
+        if(ids){ids.style.setProperty('display','block','important');ids.style.setProperty('visibility','visible','important')}
+        document.body.classList.add('idbi-open');
+      }else{
+        document.body.classList.remove('idbi-open');
+        if(ids)ids.style.setProperty('display','none','important');
+        if(main){main.style.setProperty('display','block','important');main.style.setProperty('visibility','visible','important')}
+      }
+      window.scrollTo(0,0);
+    },100);
+    return result;
+  };
+  window.custOpen=function(i){return window.openSavedDirectFinal(Number(i))};
+})();
+</script>
+<!-- /CUSTOMER OPEN APP SHELL RESTORE FIX 173 -->
+
 <!-- APP HISTORY NAVIGATION FIX 170 -->
 <script id="app-history-navigation-fix-170">
 (function(){
