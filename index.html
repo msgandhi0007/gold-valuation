@@ -13176,7 +13176,17 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
  function value(r){var a=[r&&r.totalValue,r&&r.valuationTotal,r&&r.value,r&&r.idbi&&r.idbi.totalValue];for(var i=0;i<a.length;i++){if(a[i]!=null&&String(a[i]).trim()!==''&&N(a[i])!==0)return N(a[i])}var rate=N(r&&r.rate),t=0;rows(r).forEach(function(x){if(x&&x.value!=null&&String(x.value).trim()!==''&&N(x.value)!==0){t+=N(x.value);return}var net=Math.max(0,N(x&&x.gross)-N(x&&(x.stone!=null?x.stone:x.less)));var pure=net*N(x&&x.purity)/100;t+=Math.floor((pure+1e-9)*10)/10*rate});return t}
  function loan(r){var a=[r&&r.sanctionedLoan,r&&r.customer&&r.customer.sanctionedLoan,r&&r.loanAmount,r&&r.loan];for(var i=0;i<a.length;i++){if(a[i]!=null&&String(a[i]).trim()!=='')return N(a[i])}return 0}
  function money(v){return '₹'+Math.round(N(v)).toLocaleString('en-IN')}
- window.renderSavedClean168=function(){var all=vals(),q=(document.getElementById('scSearch').value||'').trim().toLowerCase(),bf=document.getElementById('scBank').value,df=document.getElementById('scDate').value,d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),month=today.slice(0,7);document.getElementById('scTotal').textContent=all.length;document.getElementById('scToday').textContent=all.filter(function(r){return date(r)===today}).length;document.getElementById('scBanks').textContent=new Set(all.map(bank).filter(Boolean)).size;var arr=all.map(function(r,i){return {r:r,i:i}}).filter(function(o){var r=o.r,b=bank(r),dt=date(r),hay=[r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,r&&r.certificateNo,b].join(' ').toLowerCase();if(q&&hay.indexOf(q)<0)return false;if(bf!=='ALL'&&b!==bf)return false;if(df==='today'&&dt!==today)return false;if(df==='month'&&dt.slice(0,7)!==month)return false;if(df==='older'&&dt.slice(0,7)===month)return false;return true});document.getElementById('scCount').textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';var list=document.getElementById('scList');if(!arr.length){list.innerHTML='<div class="sc-empty"><b>No saved valuations found</b><br><small>Change filters or clear search.</small></div>';return}list.innerHTML=arr.map(function(o){var r=o.r,i=o.i,name=(r&&r.customer&&r.customer.name)||'Unnamed Customer',mobile=(r&&r.customer&&r.customer.mobile)||'No mobile';return '<div class="sc-card"><div class="sc-top"><div><div class="sc-name">'+E(name)+'</div><div class="sc-meta">📱 '+E(mobile)+' · 📅 '+E(date(r)||'—')+'</div></div><div class="sc-value">'+money(value(r))+'</div></div><span class="sc-bank">🏦 '+E(bank(r))+'</span><div class="sc-metrics"><div class="sc-metric"><small>Gross Weight</small><b>'+gross(r).toFixed(3)+' g</b></div><div class="sc-metric"><small>Items</small><b>'+rows(r).length+'</b></div><div class="sc-metric"><small>Sanctioned Loan</small><b>'+money(loan(r))+'</b></div></div><div class="sc-actions"><button class="open" onclick="openSavedCleanItem168('+i+')">Open</button><button onclick="revalueSavedClean168('+i+')">Revalue</button><button onclick="printSavedClean168('+i+')">Print PDF</button><button onclick="shareSavedClean168('+i+')">Share PDF</button><button class="delete" onclick="deleteSavedClean168('+i+')">Delete</button></div></div>'}).join('')}
+ window.renderSavedClean168=function(){var all=vals(),q=(document.getElementById('scSearch').value||'').trim().toLowerCase(),bf=document.getElementById('scBank').value,df=document.getElementById('scDate').value,d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),month=today.slice(0,7);document.getElementById('scTotal').textContent=all.length;document.getElementById('scToday').textContent=all.filter(function(r){return date(r)===today}).length;document.getElementById('scBanks').textContent=new Set(all.map(bank).filter(Boolean)).size;var arr=all.map(function(r,i){return {r:r,i:i}}).filter(function(o){var r=o.r,b=bank(r),dt=date(r),hay=[r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,r&&r.certificateNo,b].join(' ').toLowerCase();if(q&&hay.indexOf(q)<0)return false;if(bf!=='ALL'&&b!==bf)return false;if(df==='today'&&dt!==today)return false;if(df==='month'&&dt.slice(0,7)!==month)return false;if(df==='older'&&dt.slice(0,7)===month)return false;return true});arr.sort(function(A,B){
+  var a=A.r,b=B.r;
+  var da=date(a),db=date(b),dc=db.localeCompare(da);
+  if(dc)return dc;
+  var tb=Date.parse((b&&b.modifiedAt)||(b&&b.updatedAt)||(b&&b.savedAt)||(b&&b.createdAt)||'')||0;
+  var ta=Date.parse((a&&a.modifiedAt)||(a&&a.updatedAt)||(a&&a.savedAt)||(a&&a.createdAt)||'')||0;
+  if(tb!==ta)return tb-ta;
+  var ib=Number(b&&b.id)||0,ia=Number(a&&a.id)||0;
+  if(ib!==ia)return ib-ia;
+  return B.i-A.i;
+});document.getElementById('scCount').textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';var list=document.getElementById('scList');if(!arr.length){list.innerHTML='<div class="sc-empty"><b>No saved valuations found</b><br><small>Change filters or clear search.</small></div>';return}list.innerHTML=arr.map(function(o){var r=o.r,i=o.i,name=(r&&r.customer&&r.customer.name)||'Unnamed Customer',mobile=(r&&r.customer&&r.customer.mobile)||'No mobile';return '<div class="sc-card"><div class="sc-top"><div><div class="sc-name">'+E(name)+'</div><div class="sc-meta">📱 '+E(mobile)+' · 📅 '+E(date(r)||'—')+'</div></div><div class="sc-value">'+money(value(r))+'</div></div><span class="sc-bank">🏦 '+E(bank(r))+'</span><div class="sc-metrics"><div class="sc-metric"><small>Gross Weight</small><b>'+gross(r).toFixed(3)+' g</b></div><div class="sc-metric"><small>Items</small><b>'+rows(r).length+'</b></div><div class="sc-metric"><small>Sanctioned Loan</small><b>'+money(loan(r))+'</b></div></div><div class="sc-actions"><button class="open" onclick="openSavedCleanItem168('+i+')">Open</button><button onclick="revalueSavedClean168('+i+')">Revalue</button><button onclick="printSavedClean168('+i+')">Print PDF</button><button onclick="shareSavedClean168('+i+')">Share PDF</button><button class="delete" onclick="deleteSavedClean168('+i+')">Delete</button></div></div>'}).join('')}
  window.openSavedClean168=function(){var x=document.getElementById('savedClean168');if(!x)return false;document.body.classList.add('savedClean168Open');x.style.display='block';x.setAttribute('aria-hidden','false');document.getElementById('scSearch').value='';document.getElementById('scBank').value='ALL';document.getElementById('scDate').value='all';renderSavedClean168();x.scrollTop=0;return false}
  window.closeSavedClean168=function(){var x=document.getElementById('savedClean168');if(x){x.style.display='none';x.setAttribute('aria-hidden','true')}document.body.classList.remove('savedClean168Open');if(typeof window.showBankHome==='function')try{window.showBankHome()}catch(e){}window.scrollTo(0,0);return false}
  window.openSavedCleanItem168=function(i){closeSavedClean168();setTimeout(function(){try{if(typeof window.openSavedDirectFinal==='function')window.openSavedDirectFinal(i);else if(typeof window.loadSaved==='function')window.loadSaved(i)}catch(e){alert('Could not open this valuation.')}},0)}
@@ -13871,5 +13881,132 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
   window.buildIdbiPdf174=buildIdbiPdf174;
 })();
 </script>
+
+<!-- PERSISTENT STORAGE + AUTOMATIC FULL BACKUP FIX 183 -->
+<script id="persistent-storage-auto-backup-183">
+(function(){
+  'use strict';
+  const DB='GoldValuationSettingsDB', STORE='settings', KEY='storageFolderHandle';
+
+  async function dbOpen(){
+    return await new Promise(function(resolve,reject){
+      const q=indexedDB.open(DB,1);
+      q.onupgradeneeded=function(){if(!q.result.objectStoreNames.contains(STORE))q.result.createObjectStore(STORE)};
+      q.onsuccess=function(){resolve(q.result)};
+      q.onerror=function(){reject(q.error)};
+    });
+  }
+  async function storedHandle(){
+    try{
+      const db=await dbOpen();
+      return await new Promise(function(resolve,reject){
+        const tx=db.transaction(STORE,'readonly'),q=tx.objectStore(STORE).get(KEY);
+        q.onsuccess=function(){db.close();resolve(q.result||null)};
+        q.onerror=function(){db.close();reject(q.error)};
+      });
+    }catch(e){return null}
+  }
+  async function permission(h,ask){
+    if(!h)return false;
+    try{
+      var p=h.queryPermission?await h.queryPermission({mode:'readwrite'}):'granted';
+      if(p!=='granted'&&ask&&h.requestPermission)p=await h.requestPermission({mode:'readwrite'});
+      return p==='granted';
+    }catch(e){return false}
+  }
+  async function writeFile(dir,name,blob){
+    const fh=await dir.getFileHandle(name,{create:true});
+    const w=await fh.createWritable();await w.write(blob);await w.close();
+  }
+  function rawLocal(){
+    const raw={};
+    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);raw[k]=localStorage.getItem(k)}
+    return raw;
+  }
+  function vals(raw){
+    try{const a=JSON.parse(raw.goldValuations||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}
+  }
+  async function automaticFullBackup(){
+    if(window.__gvAutoBackupBusy)return false;
+    window.__gvAutoBackupBusy=true;
+    try{
+      const h=await storedHandle();
+      if(!h)return false; // Folder has never been selected; do not open a picker.
+      if(!(await permission(h,true)))return false; // Browser permission only; never re-select folder.
+      const d=await h.getDirectoryHandle('Backups',{create:true});
+      const raw=rawLocal(), a=vals(raw), now=new Date();
+      const payload={
+        app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+        format:'GOLD_VALUATION_BACKUP_V3',
+        version:3,
+        backupType:'automatic',
+        createdAt:now.toISOString(),
+        summary:{valuations:a.length,storageKeys:Object.keys(raw).length},
+        rawData:raw
+      };
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      // Always-current recovery copy; overwritten after each successful valuation save.
+      await writeFile(d,'Auto_Backup_Latest.json',blob);
+      // One dated recovery point per day; later saves on that day update the same file.
+      const day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+      await writeFile(d,'Auto_Backup_'+day+'.json',blob);
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      return true;
+    }catch(e){console.warn('Automatic backup failed:',e);return false}
+    finally{window.__gvAutoBackupBusy=false}
+  }
+  window.gvAutomaticFullBackup=automaticFullBackup;
+
+  // Run automatic FULL backup after a successful save. A cancelled/invalid save
+  // does not create a backup because goldValuations remains unchanged.
+  function wrapSave(name){
+    const old=window[name];
+    if(typeof old!=='function'||old.__gvAutoWrapped)return;
+    const wrapped=async function(){
+      const before=localStorage.getItem('goldValuations')||'';
+      const result=await old.apply(this,arguments);
+      const after=localStorage.getItem('goldValuations')||'';
+      if(after!==before)try{await automaticFullBackup()}catch(e){}
+      return result;
+    };
+    wrapped.__gvAutoWrapped=true;
+    window[name]=wrapped;
+  }
+  wrapSave('saveData');
+  wrapSave('idbiSaveData');
+
+  // Storage status: keep the selected handle fixed. Never tell the user to
+  // re-select an existing folder merely because Android/browser permission
+  // needs to be granted again.
+  const oldRefresh=window.refreshSB;
+  window.refreshSB=async function(){
+    const h=await storedHandle();
+    if(!h){
+      const e=document.getElementById('sbFolderStatus');
+      if(e)e.textContent='No storage folder selected. Tap Choose Folder once.';
+      return;
+    }
+    if(await permission(h,false)){
+      if(typeof oldRefresh==='function')return await oldRefresh();
+      return;
+    }
+    const e=document.getElementById('sbFolderStatus');
+    if(e)e.textContent='Selected folder remembered: '+(h.name||'Storage Folder')+'. Tap Refresh/Allow Access if Android asks for permission. You do not need to select the folder again.';
+  };
+
+  // Best-effort restoration of the remembered folder status on app launch.
+  async function restoreStatus(){
+    const h=await storedHandle();if(!h)return;
+    const e=document.getElementById('sbFolderStatus');
+    if(e && !(await permission(h,false)))
+      e.textContent='Selected folder remembered: '+(h.name||'Storage Folder')+'. Folder selection is fixed until you use Change Storage Folder.';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(restoreStatus,500)});
+  else setTimeout(restoreStatus,500);
+})();
+</script>
+<!-- /PERSISTENT STORAGE + AUTOMATIC FULL BACKUP FIX 183 -->
+
 </body>
 </html>
