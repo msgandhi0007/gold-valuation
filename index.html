@@ -13134,7 +13134,7 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
  document.addEventListener('DOMContentLoaded',function(){var hb=document.querySelector('#bankHome button.savedHomeBtn,#bankHome button[class*=savedHome]');if(hb)hb.onclick=function(){return window.openSavedClean168()};var f=document.querySelectorAll('body>footer button');for(var i=0;i<f.length;i++){if((f[i].textContent||'').toLowerCase().indexOf('load')>=0)f[i].onclick=function(){return window.openSavedClean168()}}});
 })();
 </script>
-\n<!-- CUSTOMER TO VALUATION CLEAN ROUTER 169 -->
+<!-- CUSTOMER TO VALUATION CLEAN ROUTER 169 -->
 <script id="customer-to-valuation-clean-router-169">
 (function(){
   var originalDirect = window.openSavedDirectFinal;
@@ -13241,7 +13241,8 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
   }
 })();
 </script>
-<!-- /CUSTOMER TO VALUATION CLEAN ROUTER 169 -->\n
+<!-- /CUSTOMER TO VALUATION CLEAN ROUTER 169 -->
+
 
 <!-- IDBI SAVED RECORD DIRECT LOAD FIX 171 -->
 <script id="idbi-saved-record-direct-load-fix-171">
@@ -13319,6 +13320,57 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 })();
 </script>
 <!-- /IDBI SAVED RECORD DIRECT LOAD FIX 171 -->
+
+<!-- CUSTOMER OPEN BLANK SCREEN FIX 172 -->
+<script id="customer-open-blank-screen-fix-172">
+(function(){
+  function records(){
+    try{if(typeof window.getSaved==='function'){var a=window.getSaved();if(Array.isArray(a))return a}}catch(e){}
+    try{return JSON.parse(localStorage.getItem('goldValuations')||'[]')}catch(e){return []}
+  }
+  function bank(r){return String((r&&r.customer&&r.customer.bank)||(r&&r.bank)||'').trim().toUpperCase()}
+  function isIdbi(r){return !!r&&(r.valuationType==='IDBI_BANK'||r.bankSpecific===true||bank(r).indexOf('IDBI')>=0)}
+  function clearCustomerUI(){
+    var b=document.body;
+    b.classList.remove('customersHomeMode','savedHomeMode','savedClean168Open','dashboardHomeMode','storageMode','storage-backup-mode','bankHomeMode','bank-home-mode','menu-viewing');
+    ['customersHomeScreen','savedClean168','savedValuationsHome','dashboardHome','storageBackupScreen','bankHome','cover-page'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.setProperty('display','none','important')});
+    var sm=document.getElementById('saveManager');if(sm){sm.classList.remove('open');sm.style.setProperty('display','none','important')}
+  }
+  var direct=window.openSavedDirectFinal;
+  window.openSavedDirectFinal=function(i){
+    var a=records(),r=a[Number(i)];
+    if(!r){alert('Saved valuation could not be found.');return false}
+    clearCustomerUI();
+    if(isIdbi(r)){
+      // FIX 171 is the authoritative IDBI loader.
+      if(typeof direct==='function')return direct.call(this,Number(i));
+      if(typeof window.loadSaved==='function')return window.loadSaved(Number(i));
+      return false;
+    }
+    document.body.classList.remove('idbi-open');
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi)idbi.style.setProperty('display','none','important');
+    var main=document.getElementById('valuation-main-sections');
+    // Clear the display:none!important left by an IDBI screen before loading a standard-bank record.
+    if(main){main.style.removeProperty('display');main.style.removeProperty('visibility')}
+    try{
+      if(typeof window.loadSaved==='function')window.loadSaved(Number(i));
+      else throw new Error('loadSaved unavailable');
+    }catch(e){console.error(e);alert('Could not open this saved valuation.');return false}
+    // Make the standard valuation screen authoritative after all legacy loaders finish.
+    setTimeout(function(){
+      clearCustomerUI();
+      document.body.classList.remove('idbi-open');
+      if(idbi)idbi.style.setProperty('display','none','important');
+      if(main){main.style.setProperty('display','block','important');main.style.setProperty('visibility','visible','important')}
+      window.scrollTo(0,0);
+    },80);
+    return true;
+  };
+  window.custOpen=function(i){return window.openSavedDirectFinal(Number(i))};
+})();
+</script>
+<!-- /CUSTOMER OPEN BLANK SCREEN FIX 172 -->
 
 <!-- APP HISTORY NAVIGATION FIX 170 -->
 <script id="app-history-navigation-fix-170">
