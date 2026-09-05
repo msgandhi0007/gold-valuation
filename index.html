@@ -6357,6 +6357,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 <!-- NEWEST-FIRST ORDER FIX 181: Customer Summary + Dashboard Recent Valuations -->
+<!-- DASHBOARD RECENT NEWEST-FIRST FIX 182 -->
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
@@ -11796,7 +11797,20 @@ body.dashboardHomeMode #dashboardHome{display:block!important}
 
     const recentEl=document.getElementById('dashboardRecent');
     if(recentEl){
-      const recent=getAll().slice().sort((a,b)=>String(valDate(b)).localeCompare(String(valDate(a)))).slice(0,5);
+      const recent=getAll().map((v,i)=>({v,i})).sort((A,B)=>{
+        const a=A.v,b=B.v;
+        const dc=String(valDate(b)).localeCompare(String(valDate(a)));
+        if(dc)return dc;
+
+        const tb=Date.parse(b?.modifiedAt||b?.updatedAt||b?.savedAt||b?.createdAt||'')||0;
+        const ta=Date.parse(a?.modifiedAt||a?.updatedAt||a?.savedAt||a?.createdAt||'')||0;
+        if(tb!==ta)return tb-ta;
+
+        const ib=Number(b?.id)||0, ia=Number(a?.id)||0;
+        if(ib!==ia)return ib-ia;
+
+        return B.i-A.i;
+      }).slice(0,5).map(x=>x.v);
       if(!recent.length){
         recentEl.innerHTML='<div class="dashboard-empty">No saved valuations yet.</div>';
       }else{
