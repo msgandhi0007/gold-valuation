@@ -5386,13 +5386,25 @@ function dashboardRecords(){
   }catch(e){return[]}
 }
 function dashboardValue(r){
+  // Unified valuation value for standard and IDBI records.
+  const bank=String(r?.customer?.bank||r?.bank||r?.bankName||'').toUpperCase();
+  const isIdbi=r?.valuationType==='IDBI_BANK'||r?.bankSpecific===true||bank.includes('IDBI');
+  if(isIdbi){
+    const explicit=Number(r?.totalValue??r?.idbi?.totalValue??r?.valuationTotal??r?.value);
+    if(Number.isFinite(explicit)) return explicit;
+    return (Array.isArray(r?.items)?r.items:(Array.isArray(r?.idbi?.rows)?r.idbi.rows:[]))
+      .reduce((sum,it)=>sum+num(it?.value),0);
+  }
   const rate=num(r?.rate);
-  return (Array.isArray(r?.items)?r.items:[]).reduce((sum,it)=>{
-    const g=num(it.gross), s=num(it.stone), p=num(it.purity);
+  const calculated=(Array.isArray(r?.items)?r.items:[]).reduce((sum,it)=>{
+    const g=num(it.gross??it.grossWeight), s=num(it.stone??it.stoneWeight??it.less), p=num(it.purity);
     const net=Math.max(0,g-s), pure=net*p/100;
     const rounded=Math.floor((pure+1e-9)*10)/10;
     return sum+rounded*rate;
   },0);
+  if(calculated>0) return calculated;
+  const explicit=Number(r?.totalValue??r?.valuationTotal??r?.value);
+  return Number.isFinite(explicit)?explicit:0;
 }
 function dashboardDate(r){
   return String(r?.customer?.date||r?.date||'').slice(0,10);
@@ -5521,7 +5533,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     // Bank of Baroda remain reportable even after being removed from management.
     try{
       const a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
-      if(Array.isArray(a)) a.forEach(r=>add(r?.customer?.bank));
+      if(Array.isArray(a)) a.forEach(r=>add(r?.customer?.bank||r?.bank||r?.bankName));
     }catch(e){}
 
     return names;
@@ -5586,7 +5598,7 @@ function reportRecords(){
   }catch(e){return[]}
 }
 function reportLoanAmount(r){
-  return num(r?.customer?.sanctionedLoan||r?.sanctionedLoan||r?.loanAmount||0);
+  return num(r?.customer?.sanctionedLoanAmount??r?.customer?.sanctionedLoan??r?.customer?.loanAmount??r?.sanctionedLoanAmount??r?.sanctionedLoan??r?.loanAmount??r?.idbi?.loanAmount??r?.loan??0);
 }
 function reportDate(r){
   return String(r?.customer?.date||r?.date||'').slice(0,10);
@@ -5615,7 +5627,7 @@ function updateReports(){
   const month=(document.getElementById('reportMonth')||{}).value||'';
   const all=reportRecords();
   const records=all.filter(r=>{
-    const rb=String(r?.customer?.bank||'');
+    const rb=String(r?.customer?.bank||r?.bank||r?.bankName||'');
     return (!bank || rb===bank) && (!month || reportMonth(r)===month);
   });
 
@@ -5634,7 +5646,7 @@ function updateReports(){
 
   const map={};
   records.forEach(r=>{
-    const b=String(r?.customer?.bank||'Other / Not specified');
+    const b=String(r?.customer?.bank||r?.bank||r?.bankName||'Other / Not specified');
     if(!map[b])map[b]={count:0,value:0,loan:0};
     map[b].count++;
     map[b].value+=dashboardValue(r);
@@ -5672,7 +5684,7 @@ function reportFilteredRecords(){
   const bank=(document.getElementById('reportBank')||{}).value||'';
   const month=(document.getElementById('reportMonth')||{}).value||'';
   return reportRecords().filter(r=>{
-    const rb=String(r?.customer?.bank||'');
+    const rb=String(r?.customer?.bank||r?.bank||r?.bankName||'');
     return (!bank||rb===bank)&&(!month||reportMonth(r)===month);
   });
 }
@@ -6031,12 +6043,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     const tv=records.reduce((a,r)=>a+val(r),0);
     const tl=records.reduce((a,r)=>a+loan(r),0);
     const ti=records.reduce((a,r)=>a+(Array.isArray(r.items)?r.items.length:0),0);
-    const banks=[...new Set(records.map(r=>s(r?.customer?.bank).trim()).filter(Boolean))].join(', ')||'—';
+    const banks=[...new Set(records.map(r=>s(r?.customer?.bank||r?.bank||r?.bankName).trim()).filter(Boolean))].join(', ')||'—';
     const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
     const rows=records.map((r,i)=>{
       const c=r?.customer||{};
       const d=s(c.date||r.date).slice(0,10)||'—';
-      const b=s(c.bank)||'—';
+      const b=s(c.bank||r?.bank||r?.bankName)||'—';
       const items=Array.isArray(r.items)?r.items.length:0;
       return `<tr>
         <td class="center">${i+1}</td>
@@ -6209,7 +6221,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(Array.isArray(a)) managed=a.map(x=>String(x||'').trim()).filter(Boolean);
     }catch(e){}
 
-    const saved=saved31().map(r=>String(r?.customer?.bank||'').trim()).filter(Boolean);
+    const saved=saved31().map(r=>String(r?.customer?.bank||r?.bank||r?.bankName||'').trim()).filter(Boolean);
     const names=[...new Set([...managed,...saved])];
 
     select.innerHTML='<option value="">All Banks</option>'+
@@ -6236,13 +6248,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     const bank=String(select.value||'').trim();
     const normBank=function(v){
-      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ').toLowerCase();
+      const n=String(v==null?'':v).trim().replace(/\s+/g,' ').toLowerCase();
       if(n==='sbi bank') return 'state bank of india';
       return n;
     };
     const wanted=normBank(bank);
     const records=saved31().filter(r=>{
-      const b=normBank(r?.customer?.bank);
+      const b=normBank(r?.customer?.bank||r?.bank||r?.bankName);
       return !wanted || b===wanted;
     });
 
@@ -6298,12 +6310,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     const select=document.getElementById('bankStatementSelect');
     const bank=String(select?.value||'').trim()||'All Banks';
     const normBank=function(v){
-      const n=String(v==null?'':v).trim().replace(/\\s+/g,' ').toLowerCase();
+      const n=String(v==null?'':v).trim().replace(/\s+/g,' ').toLowerCase();
       if(n==='sbi bank') return 'state bank of india';
       return n;
     };
     const wanted=normBank(select?.value||'');
-    const records=saved31().filter(r=>!wanted || normBank(r?.customer?.bank)===wanted);
+    const records=saved31().filter(r=>!wanted || normBank(r?.customer?.bank||r?.bank||r?.bankName)===wanted);
     const groups=new Map();
     records.forEach(r=>{
       const c=r?.customer||{},name=String(c.name||r?.customerName||'Unnamed').trim()||'Unnamed';
@@ -6922,7 +6934,7 @@ window.saveCurrentCertificatePdf = async function(){
     }
 
     const used=getSaved33().some(function(r){
-      return String(r?.customer?.bank||'').trim().replace(/\\s+/g,' ').toLowerCase()===name.toLowerCase();
+      return String(r?.customer?.bank||'').trim().replace(/\s+/g,' ').toLowerCase()===name.toLowerCase();
     });
 
     const msg=used
