@@ -10740,5 +10740,298 @@ body.savedHomeMode > footer{
 })();
 </script>
 
+
+
+<!-- CURRENT THEME MATCH - REMOVE DARK CONTENT THEME -->
+<style id="current-theme-match-css">
+:root{
+  --rj-bg:#f8f4eb;
+  --rj-card:#fffdf8;
+  --rj-card2:#fffaf0;
+  --rj-text:#171717;
+  --rj-muted:#756d60;
+  --rj-gold:#b78320;
+  --rj-gold-dark:#93690f;
+  --rj-border:#ddc997;
+  --rj-soft:#eee3cb;
+}
+
+/* Keep the branded black/gold top header, but remove dark UI from app content. */
+#saveManager,
+#storageBackupScreen,
+#bankHome,
+#bankValuationHome,
+#valuation-main-sections,
+#idbi-valuation-screen{
+  color:var(--rj-text)!important;
+}
+
+/* Saved Valuations screen */
+body.savedHomeMode #saveManager,
+body.savedHomeMode #saveManager .save-box,
+#saveManager .save-box{
+  background:var(--rj-bg)!important;
+  color:var(--rj-text)!important;
+}
+#saveManager .save-top{
+  background:var(--rj-bg)!important;
+}
+#saveManager .save-top h2,
+#saveManager .save-top h3,
+#savedManagerTitle{
+  color:var(--rj-text)!important;
+}
+#saveManager .close{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+  box-shadow:none!important;
+}
+#saveManager .close:hover,
+#saveManager .close:active{
+  background:var(--rj-soft)!important;
+}
+
+/* Search, bank, sort and date controls */
+#saveManager input,
+#saveManager select,
+#saveManager textarea,
+#savedHomeBankFilter,
+#saveSearch,
+#saveSort,
+#saveDateFilter{
+  background:#fff!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+  box-shadow:none!important;
+}
+#saveManager input::placeholder,
+#saveSearch::placeholder{
+  color:#9a9388!important;
+}
+#saveManager option{
+  background:#fff!important;
+  color:var(--rj-text)!important;
+}
+
+/* All saved-manager buttons should match cream/gold theme */
+#saveManager button,
+#saveManager .secondary,
+#saveManager .danger,
+#saveManager .primary,
+#saveManager .btn,
+#saveManager [class*="button"]{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+  box-shadow:none!important;
+}
+#saveManager button:hover,
+#saveManager button:active{
+  background:var(--rj-soft)!important;
+}
+#saveManager button.primary,
+#saveManager .primary{
+  background:var(--rj-gold)!important;
+  color:#fff!important;
+  border-color:var(--rj-gold)!important;
+}
+#saveManager button.danger,
+#saveManager .danger{
+  background:#fff7f4!important;
+  color:#8f2f22!important;
+  border-color:#e4b8ad!important;
+}
+
+/* Search utility buttons */
+#saveManager button[onclick*="clear"],
+#saveManager button[onclick*="refresh"],
+#saveManager button[onclick*="sync"],
+#saveManager button[onclick*="Sync"],
+#saveManager button[onclick*="Refresh"]{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+
+/* Saved valuation cards */
+#saveManager .saved-card,
+#saveManager .saved-item,
+#saveManager .save-item,
+#saveManager .valuation-card{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border-color:var(--rj-border)!important;
+}
+#saveManager .saved-card *,
+#saveManager .saved-item *,
+#saveManager .valuation-card *{
+  color:inherit;
+}
+#saveManager .saved-card .muted,
+#saveManager .saved-item .muted,
+#saveManager small{
+  color:var(--rj-muted)!important;
+}
+
+/* Summary tiles */
+#savedHomeSummary .savedHomeStat{
+  background:var(--rj-card)!important;
+  border-color:var(--rj-border)!important;
+}
+#savedHomeSummary .savedHomeStat b{
+  color:var(--rj-text)!important;
+}
+#savedHomeSummary .savedHomeStat span{
+  color:var(--rj-muted)!important;
+}
+
+/* Storage & Backup screen */
+#storageBackupScreen .sbCard,
+#storageBackupScreen .sb-card{
+  background:var(--rj-card)!important;
+  border-color:var(--rj-border)!important;
+  color:var(--rj-text)!important;
+}
+#storageBackupScreen .sbStatus,
+#storageBackupScreen .sb-status{
+  background:#fff!important;
+  color:var(--rj-muted)!important;
+  border-color:var(--rj-border)!important;
+}
+#storageBackupScreen .sbDark,
+#storageBackupScreen .dark{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+#storageBackupScreen .sbBlue,
+#storageBackupScreen .blue{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+#storageBackupScreen .sbGreen,
+#storageBackupScreen .green{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+#storageBackupScreen .sbGold,
+#storageBackupScreen .gold{
+  background:var(--rj-gold)!important;
+  color:#fff!important;
+  border:1px solid var(--rj-gold)!important;
+}
+
+/* Bank-home Storage button should also use current light theme */
+#bankHome .storageBtn,
+#bankValuationHome .storageBtn{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+#bankHome .storageBtn small,
+#bankValuationHome .storageBtn small{
+  color:var(--rj-gold-dark)!important;
+}
+
+/* Normalize dark content buttons on valuation screens, while leaving branded top header intact. */
+#valuation-main-sections button.dark,
+#idbi-valuation-screen button.dark,
+#valuation-main-sections .dark,
+#idbi-valuation-screen .dark,
+#valuation-main-sections .secondary,
+#idbi-valuation-screen .secondary{
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+
+/* Normalize dark selects / inputs in content areas. */
+#valuation-main-sections select,
+#valuation-main-sections input,
+#valuation-main-sections textarea,
+#idbi-valuation-screen select,
+#idbi-valuation-screen input,
+#idbi-valuation-screen textarea{
+  background:#fff!important;
+  color:var(--rj-text)!important;
+  border-color:var(--rj-border)!important;
+}
+
+/* Utility/footer buttons: convert dark backgrounds to current gold/cream language. */
+footer button,
+.app-footer button,
+.bottom-actions button{
+  border-radius:10px!important;
+}
+footer button:not(.save):not([class*="save"]),
+.app-footer button:not(.save):not([class*="save"]),
+.bottom-actions button:not(.save):not([class*="save"]){
+  background:var(--rj-card)!important;
+  color:var(--rj-text)!important;
+  border:1px solid var(--rj-border)!important;
+}
+
+/* Status text and labels */
+#saveManager label,
+#saveManager .label,
+#saveManager .count,
+#saveManager .status{
+  color:var(--rj-muted)!important;
+}
+</style>
+
+<script id="current-theme-match-js">
+(function(){
+  function removeInlineDark(){
+    const roots=[
+      document.getElementById('saveManager'),
+      document.getElementById('storageBackupScreen'),
+      document.getElementById('bankHome'),
+      document.getElementById('bankValuationHome'),
+      document.getElementById('valuation-main-sections'),
+      document.getElementById('idbi-valuation-screen')
+    ].filter(Boolean);
+
+    roots.forEach(function(root){
+      root.querySelectorAll('select,input,textarea,button').forEach(function(el){
+        const s=(el.getAttribute('style')||'').toLowerCase();
+        if(
+          s.includes('background:#001') ||
+          s.includes('background: #001') ||
+          s.includes('background:#000') ||
+          s.includes('background: #000') ||
+          s.includes('background:#111') ||
+          s.includes('background: #111') ||
+          s.includes('background:#1f1f1f') ||
+          s.includes('background: #1f1f1f') ||
+          s.includes('background:#071') ||
+          s.includes('background: #071')
+        ){
+          el.style.removeProperty('background');
+          el.style.removeProperty('background-color');
+          el.style.removeProperty('color');
+        }
+      });
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(removeInlineDark,100);
+      setTimeout(removeInlineDark,500);
+    });
+  }else{
+    setTimeout(removeInlineDark,50);
+  }
+
+  document.addEventListener('click',function(){
+    setTimeout(removeInlineDark,30);
+  },true);
+})();
+</script>
+
 </body>
 </html>
