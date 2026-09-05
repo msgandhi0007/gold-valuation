@@ -3677,7 +3677,7 @@ body:not(.menu-viewing) .s111-rate{
 #idbi-valuation-screen .idbi-actions button:nth-child(4),#idbi-valuation-screen .idbi-actions button:nth-child(5){background:#f4b400!important;color:#111!important}
 @media(max-width:700px){#idbi-valuation-screen .idbi-actions{gap:6px!important}#idbi-valuation-screen .idbi-actions button{height:58px!important;font-size:13px!important;border-radius:14px!important}#idbi-valuation-screen .idbi-loan{grid-template-columns:1fr 1fr 1.35fr!important}}
 </style>
-<meta name="app-build" content="20260905-1940-saved-fix">
+<meta name="app-build" content="20260905-2035-customer-open-fix">
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -13062,5 +13062,112 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
  document.addEventListener('DOMContentLoaded',function(){var hb=document.querySelector('#bankHome button.savedHomeBtn,#bankHome button[class*=savedHome]');if(hb)hb.onclick=function(){return window.openSavedClean168()};var f=document.querySelectorAll('body>footer button');for(var i=0;i<f.length;i++){if((f[i].textContent||'').toLowerCase().indexOf('load')>=0)f[i].onclick=function(){return window.openSavedClean168()}}});
 })();
 </script>
-</body>
+\n<!-- CUSTOMER TO VALUATION CLEAN ROUTER 169 -->
+<script id="customer-to-valuation-clean-router-169">
+(function(){
+  var originalDirect = window.openSavedDirectFinal;
+
+  function resetCustomerScreenBeforeOpen(){
+    var body=document.body;
+    if(body){
+      body.classList.remove('customersHomeMode','savedHomeMode','dashboardHomeMode','storageMode','storage-backup-mode','menu-viewing');
+    }
+    var cs=document.getElementById('customersHomeScreen');
+    if(cs) cs.style.display='none';
+
+    // Use the same UI reset path that is already proven to work when a record
+    // is opened from the Saved Valuations screen.
+    if(typeof window.showBankHome==='function'){
+      try{ window.showBankHome(); }catch(e){}
+    }else{
+      if(body) body.classList.add('bankHomeMode');
+      var bh=document.getElementById('bankHome');
+      if(bh) bh.style.display='block';
+    }
+  }
+
+  if(typeof originalDirect==='function'){
+    window.openSavedDirectFinal=function(i){
+      if(document.body.classList.contains('customersHomeMode') ||
+         (document.getElementById('customersHomeScreen') && document.getElementById('customersHomeScreen').style.display!=='none')){
+        resetCustomerScreenBeforeOpen();
+      }
+      return originalDirect.call(this,i);
+    };
+  }
+
+  // All customer-screen Open actions use the same direct opener as Saved Valuations.
+  window.custOpen=function(i){
+    if(i<0) return;
+    resetCustomerScreenBeforeOpen();
+    if(typeof window.openSavedDirectFinal==='function') return window.openSavedDirectFinal(i);
+    if(typeof window.loadSaved==='function') return window.loadSaved(i);
+  };
+
+  window.custRevalue=function(i){
+    if(i<0) return;
+    resetCustomerScreenBeforeOpen();
+    if(typeof window.duplicateSaved==='function') return window.duplicateSaved(i);
+    if(typeof window.loadSaved==='function') return window.loadSaved(i);
+  };
+
+  window.custPrint=function(i){
+    if(i>=0 && typeof window.printSaved==='function') return window.printSaved(i);
+  };
+  window.custShare=function(i){
+    if(i>=0 && typeof window.shareSavedPdf==='function') return window.shareSavedPdf(i);
+  };
+
+  // Keep View History inside Customers and filter to the selected customer.
+  window.custViewHistory=function(i){
+    var all=[];
+    try{ if(typeof window.getSaved==='function') all=window.getSaved()||[]; }catch(e){}
+    var r=all[i]; if(!r) return;
+    var key=String((r.customer&&r.customer.mobile)||(r.customer&&r.customer.name)||'').trim();
+    document.body.classList.remove('bankHomeMode','bank-home-mode','savedHomeMode','dashboardHomeMode','storageMode','storage-backup-mode');
+    document.body.classList.add('customersHomeMode');
+    var bh=document.getElementById('bankHome'); if(bh) bh.style.display='none';
+    var cs=document.getElementById('customersHomeScreen'); if(cs) cs.style.display='block';
+    if(typeof window.custSwitchTab==='function') window.custSwitchTab('history');
+    var q=document.getElementById('custSearch'); if(q) q.value=key;
+    if(typeof window.renderCustomersHome==='function') window.renderCustomersHome();
+    window.scrollTo(0,0);
+  };
+
+  // The older professional-history section also routes through the working opener.
+  window.s161Open=function(i){ return window.custOpen(i); };
+
+  // Customer Summary attaches its own onclick handlers after each render.
+  // Rebind them to the fixed customer router every time the summary is rendered.
+  var oldSummary=window.renderCustomerSummaryHome;
+  if(typeof oldSummary==='function'){
+    window.renderCustomerSummaryHome=function(){
+      var out=oldSummary.apply(this,arguments);
+      var list=document.getElementById('custSummaryList');
+      if(list){
+        list.querySelectorAll('.custGroupCard').forEach(function(card){
+          var openBtn=card.querySelector('.custGroupAction .open');
+          var histBtn=card.querySelector('.custGroupAction button:not(.open)');
+          if(!openBtn) return;
+          var raw=openBtn.getAttribute('onclick')||'';
+          var m=raw.match(/custOpen\((\d+)\)/);
+          if(!m && openBtn.onclick){
+            // The previous router may already have replaced the inline handler;
+            // derive the record index from the original inline markup when possible.
+            m=raw.match(/(\d+)/);
+          }
+          if(!m) return;
+          var idx=Number(m[1]);
+          openBtn.onclick=function(e){ if(e)e.preventDefault(); return window.custOpen(idx); };
+          if(histBtn){
+            histBtn.onclick=function(e){ if(e)e.preventDefault(); return window.custViewHistory(idx); };
+          }
+        });
+      }
+      return out;
+    };
+  }
+})();
+</script>
+<!-- /CUSTOMER TO VALUATION CLEAN ROUTER 169 -->\n</body>
 </html>
