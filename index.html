@@ -10310,5 +10310,36 @@ body{
 })();
 </script>
 
+
+<!-- BANK HOME SCROLL FIX -->
+<style id="bank-home-scroll-final-css">
+html,body{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
+body.bankHomeMode,body.bank-home-mode,body.storageMode,body.storage-backup-mode{height:auto!important;min-height:100vh!important;overflow-y:auto!important;touch-action:pan-y!important}
+#bankHome,#bankValuationHome,#storageBackupScreen{height:auto!important;min-height:100vh!important;max-height:none!important;overflow:visible!important;touch-action:pan-y!important;padding-bottom:130px!important}
+.bankChoice,.bank-home-grid{height:auto!important;max-height:none!important;overflow:visible!important}
+</style>
+<script id="bank-home-scroll-final-js">
+(function(){
+ function unlock(){
+  document.documentElement.style.setProperty('overflow-y','auto','important');
+  document.documentElement.style.setProperty('height','auto','important');
+  document.body.style.setProperty('overflow-y','auto','important');
+  document.body.style.setProperty('overflow-x','hidden','important');
+  document.body.style.setProperty('height','auto','important');
+  document.body.style.setProperty('min-height','100vh','important');
+  document.body.style.setProperty('touch-action','pan-y','important');
+ }
+ function install(){
+  unlock();
+  ['showBankHome','showBankValuationHome','openStorageBackupScreen','closeStorageBackupScreen'].forEach(function(n){
+   var old=window[n]; if(typeof old!=='function'||old._scrollWrapped)return;
+   var fn=function(){var r=old.apply(this,arguments);unlock();setTimeout(unlock,30);setTimeout(unlock,200);return r};fn._scrollWrapped=true;window[n]=fn;
+  });
+  setTimeout(unlock,100);setTimeout(unlock,500);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+ document.addEventListener('click',function(){setTimeout(unlock,20)},true);
+})();
+</script>
 </body>
 </html>
