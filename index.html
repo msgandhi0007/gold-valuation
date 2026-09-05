@@ -12423,6 +12423,41 @@ body>footer button:active,
   background:#fff!important;
 }
 </style>
+<!-- STEP 154 - Route fixed footer actions to IDBI-specific functions when IDBI valuation screen is open -->
+<script id="idbi-footer-action-router-fix">
+(function(){
+  function idbiScreenIsActive(){
+    var screen=document.getElementById('idbi-valuation-screen');
+    if(!screen) return false;
+    var cs=window.getComputedStyle ? getComputedStyle(screen) : null;
+    return screen.style.display!=='none' && (!cs || cs.display!=='none');
+  }
 
+  var mainSave=window.saveData;
+  var mainLoad=window.loadData;
+  var mainShare=window.shareResult;
+
+  window.saveData=async function(){
+    if(idbiScreenIsActive() && typeof window.idbiSaveData==='function'){
+      return await window.idbiSaveData();
+    }
+    if(typeof mainSave==='function') return await mainSave.apply(this,arguments);
+  };
+
+  window.loadData=function(){
+    if(idbiScreenIsActive() && typeof window.idbiLoadData==='function'){
+      return window.idbiLoadData();
+    }
+    if(typeof mainLoad==='function') return mainLoad.apply(this,arguments);
+  };
+
+  window.shareResult=async function(){
+    if(idbiScreenIsActive() && typeof window.idbiShareData==='function'){
+      return await window.idbiShareData();
+    }
+    if(typeof mainShare==='function') return await mainShare.apply(this,arguments);
+  };
+})();
+</script>
 </body>
 </html>
