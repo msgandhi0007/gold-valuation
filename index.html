@@ -13435,5 +13435,175 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 <style id="backup-restore-audit-final-css">
 #storageBackupScreen .sbStatus,#storageBackupScreen .sb-status{white-space:pre-line!important;line-height:1.5!important}
 </style>
+
+<!-- STORAGE BANK-FOLDER + BACKUP + SYNC FINAL FIX 171 -->
+<script id="storage-bank-folder-sync-final-171">
+(function(){
+  'use strict';
+  const BANKS=['SBI BANK','IDBI BANK','MAHARASHTRA GRAMIN BANK','DNYANDEEP CO-OP SOCIETY LTD'];
+  const DB='GoldValuationSettingsDB', STORE='settings', KEY='storageFolderHandle';
+  function set(id,msg){const e=document.getElementById(id);if(e)e.textContent=msg;}
+  function clean(v){return String(v==null?'':v).trim();}
+  function normBank(v){
+    const x=clean(v).toUpperCase().replace(/\s+/g,' ');
+    if(x.includes('IDBI')) return 'IDBI BANK';
+    if(x.includes('MAHARASHTRA') && x.includes('GRAMIN')) return 'MAHARASHTRA GRAMIN BANK';
+    if(x.includes('DNYANDEEP')) return 'DNYANDEEP CO-OP SOCIETY LTD';
+    if(x==='SBI'||x.includes('STATE BANK')||x.includes('SBI')) return 'SBI BANK';
+    return BANKS.includes(clean(v))?clean(v):'';
+  }
+  function bankOf(r){return normBank(r?.customer?.bank||r?.bank||(r?.valuationType==='IDBI_BANK'?'IDBI BANK':''));}
+  function keyOf(r){
+    const id=clean(r?.id); if(id) return 'id:'+id;
+    const c=clean(r?.certificateNo); if(c) return 'cert:'+c.toLowerCase();
+    return 'fallback:'+clean(r?.customer?.name).toLowerCase()+'|'+clean(r?.customer?.mobile)+'|'+clean(r?.customer?.date)+'|'+bankOf(r);
+  }
+  function stamp(r){const t=Date.parse(r?.modifiedAt||r?.createdAt||'');return Number.isFinite(t)?t:0;}
+  function filenameOf(r){
+    const name=clean(r?.customer?.name||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').slice(0,70)||'Customer';
+    const date=clean(r?.customer?.date||'Valuation').replace(/[^0-9-]/g,'-')||'Valuation';
+    const cert=clean(r?.certificateNo).replace(/[^A-Za-z0-9_-]+/g,'_');
+    return name+' - '+date+(cert?' - '+cert:'')+'.json';
+  }
+  async function openDB(){return await new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});}
+  async function getStoredHandle(){
+    try{const db=await openDB();return await new Promise((res,rej)=>{const t=db.transaction(STORE,'readonly'),q=t.objectStore(STORE).get(KEY);q.onsuccess=()=>{db.close();res(q.result||null)};q.onerror=()=>{db.close();rej(q.error)}})}catch(e){return null;}
+  }
+  async function usableHandle(requestPermission){
+    const h=await getStoredHandle(); if(!h) return null;
+    try{
+      let p=h.queryPermission?await h.queryPermission({mode:'readwrite'}):'granted';
+      if(p!=='granted' && requestPermission && h.requestPermission) p=await h.requestPermission({mode:'readwrite'});
+      return p==='granted'?h:null;
+    }catch(e){return null;}
+  }
+  async function ensureFolders(h){
+    const vals=await h.getDirectoryHandle('Valuations',{create:true});
+    for(const b of BANKS) await vals.getDirectoryHandle(b,{create:true});
+    for(const d of ['Reports','Certificates','Backups']) await h.getDirectoryHandle(d,{create:true});
+    return vals;
+  }
+  async function writeBlob(h,parts,filename,blob){
+    let dir=h; for(const part of parts) dir=await dir.getDirectoryHandle(part,{create:true});
+    const fh=await dir.getFileHandle(filename,{create:true}); const w=await fh.createWritable(); await w.write(blob); await w.close(); return true;
+  }
+  async function writeRecord(h,r,forcedName){
+    const bank=bankOf(r); if(!bank) throw new Error('Bank is missing from valuation.');
+    return writeBlob(h,['Valuations',bank],forcedName||filenameOf(r),new Blob([JSON.stringify(r,null,2)],{type:'application/json'}));
+  }
+  window.gvGetSelectedStorageHandle=usableHandle;
+
+  /* Every valuation JSON is physically stored in Valuations/<BANK>/, even when old save code asks for Valuations only. */
+  const previousSaveBlob=window.saveBlobToStorageFolder;
+  window.saveBlobToStorageFolder=async function(filename,blob,subfolder){
+    const h=await usableHandle(true); if(!h) return false;
+    await ensureFolders(h);
+    let path=clean(subfolder);
+    if(path==='Valuations'){
+      try{
+        const txt=await blob.text(), rec=JSON.parse(txt), bank=bankOf(rec);
+        if(bank) path='Valuations/'+bank;
+      }catch(e){}
+    }
+    const parts=path.split('/').filter(Boolean);
+    try{return await writeBlob(h,parts,filename,blob);}catch(e){console.error('Selected-folder save failed',e);return false;}
+  };
+
+  async function countBankFiles(vals){
+    const out={};
+    for(const b of BANKS){
+      let n=0; const d=await vals.getDirectoryHandle(b,{create:true});
+      if(d.values) for await(const e of d.values()) if(e.kind==='file' && /\.json$/i.test(e.name)) n++;
+      out[b]=n;
+    }
+    return out;
+  }
+  window.refreshSB=async function(){
+    const h=await getStoredHandle(); if(!h){set('sbFolderStatus','No storage folder selected. Tap Choose Folder.');return;}
+    const u=await usableHandle(true); if(!u){set('sbFolderStatus','Selected folder permission is not available. Tap Choose Folder and select it again.');return;}
+    try{
+      const vals=await ensureFolders(u), c=await countBankFiles(vals);
+      set('sbFolderStatus','Selected folder: '+u.name+' ✓\nValuations are stored bank-wise:\n'+BANKS.map(b=>'• '+b+': '+c[b]+' file(s)').join('\n')+'\n• Backups: '+u.name+'/Backups');
+    }catch(e){set('sbFolderStatus','Could not access the selected storage folder. Please choose it again.');}
+  };
+
+  /* Full backup must use the selected folder. No silent fallback to Downloads. */
+  window.backupSB=async function(){
+    try{
+      const h=await usableHandle(true);
+      if(!h){set('sbDataStatus','Backup not created. Select/allow the Storage Folder first. Nothing was downloaded.');return;}
+      await ensureFolders(h);
+      const raw={}; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);raw[k]=localStorage.getItem(k);}
+      let vals=[]; try{vals=JSON.parse(raw.goldValuations||'[]');if(!Array.isArray(vals))vals=[];}catch(e){}
+      const used=[...new Set(vals.map(bankOf).filter(Boolean))];
+      const payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V3',version:3,createdAt:new Date().toISOString(),summary:{valuations:vals.length,banks:used,storageKeys:Object.keys(raw).length},rawData:raw};
+      const fn='Gold_Valuation_Backup_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+      await writeBlob(h,['Backups'],fn,new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
+      set('sbDataStatus','Backup complete ✓\nSaved to selected folder: '+h.name+'/Backups/'+fn+'\n'+vals.length+' valuations • '+used.length+' banks • '+Object.keys(raw).length+' data/settings keys');
+    }catch(e){console.error(e);set('sbDataStatus','Backup failed in the selected Storage Folder: '+(e.message||'Unknown error'));}
+  };
+
+  async function readJsonFile(dir,name){
+    try{const fh=await dir.getFileHandle(name);const f=await fh.getFile();return JSON.parse(await f.text());}catch(e){return null;}
+  }
+  async function collectBankFiles(vals){
+    const files=[];
+    for(const bank of BANKS){
+      const dir=await vals.getDirectoryHandle(bank,{create:true});
+      if(dir.values) for await(const e of dir.values()) if(e.kind==='file'&&/\.json$/i.test(e.name)){
+        const data=await readJsonFile(dir,e.name); if(data&&typeof data==='object') files.push({bank,dir,name:e.name,data});
+      }
+    }
+    return files;
+  }
+  async function migrateLegacyRoot(vals,h){
+    let migrated=0, skipped=0;
+    if(!vals.values) return {migrated,skipped};
+    const roots=[]; for await(const e of vals.values()) if(e.kind==='file'&&/\.json$/i.test(e.name)) roots.push(e.name);
+    for(const name of roots){
+      const rec=await readJsonFile(vals,name), bank=bankOf(rec);
+      if(!rec||!bank){skipped++;continue;}
+      try{await writeRecord(h,rec,name); await vals.removeEntry(name); migrated++;}catch(e){skipped++;}
+    }
+    return {migrated,skipped};
+  }
+  window.syncSB=async function(){
+    set('sbSyncStatus','Syncing valuation files…');
+    try{
+      const h=await usableHandle(true); if(!h){set('sbSyncStatus','Sync not started. Select/allow the Storage Folder first.');return;}
+      const valsDir=await ensureFolders(h);
+      const mig=await migrateLegacyRoot(valsDir,h);
+      const folder=await collectBankFiles(valsDir);
+      let local=[]; try{local=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(local))local=[];}catch(e){local=[];}
+      const lm=new Map(local.map((r,i)=>[keyOf(r),{r,i}]));
+      let restored=0,updatedApp=0,updatedFiles=0,createdFiles=0;
+      const seenFolder=new Set();
+      for(const f of folder){
+        const k=keyOf(f.data); seenFolder.add(k); const l=lm.get(k);
+        if(!l){local.push(f.data);lm.set(k,{r:f.data,i:local.length-1});restored++;continue;}
+        if(JSON.stringify(l.r)===JSON.stringify(f.data)) continue;
+        if(stamp(f.data)>stamp(l.r)){local[l.i]=f.data;l.r=f.data;updatedApp++;}
+        else {await writeRecord(h,l.r,f.name);updatedFiles++;}
+      }
+      for(const r of local){
+        const k=keyOf(r); if(seenFolder.has(k)) continue;
+        await writeRecord(h,r); createdFiles++;
+      }
+      if(typeof window.dedupeValuations==='function') local=window.dedupeValuations(local);
+      localStorage.setItem('goldValuations',JSON.stringify(local));
+      try{if(typeof window.renderSavedClean168==='function')window.renderSavedClean168();}catch(e){}
+      try{if(typeof window.renderCustomersHome==='function')window.renderCustomersHome();}catch(e){}
+      try{if(typeof window.renderDashboardHome==='function')window.renderDashboardHome();}catch(e){}
+      const counts=await countBankFiles(valsDir);
+      set('sbSyncStatus','Sync complete ✓\nRestored to app: '+restored+'\nUpdated app from newer files: '+updatedApp+'\nUpdated bank files from newer app records: '+updatedFiles+'\nCreated missing bank files: '+createdFiles+'\nMoved legacy Valuations files into bank folders: '+mig.migrated+(mig.skipped?' ('+mig.skipped+' could not be classified)':'')+'\n\n'+BANKS.map(b=>b+': '+counts[b]+' file(s)').join('\n'));
+    }catch(e){console.error(e);set('sbSyncStatus','Sync failed: '+(e.message||'Unknown error'));}
+  };
+
+  /* Existing older sync controls, if opened from Settings, use the same working sync. */
+  window.syncValuationFiles64=window.syncSB;
+  setTimeout(()=>{try{window.refreshSB();}catch(e){}},300);
+})();
+</script>
+<!-- /STORAGE BANK-FOLDER + BACKUP + SYNC FINAL FIX 171 -->
 </body>
 </html>
