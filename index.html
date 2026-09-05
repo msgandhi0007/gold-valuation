@@ -5167,7 +5167,7 @@ function renderSaved(){
           <button class="share-btn" onclick="shareSavedPdf(${i})">↗ Share Certificate</button>
         ` : `
           <button class="load-btn" onclick="loadSaved(${i})">Open</button>
-          <button class="secondary" type="button" onclick="duplicateSaved(${i})">📋 Duplicate</button>
+          <button class="secondary" type="button" onclick="duplicateSaved(${i})">♻️ Revalue</button>
           <button class="print-btn" onclick="printSaved(${i})">Print PDF</button>
           <button class="share-btn" onclick="shareSavedPdf(${i})">Share PDF</button>
           <button class="delete-btn" onclick="deleteSaved(${i})">Delete</button>
@@ -10098,6 +10098,7 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     <button onclick="openBank('IDBI BANK')">IDBI BANK<small>Open Valuation</small></button>
     <button onclick="openBank('MAHARASHTRA GRAMIN BANK')">MAHARASHTRA GRAMIN BANK<small>Open Valuation</small></button>
     <button onclick="openBank('DNYANDEEP CO-OP SOCIETY LTD')">DNYANDEEP CO-OP SOCIETY LTD<small>Open Valuation</small></button>
+    <button class="savedHomeBtn" onclick="openSavedValuationsHome()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
     <button class="storageBtn" onclick="openStorageBackupScreen()">💾 STORAGE & BACKUP<small>Folder • Backup • Restore • Sync</small></button>
   </div>
 </section>
@@ -10497,6 +10498,244 @@ body.storage-backup-mode > footer{
     });
   }else{
     setTimeout(fixShell,50);
+  }
+})();
+</script>
+
+
+
+<!-- SAVED VALUATIONS & SEARCH - BANK HOME FEATURE -->
+<style id="saved-valuations-home-css">
+#bankHome .savedHomeBtn{
+  background:#fffdf8!important;
+  color:#171717!important;
+  border:1px solid #d7bd82!important;
+}
+#bankHome .savedHomeBtn small{
+  color:#9a6b0a!important;
+}
+
+/* Turn the existing Saved Valuations manager into a clean mobile full-screen page. */
+body.savedHomeMode #saveManager{
+  display:block!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100dvh!important;
+  z-index:99999!important;
+  background:#f8f4eb!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+body.savedHomeMode #saveManager .save-box{
+  width:min(100%,560px)!important;
+  max-width:560px!important;
+  min-height:100dvh!important;
+  margin:0 auto!important;
+  border-radius:0!important;
+  padding:14px 12px 120px!important;
+  box-shadow:none!important;
+  background:#f8f4eb!important;
+  overflow:visible!important;
+}
+body.savedHomeMode #saveManager .save-top{
+  position:sticky!important;
+  top:0!important;
+  z-index:5!important;
+  background:#f8f4eb!important;
+  padding:4px 0 10px!important;
+}
+body.savedHomeMode #saveManager .save-top h2{
+  font-size:22px!important;
+  margin:0!important;
+}
+body.savedHomeMode #saveManager .close{
+  min-width:44px!important;
+  min-height:40px!important;
+}
+body.savedHomeMode #bankHome,
+body.savedHomeMode > .app,
+body.savedHomeMode > footer{
+  display:none!important;
+}
+#savedHomeSummary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin:4px 0 10px;
+}
+.savedHomeStat{
+  border:1px solid #e0d5bf;
+  border-radius:11px;
+  background:#fffdf8;
+  padding:9px 7px;
+  text-align:center;
+}
+.savedHomeStat b{display:block;font-size:18px;color:#191919}
+.savedHomeStat span{display:block;font-size:9px;color:#777;margin-top:2px;font-weight:700}
+#savedHomeBankFilter{
+  width:100%;
+  min-height:42px;
+  padding:8px 10px;
+  border:1px solid #d8ccb4;
+  border-radius:10px;
+  background:#fff;
+  font-size:12px;
+  font-weight:750;
+}
+#saveManager .saved-card{
+  background:#fffdf8!important;
+  border:1px solid #e1d6bf!important;
+  border-radius:12px!important;
+  margin:8px 0!important;
+}
+#saveManager .saved-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+#saveManager .saved-actions button{
+  min-height:40px!important;
+  border-radius:8px!important;
+  font-size:11px!important;
+}
+@media(max-width:360px){
+  #savedHomeSummary{grid-template-columns:1fr 1fr}
+  #savedHomeSummary .savedHomeStat:last-child{grid-column:1/-1}
+}
+</style>
+
+<script id="saved-valuations-home-js">
+(function(){
+  let openedFromBankHome=false;
+
+  function todayISO(){
+    const d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function ensureSavedHomeControls(){
+    const box=document.querySelector('#saveManager .save-box');
+    const searchRow=document.getElementById('saveSearch')?.parentElement;
+    if(!box || !searchRow)return;
+
+    if(!document.getElementById('savedHomeSummary')){
+      const summary=document.createElement('div');
+      summary.id='savedHomeSummary';
+      summary.innerHTML=
+        '<div class="savedHomeStat"><b id="svTotal">0</b><span>TOTAL</span></div>'+
+        '<div class="savedHomeStat"><b id="svToday">0</b><span>TODAY</span></div>'+
+        '<div class="savedHomeStat"><b id="svBanks">0</b><span>BANKS</span></div>';
+      searchRow.parentNode.insertBefore(summary,searchRow);
+    }
+
+    if(!document.getElementById('savedHomeBankFilter')){
+      const wrap=document.createElement('div');
+      wrap.style.margin='0 0 8px';
+      wrap.innerHTML=
+        '<select id="savedHomeBankFilter" onchange="setSavedBankFilter(this.value)">'+
+          '<option value="ALL">All Banks</option>'+
+          '<option value="SBI BANK">SBI BANK</option>'+
+          '<option value="IDBI BANK">IDBI BANK</option>'+
+          '<option value="MAHARASHTRA GRAMIN BANK">MAHARASHTRA GRAMIN BANK</option>'+
+          '<option value="DNYANDEEP CO-OP SOCIETY LTD">DNYANDEEP CO-OP SOCIETY LTD</option>'+
+        '</select>';
+      searchRow.parentNode.insertBefore(wrap,searchRow);
+    }
+  }
+
+  function refreshStats(){
+    let all=[];
+    try{ all=typeof getSaved==='function' ? getSaved() : JSON.parse(localStorage.getItem('goldValuations')||'[]'); }
+    catch(e){ all=[]; }
+    if(!Array.isArray(all))all=[];
+    const today=todayISO();
+    const banks=new Set(all.map(x=>String(x?.customer?.bank||'').trim()).filter(Boolean));
+    const total=document.getElementById('svTotal');
+    const td=document.getElementById('svToday');
+    const bk=document.getElementById('svBanks');
+    if(total)total.textContent=all.length;
+    if(td)td.textContent=all.filter(x=>String(x?.customer?.date||x?.date||'').slice(0,10)===today).length;
+    if(bk)bk.textContent=banks.size;
+  }
+
+  window.openSavedValuationsHome=function(){
+    openedFromBankHome=true;
+    document.body.classList.remove('bankHomeMode','bank-home-mode','storageMode','storage-backup-mode');
+    document.body.classList.add('savedHomeMode');
+
+    ensureSavedHomeControls();
+
+    if(typeof window.openLoad==='function')window.openLoad();
+    else{
+      const m=document.getElementById('saveManager');
+      if(m)m.style.display='block';
+    }
+
+    const title=document.getElementById('savedManagerTitle');
+    if(title)title.textContent='📂 Saved Valuations';
+
+    const bank=document.getElementById('savedHomeBankFilter');
+    if(bank)bank.value='ALL';
+
+    refreshStats();
+    setTimeout(function(){
+      refreshStats();
+      const m=document.getElementById('saveManager');
+      if(m)m.scrollTop=0;
+    },50);
+  };
+
+  window.closeSavedValuationsHome=function(){
+    document.body.classList.remove('savedHomeMode');
+    const m=document.getElementById('saveManager');
+    if(m)m.style.display='none';
+    openedFromBankHome=false;
+    if(typeof window.showBankHome==='function')window.showBankHome();
+    else if(typeof window.showBankValuationHome==='function')window.showBankValuationHome();
+  };
+
+  // Make the X button return to Bank Selection when this feature was opened there.
+  document.addEventListener('click',function(e){
+    if(!document.body.classList.contains('savedHomeMode'))return;
+    const close=e.target.closest && e.target.closest('#saveManager .close');
+    if(close){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      window.closeSavedValuationsHome();
+    }
+  },true);
+
+  // Keep summary counters current after searches/deletes/refreshes.
+  const oldRender=window.renderSaved;
+  if(typeof oldRender==='function'){
+    window.renderSaved=function(){
+      const r=oldRender.apply(this,arguments);
+      ensureSavedHomeControls();
+      refreshStats();
+      const filter=document.getElementById('savedHomeBankFilter');
+      if(filter && typeof selectedBank!=='undefined')filter.value=selectedBank||'ALL';
+      return r;
+    };
+  }
+
+  // If an existing valuation is loaded/revalued, remove the full-screen manager mode.
+  ['loadSaved','duplicateSaved'].forEach(function(name){
+    const old=window[name];
+    if(typeof old!=='function')return;
+    window[name]=function(){
+      document.body.classList.remove('savedHomeMode');
+      openedFromBankHome=false;
+      return old.apply(this,arguments);
+    };
+  });
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(ensureSavedHomeControls,150);
+    });
+  }else{
+    setTimeout(ensureSavedHomeControls,100);
   }
 })();
 </script>
