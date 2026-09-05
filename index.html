@@ -10407,5 +10407,99 @@ body.storage-backup-mode{
 })();
 </script>
 
+
+
+<!-- FINAL GAP FIX: HIDE THE OLD FULL-HEIGHT APP SHELL -->
+<style id="final-gap-shell-fix">
+/* bankHome and storageBackupScreen are outside .app.
+   The old .app has min-height:100vh, so even with its header/main hidden
+   it was still leaving one full blank screen above the new pages. */
+body.bankHomeMode > .app,
+body.bank-home-mode > .app,
+body.storageMode > .app,
+body.storage-backup-mode > .app{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
+/* These screens must begin immediately after the Android/browser top edge. */
+body.bankHomeMode #bankHome,
+body.bank-home-mode #bankHome,
+body.storageMode #storageBackupScreen,
+body.storage-backup-mode #storageBackupScreen{
+  display:block!important;
+  position:relative!important;
+  top:0!important;
+  margin:0 auto!important;
+  transform:none!important;
+  min-height:0!important;
+}
+
+/* No valuation footer on selection/storage pages. */
+body.bankHomeMode > footer,
+body.bank-home-mode > footer,
+body.storageMode > footer,
+body.storage-backup-mode > footer{
+  display:none!important;
+}
+</style>
+<script id="final-gap-shell-fix-js">
+(function(){
+  function fixShell(){
+    const utility =
+      document.body.classList.contains('bankHomeMode') ||
+      document.body.classList.contains('bank-home-mode') ||
+      document.body.classList.contains('storageMode') ||
+      document.body.classList.contains('storage-backup-mode');
+
+    const app=document.querySelector('body > .app');
+    if(utility && app){
+      app.style.setProperty('display','none','important');
+      app.style.setProperty('min-height','0','important');
+      app.style.setProperty('height','0','important');
+      app.style.setProperty('padding','0','important');
+      app.style.setProperty('margin','0','important');
+    }else if(app){
+      app.style.removeProperty('display');
+      app.style.removeProperty('min-height');
+      app.style.removeProperty('height');
+      app.style.removeProperty('padding');
+      app.style.removeProperty('margin');
+    }
+
+    document.documentElement.style.setProperty('overflow-y','auto','important');
+    document.body.style.setProperty('overflow-y','auto','important');
+  }
+
+  ['showBankHome','showBankValuationHome','openStorageBackupScreen','closeStorageBackupScreen','openBank'].forEach(function(name){
+    const old=window[name];
+    if(typeof old!=='function' || old._finalGapWrapped)return;
+    const fn=function(){
+      const result=old.apply(this,arguments);
+      fixShell();
+      setTimeout(fixShell,0);
+      setTimeout(fixShell,60);
+      window.scrollTo(0,0);
+      return result;
+    };
+    fn._finalGapWrapped=true;
+    window[name]=fn;
+  });
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(fixShell,100);
+      setTimeout(fixShell,500);
+    });
+  }else{
+    setTimeout(fixShell,50);
+  }
+})();
+</script>
+
 </body>
 </html>
