@@ -12017,5 +12017,159 @@ body.idbi-open #bottomBar button:nth-child(3){
 })();
 </script>
 
+
+
+<!-- ACTUAL DOM SELECTOR FIXES -->
+<style id="actual-selector-fix-css">
+:root{
+  --rj-bg:#f8f4eb;
+  --rj-card:#fffdf8;
+  --rj-text:#171717;
+  --rj-gold:#b78320;
+  --rj-gold-dark:#93690f;
+  --rj-border:#ddc997;
+}
+
+/* BANK HOME: hide the real generic footer whenever bankHome is actually visible */
+body:has(#bankHome[style*="display: block"]) footer,
+body:has(#bankHome:not([style*="display: none"])) footer{
+  display:none!important;
+}
+
+/* IDBI: target the REAL bottom action bar */
+#idbi-valuation-screen .idbi-bottom-actions{
+  background:#f8f4eb!important;
+  border-top:1px solid var(--rj-border)!important;
+  box-shadow:0 -4px 14px rgba(116,85,20,.08)!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button{
+  background:#fffdf8!important;
+  color:#171717!important;
+  border:1px solid var(--rj-border)!important;
+  box-shadow:none!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(1){
+  background:linear-gradient(180deg,#c9931f,#b78320)!important;
+  color:#fff!important;
+  border-color:#b78320!important;
+}
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(2),
+#idbi-valuation-screen .idbi-bottom-actions button:nth-child(3){
+  background:#fffdf8!important;
+  color:#171717!important;
+  border-color:var(--rj-border)!important;
+}
+
+/* REAL top app header */
+.s111-header{
+  background:linear-gradient(180deg,#fffdf8 0%,#f8f1e4 100%)!important;
+  color:#171717!important;
+  border-bottom:1px solid var(--rj-border)!important;
+}
+.s111-header .brand{
+  color:#93690f!important;
+  text-shadow:none!important;
+}
+.s111-header .sub{
+  color:#93690f!important;
+  opacity:1!important;
+  font-weight:750!important;
+  text-shadow:none!important;
+}
+.s111-header .s111-top-tools button{
+  background:#fffdf8!important;
+  color:#93690f!important;
+  border:1px solid var(--rj-border)!important;
+}
+.s111-header .s111-top-tools button span{
+  color:#fff!important;
+}
+</style>
+
+<script id="actual-selector-fix-js">
+(function(){
+  function applyActualFix(){
+    const bankHome=document.getElementById('bankHome');
+    const bankVisible=bankHome && getComputedStyle(bankHome).display!=='none';
+
+    /* Hide/show the real generic footer based on actual bank-home visibility */
+    document.querySelectorAll('footer').forEach(function(f){
+      if(bankVisible){
+        f.style.setProperty('display','none','important');
+      }else{
+        f.style.removeProperty('display');
+      }
+    });
+
+    /* Force IDBI REAL action bar light */
+    const idbi=document.getElementById('idbi-valuation-screen');
+    if(idbi && getComputedStyle(idbi).display!=='none'){
+      const bar=idbi.querySelector('.idbi-bottom-actions');
+      if(bar){
+        bar.style.setProperty('background','#f8f4eb','important');
+        bar.querySelectorAll('button').forEach(function(btn,i){
+          btn.style.setProperty('background',i===0?'linear-gradient(180deg,#c9931f,#b78320)':'#fffdf8','important');
+          btn.style.setProperty('color',i===0?'#fff':'#171717','important');
+          btn.style.setProperty('border','1px solid '+(i===0?'#b78320':'#ddc997'),'important');
+          btn.style.setProperty('box-shadow','none','important');
+        });
+      }
+    }
+
+    /* Force actual header subtitle + buttons */
+    const h=document.querySelector('.s111-header');
+    if(h){
+      h.style.setProperty('background','linear-gradient(180deg,#fffdf8 0%,#f8f1e4 100%)','important');
+      const brand=h.querySelector('.brand');
+      const sub=h.querySelector('.sub');
+      if(brand){
+        brand.style.setProperty('color','#93690f','important');
+        brand.style.setProperty('text-shadow','none','important');
+      }
+      if(sub){
+        sub.style.setProperty('color','#93690f','important');
+        sub.style.setProperty('opacity','1','important');
+        sub.style.setProperty('font-weight','750','important');
+      }
+      h.querySelectorAll('.s111-top-tools button').forEach(function(btn){
+        btn.style.setProperty('background','#fffdf8','important');
+        btn.style.setProperty('color','#93690f','important');
+        btn.style.setProperty('border','1px solid #ddc997','important');
+      });
+    }
+  }
+
+  ['showBankHome','showBankValuationHome','openBank','openSpecificBankValuation','openIDBIValuation','closeDashboardHome'].forEach(function(name){
+    const old=window[name];
+    if(typeof old!=='function'||old._actualFixWrapped)return;
+    const fn=function(){
+      const r=old.apply(this,arguments);
+      setTimeout(applyActualFix,0);
+      setTimeout(applyActualFix,50);
+      setTimeout(applyActualFix,200);
+      return r;
+    };
+    fn._actualFixWrapped=true;
+    window[name]=fn;
+  });
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(applyActualFix,100);
+      setTimeout(applyActualFix,500);
+    });
+  }else{
+    setTimeout(applyActualFix,50);
+  }
+
+  try{
+    const obs=new MutationObserver(function(){setTimeout(applyActualFix,0);});
+    document.addEventListener('DOMContentLoaded',function(){
+      obs.observe(document.body,{subtree:true,attributes:true,attributeFilter:['style','class']});
+    });
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
