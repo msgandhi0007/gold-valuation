@@ -4363,7 +4363,7 @@ body:not(.menu-viewing) .s111-rate{
   <div id="backupStatus" style="font-size:12px;margin-top:10px;opacity:.78"></div>
 </section>
 
-<footer><button onclick="saveData()">💾 Save</button><button onclick="openSavedStandalone165();return false">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
+<footer><button onclick="saveData()">💾 Save</button><button class="loadDirect167" onclick="return openSavedEmergency167()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
 <nav class="s113-bottom-nav" aria-label="Main navigation">
   <button type="button" class="active" onclick="showValuationScreen()"><span>⌂</span><small>Valuation</small></button>
   <button type="button" onclick="showMenuSection('dashboard')"><span>▦</span><small>Dashboard</small></button>
@@ -10121,6 +10121,62 @@ body{background:#f8f4eb!important}
 body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMode footer,body.storageMode main,body.storageMode #idbi-valuation-screen,body.storageMode footer{display:none!important}
 </style>
 
+
+<!-- STEP 167 - EARLY SELF-CONTAINED SAVED VALUATIONS SCREEN -->
+<style id="step167-saved-direct-css">
+#savedDirect167{display:none;position:fixed;inset:0;z-index:2147483647;background:#f8f4eb;color:#1d1d1d;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit}
+#savedDirect167 .sd167-wrap{max-width:680px;margin:0 auto;padding:14px 14px 110px;box-sizing:border-box;min-height:100dvh}
+#savedDirect167 .sd167-head{position:sticky;top:0;z-index:3;background:#f8f4eb;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0 14px;border-bottom:1px solid #dfcfac}
+#savedDirect167 h2{margin:0;font-size:26px;color:#171717;font-weight:950}
+#savedDirect167 .sd167-back{min-height:48px;padding:0 18px;border:1px solid #d5bb7b;border-radius:14px;background:#fff;color:#6b4b0f;font-weight:900;font-size:15px}
+#savedDirect167 .sd167-sub{color:#73695a;margin:12px 0;font-size:13px}
+#savedDirect167 .sd167-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+#savedDirect167 .sd167-stat{background:#fff;border:1px solid #e1d3b7;border-radius:14px;padding:11px 8px;text-align:center}
+#savedDirect167 .sd167-stat b{display:block;font-size:21px;color:#1c1c1c}#savedDirect167 .sd167-stat small{display:block;margin-top:4px;color:#7d7365;font-size:9px;font-weight:800;text-transform:uppercase}
+#savedDirect167 input,#savedDirect167 select{width:100%;box-sizing:border-box;min-height:50px;border:1px solid #173247;border-radius:14px;background:#061521;color:#fff;padding:10px 13px;font-size:15px}
+#savedDirect167 input::placeholder{color:#90a0ad}
+#savedDirect167 .sd167-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 10px}
+#savedDirect167 .sd167-count{font-size:11px;color:#786e5f;margin:7px 2px 10px;font-weight:750}
+#savedDirect167 .sd167-card{background:#fffdf8;border:1px solid #dfd1b4;border-radius:18px;padding:13px;margin:10px 0;box-shadow:0 5px 14px rgba(70,50,20,.05)}
+#savedDirect167 .sd167-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.sd167-name{font-size:19px;font-weight:950}.sd167-value{font-size:18px;font-weight:950;color:#a66f00;white-space:nowrap}
+#savedDirect167 .sd167-meta{color:#746b5e;font-size:11px;line-height:1.55;margin-top:4px}.sd167-bank{display:inline-block;margin-top:7px;background:#f6ead0;border:1px solid #dec688;border-radius:999px;padding:5px 8px;color:#755512;font-size:10px;font-weight:900}
+#savedDirect167 .sd167-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.sd167-metric{background:#fff;border:1px solid #e6dcc8;border-radius:11px;padding:8px}.sd167-metric small{display:block;color:#7c7467;font-size:9px}.sd167-metric b{display:block;margin-top:3px;font-size:12px;color:#24201a}
+#savedDirect167 .sd167-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.sd167-actions button{min-height:43px;border:1px solid #ded1b9;border-radius:11px;background:#f1e8d8;color:#2b241a;font-weight:850}.sd167-actions .open{background:linear-gradient(#d99b00,#c38300);color:#fff;border-color:#bd7e00}.sd167-actions .delete{color:#a8251d}
+#savedDirect167 .sd167-empty{text-align:center;padding:36px 12px;color:#796f60;background:#fff;border:1px dashed #d9c9aa;border-radius:16px}
+@media(max-width:430px){#savedDirect167 h2{font-size:23px}#savedDirect167 .sd167-metrics{grid-template-columns:1fr 1fr}#savedDirect167 .sd167-metric:last-child{grid-column:1/-1}}
+</style>
+<div id="savedDirect167" aria-hidden="true">
+ <div class="sd167-wrap">
+  <div class="sd167-head"><h2>📂 SAVED VALUATIONS</h2><button type="button" class="sd167-back" onclick="closeSavedEmergency167()">← Back</button></div>
+  <div class="sd167-sub">Search and manage saved valuations from all four banks.</div>
+  <div class="sd167-stats"><div class="sd167-stat"><b id="sd167Total">0</b><small>Total</small></div><div class="sd167-stat"><b id="sd167Today">0</b><small>Today</small></div><div class="sd167-stat"><b id="sd167Banks">0</b><small>Banks</small></div></div>
+  <input id="sd167Search" type="search" placeholder="🔎 Customer / mobile / certificate / bank" oninput="renderSavedEmergency167()">
+  <div class="sd167-filters"><select id="sd167Bank" onchange="renderSavedEmergency167()"><option value="ALL">All Banks</option><option>SBI BANK</option><option>IDBI BANK</option><option>MAHARASHTRA GRAMIN BANK</option><option>DNYANDEEP CO-OP SOCIETY LTD</option></select><select id="sd167Date" onchange="renderSavedEmergency167()"><option value="all">All Dates</option><option value="today">Today</option><option value="month">This Month</option><option value="older">Older</option></select></div>
+  <div id="sd167Count" class="sd167-count"></div><div id="sd167List"></div>
+ </div>
+</div>
+<script id="step167-saved-direct-js">
+(function(){
+ function vals(){try{var a=JSON.parse(localStorage.getItem('goldValuations')||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+ function bank(r){return String((r&&r.customer&&r.customer.bank)||r.bank||(r&&r.valuationType==='IDBI_BANK'?'IDBI BANK':'')).trim()||'Unknown Bank'}
+ function date(r){return String((r&&r.customer&&r.customer.date)||r.date||r.createdAt||'').slice(0,10)}
+ function rows(r){return Array.isArray(r&&r.items)?r.items:(Array.isArray(r&&r.idbi&&r.idbi.rows)?r.idbi.rows:[])}
+ function num(v){var n=Number(String(v==null?'':v).replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:0}
+ function gross(r){return rows(r).reduce(function(t,x){return t+num(x&&x.gross)},0)}
+ function value(r){var direct=[r&&r.totalValue,r&&r.valuationTotal,r&&r.value,r&&r.idbi&&r.idbi.totalValue];for(var j=0;j<direct.length;j++){if(String(direct[j]??'').trim()!==''){var n=num(direct[j]);if(n>0)return n}}var rate=num(r&&r.rate);return rows(r).reduce(function(t,x){var g=num(x&&x.gross),st=num(x&&x.stone),p=num(x&&x.purity),pure=Math.max(0,g-st)*p/100,rd=Math.floor((pure+1e-9)*10)/10;return t+rd*rate},0)}
+ function loan(r){var a=[r&&r.sanctionedLoan,r&&r.customer&&r.customer.sanctionedLoan,r&&r.loanAmount,r&&r.loan];for(var j=0;j<a.length;j++){if(a[j]!=null&&String(a[j]).trim()!=='')return num(a[j])}return 0}
+ function money(n){try{return '₹'+Math.round(num(n)).toLocaleString('en-IN')}catch(e){return '₹0'}}
+ function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c})}
+ window.renderSavedEmergency167=function(){var all=vals(),q=(document.getElementById('sd167Search').value||'').trim().toLowerCase(),bf=document.getElementById('sd167Bank').value,df=document.getElementById('sd167Date').value,now=new Date(),today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0'),month=today.slice(0,7);document.getElementById('sd167Total').textContent=all.length;document.getElementById('sd167Today').textContent=all.filter(function(r){return date(r)===today}).length;document.getElementById('sd167Banks').textContent=new Set(all.map(bank).filter(Boolean)).size;var arr=all.map(function(r,i){return {r:r,i:i}}).filter(function(o){var r=o.r,d=date(r),b=bank(r);if(bf!=='ALL'&&b!==bf)return false;if(df==='today'&&d!==today)return false;if(df==='month'&&!d.startsWith(month))return false;if(df==='older'&&d.startsWith(month))return false;if(!q)return true;return [r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,b,d,r&&r.certificateNo].join(' ').toLowerCase().includes(q)}).sort(function(a,b){return date(b.r).localeCompare(date(a.r))||b.i-a.i});document.getElementById('sd167Count').textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';var list=document.getElementById('sd167List');if(!arr.length){list.innerHTML='<div class="sd167-empty"><b>No saved valuations found</b><br><small>Change the filters or clear the search.</small></div>';return}list.innerHTML=arr.map(function(o){var r=o.r,i=o.i,n=(r&&r.customer&&r.customer.name)||'Unnamed Customer',m=(r&&r.customer&&r.customer.mobile)||'No mobile',cert=(r&&r.certificateNo)||'—',rw=rows(r),gw=gross(r),v=value(r),l=loan(r);return '<div class="sd167-card"><div class="sd167-top"><div class="sd167-name">'+esc(n)+'</div><div class="sd167-value">'+money(v)+'</div></div><div class="sd167-meta">📱 '+esc(m)+' &nbsp; • &nbsp; 📅 '+esc(date(r))+'<br>Certificate: '+esc(cert)+'</div><div class="sd167-bank">🏦 '+esc(bank(r))+'</div><div class="sd167-metrics"><div class="sd167-metric"><small>Items / Gross</small><b>'+rw.length+' / '+gw.toFixed(3)+' g</b></div><div class="sd167-metric"><small>Valuation</small><b>'+money(v)+'</b></div><div class="sd167-metric"><small>Sanctioned Loan</small><b>'+money(l)+'</b></div></div><div class="sd167-actions"><button class="open" onclick="openSavedEmergencyItem167('+i+')">Open</button><button onclick="revalueSavedEmergency167('+i+')">Revalue</button><button onclick="printSavedEmergency167('+i+')">Print PDF</button><button onclick="shareSavedEmergency167('+i+')">Share PDF</button><button class="delete" onclick="deleteSavedEmergency167('+i+')">Delete</button></div></div>'}).join('')};
+ window.openSavedEmergency167=function(){var x=document.getElementById('savedDirect167');if(!x)return false;x.style.display='block';x.setAttribute('aria-hidden','false');document.getElementById('sd167Search').value='';document.getElementById('sd167Bank').value='ALL';document.getElementById('sd167Date').value='all';window.renderSavedEmergency167();x.scrollTop=0;window.scrollTo(0,0);return false};
+ window.closeSavedEmergency167=function(){var x=document.getElementById('savedDirect167');if(x){x.style.display='none';x.setAttribute('aria-hidden','true')}window.scrollTo(0,0);return false};
+ window.openSavedEmergencyItem167=function(i){window.closeSavedEmergency167();try{if(typeof window.loadSaved==='function'){window.loadSaved(i);return} }catch(e){}alert('Could not open this valuation.')};
+ window.revalueSavedEmergency167=function(i){window.closeSavedEmergency167();try{if(typeof window.duplicateSaved==='function'){window.duplicateSaved(i);return}}catch(e){}try{if(typeof window.loadSaved==='function')window.loadSaved(i)}catch(e){}};
+ window.printSavedEmergency167=function(i){try{if(typeof window.printSaved==='function')window.printSaved(i)}catch(e){}};
+ window.shareSavedEmergency167=function(i){try{if(typeof window.shareSavedPdf==='function')window.shareSavedPdf(i)}catch(e){}};
+ window.deleteSavedEmergency167=function(i){try{if(typeof window.deleteSaved==='function'){window.deleteSaved(i);setTimeout(window.renderSavedEmergency167,0);return}}catch(e){}var a=vals();if(i>=0&&i<a.length&&confirm('Delete this saved valuation?')){a.splice(i,1);localStorage.setItem('goldValuations',JSON.stringify(a));window.renderSavedEmergency167()}};
+})();
+</script>
 <section id="bankHome">
   <h2>SELECT BANK VALUATION</h2>
   <p>Choose a bank or open Storage & Backup</p>
@@ -10130,7 +10186,7 @@ body.bankHomeMode main,body.bankHomeMode #idbi-valuation-screen,body.bankHomeMod
     <button onclick="openBank('MAHARASHTRA GRAMIN BANK')">MAHARASHTRA GRAMIN BANK<small>Open Valuation</small></button>
     <button onclick="openBank('DNYANDEEP CO-OP SOCIETY LTD')">DNYANDEEP CO-OP SOCIETY LTD<small>Open Valuation</small></button>
     <button class="dashboardHomeBtn" onclick="openDashboardHome()">📊 DASHBOARD<small>Today • Month • Bank Summary • Reports</small></button>
-    <button class="savedHomeBtn" onclick="openSavedStandalone165();return false">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
+    <button class="savedHomeDirect167" onclick="return openSavedEmergency167()">📂 SAVED VALUATIONS<small>Search • Open • Revalue • Print • Share</small></button>
     <button class="customersHomeBtn" onclick="openCustomersHome()">👥 CUSTOMERS<small>History • Customer Summary • Statements</small></button>
     <button class="storageBtn" onclick="openStorageBackupScreen()">💾 STORAGE & BACKUP<small>Folder • Backup • Restore • Sync</small></button>
   </div>
