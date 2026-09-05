@@ -12552,5 +12552,149 @@ body>footer button:active,
 #valuation-main-sections .s111-details-table tbody td:nth-child(2){font-weight:900!important;color:#111!important;}
 #valuation-main-sections .s111-details-table tfoot td{background:#fbf2dc!important;color:#9b6706!important;border:1px solid #ddd6ca!important;font-weight:900!important;}
 </style>
+
+<!-- STEP 160 - Professional Saved Valuations Manager -->
+<style id="step160-professional-saved-manager">
+@media screen{
+  #saveManager{z-index:5000!important;background:rgba(20,18,13,.60)!important;padding:12px!important;}
+  #saveManager .save-box{max-width:620px!important;margin:16px auto 92px!important;padding:16px!important;border:1px solid #decda3!important;border-radius:24px!important;background:#fffdf8!important;color:#1d1d1d!important;box-shadow:0 18px 48px rgba(66,48,10,.24)!important;}
+  #saveManager .save-top{position:sticky!important;top:-16px!important;z-index:5!important;margin:-16px -16px 12px!important;padding:15px 16px 12px!important;background:rgba(255,253,248,.97)!important;border-bottom:1px solid #eee3ca!important;border-radius:24px 24px 0 0!important;backdrop-filter:blur(8px)!important;}
+  #saveManager .save-top h2{font-size:25px!important;line-height:1.15!important;color:#171717!important;font-weight:900!important;}
+  #saveManager .close{width:48px!important;height:48px!important;padding:0!important;border:1px solid #d8bd76!important;border-radius:14px!important;background:#fff!important;color:#1c1c1c!important;font-size:25px!important;}
+  #saveManager #saveSearch{min-height:50px!important;margin:0!important;padding:12px 14px!important;border:1px solid #d8c99f!important;border-radius:14px!important;background:#fff!important;color:#1b1b1b!important;font-size:15px!important;}
+  #saveManager select{min-height:46px!important;padding:10px 12px!important;border:1px solid #d8c99f!important;border-radius:13px!important;background:#fff!important;color:#1b1b1b!important;font-size:14px!important;font-weight:700!important;}
+  #saveManager .secondary{min-height:44px!important;padding:9px 13px!important;border:1px solid #d8bd76!important;border-radius:13px!important;background:#fff!important;color:#242424!important;font-weight:800!important;}
+  #savedManagerOverview160{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:9px!important;margin:8px 0 12px!important;}
+  #savedManagerOverview160 .sv-stat{padding:11px 8px!important;border:1px solid #dfcfaa!important;border-radius:15px!important;background:linear-gradient(180deg,#fff,#fff9e9)!important;text-align:center!important;}
+  #savedManagerOverview160 b{display:block!important;font-size:21px!important;color:#171717!important;line-height:1.05!important;}
+  #savedManagerOverview160 small{display:block!important;margin-top:4px!important;color:#706c62!important;font-size:9px!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.35px!important;}
+  #saveManager #savedSearchCount{font-size:12px!important;color:#6d685d!important;margin:8px 0!important;font-weight:700!important;}
+  #saveManager #savedManagerStatus84{color:#6d685d!important;font-size:11px!important;}
+  #saveManager .bank-tabs{display:flex!important;gap:7px!important;overflow:auto!important;padding:4px 0 10px!important;scrollbar-width:none!important;}
+  #saveManager .bank-tabs button{flex:0 0 auto!important;min-height:38px!important;padding:8px 12px!important;border:1px solid #d8c99f!important;border-radius:999px!important;background:#fff!important;color:#34312b!important;font-weight:800!important;font-size:11px!important;white-space:nowrap!important;}
+  #saveManager .bank-tabs button.active{background:linear-gradient(180deg,#e6a900,#cf8b00)!important;border-color:#c78900!important;color:#fff!important;box-shadow:0 3px 8px rgba(172,115,0,.22)!important;}
+  #saveManager .saved-card{margin:11px 0!important;padding:13px!important;border:1px solid #dfd1af!important;border-radius:18px!important;background:#fff!important;color:#1b1b1b!important;box-shadow:0 4px 13px rgba(64,46,9,.07)!important;}
+  #saveManager .sv-card-head{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:10px!important;}
+  #saveManager .saved-name{font-size:18px!important;font-weight:900!important;color:#171717!important;overflow-wrap:anywhere!important;}
+  #saveManager .sv-bank{display:inline-block!important;margin-top:4px!important;padding:4px 8px!important;border-radius:999px!important;background:#fff5d6!important;color:#916300!important;font-size:10px!important;font-weight:900!important;max-width:100%!important;overflow-wrap:anywhere!important;}
+  #saveManager .sv-date{flex:0 0 auto!important;padding:5px 7px!important;border-radius:9px!important;background:#f7f3e9!important;color:#625e55!important;font-size:10px!important;font-weight:800!important;}
+  #saveManager .saved-meta{margin-top:6px!important;color:#69655d!important;font-size:11px!important;line-height:1.45!important;overflow-wrap:anywhere!important;}
+  #saveManager .sv-metrics{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:7px!important;margin:11px 0!important;}
+  #saveManager .sv-metric{min-width:0!important;padding:9px 6px!important;border:1px solid #eee2c7!important;border-radius:12px!important;background:#fffaf0!important;text-align:center!important;}
+  #saveManager .sv-metric small{display:block!important;color:#777167!important;font-size:8px!important;font-weight:800!important;text-transform:uppercase!important;}
+  #saveManager .sv-metric b{display:block!important;margin-top:4px!important;color:#1b1b1b!important;font-size:13px!important;line-height:1.2!important;overflow-wrap:anywhere!important;}
+  #saveManager .sv-metric.value b{color:#986600!important;}
+  #saveManager .sv-metric.loan b{color:#15734a!important;}
+  #saveManager .saved-actions{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:8px!important;margin-top:10px!important;}
+  #saveManager .saved-actions button{min-height:43px!important;padding:9px 7px!important;border:1px solid #d9c99f!important;border-radius:12px!important;background:#fff!important;color:#222!important;font-size:11px!important;font-weight:850!important;}
+  #saveManager .saved-actions .load-btn{background:linear-gradient(180deg,#e5a900,#ce8900)!important;border-color:#c88900!important;color:#fff!important;}
+  #saveManager .saved-actions .edit-btn{background:#fff8e7!important;color:#8c6100!important;border-color:#d5b45c!important;}
+  #saveManager .saved-actions .revalue-btn{color:#247249!important;}
+  #saveManager .saved-actions .print-btn{color:#5f521f!important;}
+  #saveManager .saved-actions .share-btn{color:#195e91!important;}
+  #saveManager .saved-actions .delete-btn{grid-column:1/-1!important;color:#bd3146!important;border-color:#e3a8b1!important;background:#fffafb!important;}
+  #saveManager .sv-empty{padding:28px 14px!important;text-align:center!important;border:1px dashed #d9c89c!important;border-radius:16px!important;background:#fffcf4!important;color:#716b60!important;}
+  body.saved-manager-open > footer{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+  @media(max-width:420px){
+    #saveManager{padding:8px!important;}
+    #saveManager .save-box{margin:8px auto 20px!important;padding:12px!important;border-radius:20px!important;}
+    #saveManager .save-top{top:-12px!important;margin:-12px -12px 10px!important;padding:12px!important;border-radius:20px 20px 0 0!important;}
+    #saveManager .save-top h2{font-size:22px!important;}
+    #savedManagerOverview160{gap:6px!important;}
+    #savedManagerOverview160 b{font-size:18px!important;}
+    #saveManager .sv-metrics{grid-template-columns:repeat(2,1fr)!important;}
+    #saveManager .sv-metric:last-child{grid-column:1/-1!important;}
+  }
+}
+</style>
+<script id="step160-professional-saved-manager-js">
+(function(){
+  function N(v){v=Number(v);return Number.isFinite(v)?v:0;}
+  function E(s){return typeof esc==='function'?esc(String(s??'')):String(s??'').replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
+  function M(v){return typeof money==='function'?money(N(v)):'₹'+N(v).toLocaleString('en-IN',{maximumFractionDigits:2});}
+  function itemRows(r){return Array.isArray(r?.idbi?.rows)?r.idbi.rows:(Array.isArray(r?.items)?r.items:[]);}
+  function grossOf(r){
+    if(r?.idbi && Number.isFinite(Number(r.idbi.totalGross)))return N(r.idbi.totalGross);
+    return itemRows(r).reduce(function(t,x){return t+N(x.gross);},0);
+  }
+  function valueOf(r){
+    if(Number.isFinite(Number(r?.totalValue)) && N(r.totalValue)!==0)return N(r.totalValue);
+    if(Number.isFinite(Number(r?.value)) && N(r.value)!==0)return N(r.value);
+    if(r?.idbi && Number.isFinite(Number(r.idbi.totalValue)))return N(r.idbi.totalValue);
+    var rate=N(r?.rate), total=0;
+    itemRows(r).forEach(function(it){
+      if(Number.isFinite(Number(it.value)) && N(it.value)!==0){total+=N(it.value);return;}
+      if(r?.valuationType==='IDBI_BANK'){
+        var eq=N(it.equivalent22k ?? it.eq22k ?? it.rounded);
+        total+=eq*rate;
+      }else{
+        var net=Math.max(0,N(it.gross)-N(it.stone ?? it.less));
+        var rounded=Math.floor((net*N(it.purity)/100+1e-9)*10)/10;
+        total+=rounded*rate;
+      }
+    });
+    return total;
+  }
+  function loanOf(r){return N(r?.sanctionedLoan ?? r?.sanctioned ?? r?.loanAmount ?? r?.customer?.sanctionedLoan);}
+  function dateText(r){return String(r?.customer?.date||r?.date||'—').slice(0,10)||'—';}
+  function isTodayDate(s){
+    var d=new Date(),t=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');return String(s||'').slice(0,10)===t;
+  }
+  function ensureOverview(all){
+    var box=document.querySelector('#saveManager .save-box'), top=box&&box.querySelector('.save-top'); if(!box||!top)return null;
+    var ov=document.getElementById('savedManagerOverview160');
+    if(!ov){ov=document.createElement('div');ov.id='savedManagerOverview160';top.insertAdjacentElement('afterend',ov);}
+    var banks=new Set(all.map(function(r){return r?.customer?.bank||'';}).filter(Boolean));
+    var today=all.filter(function(r){return isTodayDate(r?.customer?.date||r?.date);}).length;
+    ov.innerHTML='<div class="sv-stat"><b>'+all.length+'</b><small>Total</small></div><div class="sv-stat"><b>'+today+'</b><small>Today</small></div><div class="sv-stat"><b>'+banks.size+'</b><small>Banks</small></div>';
+    return ov;
+  }
+  window.openSavedForEdit160=function(i){
+    try{
+      if(typeof loadSaved==='function')loadSaved(i);
+      setTimeout(function(){if(typeof window.unlockSavedValuation==='function')window.unlockSavedValuation();},120);
+    }catch(e){console.error(e);}
+  };
+  window.renderSaved=function(){
+    var all=typeof getSaved==='function'?getSaved():[]; ensureOverview(all);
+    var q=(document.getElementById('saveSearch')?.value||'').trim().toLowerCase();
+    var sort=document.getElementById('saveSort')?.value||'newest';
+    var df=document.getElementById('saveDateFilter')?.value||'all';
+    var banks=[...new Set(all.map(function(x){return x?.customer?.bank||'';}).filter(Boolean))];
+    var tabNames=['ALL'].concat(banks); var tabs=document.getElementById('bankTabs');
+    if(tabs)tabs.innerHTML=tabNames.map(function(b){return '<button class="'+(selectedBank===b?'active':'')+'" onclick=\'setSavedBankFilter('+JSON.stringify(b)+')\'>'+E(b==='ALL'?'All Banks':b)+'</button>';}).join('');
+    var now=new Date(), today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0'), month=today.slice(0,7);
+    var rows=all.map(function(x,i){return{x:x,i:i};}).filter(function(o){
+      var x=o.x,bank=x?.customer?.bank||'',d=dateText(x);
+      if(selectedBank!=='ALL'&&bank!==selectedBank)return false;
+      if(df==='today'&&d!==today)return false;if(df==='month'&&!d.startsWith(month))return false;if(df==='older'&&(!d||d.startsWith(month)))return false;
+      if(!q)return true;
+      var hay=[x?.customer?.name,x?.customer?.mobile,bank,d,x?.certificateNo,x?.id,x?.sanctionedLoan,valueOf(x)].join(' ').toLowerCase();return hay.includes(q);
+    });
+    rows.sort(function(a,b){
+      if(sort==='oldest')return dateText(a.x).localeCompare(dateText(b.x))||a.i-b.i;
+      if(sort==='name')return String(a.x?.customer?.name||'').localeCompare(String(b.x?.customer?.name||''),undefined,{sensitivity:'base'});
+      if(sort==='valueHigh')return valueOf(b.x)-valueOf(a.x);if(sort==='valueLow')return valueOf(a.x)-valueOf(b.x);
+      return dateText(b.x).localeCompare(dateText(a.x))||b.i-a.i;
+    });
+    var count=document.getElementById('savedSearchCount');if(count)count.textContent=rows.length+' valuation'+(rows.length===1?'':'s')+' found'+(selectedBank!=='ALL'?' • '+selectedBank:'')+(q?' • Search: “'+q+'”':'');
+    var list=document.getElementById('savedList');if(!list)return;
+    if(!rows.length){list.innerHTML='<div class="sv-empty"><b>No saved valuations found</b><br><small>Change the bank/date filter or clear the search.</small></div>';return;}
+    list.innerHTML=rows.map(function(o){var x=o.x,i=o.i,items=itemRows(x),val=valueOf(x),loan=loanOf(x),gross=grossOf(x),bank=x?.customer?.bank||'—',mobile=x?.customer?.mobile||'—',cert=x?.certificateNo||'—';
+      return '<div class="saved-card">'+
+       '<div class="sv-card-head"><div><div class="saved-name">'+E(x?.customer?.name||'Unnamed Customer')+'</div><div class="sv-bank">🏦 '+E(bank)+'</div></div><div class="sv-date">'+E(dateText(x))+'</div></div>'+
+       '<div class="saved-meta">📱 '+E(mobile)+' &nbsp; • &nbsp; Certificate: '+E(cert)+'</div>'+
+       '<div class="sv-metrics"><div class="sv-metric"><small>Items / Gross</small><b>'+items.length+' / '+gross.toFixed(3)+' g</b></div><div class="sv-metric value"><small>Valuation</small><b>'+M(val)+'</b></div><div class="sv-metric loan"><small>Sanctioned Loan</small><b>'+M(loan)+'</b></div></div>'+
+       '<div class="saved-actions">'+(window._certificateManagerMode?
+        '<button class="print-btn" onclick="printSaved('+i+')">📜 Print Certificate</button><button class="share-btn" onclick="shareSavedPdf('+i+')">↗ Share Certificate</button>':
+        '<button class="load-btn" onclick="loadSaved('+i+')">Open</button><button class="edit-btn" onclick="openSavedForEdit160('+i+')">✎ Edit</button><button class="revalue-btn" onclick="duplicateSaved('+i+')">♻ Revalue</button><button class="print-btn" onclick="printSaved('+i+')">▤ Print PDF</button><button class="share-btn" onclick="shareSavedPdf('+i+')">↗ Share PDF</button><button class="delete-btn" onclick="deleteSaved('+i+')">Delete</button>')+'</div></div>';
+    }).join('');
+  };
+  var oldOpen=window.openLoad; window.openLoad=function(){var r=typeof oldOpen==='function'?oldOpen.apply(this,arguments):undefined;document.body.classList.add('saved-manager-open');setTimeout(function(){if(typeof window.renderSaved==='function')window.renderSaved();},0);return r;};
+  var oldClose=window.closeLoad; window.closeLoad=function(){document.body.classList.remove('saved-manager-open');return typeof oldClose==='function'?oldClose.apply(this,arguments):undefined;};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.getElementById('saveManager')?.style.display==='block'&&typeof closeLoad==='function')closeLoad();});
+})();
+</script>
+
 </body>
 </html>
