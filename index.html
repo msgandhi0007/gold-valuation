@@ -4162,7 +4162,7 @@ body:not(.menu-viewing) .s111-rate{
   <th>TOTAL</th><th id="idbiSumGross2">0.000</th><th id="idbiSumLess2">0.000</th><th id="idbiSumImp2">0.000</th><th id="idbiSumNet2">0.000</th><th>—</th><th id="idbiSum22k2">0.000</th><th id="idbiSumValue2">₹0.00</th>
   </tr></tfoot></table></div></div>
 </section><div class="idbi-loan">
-    <div class="idbi-field"><label>Loan Rate / gm</label><input id="idbiLoanRate" type="number" min="0" step="0.01" value="0" inputmode="decimal"></div>
+    <div class="idbi-field"><label>Loan Rate / gm</label><input id="idbiLoanRate" type="number" min="0" max="100" step="0.01" value="75" inputmode="decimal"></div>
     <div class="idbi-field"><label>Loan Amount</label><input id="idbiLoan" type="number" min="0" step="0.01"></div>
     <div class="idbi-result"><span>Eligible Loan</span><b id="idbiEligible">₹0.00</b></div>
   </div>
@@ -7917,7 +7917,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   window.idbiReset=function(){
     document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
-      if(x.id==='idbiLoanRate') x.value=0; else x.value='';
+      if(x.id==='idbiLoanRate') x.value=75; else x.value='';
     });
     idbiCalculate();
   };
@@ -8093,7 +8093,7 @@ window.handleMainBankSelection=function(value){
 
   window.idbiReset=function(){
     document.querySelectorAll('#idbi-valuation-screen input').forEach(function(x){
-      if(x.id==='idbiLoanRate')x.value=70;
+      if(x.id==='idbiLoanRate')x.value=75;
       else if(x.id.indexOf('idbiImpPct')===0)x.value=6;
       else if(x.id.indexOf('idbiPurity')===0)x.value=20;
       else x.value='';
@@ -8113,7 +8113,7 @@ window.handleMainBankSelection=function(value){
         setv('idbiCustomerName',d.customer?.name||'');
         setv('idbiCustomerMobile',d.customer?.mobile||'');
         setv('idbiValuationDate',d.customer?.date||new Date().toISOString().slice(0,10));
-        setv('idbiRate',d.rate||0); setv('idbiLoanRate',d.ltv1||70); setv('idbiLoan',d.sanctionedLoan||0);
+        setv('idbiRate',d.rate||0); setv('idbiLoanRate',d.ltv1!=null?d.ltv1:75); setv('idbiLoan',d.sanctionedLoan||0);
         for(var j=1;j<=10;j++){setv('idbiGW'+j,'');setv('idbiLess'+j,'');setv('idbiImpPct'+j,'');setv('idbiPurity'+j,'');}
         (d.idbi?.rows||d.items||[]).forEach(function(x,j){
           var k=j+1;if(k>10)return;
@@ -8213,23 +8213,38 @@ window.handleMainBankSelection=function(value){
 </script>
 <script id="idbi-loan-rate-fix">
 (function(){
+  // IDBI LTV is a percentage of Total Gold Ornament Value.
+  // Keep 75% as the default, while allowing the user to edit 0–100%.
   function updateLoan(){
-    var r=document.getElementById('idbiLoanRate');
-    var q=document.getElementById('idbiSummary22k');
+    var ltv=document.getElementById('idbiLoanRate');
+    var total=document.getElementById('idbiSummaryValue');
     var out=document.getElementById('idbiEligible');
-    if(!r||!q||!out)return;
-    var rate=parseFloat(r.value)||0;
-    var eq=parseFloat(String(q.textContent||'').replace(/,/g,''))||0;
-    var v=rate*eq;
-    out.textContent='₹'+v.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(!ltv||!out)return;
+    var pct=parseFloat(ltv.value);
+    if(!isFinite(pct)) pct=75;
+    pct=Math.max(0,Math.min(100,pct));
+    var totalValue=0;
+    if(total) totalValue=parseFloat(String(total.textContent||'').replace(/[^0-9.-]/g,''))||0;
+    // Fall back to item-calculated total if summary has not rendered yet.
+    if(!totalValue){
+      var rate=parseFloat(document.getElementById('idbiRate')?.value)||0;
+      var eq=parseFloat(String(document.getElementById('idbiSummary22k')?.textContent||'').replace(/,/g,''))||0;
+      totalValue=rate*eq;
+    }
+    var eligible=totalValue*pct/100;
+    out.textContent='₹'+eligible.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
   }
   document.addEventListener('input',function(e){
-    if(e.target && e.target.id==='idbiLoanRate') updateLoan();
+    if(e.target && e.target.closest && e.target.closest('#idbi-valuation-screen')) setTimeout(updateLoan,0);
   });
   document.addEventListener('change',function(e){
-    if(e.target && e.target.id==='idbiLoanRate') updateLoan();
+    if(e.target && e.target.closest && e.target.closest('#idbi-valuation-screen')) setTimeout(updateLoan,0);
   });
-  window.addEventListener('load',function(){setTimeout(updateLoan,100);});
+  window.addEventListener('load',function(){setTimeout(function(){
+    var ltv=document.getElementById('idbiLoanRate');
+    if(ltv && !ltv.value) ltv.value='75';
+    updateLoan();
+  },100);});
 })();
 </script>
 <script id="idbi-screen-isolation-fix">
@@ -9864,7 +9879,7 @@ body.idbi-open>footer{display:none!important;}
       idbiLtvInput.min='0';
       idbiLtvInput.max='100';
       idbiLtvInput.step='0.01';
-      if(!idbiLtvInput.value || Number(idbiLtvInput.value)>100) idbiLtvInput.value='65';
+      if(!idbiLtvInput.value || Number(idbiLtvInput.value)>100) idbiLtvInput.value='75';
       idbiLtvInput.oninput=function(){
         if(typeof idbiCalculate==='function') idbiCalculate();
       };
