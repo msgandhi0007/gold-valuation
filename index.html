@@ -10341,5 +10341,71 @@ body.bankHomeMode,body.bank-home-mode,body.storageMode,body.storage-backup-mode{
  document.addEventListener('click',function(){setTimeout(unlock,20)},true);
 })();
 </script>
+
+
+<!-- COMPACT BANK HOME / STORAGE SPACING -->
+<style id="compact-bank-storage-spacing">
+/* The old app header/main shell was reserving a large empty block above our new screens. */
+body.bankHomeMode #bankHome,
+body.bank-home-mode #bankHome,
+body.storageMode #storageBackupScreen,
+body.storage-backup-mode #storageBackupScreen{
+  margin-top:0!important;
+  padding-top:18px!important;
+  min-height:auto!important;
+}
+
+/* Hide old empty header/main shell and old fixed valuation footer on these two utility screens. */
+body.bankHomeMode>header,
+body.bank-home-mode>header,
+body.storageMode>header,
+body.storage-backup-mode>header,
+body.bankHomeMode main,
+body.bank-home-mode main,
+body.storageMode main,
+body.storage-backup-mode main,
+body.bankHomeMode>footer,
+body.bank-home-mode>footer,
+body.storageMode>footer,
+body.storage-backup-mode>footer{
+  display:none!important;
+}
+
+/* Remove inherited spacer/margins from previous valuation layouts. */
+body.bankHomeMode,
+body.bank-home-mode,
+body.storageMode,
+body.storage-backup-mode{
+  padding-top:0!important;
+  margin-top:0!important;
+}
+
+#bankHome h2{margin-top:0!important}
+#storageBackupScreen .sbTop{margin-top:0!important}
+</style>
+<script id="compact-bank-storage-spacing-js">
+(function(){
+ function compact(){
+  var bank=document.getElementById('bankHome');
+  var storage=document.getElementById('storageBackupScreen');
+  if(document.body.classList.contains('bankHomeMode')||document.body.classList.contains('bank-home-mode')){
+    if(bank){bank.style.setProperty('margin-top','0','important');bank.style.setProperty('padding-top','18px','important');}
+    window.scrollTo(0,0);
+  }
+  if(document.body.classList.contains('storageMode')||document.body.classList.contains('storage-backup-mode')){
+    if(storage){storage.style.setProperty('margin-top','0','important');storage.style.setProperty('padding-top','14px','important');}
+    window.scrollTo(0,0);
+  }
+ }
+ ['showBankHome','showBankValuationHome','openStorageBackupScreen','closeStorageBackupScreen'].forEach(function(n){
+  var old=window[n];if(typeof old!=='function'||old._compactWrapped)return;
+  var fn=function(){var r=old.apply(this,arguments);setTimeout(compact,0);setTimeout(compact,80);return r};
+  fn._compactWrapped=true;window[n]=fn;
+ });
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(compact,100)});
+ else setTimeout(compact,50);
+})();
+</script>
+
 </body>
 </html>
