@@ -21827,5 +21827,138 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 227 -->
 
+
+<!-- STEP 228 - SBI saved valuation certificate data path fix -->
+<script id="sbi-saved-restore-pdf-fix-js-228">
+(function(){
+  'use strict';
+
+  function e(id){ return document.getElementById(id); }
+  function val(id){ return (e(id)?.value || '').trim(); }
+
+  function isSbiRecord(r){
+    return String(r?.customer?.bank || '').toUpperCase().includes('SBI');
+  }
+
+  function readDetails(){
+    return {
+      branch: val('sbiCertBranch223'),
+      accountNo: val('sbiCertAccount223'),
+      relation: val('sbiCertRelation223'),
+      resident: val('sbiCertResident223'),
+      cashInCharge: val('sbiCertCashInCharge223'),
+      place: val('sbiCertPlace223'),
+      carat: val('sbiCertCarat225'),
+      purityMethod: val('sbiCertMethod223')
+    };
+  }
+
+  function writeDetails(d){
+    d = d || {};
+    const map = {
+      sbiCertBranch223: d.branch,
+      sbiCertAccount223: d.accountNo,
+      sbiCertRelation223: d.relation,
+      sbiCertResident223: d.resident,
+      sbiCertCashInCharge223: d.cashInCharge,
+      sbiCertPlace223: d.place,
+      sbiCertCarat225: d.carat,
+      sbiCertMethod223: d.purityMethod
+    };
+    Object.entries(map).forEach(([id,v])=>{
+      const x=e(id);
+      if(x && v !== undefined && v !== null && String(v) !== '') x.value=String(v);
+    });
+  }
+
+  /* Force SBI certificate details into the exact object saveData() writes. */
+  const prevCurrent = window.currentData;
+  if(typeof prevCurrent === 'function'){
+    window.currentData = function(){
+      const d = prevCurrent.apply(this,arguments);
+      const bank = String(d?.customer?.bank || e('mainBankSelect')?.value || e('bankName')?.value || '').toUpperCase();
+      if(bank.includes('SBI')) d.sbiCertificate = readDetails();
+      return d;
+    };
+    try{ currentData = window.currentData; }catch(err){}
+  }
+
+  /* Restore SBI certificate fields AFTER the normal saved-valuation loader finishes. */
+  const prevLoadSaved = window.loadSaved;
+  if(typeof prevLoadSaved === 'function'){
+    window.loadSaved = function(i){
+      let rec = null;
+      try{
+        const a = typeof getSaved === 'function' ? getSaved() : JSON.parse(localStorage.getItem('goldValuations')||'[]');
+        rec = Array.isArray(a) ? a[i] : null;
+      }catch(err){}
+      const result = prevLoadSaved.apply(this,arguments);
+      if(rec && isSbiRecord(rec)){
+        const restore = function(){
+          writeDetails(rec.sbiCertificate || {});
+          /* Keep persistent defaults only as fallback for fields designed to persist. */
+          const defaults = {
+            sbiCertBranch223:'sbiCertDefaultBranch223',
+            sbiCertCashInCharge223:'sbiCertDefaultCash223',
+            sbiCertPlace223:'sbiCertDefaultPlace223',
+            sbiCertCarat225:'sbiCertDefaultCarat226'
+          };
+          Object.entries(defaults).forEach(([id,key])=>{
+            const x=e(id);
+            if(x && !x.value.trim()){
+              const v=localStorage.getItem(key);
+              if(v) x.value=v;
+            }
+          });
+        };
+        setTimeout(restore,0);
+        setTimeout(restore,80);
+        setTimeout(restore,250);
+      }
+      return result;
+    };
+    try{ loadSaved = window.loadSaved; }catch(err){}
+  }
+
+  /*
+    PDF source of truth:
+    1. current visible Resident of field;
+    2. current saved record's sbiCertificate.resident as fallback.
+    This is applied AFTER every existing populate routine.
+  */
+  const prevPopulate = window.populateSbiCertificate223;
+  if(typeof prevPopulate === 'function'){
+    window.populateSbiCertificate223 = function(){
+      const result = prevPopulate.apply(this,arguments);
+
+      let resident = val('sbiCertResident223');
+      if(!resident){
+        resident = String(window._currentSavedRecord?.sbiCertificate?.resident || '').trim();
+      }
+
+      const out = e('sbiPResident223');
+      if(out) out.textContent = resident || '……………………';
+
+      /* Also refresh the other direct-print values from the current form. */
+      const place = val('sbiCertPlace223') || String(window._currentSavedRecord?.sbiCertificate?.place || '').trim();
+      if(e('sbiPPlace223')) e('sbiPPlace223').textContent = place || '……………………';
+
+      return result;
+    };
+  }
+
+  /* Immediately preserve edited SBI certificate details in the in-memory saved record.
+     The normal Save button still commits them permanently to goldValuations/file storage. */
+  document.addEventListener('input',function(ev){
+    const ids = ['sbiCertBranch223','sbiCertAccount223','sbiCertRelation223','sbiCertResident223',
+      'sbiCertCashInCharge223','sbiCertPlace223','sbiCertCarat225','sbiCertMethod223'];
+    if(ids.includes(ev.target?.id) && window._currentSavedRecord && isSbiRecord(window._currentSavedRecord)){
+      window._currentSavedRecord.sbiCertificate = readDetails();
+    }
+  },true);
+})();
+</script>
+<!-- /STEP 228 -->
+
 </body>
 </html>
