@@ -20589,236 +20589,388 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /PREMIUM APP COVER PAGE 220 -->
 
+<!-- EQUAL MOBILE BOXES + FIT TYPOGRAPHY 221 -->
+<style id="equal-mobile-boxes-fit-css-221">
+/* Final mobile fit pass for SBI, IDBI, Maharashtra Gramin Bank and Dnyandeep.
+   Visual sizing only: valuation calculations, save/load/share and storage logic are untouched. */
+@media screen and (max-width:700px){
+  /* Remove the extra visual outer frame while retaining its DOM wrapper. */
+  #premiumStandardOuter218,
+  #premiumIdbiOuter218{
+    width:100%!important;
+    max-width:430px!important;
+    margin:0 auto!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  #premiumStandardOuter218:before,
+  #premiumStandardOuter218:after,
+  #premiumIdbiOuter218:before,
+  #premiumIdbiOuter218:after{display:none!important;content:none!important}
 
-<!-- MOBILE READABILITY UPGRADE 221 -->
-<style id="mobile-readability-upgrade-css-221">
-/* Larger, clearer typography on all four valuation screens.
-   Layout dimensions and calculation/function logic are unchanged. */
+  /* Every major valuation card follows the same width. */
+  #premiumStandardOuter218 > .s111-customer,
+  #premiumStandardOuter218 > .s111-jewellery,
+  #premiumStandardOuter218 > .s111-summary,
+  #premiumStandardOuter218 > .s111-loan-card,
+  #premiumStandardOuter218 > .s113-quick-actions,
+  #premiumStandardOuter218 > .s111-secondary-actions,
+  #premiumIdbiOuter218 > .idbi-customer,
+  #premiumIdbiOuter218 > .idbi-items-section,
+  #premiumIdbiOuter218 > .idbi-summary-section,
+  #premiumIdbiOuter218 > .idbi-loan,
+  #premiumIdbiOuter218 > .idbi-secondary-actions,
+  #premiumIdbiOuter218 > .idbi-feature-note{
+    width:calc(100% - 24px)!important;
+    max-width:406px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
 
-/* Customer / jewellery / loan field labels */
-#premiumStandardOuter218 label,
-#premiumStandardOuter218 .field label,
-#premiumStandardOuter218 .field-label,
-#premiumStandardOuter218 .label,
-#premiumIdbiOuter218 label,
-#premiumIdbiOuter218 .field label,
-#premiumIdbiOuter218 .field-label,
-#premiumIdbiOuter218 .label{
-  font-size:15px!important;
-  line-height:1.3!important;
-  font-weight:700!important;
-}
-
-/* Inputs, dates, weights, purity, rates and dropdowns */
-#premiumStandardOuter218 input,
-#premiumStandardOuter218 select,
-#premiumStandardOuter218 textarea,
-#premiumIdbiOuter218 input,
-#premiumIdbiOuter218 select,
-#premiumIdbiOuter218 textarea{
-  font-size:17px!important;
-  line-height:1.3!important;
-  font-weight:650!important;
-}
-
-/* Section headings */
-#premiumStandardOuter218 h2,
-#premiumStandardOuter218 .section-title,
-#premiumIdbiOuter218 h2,
-#premiumIdbiOuter218 .section-title{
-  font-size:19px!important;
-  line-height:1.25!important;
-}
-
-/* Keep Item 1 / Item 2 prominent but not oversized */
-#premiumStandardOuter218 .item h3,
-#premiumStandardOuter218 .item-card h3,
-#premiumStandardOuter218 [class*="item"] h3,
-#premiumIdbiOuter218 .idbi-item h3,
-#premiumIdbiOuter218 [class*="item"] h3{
-  font-size:22px!important;
-  line-height:1.15!important;
-}
-
-/* Calculated-card captions and general small text */
-#premiumStandardOuter218 .metric small,
-#premiumStandardOuter218 .metric-label,
-#premiumStandardOuter218 .result-label,
-#premiumStandardOuter218 .calc-label,
-#premiumStandardOuter218 small,
-#premiumIdbiOuter218 .metric small,
-#premiumIdbiOuter218 .metric-label,
-#premiumIdbiOuter218 .result-label,
-#premiumIdbiOuter218 .calc-label,
-#premiumIdbiOuter218 small{
-  font-size:14px!important;
-  line-height:1.3!important;
-}
-
-/* Calculated numbers */
-#premiumStandardOuter218 .metric b,
-#premiumStandardOuter218 .value,
-#premiumStandardOuter218 .metric-value,
-#premiumStandardOuter218 .result-value,
-#premiumIdbiOuter218 .metric b,
-#premiumIdbiOuter218 .value,
-#premiumIdbiOuter218 .metric-value,
-#premiumIdbiOuter218 .result-value{
-  font-size:19px!important;
-  line-height:1.2!important;
-  font-weight:800!important;
-}
-
-/* Summary labels, values and valuation-detail table */
-#premiumStandardOuter218 table,
-#premiumStandardOuter218 th,
-#premiumStandardOuter218 td,
-#premiumIdbiOuter218 table,
-#premiumIdbiOuter218 th,
-#premiumIdbiOuter218 td{
-  font-size:15px!important;
-}
-#premiumStandardOuter218 th,
-#premiumIdbiOuter218 th{
-  font-weight:800!important;
-}
-
-/* Buttons inside valuation cards */
-#premiumStandardOuter218 button,
-#premiumIdbiOuter218 button{
-  font-size:15px!important;
-  font-weight:750!important;
-}
-
-/* Fixed Save / Load / Share rail */
-#standardValuationActionBar192 button,
-#idbi-valuation-screen .idbi-bottom-actions button{
-  font-size:16px!important;
-  font-weight:800!important;
-}
-
-/* Placeholder readability */
-#premiumStandardOuter218 input::placeholder,
-#premiumStandardOuter218 textarea::placeholder,
-#premiumIdbiOuter218 input::placeholder,
-#premiumIdbiOuter218 textarea::placeholder{
-  font-size:16px!important;
-  opacity:.78!important;
-}
-</style>
-<!-- /MOBILE READABILITY UPGRADE 221 -->
-
-
-<!-- PREMIUM OUTER BOX CLEANUP 222 -->
-<style id="premium-outer-box-cleanup-css-222">
-/* Remove one redundant premium shell while preserving all inner cards and functions */
-#premiumStandardOuter218,
-#premiumIdbiOuter218{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  padding:0!important;
-  margin:0!important;
-  border-radius:0!important;
-}
-
-/* Let valuation content use more of the mobile width */
-#valuation-main-sections,
-#idbi-valuation-screen{
-  width:100%!important;
-}
-#premiumStandardOuter218 > *,
-#premiumIdbiOuter218 > *{
-  max-width:none!important;
-}
-
-/* Keep the real content cards premium and clean */
-#premiumStandardOuter218 .card,
-#premiumStandardOuter218 .section-card,
-#premiumStandardOuter218 .premium-card,
-#premiumIdbiOuter218 .card,
-#premiumIdbiOuter218 .section-card,
-#premiumIdbiOuter218 .premium-card{
-  border-radius:20px!important;
-}
-
-/* Improve 3-column jewellery input readability on phones */
-#premiumStandardOuter218 .grid,
-#premiumIdbiOuter218 .grid{
-  column-gap:8px!important;
-}
-#premiumStandardOuter218 .field,
-#premiumIdbiOuter218 .field{
-  min-width:0!important;
-}
-#premiumStandardOuter218 .field label,
-#premiumIdbiOuter218 .field label{
-  font-size:13px!important;
-  white-space:normal!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  line-height:1.15!important;
-}
-#premiumStandardOuter218 input,
-#premiumStandardOuter218 select,
-#premiumIdbiOuter218 input,
-#premiumIdbiOuter218 select{
-  min-width:0!important;
-}
-
-/* Keep customer labels readable without forcing truncation */
-#premiumStandardOuter218 .customer-details label,
-#premiumIdbiOuter218 .customer-details label{
-  font-size:14px!important;
-}
-
-/* Jewellery item title stays strong but balanced */
-#premiumStandardOuter218 .item h3,
-#premiumStandardOuter218 [class*="item"] h3,
-#premiumIdbiOuter218 .idbi-item h3,
-#premiumIdbiOuter218 [class*="item"] h3{
-  font-size:21px!important;
-}
-
-/* More compact calculated labels, values remain prominent */
-#premiumStandardOuter218 .metric small,
-#premiumStandardOuter218 .metric-label,
-#premiumStandardOuter218 .result-label,
-#premiumStandardOuter218 .calc-label,
-#premiumIdbiOuter218 .metric small,
-#premiumIdbiOuter218 .metric-label,
-#premiumIdbiOuter218 .result-label,
-#premiumIdbiOuter218 .calc-label{
-  font-size:13px!important;
-}
-#premiumStandardOuter218 .metric b,
-#premiumStandardOuter218 .metric-value,
-#premiumStandardOuter218 .result-value,
-#premiumIdbiOuter218 .metric b,
-#premiumIdbiOuter218 .metric-value,
-#premiumIdbiOuter218 .result-value{
-  font-size:18px!important;
-}
-
-/* Prevent the jewellery 3-column row from pushing outside the card */
-@media(max-width:430px){
-  #premiumStandardOuter218 .grid,
-  #premiumIdbiOuter218 .grid{
+  /* Customer Details: two equal columns, equal input heights. */
+  #valuation-main-sections .s111-customer-grid,
+  #idbi-valuation-screen .idbi-customer{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
     gap:7px!important;
+    align-items:stretch!important;
   }
-  #premiumStandardOuter218 .field label,
-  #premiumIdbiOuter218 .field label{
+  #valuation-main-sections .s111-customer-grid > *,
+  #idbi-valuation-screen .idbi-customer > *{
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  #valuation-main-sections .s111-customer-grid label,
+  #idbi-valuation-screen .idbi-customer label,
+  #valuation-main-sections .s111-rate label,
+  #idbi-valuation-screen .idbi-rate label{
+    display:block!important;
+    min-height:15px!important;
+    margin:0 0 4px!important;
+    font-size:10.5px!important;
+    line-height:1.15!important;
+    font-weight:750!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #valuation-main-sections .s111-customer-grid input,
+  #valuation-main-sections .s111-customer-grid select,
+  #idbi-valuation-screen .idbi-customer input,
+  #idbi-valuation-screen .idbi-customer select,
+  #valuation-main-sections .s111-rate input,
+  #idbi-valuation-screen .idbi-rate input{
+    width:100%!important;
+    min-width:0!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:7px 9px!important;
+    box-sizing:border-box!important;
     font-size:12.5px!important;
+    line-height:1.1!important;
+    font-weight:700!important;
   }
-  #premiumStandardOuter218 .field input,
-  #premiumIdbiOuter218 .field input{
-    font-size:16px!important;
-    padding-left:10px!important;
-    padding-right:10px!important;
+  #valuation-main-sections .s111-rate,
+  #idbi-valuation-screen .idbi-rate{
+    min-width:0!important;
+    min-height:57px!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    box-sizing:border-box!important;
+  }
+  #valuation-main-sections .s111-rate .s111-rate-content{padding:0!important;width:100%!important}
+  .rate-edit-btn-199{
+    right:4px!important;
+    bottom:4px!important;
+    width:30px!important;
+    min-width:30px!important;
+    height:30px!important;
+    min-height:30px!important;
+    border-radius:8px!important;
+    font-size:13px!important;
+  }
+  #valuation-main-sections #rate,
+  #idbi-valuation-screen #idbiRate{padding-right:38px!important}
+
+  /* Compact section headings and action buttons so nothing crowds or wraps. */
+  #valuation-main-sections .s111-card-head h2,
+  #idbi-valuation-screen .idbi-items-title,
+  #idbi-valuation-screen .idbi-summary-head span,
+  #valuation-main-sections .s111-loan-card h2{
+    font-size:14px!important;
+    line-height:1.12!important;
+    font-weight:850!important;
+    letter-spacing:0!important;
+  }
+  #valuation-main-sections .s111-card-head .primary,
+  #valuation-main-sections .s111-details,
+  #idbi-valuation-screen .idbi-items-title button,
+  #idbi-valuation-screen .idbi-summary-head button{
+    min-height:32px!important;
+    height:32px!important;
+    padding:5px 9px!important;
+    font-size:10.5px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+
+  /* Item title was too large; keep it readable but proportional. */
+  #valuation-main-sections .itemhead > span,
+  #valuation-main-sections .itemhead strong,
+  #idbi-valuation-screen .idbi-item-head strong,
+  #valuation-main-sections .item-card h3,
+  #valuation-main-sections .item h3,
+  #idbi-valuation-screen .idbi-item h3{
+    font-size:18px!important;
+    line-height:1.05!important;
+    font-weight:800!important;
+    margin:0!important;
+  }
+  #valuation-main-sections .remove,
+  #idbi-valuation-screen .idbi-item-head button{
+    min-height:30px!important;
+    height:30px!important;
+    padding:4px 9px!important;
+    font-size:10px!important;
+    line-height:1!important;
+  }
+
+  /* Standard jewellery input row: exactly three equal boxes in one line. */
+  #valuation-main-sections #items .grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+    align-items:stretch!important;
+  }
+  #valuation-main-sections #items .grid > .field{min-width:0!important;width:auto!important}
+  #valuation-main-sections .item label,
+  #idbi-valuation-screen .idbi-item-card label{
+    display:block!important;
+    min-height:25px!important;
+    margin:0 0 4px!important;
+    font-size:10.5px!important;
+    line-height:1.15!important;
+    font-weight:750!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #valuation-main-sections .item > .field > label,
+  #idbi-valuation-screen .idbi-item-card > label{min-height:15px!important}
+  #valuation-main-sections .item input,
+  #valuation-main-sections .item select,
+  #idbi-valuation-screen .idbi-item-card input,
+  #idbi-valuation-screen .idbi-item-card select{
+    width:100%!important;
+    min-width:0!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:7px 8px!important;
+    box-sizing:border-box!important;
+    font-size:12.5px!important;
+    line-height:1.1!important;
+    font-weight:700!important;
+  }
+
+  /* Standard calculated row: exactly three equal result boxes. */
+  #valuation-main-sections .calc{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+    align-items:stretch!important;
+  }
+  #valuation-main-sections .metric{
+    min-width:0!important;
+    height:68px!important;
+    min-height:68px!important;
+    padding:7px 4px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #valuation-main-sections .metric small{
+    min-height:15px!important;
+    font-size:10.5px!important;
+    line-height:1.1!important;
+    white-space:normal!important;
+  }
+  #valuation-main-sections .metric b{
+    margin-top:5px!important;
+    max-width:100%!important;
+    font-size:15px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #valuation-main-sections .metric .value{font-size:14px!important}
+
+  /* IDBI keeps the approved 2 x 2 input arrangement, but every box is identical. */
+  #idbi-valuation-screen .idbi-input-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px!important;
+    align-items:stretch!important;
+  }
+  #idbi-valuation-screen .idbi-input-grid > div{min-width:0!important}
+  #idbi-valuation-screen .idbi-input-grid label{min-height:15px!important}
+
+  /* IDBI result row: three identical boxes; value remains full width below as designed. */
+  #idbi-valuation-screen .idbi-calc-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  #idbi-valuation-screen .idbi-calc-grid > div{
+    min-width:0!important;
+    min-height:62px!important;
+    height:62px!important;
+    padding:6px 3px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:center!important;
+  }
+  #idbi-valuation-screen .idbi-calc-grid span{
+    min-height:22px!important;
+    font-size:9.5px!important;
+    line-height:1.1!important;
+    white-space:normal!important;
+  }
+  #idbi-valuation-screen .idbi-calc-grid b{
+    margin-top:4px!important;
+    font-size:12.5px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #idbi-valuation-screen .idbi-calc-grid .idbi-item-value{
+    grid-column:1 / -1!important;
+    width:100%!important;
+    min-height:54px!important;
+    height:54px!important;
+  }
+  #idbi-valuation-screen .idbi-calc-grid .idbi-item-value b{font-size:15px!important}
+
+  /* Valuation Summary: all four summary boxes on one equal-height line. */
+  #valuation-main-sections .s111-summary-grid,
+  #idbi-valuation-screen .idbi-summary-stats{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+    align-items:stretch!important;
+  }
+  #valuation-main-sections .s111-stat,
+  #idbi-valuation-screen .idbi-summary-stats > div{
+    min-width:0!important;
+    height:68px!important;
+    min-height:68px!important;
+    padding:6px 3px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  #valuation-main-sections .s111-stat small,
+  #idbi-valuation-screen .idbi-summary-stats span{
+    min-height:24px!important;
+    font-size:8.8px!important;
+    line-height:1.1!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #valuation-main-sections .s111-stat b,
+  #idbi-valuation-screen .idbi-summary-stats b{
+    margin-top:4px!important;
+    max-width:100%!important;
+    font-size:12.5px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  #valuation-main-sections .s111-stat:last-child b,
+  #idbi-valuation-screen .idbi-summary-stats > div:last-child b{font-size:11.5px!important}
+
+  /* Loan/result boxes in the same row get matching height and typography. */
+  #valuation-main-sections .s111-loan-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+    align-items:stretch!important;
+  }
+  #valuation-main-sections .s111-loan-tile{
+    min-width:0!important;
+    min-height:104px!important;
+    height:104px!important;
+    box-sizing:border-box!important;
+  }
+  #valuation-main-sections .s111-loan-title{font-size:10.5px!important;line-height:1.15!important;min-height:26px!important}
+  #valuation-main-sections .s111-loan-tile input{height:36px!important;min-height:36px!important;font-size:12px!important}
+  #valuation-main-sections .s111-loan-tile b{font-size:14px!important;line-height:1!important}
+  #idbi-valuation-screen .idbi-loan{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+    align-items:stretch!important;
+  }
+  #idbi-valuation-screen .idbi-loan > *{min-width:0!important;box-sizing:border-box!important}
+  #idbi-valuation-screen .idbi-loan label,
+  #idbi-valuation-screen .idbi-loan .idbi-result span{font-size:9.5px!important;line-height:1.1!important}
+  #idbi-valuation-screen .idbi-loan input{height:36px!important;min-height:36px!important;font-size:11.5px!important}
+  #idbi-valuation-screen .idbi-loan .idbi-result b{font-size:12px!important;white-space:nowrap!important}
+
+  /* Fixed bottom bar: three identical buttons. */
+  #standardValuationActionBar192,
+  #idbi-valuation-screen .idbi-bottom-actions{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+    min-height:62px!important;
+    padding:7px 9px!important;
+    box-sizing:border-box!important;
+  }
+  #standardValuationActionBar192 button,
+  #idbi-valuation-screen .idbi-bottom-actions button{
+    width:100%!important;
+    min-width:0!important;
+    height:48px!important;
+    min-height:48px!important;
+    padding:6px 4px!important;
+    font-size:14px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
   }
 }
+
+@media screen and (max-width:380px){
+  #valuation-main-sections .s111-card-head h2,
+  #idbi-valuation-screen .idbi-items-title{font-size:12.5px!important}
+  #valuation-main-sections .s111-card-head .primary,
+  #valuation-main-sections .s111-details,
+  #idbi-valuation-screen .idbi-items-title button,
+  #idbi-valuation-screen .idbi-summary-head button{font-size:9.5px!important;padding-left:6px!important;padding-right:6px!important}
+  #valuation-main-sections .item label,
+  #idbi-valuation-screen .idbi-item-card label{font-size:9.5px!important}
+  #valuation-main-sections .item input,
+  #valuation-main-sections .item select,
+  #idbi-valuation-screen .idbi-item-card input,
+  #idbi-valuation-screen .idbi-item-card select{font-size:11.5px!important}
+  #valuation-main-sections .metric b{font-size:13.5px!important}
+  #valuation-main-sections .metric .value{font-size:12.5px!important}
+  #valuation-main-sections .s111-stat b,
+  #idbi-valuation-screen .idbi-summary-stats b{font-size:11.5px!important}
+  #valuation-main-sections .s111-stat:last-child b,
+  #idbi-valuation-screen .idbi-summary-stats > div:last-child b{font-size:10px!important}
+  #standardValuationActionBar192 button,
+  #idbi-valuation-screen .idbi-bottom-actions button{font-size:12.5px!important}
+}
 </style>
-<!-- /PREMIUM OUTER BOX CLEANUP 222 -->
+<!-- /EQUAL MOBILE BOXES + FIT TYPOGRAPHY 221 -->
 
 </body>
 </html>
