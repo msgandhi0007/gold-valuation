@@ -4137,7 +4137,7 @@ body:not(.menu-viewing) .s111-rate{
       <h2>🏦 IDBI BANK Valuation</h2>
       <p>IDBI Impurity Calculator</p>
     </div>
-    <button type="button" class="idbi-back" onclick="showValuationScreen()">← Back</button>
+    <button type="button" class="idbi-back" onclick="return idbiBackToBankHome196()">← Back to Bank Selection</button>
   </div>
 
   <div class="idbi-customer">
@@ -14782,6 +14782,95 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
 })();
 </script>
 <!-- /LOCK BANK DURING VALUATION + BACK BUTTON 194 -->
+
+
+<!-- IDBI BACK MUST RETURN TO MAIN BANK HOME 196 -->
+<script id="idbi-back-bank-home-fix-196">
+(function(){
+  'use strict';
+
+  function hideAllValuationScreens196(){
+    var standard=document.getElementById('valuation-main-sections');
+    var idbi=document.getElementById('idbi-valuation-screen');
+    var main=document.querySelector('main');
+    var bar=document.getElementById('standardValuationActionBar192');
+
+    if(standard) standard.style.setProperty('display','none','important');
+    if(idbi) idbi.style.setProperty('display','none','important');
+    if(main) main.style.setProperty('display','none','important');
+    if(bar) bar.style.setProperty('display','none','important');
+  }
+
+  window.idbiBackToBankHome196=function(){
+    hideAllValuationScreens196();
+
+    document.body.classList.remove(
+      'storageMode','customersHomeMode','savedClean168Open',
+      'dashboardHomeMode','savedHomeMode'
+    );
+    document.body.classList.add('bankHomeMode');
+
+    var home=document.getElementById('bankHome');
+    if(home) home.style.setProperty('display','block','important');
+
+    window.scrollTo(0,0);
+    return false;
+  };
+
+  // Strengthen the shared home function too:
+  // whenever Bank Home is opened, both valuation screens must be closed first.
+  var oldHome=window.showBankHome;
+  if(typeof oldHome==='function' && !oldHome.__idbiHome196){
+    var homeFn=function(){
+      hideAllValuationScreens196();
+      var r=oldHome.apply(this,arguments);
+
+      var home=document.getElementById('bankHome');
+      if(home) home.style.setProperty('display','block','important');
+
+      // old showBankHome can touch other screens but must never restore valuation screens
+      var standard=document.getElementById('valuation-main-sections');
+      var idbi=document.getElementById('idbi-valuation-screen');
+      if(standard) standard.style.setProperty('display','none','important');
+      if(idbi) idbi.style.setProperty('display','none','important');
+
+      return r;
+    };
+    homeFn.__idbiHome196=true;
+    window.showBankHome=homeFn;
+  }
+
+  // Strengthen bank opening so previous bank screens cannot remain underneath.
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function' && !oldOpen.__screenIsolation196){
+    var openFn=function(bank){
+      var standard=document.getElementById('valuation-main-sections');
+      var idbi=document.getElementById('idbi-valuation-screen');
+      var main=document.querySelector('main');
+
+      if(standard) standard.style.setProperty('display','none','important');
+      if(idbi) idbi.style.setProperty('display','none','important');
+
+      var r=oldOpen.apply(this,arguments);
+
+      if(String(bank||'').trim()==='IDBI BANK'){
+        if(standard) standard.style.setProperty('display','none','important');
+        if(main) main.style.setProperty('display','none','important');
+        if(idbi) idbi.style.setProperty('display','block','important');
+      }else{
+        if(idbi) idbi.style.setProperty('display','none','important');
+        if(main) main.style.setProperty('display','block','important');
+        if(standard) standard.style.setProperty('display','block','important');
+      }
+      window.scrollTo(0,0);
+      return r;
+    };
+    openFn.__screenIsolation196=true;
+    window.openBank=openFn;
+  }
+})();
+</script>
+<!-- /IDBI BACK MUST RETURN TO MAIN BANK HOME 196 -->
 
 </body>
 </html>
