@@ -14648,5 +14648,73 @@ body.gv-valuation-footer-visible > footer{
 </script>
 <!-- /FOOTER SAVE LOAD SHARE ONLY ON VALUATION SCREENS FIX 187 -->
 
+
+<!-- STRICT FOOTER VISIBILITY FIX 188 -->
+<script id="strict-footer-visibility-fix-188">
+(function(){
+  'use strict';
+
+  function shown(el){
+    if(!el) return false;
+    var s=getComputedStyle(el);
+    if(s.display==='none'||s.visibility==='hidden'||s.opacity==='0') return false;
+    var r=el.getBoundingClientRect();
+    return r.width>0 && r.height>0;
+  }
+
+  function refresh188(){
+    var body=document.body;
+    if(!body)return;
+
+    /* If any non-valuation full screen is actually visible, footer MUST be hidden. */
+    var nonValuationIds=[
+      'bankHome',
+      'dashboardHome',
+      'customersHomeScreen',
+      'savedClean168',
+      'savedValuationsHome',
+      'storageBackupScreen',
+      'saveManager'
+    ];
+    for(var i=0;i<nonValuationIds.length;i++){
+      if(shown(document.getElementById(nonValuationIds[i]))){
+        body.classList.remove('gv-valuation-footer-visible');
+        return;
+      }
+    }
+
+    /* Show only when one of the real four-bank valuation areas is visible. */
+    var idbi=shown(document.getElementById('idbi-valuation-screen'));
+    var standard=shown(document.getElementById('valuation-main-sections'));
+
+    body.classList.toggle('gv-valuation-footer-visible', idbi || standard);
+  }
+
+  window.refreshValuationFooter187=refresh188;
+  window.refreshValuationFooter188=refresh188;
+
+  /* Observe display/class changes so navigation cannot leave a stale footer state. */
+  var observer=new MutationObserver(function(){requestAnimationFrame(refresh188)});
+  if(document.body){
+    observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class','style']});
+  }
+
+  document.addEventListener('click',function(){
+    setTimeout(refresh188,0);
+    setTimeout(refresh188,150);
+  },true);
+  window.addEventListener('popstate',function(){setTimeout(refresh188,50)});
+  window.addEventListener('pageshow',function(){setTimeout(refresh188,50)});
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class','style']});
+      setTimeout(refresh188,100);
+    });
+  }else setTimeout(refresh188,100);
+})();
+</script>
+<!-- /STRICT FOOTER VISIBILITY FIX 188 -->
+
 </body>
 </html>
