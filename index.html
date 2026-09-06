@@ -20972,5 +20972,163 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /EQUAL MOBILE BOXES + FIT TYPOGRAPHY 221 -->
 
+
+<!-- BANK BANNER SCREEN-FIT ENLARGE 220 -->
+<style id="bank-banner-screen-fit-enlarge-css-220">
+/* Step 220 — make all four valuation bank banners visually fill the mobile screen.
+   This changes only the bank banner/back-row geometry and bank typography. */
+
+/* The standard banner is created inside this compatibility section.
+   Remove its old side inset so the banner can use the full valuation width. */
+#main-bank-selector.bank-back-only-194{
+  width:100%!important;
+  max-width:none!important;
+  margin:9px 0 7px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  box-sizing:border-box!important;
+}
+
+/* Keep Back to Bank Selection comfortably inset. */
+#valuationBankBackBar194{
+  width:calc(100% - 24px)!important;
+  max-width:406px!important;
+  margin:0 auto 7px!important;
+  box-sizing:border-box!important;
+}
+
+/* One large, identical outer banner for SBI / IDBI / MGB / Dnyandeep. */
+#valuationBankBrand209,
+#idbiBankBrand209{
+  width:calc(100% - 12px)!important;
+  max-width:418px!important;
+  height:92px!important;
+  min-height:92px!important;
+  max-height:92px!important;
+  margin:0 auto 10px!important;
+  padding:9px 10px!important;
+  grid-template-columns:32% 39% 29%!important;
+  align-items:center!important;
+  column-gap:0!important;
+  border-radius:13px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+
+/* Larger logo while preserving its aspect ratio. */
+#valuationBankLogo209,
+#idbiBankLogo209{
+  width:100%!important;
+  max-width:116px!important;
+  height:70px!important;
+  min-height:70px!important;
+  object-fit:contain!important;
+  padding:0 9px 0 2px!important;
+  justify-self:center!important;
+  box-sizing:border-box!important;
+}
+
+/* Main bank name. */
+#valuationBankBrand209 .bank-brand-name-209,
+#idbiBankBrand209 .bank-brand-name-209{
+  padding:0 9px!important;
+  font-size:14.5px!important;
+  line-height:1.04!important;
+  font-weight:950!important;
+}
+
+/* Gold Valuation subtitle. */
+#valuationBankBrand209 .bank-brand-name-209 .bank-sub-213,
+#idbiBankBrand209 .bank-brand-name-209 .bank-sub-213{
+  margin-top:5px!important;
+  font-size:10.6px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+
+/* Right-side bank slogan. */
+#valuationBankBrand209 .bank-slogan-212,
+#idbiBankBrand209 .bank-slogan-212{
+  padding-left:9px!important;
+  font-size:9.4px!important;
+  line-height:1.14!important;
+}
+
+/* SBI and IDBI can use the strongest title size. */
+#valuationBankBrand209[data-bank213="SBI BANK"] .bank-brand-name-209,
+#idbiBankBrand209[data-bank213="IDBI BANK"] .bank-brand-name-209{
+  font-size:16px!important;
+}
+
+/* Long bank names remain larger than before but are sized to stay clean. */
+#valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-brand-name-209{
+  font-size:11.4px!important;
+  line-height:1.04!important;
+}
+#valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-brand-name-209{
+  font-size:10.7px!important;
+  line-height:1.04!important;
+}
+#valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-slogan-212{
+  font-size:8.3px!important;
+}
+#valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-slogan-212{
+  font-size:8.5px!important;
+}
+
+/* Small Android phones: preserve the large look without clipping. */
+@media(max-width:380px){
+  #valuationBankBrand209,
+  #idbiBankBrand209{
+    width:calc(100% - 10px)!important;
+    height:88px!important;
+    min-height:88px!important;
+    max-height:88px!important;
+    padding:8px 8px!important;
+    grid-template-columns:32% 39% 29%!important;
+  }
+  #valuationBankLogo209,
+  #idbiBankLogo209{
+    max-width:108px!important;
+    height:66px!important;
+    min-height:66px!important;
+    padding-right:7px!important;
+  }
+  #valuationBankBrand209 .bank-brand-name-209,
+  #idbiBankBrand209 .bank-brand-name-209{
+    padding:0 7px!important;
+    font-size:13.8px!important;
+  }
+  #valuationBankBrand209[data-bank213="SBI BANK"] .bank-brand-name-209,
+  #idbiBankBrand209[data-bank213="IDBI BANK"] .bank-brand-name-209{
+    font-size:15.3px!important;
+  }
+  #valuationBankBrand209 .bank-brand-name-209 .bank-sub-213,
+  #idbiBankBrand209 .bank-brand-name-209 .bank-sub-213{
+    font-size:10px!important;
+  }
+  #valuationBankBrand209 .bank-slogan-212,
+  #idbiBankBrand209 .bank-slogan-212{
+    padding-left:7px!important;
+    font-size:8.8px!important;
+  }
+  #valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-brand-name-209{
+    font-size:10.7px!important;
+  }
+  #valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-brand-name-209{
+    font-size:10px!important;
+  }
+  #valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-slogan-212{
+    font-size:7.8px!important;
+  }
+  #valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-slogan-212{
+    font-size:8px!important;
+  }
+}
+</style>
+<!-- /BANK BANNER SCREEN-FIT ENLARGE 220 -->
+
 </body>
 </html>
