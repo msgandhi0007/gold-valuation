@@ -21789,5 +21789,43 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 226 -->
 
+
+<!-- STEP 227 - Force SBI Resident of to print -->
+<script id="sbi-resident-print-fix-js-227">
+(function(){
+  'use strict';
+  function e(id){ return document.getElementById(id); }
+
+  function syncResident(){
+    const src=e('sbiCertResident223');
+    const out=e('sbiPResident223');
+    if(out){
+      const v=(src && src.value) ? src.value.trim() : '';
+      out.textContent=v || '……………………';
+    }
+  }
+
+  document.addEventListener('input',function(ev){
+    if(ev.target && ev.target.id==='sbiCertResident223') syncResident();
+  },true);
+
+  document.addEventListener('change',function(ev){
+    if(ev.target && ev.target.id==='sbiCertResident223') syncResident();
+  },true);
+
+  const oldPopulate=window.populateSbiCertificate223;
+  if(typeof oldPopulate==='function'){
+    window.populateSbiCertificate223=function(){
+      const r=oldPopulate.apply(this,arguments);
+      syncResident();
+      return r;
+    };
+  }
+
+  setTimeout(syncResident,300);
+})();
+</script>
+<!-- /STEP 227 -->
+
 </body>
 </html>
