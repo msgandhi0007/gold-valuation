@@ -21130,5 +21130,134 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /BANK BANNER SCREEN-FIT ENLARGE 220 -->
 
+
+<!-- UNIFIED VALUATION WIDTH + BALANCED ACTIONS 222 -->
+<style id="unified-valuation-width-actions-css-222">
+/* Step 222 — align the bank banner and every main valuation section to one
+   mobile width. Visual-only: calculations, save/load/share and PDFs unchanged. */
+@media screen and (max-width:700px){
+  :root{
+    --valuation-screen-width-222: min(calc(100vw - 24px), 406px);
+  }
+
+  /* Standard-bank and IDBI content shells use the exact same outer width. */
+  #premiumStandardOuter218,
+  #premiumIdbiOuter218{
+    width:var(--valuation-screen-width-222)!important;
+    max-width:406px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Every valuation card/section touches the same left and right guide. */
+  #premiumStandardOuter218 > .s111-customer,
+  #premiumStandardOuter218 > .s111-jewellery,
+  #premiumStandardOuter218 > .s111-summary,
+  #premiumStandardOuter218 > .s111-loan-card,
+  #premiumStandardOuter218 > .s113-quick-actions,
+  #premiumStandardOuter218 > .s111-secondary-actions,
+  #premiumIdbiOuter218 > .idbi-customer,
+  #premiumIdbiOuter218 > .idbi-rate,
+  #premiumIdbiOuter218 > .idbi-items-section,
+  #premiumIdbiOuter218 > .idbi-summary-section,
+  #premiumIdbiOuter218 > #idbi-summary-section,
+  #premiumIdbiOuter218 > .idbi-loan,
+  #premiumIdbiOuter218 > .idbi-secondary-actions,
+  #premiumIdbiOuter218 > .idbi-feature-note{
+    width:100%!important;
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Fallback before/if the compatibility wrapper is created. */
+  #valuation-main-sections > .s111-customer,
+  #valuation-main-sections > .s111-jewellery,
+  #valuation-main-sections > .s111-summary,
+  #valuation-main-sections > .s111-loan-card,
+  #valuation-main-sections > .s111-secondary-actions,
+  #idbi-valuation-screen > .idbi-customer,
+  #idbi-valuation-screen > .idbi-rate,
+  #idbi-valuation-screen > .idbi-items-section,
+  #idbi-valuation-screen > .idbi-summary-section,
+  #idbi-valuation-screen > #idbi-summary-section,
+  #idbi-valuation-screen > .idbi-loan,
+  #idbi-valuation-screen > .idbi-secondary-actions{
+    width:var(--valuation-screen-width-222)!important;
+    max-width:406px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Bank banner follows the same guides as Customer Details and all cards. */
+  #valuationBankBrand209,
+  #idbiBankBrand209{
+    width:var(--valuation-screen-width-222)!important;
+    max-width:406px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Back-row guide also matches the common content width. */
+  #valuationBankBackBar194,
+  #idbi-valuation-screen > .idbi-head{
+    width:var(--valuation-screen-width-222)!important;
+    max-width:406px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Reset and Certificate/PDF: equal width and identical height. */
+  #valuation-main-sections .s111-secondary-actions .actions,
+  #idbi-valuation-screen .idbi-secondary-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    align-items:stretch!important;
+  }
+  #valuation-main-sections .s111-secondary-actions button,
+  #idbi-valuation-screen .idbi-secondary-actions button{
+    width:100%!important;
+    min-width:0!important;
+    height:50px!important;
+    min-height:50px!important;
+    padding:7px 6px!important;
+    box-sizing:border-box!important;
+    font-size:11px!important;
+    line-height:1.12!important;
+    white-space:normal!important;
+  }
+
+  /* Preserve the compact one-line field/result grids already approved. */
+  #valuation-main-sections #items .grid,
+  #valuation-main-sections .calc{
+    width:100%!important;
+    min-width:0!important;
+  }
+  #valuation-main-sections .s111-summary-grid{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+}
+
+@media screen and (max-width:380px){
+  :root{
+    --valuation-screen-width-222: min(calc(100vw - 20px), 406px);
+  }
+  #valuation-main-sections .s111-secondary-actions button,
+  #idbi-valuation-screen .idbi-secondary-actions button{
+    font-size:10.5px!important;
+  }
+}
+</style>
+<!-- /UNIFIED VALUATION WIDTH + BALANCED ACTIONS 222 -->
+
 </body>
 </html>
