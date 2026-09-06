@@ -4104,6 +4104,12 @@ body:not(.menu-viewing) .s111-rate{
     </div>
   </section>
 
+
+<div id="standardValuationActionBar192" class="standard-valuation-action-bar-192">
+  <button type="button" onclick="saveData()">💾 Save</button>
+  <button type="button" onclick="return openSavedClean168()">↻ Load</button>
+  <button type="button" onclick="shareResult()">↗ Share</button>
+</div>
 </div>
 
 </main>
@@ -4364,7 +4370,7 @@ body:not(.menu-viewing) .s111-rate{
   <div id="backupStatus" style="font-size:12px;margin-top:10px;opacity:.78"></div>
 </section>
 
-<footer><button onclick="saveData()">💾 Save</button><button onclick="return openSavedClean168()">↻ Load</button><button onclick="shareResult()">↗ Share</button></footer>
+
 <nav class="s113-bottom-nav" aria-label="Main navigation">
   <button type="button" class="active" onclick="showValuationScreen()"><span>⌂</span><small>Valuation</small></button>
   <button type="button" onclick="showMenuSection('dashboard')"><span>▦</span><small>Dashboard</small></button>
@@ -14564,107 +14570,81 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 
 
 
-<!-- EXACT BOTTOM ACTION BAR FIX 191 -->
-<style id="exact-bottom-action-bar-css-191">
-body.gv-hide-global-actions-191 #globalActionBar191{display:none!important}
-body.gv-show-global-actions-191 #globalActionBar191{display:flex!important}
+
+<!-- STRUCTURAL VALUATION ACTION BAR FIX 192 -->
+<style id="structural-valuation-actionbar-css-192">
+#standardValuationActionBar192{
+  position:fixed!important;
+  left:0!important;right:0!important;bottom:0!important;
+  z-index:7000!important;
+  max-width:1024px!important;
+  margin:auto!important;
+  box-sizing:border-box!important;
+  padding:9px 12px!important;
+  display:flex!important;
+  gap:12px!important;
+  background:#111!important;
+}
+#standardValuationActionBar192 button{
+  flex:1!important;
+  min-height:58px!important;
+  border-radius:14px!important;
+  border:1px solid #b27a00!important;
+  background:linear-gradient(180deg,#f0a900,#d88900)!important;
+  color:#fff!important;
+  font-size:18px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections[style*="display: none"] #standardValuationActionBar192{display:none!important}
+body.bankHomeMode #standardValuationActionBar192,
+body.bank-home-mode #standardValuationActionBar192,
+body.dashboardHomeMode #standardValuationActionBar192,
+body.customersHomeMode #standardValuationActionBar192,
+body.savedClean168Open #standardValuationActionBar192,
+body.savedHomeMode #standardValuationActionBar192,
+body.storageMode #standardValuationActionBar192,
+body.storage-backup-mode #standardValuationActionBar192{display:none!important}
 </style>
-<script id="exact-bottom-action-bar-js-191">
+<script id="structural-valuation-actionbar-js-192">
 (function(){
-'use strict';
-
-function text(el){return (el && (el.innerText||el.textContent)||'').replace(/\s+/g,' ').trim().toLowerCase()}
-
-function findGlobalBar(){
-  var known=document.getElementById('globalActionBar191');
-  if(known)return known;
-
-  var buttons=Array.prototype.slice.call(document.querySelectorAll('button'));
-  var save=buttons.filter(function(b){return /(^|\s)save(\s|$)/.test(text(b))});
-  var load=buttons.filter(function(b){return /(^|\s)load(\s|$)/.test(text(b))});
-  var share=buttons.filter(function(b){return /(^|\s)share(\s|$)/.test(text(b))});
-
-  for(var i=0;i<save.length;i++){
-    var p=save[i].parentElement;
-    for(var depth=0;p && depth<4;depth++,p=p.parentElement){
-      if(load.some(function(b){return p.contains(b)}) &&
-         share.some(function(b){return p.contains(b)})){
-        /* Ignore action groups inside IDBI itself. The global bar is normally
-           a direct/near-direct child and contains exactly these bottom actions. */
-        if(!p.closest('#idbi-valuation-screen')){
-          p.id='globalActionBar191';
-          return p;
-        }
-      }
-    }
+  'use strict';
+  function refresh(){
+    var bar=document.getElementById('standardValuationActionBar192');
+    var main=document.getElementById('valuation-main-sections');
+    if(!bar||!main)return;
+    var body=document.body;
+    var blocked=
+      body.classList.contains('bankHomeMode')||
+      body.classList.contains('bank-home-mode')||
+      body.classList.contains('dashboardHomeMode')||
+      body.classList.contains('customersHomeMode')||
+      body.classList.contains('savedClean168Open')||
+      body.classList.contains('savedHomeMode')||
+      body.classList.contains('storageMode')||
+      body.classList.contains('storage-backup-mode');
+    var ms=getComputedStyle(main);
+    var open=!blocked && ms.display!=='none' && ms.visibility!=='hidden';
+    bar.style.setProperty('display',open?'flex':'none','important');
   }
-  return null;
-}
-
-function visible(id){
-  var e=document.getElementById(id);
-  if(!e)return false;
-  var s=getComputedStyle(e);
-  return s.display!=='none' && s.visibility!=='hidden';
-}
-
-function sync(){
-  var bar=findGlobalBar();
-  if(!bar)return;
-
-  var utility =
-    visible('bankHome') ||
-    visible('dashboardHome') ||
-    visible('customersHomeScreen') ||
-    visible('savedClean168') ||
-    visible('savedValuationsHome') ||
-    visible('storageBackupScreen') ||
-    visible('saveManager');
-
-  var idbi=visible('idbi-valuation-screen');
-  var standard=visible('valuation-main-sections');
-
-  var show = standard && !utility && !idbi;
-  document.body.classList.toggle('gv-show-global-actions-191',show);
-  document.body.classList.toggle('gv-hide-global-actions-191',!show);
-  bar.style.setProperty('display',show?'flex':'none','important');
-}
-
-window.syncGlobalActionBar191=sync;
-
-function wrap(name){
-  var old=window[name];
-  if(typeof old!=='function'||old.__bar191)return;
-  var fn=function(){
-    /* Hide immediately before changing screens so the old footer never flashes. */
-    var bar=findGlobalBar();
-    if(bar)bar.style.setProperty('display','none','important');
-    var r=old.apply(this,arguments);
-    requestAnimationFrame(sync);
-    return r;
-  };
-  fn.__bar191=true;
-  window[name]=fn;
-}
-
-[
- 'showBankHome','openBank','openCustomersHome','openSavedClean168',
- 'openDashboardHome','openStorageBackupScreen','closeStorageBackupScreen',
- 'openSavedDirectFinal','loadSaved'
-].forEach(wrap);
-
-window.addEventListener('popstate',function(){requestAnimationFrame(sync)});
-
-function boot(){
-  var bar=findGlobalBar();
-  if(bar)bar.style.setProperty('display','none','important');
-  requestAnimationFrame(sync);
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
-else boot();
+  window.refreshStandardActionBar192=refresh;
+  ['showBankHome','openBank','openCustomersHome','openSavedClean168','openDashboardHome','openStorageBackupScreen','openSavedDirectFinal'].forEach(function(name){
+    var old=window[name];
+    if(typeof old!=='function'||old.__bar192)return;
+    var fn=function(){
+      var bar=document.getElementById('standardValuationActionBar192');
+      if(bar)bar.style.setProperty('display','none','important');
+      var r=old.apply(this,arguments);
+      requestAnimationFrame(refresh);
+      return r;
+    };
+    fn.__bar192=true;window[name]=fn;
+  });
+  window.addEventListener('popstate',function(){requestAnimationFrame(refresh)});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(refresh)});
+  else requestAnimationFrame(refresh);
 })();
 </script>
-<!-- /EXACT BOTTOM ACTION BAR FIX 191 -->
+<!-- /STRUCTURAL VALUATION ACTION BAR FIX 192 -->
 
 </body>
 </html>
