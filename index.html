@@ -20034,5 +20034,70 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /MASTER PREVIEW BANNER + COMPACT LAYOUT MATCH 216 -->
 
+
+<!-- IDBI BACK BUTTON POSITION FIX 217 -->
+<style id="idbi-back-position-fix-css-217">
+/* Restore a real layout row for the IDBI Back button.
+   Previous compact rules collapsed .idbi-head to height:0, so the button
+   floated underneath the IDBI bank banner. */
+#idbi-valuation-screen > .idbi-head{
+  width:calc(100% - 24px)!important;
+  max-width:406px!important;
+  height:33px!important;
+  min-height:33px!important;
+  margin:7px auto 5px!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:0!important;
+  overflow:visible!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  box-sizing:border-box!important;
+}
+
+/* Keep the old IDBI title/subtitle hidden; only Back remains here. */
+#idbi-valuation-screen > .idbi-head > div:first-child{
+  display:none!important;
+}
+
+#idbi-valuation-screen > .idbi-head .idbi-back{
+  position:static!important;
+  inset:auto!important;
+  float:none!important;
+  transform:none!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:31px!important;
+  min-height:31px!important;
+  margin:0!important;
+  padding:5px 10px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid #dfc88f!important;
+  border-radius:7px!important;
+  background:#fffdf8!important;
+  color:#17213d!important;
+  font-size:10.5px!important;
+  line-height:1!important;
+  font-weight:850!important;
+  white-space:nowrap!important;
+  box-shadow:none!important;
+  z-index:5!important;
+}
+
+/* IDBI banner must always start BELOW the Back row. */
+#idbiBankBrand209{
+  clear:both!important;
+  position:relative!important;
+  margin-top:0!important;
+}
+</style>
+<!-- /IDBI BACK BUTTON POSITION FIX 217 -->
+
 </body>
 </html>
