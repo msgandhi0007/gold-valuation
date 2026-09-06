@@ -15844,5 +15844,112 @@ body.standard-saved-open-202 #valuation-main-sections{
 </script>
 <!-- /THREE ISSUE FIX 202 -->
 
+
+<!-- SAVED STANDARD BANK IDENTITY FIX 203 -->
+<script id="saved-standard-bank-identity-fix-203">
+(function(){
+  'use strict';
+
+  function exactBank203(r){
+    return String(
+      (r&&r.customer&&r.customer.bank) ||
+      (r&&r.bank) ||
+      ''
+    ).trim();
+  }
+
+  function isIdbi203(r){
+    var b=exactBank203(r).toUpperCase();
+    return !!r && (r.valuationType==='IDBI_BANK' || r.bankSpecific===true || b.indexOf('IDBI')>=0);
+  }
+
+  function syncSavedBank203(r){
+    if(!r || isIdbi203(r)) return;
+
+    var bank=exactBank203(r);
+    if(!bank) return;
+
+    var hidden=document.getElementById('bankName');
+    var sel=document.getElementById('mainBankSelect');
+
+    if(hidden){
+      var options=[].slice.call(hidden.options||[]);
+      var match=options.find(function(o){
+        return String(o.value).trim().toUpperCase()===bank.toUpperCase();
+      });
+      hidden.value=match ? match.value : bank;
+    }
+
+    if(sel){
+      var options2=[].slice.call(sel.options||[]);
+      var match2=options2.find(function(o){
+        return String(o.value).trim().toUpperCase()===bank.toUpperCase();
+      });
+      if(match2) sel.value=match2.value;
+    }
+
+    if(typeof window.updateValuationBankLabel194==='function'){
+      window.updateValuationBankLabel194(bank);
+    }else{
+      var label=document.getElementById('valuationCurrentBank194');
+      if(label) label.textContent=bank;
+    }
+
+    var isDny=bank.toUpperCase().indexOf('DNYANDEEP')>=0;
+    document.body.classList.toggle('dny-loan-mode-200',isDny);
+
+    if(typeof window.applyAllCurrency201==='function') window.applyAllCurrency201();
+    if(typeof window.calculate==='function') window.calculate();
+  }
+
+  function savedRecords203(){
+    try{
+      var a=typeof window.getSaved==='function'
+        ? window.getSaved()
+        : JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){
+      return [];
+    }
+  }
+
+  var oldDirect=window.openSavedDirectFinal;
+  if(typeof oldDirect==='function' && !oldDirect.__bankIdentity203){
+    var fn=function(i){
+      var all=savedRecords203();
+      var r=all[Number(i)];
+      var out=oldDirect.apply(this,arguments);
+
+      if(r && !isIdbi203(r)){
+        requestAnimationFrame(function(){ syncSavedBank203(r); });
+        setTimeout(function(){ syncSavedBank203(r); },80);
+      }
+      return out;
+    };
+    fn.__bankIdentity203=true;
+    window.openSavedDirectFinal=fn;
+    window.custOpen=function(i){ return window.openSavedDirectFinal(Number(i)); };
+  }
+
+  var oldClean=window.openSavedCleanItem168;
+  if(typeof oldClean==='function' && !oldClean.__bankIdentity203){
+    var fn2=function(i){
+      var all=savedRecords203();
+      var r=all[Number(i)];
+      var out=oldClean.apply(this,arguments);
+
+      if(r && !isIdbi203(r)){
+        requestAnimationFrame(function(){ syncSavedBank203(r); });
+        setTimeout(function(){ syncSavedBank203(r); },80);
+      }
+      return out;
+    };
+    fn2.__bankIdentity203=true;
+    window.openSavedCleanItem168=fn2;
+  }
+})();
+</script>
+<!-- /SAVED STANDARD BANK IDENTITY FIX 203 -->
+
 </body>
 </html>
