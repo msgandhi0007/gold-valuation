@@ -4008,6 +4008,7 @@ body:not(.menu-viewing) .s111-rate{
       <div class="field"><label>Resident of</label><input id="sbiCertResident223" type="text" placeholder="Enter address / place"></div>
       <div class="field"><label>Cash in Charge</label><input id="sbiCertCashInCharge223" type="text" placeholder="Name of cash in charge"></div>
       <div class="field"><label>Place</label><input id="sbiCertPlace223" type="text" placeholder="Place"></div>
+      <div class="field"><label>Purity (Carat)</label><input id="sbiCertCarat225" type="number" inputmode="decimal" step="0.01" min="0" max="24" placeholder="Enter carat e.g. 22"></div>
       <div class="field sbi-cert-full-223"><label>Method(s) used for purity testing</label><input id="sbiCertMethod223" type="text" placeholder="Touchstone / XRF / other method"></div>
     </div>
     <div class="sbi-cert-note-223">These fields are used only for the SBI Annexure PL-61(i) Appraiser Certificate.</div>
@@ -21403,7 +21404,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 <script id="sbi-pl61i-js-223">
 (function(){
   'use strict';
-  const IDS=['sbiCertBranch223','sbiCertAccount223','sbiCertRelation223','sbiCertResident223','sbiCertCashInCharge223','sbiCertPlace223','sbiCertMethod223'];
+  const IDS=['sbiCertBranch223','sbiCertAccount223','sbiCertRelation223','sbiCertResident223','sbiCertCashInCharge223','sbiCertPlace223','sbiCertCarat225','sbiCertMethod223'];
   const DEFAULT_KEYS={
     sbiCertBranch223:'sbiCertDefaultBranch223',
     sbiCertCashInCharge223:'sbiCertDefaultCash223',
@@ -21423,6 +21424,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       resident:el('sbiCertResident223')?.value||'',
       cashInCharge:el('sbiCertCashInCharge223')?.value||'',
       place:el('sbiCertPlace223')?.value||'',
+      carat:el('sbiCertCarat225')?.value||'',
       purityMethod:el('sbiCertMethod223')?.value||''
     };
   }
@@ -21435,6 +21437,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       sbiCertResident223:d.resident,
       sbiCertCashInCharge223:d.cashInCharge,
       sbiCertPlace223:d.place,
+      sbiCertCarat225:d.carat,
       sbiCertMethod223:d.purityMethod
     };
     IDS.forEach(id=>{
@@ -21492,7 +21495,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
   if(typeof oldReset==='function'){
     window.resetAfterSave=function(){
       const r=oldReset.apply(this,arguments);
-      ['sbiCertAccount223','sbiCertRelation223','sbiCertResident223'].forEach(id=>{const x=el(id);if(x)x.value=''});
+      ['sbiCertAccount223','sbiCertRelation223','sbiCertResident223','sbiCertCarat225'].forEach(id=>{const x=el(id);if(x)x.value=''});
       restoreDetails(null);
       updateVisibility();
       return r;
@@ -21536,7 +21539,8 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       const pure=net*p/100;
       const rounded=Math.floor((pure+1e-9)*10)/10;
       const value=rounded*rate;
-      const carat=p*24/100;
+      const manualCarat=Number(el('sbiCertCarat225')?.value||0);
+      const carat=manualCarat>0?manualCarat:(p*24/100);
       tg+=g;ts+=s;tn+=net;tv+=value;
       rows+='<tr><td>'+n+'</td><td>'+esc(nm)+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+carat.toFixed(2)+'</td><td>'+net.toFixed(2)+'</td><td>'+moneyPlain(value)+'</td></tr>';
     });
@@ -21617,7 +21621,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
   const editableIds=[
     'sbiCertBranch223','sbiCertAccount223','sbiCertRelation223',
     'sbiCertResident223','sbiCertCashInCharge223','sbiCertPlace223',
-    'sbiCertMethod223'
+    'sbiCertCarat225','sbiCertMethod223'
   ];
   const remembered={
     sbiCertBranch223:'sbiCertDefaultBranch223',
@@ -21682,6 +21686,108 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 })();
 </script>
 <!-- /STEP 224 -->
+
+
+<!-- STEP 225 - SBI certificate carat / place / alignment -->
+<style id="sbi-cert-carat-place-align-css-225">
+/* Market Value column must be centered in SBI PL-61(i) */
+.sbi-cert-table-223 td:nth-child(7),
+.sbi-cert-table-223 th:nth-child(7){
+  text-align:center!important;
+}
+
+/* Keep Place clearly printable */
+.sbi-place-223{
+  display:block!important;
+  visibility:visible!important;
+  color:#111!important;
+  margin-top:26px!important;
+}
+#sbiPPlace223{
+  display:inline!important;
+  visibility:visible!important;
+  color:#111!important;
+}
+</style>
+<script id="sbi-cert-carat-place-align-js-225">
+(function(){
+  'use strict';
+  function e(id){return document.getElementById(id)}
+  function syncPlace(){
+    const src=e('sbiCertPlace223'), out=e('sbiPPlace223');
+    if(out) out.textContent=(src && src.value.trim())?src.value.trim():'……………………';
+  }
+  document.addEventListener('input',function(ev){
+    if(ev.target && ev.target.id==='sbiCertPlace223') syncPlace();
+  },true);
+  document.addEventListener('change',function(ev){
+    if(ev.target && ev.target.id==='sbiCertPlace223') syncPlace();
+  },true);
+  const oldPopulate=window.populateSbiCertificate223;
+  if(typeof oldPopulate==='function'){
+    window.populateSbiCertificate223=function(){
+      const r=oldPopulate.apply(this,arguments);
+      syncPlace();
+      return r;
+    };
+  }
+  setTimeout(syncPlace,300);
+})();
+</script>
+<!-- /STEP 225 -->
+
+
+<!-- STEP 226 - Remember SBI Purity Carat until manually changed -->
+<script id="sbi-carat-remember-js-226">
+(function(){
+  'use strict';
+  const ID='sbiCertCarat225';
+  const KEY='sbiCertDefaultCarat226';
+
+  function field(){ return document.getElementById(ID); }
+
+  function restore(){
+    const x=field();
+    if(!x)return;
+    if(!x.value.trim()){
+      const saved=localStorage.getItem(KEY);
+      if(saved!==null && saved!=='') x.value=saved;
+    }
+  }
+
+  function remember(){
+    const x=field();
+    if(!x)return;
+    const v=x.value.trim();
+    if(v!=='') localStorage.setItem(KEY,v);
+  }
+
+  document.addEventListener('input',function(e){
+    if(e.target && e.target.id===ID) remember();
+  },true);
+  document.addEventListener('change',function(e){
+    if(e.target && e.target.id===ID) remember();
+  },true);
+
+  /* Restore after normal screen/reset/load routines. */
+  setTimeout(restore,100);
+  setTimeout(restore,500);
+  setTimeout(restore,1200);
+
+  const oldReset=window.resetAfterSave;
+  if(typeof oldReset==='function'){
+    window.resetAfterSave=function(){
+      const r=oldReset.apply(this,arguments);
+      setTimeout(restore,0);
+      return r;
+    };
+    try{resetAfterSave=window.resetAfterSave}catch(e){}
+  }
+
+  window.restoreSbiCarat226=restore;
+})();
+</script>
+<!-- /STEP 226 -->
 
 </body>
 </html>
