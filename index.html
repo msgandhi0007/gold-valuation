@@ -14563,93 +14563,108 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 
 
 
-<!-- FAST VALUATION-ONLY FOOTER FIX 190 -->
-<style id="fast-footer-valuation-only-css-190">
-/* Global Save / Load / Share bar is hidden unless the lightweight controller enables it. */
-body > footer.gv-footer-hidden-190{display:none!important;visibility:hidden!important;pointer-events:none!important}
-body > footer.gv-footer-shown-190{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+
+<!-- EXACT BOTTOM ACTION BAR FIX 191 -->
+<style id="exact-bottom-action-bar-css-191">
+body.gv-hide-global-actions-191 #globalActionBar191{display:none!important}
+body.gv-show-global-actions-191 #globalActionBar191{display:flex!important}
 </style>
-<script id="fast-footer-valuation-only-js-190">
+<script id="exact-bottom-action-bar-js-191">
 (function(){
-  'use strict';
+'use strict';
 
-  function footer(){return document.querySelector('body > footer')}
+function text(el){return (el && (el.innerText||el.textContent)||'').replace(/\s+/g,' ').trim().toLowerCase()}
 
-  function hideFooter(){
-    var f=footer(); if(!f)return;
-    f.classList.remove('gv-footer-shown-190');
-    f.classList.add('gv-footer-hidden-190');
-  }
-  function showFooter(){
-    var f=footer(); if(!f)return;
-    f.classList.remove('gv-footer-hidden-190');
-    f.classList.add('gv-footer-shown-190');
-  }
+function findGlobalBar(){
+  var known=document.getElementById('globalActionBar191');
+  if(known)return known;
 
-  function shown(el){
-    if(!el)return false;
-    var s=getComputedStyle(el);
-    return s.display!=='none' && s.visibility!=='hidden';
-  }
+  var buttons=Array.prototype.slice.call(document.querySelectorAll('button'));
+  var save=buttons.filter(function(b){return /(^|\s)save(\s|$)/.test(text(b))});
+  var load=buttons.filter(function(b){return /(^|\s)load(\s|$)/.test(text(b))});
+  var share=buttons.filter(function(b){return /(^|\s)share(\s|$)/.test(text(b))});
 
-  function syncFooter(){
-    /* Any utility/home screen wins and hides the footer. */
-    var blockers=['bankHome','dashboardHome','customersHomeScreen','savedClean168','savedValuationsHome','storageBackupScreen','saveManager'];
-    for(var i=0;i<blockers.length;i++){
-      if(shown(document.getElementById(blockers[i]))){hideFooter();return}
+  for(var i=0;i<save.length;i++){
+    var p=save[i].parentElement;
+    for(var depth=0;p && depth<4;depth++,p=p.parentElement){
+      if(load.some(function(b){return p.contains(b)}) &&
+         share.some(function(b){return p.contains(b)})){
+        /* Ignore action groups inside IDBI itself. The global bar is normally
+           a direct/near-direct child and contains exactly these bottom actions. */
+        if(!p.closest('#idbi-valuation-screen')){
+          p.id='globalActionBar191';
+          return p;
+        }
+      }
     }
-
-    /* IDBI has its own Save / Load / Share controls, so global footer stays hidden there. */
-    if(shown(document.getElementById('idbi-valuation-screen'))){hideFooter();return}
-
-    /* The global footer belongs only to SBI / Maharashtra Gramin / Dnyandeep valuation. */
-    if(shown(document.getElementById('valuation-main-sections'))){showFooter();return}
-
-    hideFooter();
   }
+  return null;
+}
 
-  window.syncValuationFooter190=syncFooter;
+function visible(id){
+  var e=document.getElementById(id);
+  if(!e)return false;
+  var s=getComputedStyle(e);
+  return s.display!=='none' && s.visibility!=='hidden';
+}
 
-  function wrap(name){
-    var old=window[name];
-    if(typeof old!=='function'||old.__gvFooter190)return;
-    var f=function(){
-      var r=old.apply(this,arguments);
-      requestAnimationFrame(syncFooter);
-      return r;
-    };
-    f.__gvFooter190=true;
-    window[name]=f;
-  }
+function sync(){
+  var bar=findGlobalBar();
+  if(!bar)return;
 
-  [
-    'showBankHome',
-    'openBank',
-    'openIDBIValuation',
-    'openCustomersHome',
-    'openSavedClean168',
-    'openDashboardHome',
-    'openStorageBackupScreen',
-    'closeStorageBackupScreen',
-    'openSavedDirectFinal',
-    'loadSaved'
-  ].forEach(wrap);
+  var utility =
+    visible('bankHome') ||
+    visible('dashboardHome') ||
+    visible('customersHomeScreen') ||
+    visible('savedClean168') ||
+    visible('savedValuationsHome') ||
+    visible('storageBackupScreen') ||
+    visible('saveManager');
 
-  /* Back navigation is the only case that can bypass the wrapped public functions. */
-  window.addEventListener('popstate',function(){setTimeout(syncFooter,0)});
+  var idbi=visible('idbi-valuation-screen');
+  var standard=visible('valuation-main-sections');
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){
-      hideFooter();
-      requestAnimationFrame(syncFooter);
-    });
-  }else{
-    hideFooter();
-    requestAnimationFrame(syncFooter);
-  }
+  var show = standard && !utility && !idbi;
+  document.body.classList.toggle('gv-show-global-actions-191',show);
+  document.body.classList.toggle('gv-hide-global-actions-191',!show);
+  bar.style.setProperty('display',show?'flex':'none','important');
+}
+
+window.syncGlobalActionBar191=sync;
+
+function wrap(name){
+  var old=window[name];
+  if(typeof old!=='function'||old.__bar191)return;
+  var fn=function(){
+    /* Hide immediately before changing screens so the old footer never flashes. */
+    var bar=findGlobalBar();
+    if(bar)bar.style.setProperty('display','none','important');
+    var r=old.apply(this,arguments);
+    requestAnimationFrame(sync);
+    return r;
+  };
+  fn.__bar191=true;
+  window[name]=fn;
+}
+
+[
+ 'showBankHome','openBank','openCustomersHome','openSavedClean168',
+ 'openDashboardHome','openStorageBackupScreen','closeStorageBackupScreen',
+ 'openSavedDirectFinal','loadSaved'
+].forEach(wrap);
+
+window.addEventListener('popstate',function(){requestAnimationFrame(sync)});
+
+function boot(){
+  var bar=findGlobalBar();
+  if(bar)bar.style.setProperty('display','none','important');
+  requestAnimationFrame(sync);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+else boot();
 })();
 </script>
-<!-- /FAST VALUATION-ONLY FOOTER FIX 190 -->
+<!-- /EXACT BOTTOM ACTION BAR FIX 191 -->
 
 </body>
 </html>
