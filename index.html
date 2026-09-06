@@ -15475,158 +15475,374 @@ body.dny-loan-mode-200 #valuation-main-sections .s111-loan-note{
 <!-- /IDBI CURRENT DATE + DNY LOAN RATE + RUPEE SYMBOLS 200 -->
 
 
-<!-- RUPEE SYMBOLS FOR ALL FOUR BANKS 201 -->
-<style id="all-bank-rupee-css-201">
-.currency-field-201{
+
+<!-- THREE ISSUE FIX: SAVED STANDARD BANKS + DNY ELIGIBLE + CLEAN RUPEE UI 202 -->
+<style id="three-issue-fix-css-202">
+/* Disable the older floating ₹ pseudo symbols that caused duplicate/misaligned symbols. */
+.currency-wrap-200::before{display:none!important;content:none!important}
+.currency-wrap-200 input{padding-left:12px!important}
+
+/* Clean currency labels. Numeric input itself remains uncluttered. */
+#valuation-main-sections #rate,
+#valuation-main-sections #sanctionedLoan,
+#valuation-main-sections #loanRate,
+#idbi-valuation-screen #idbiRate,
+#idbi-valuation-screen #idbiLoan{
+  padding-left:14px!important;
+}
+
+/* Dnyandeep clean loan card */
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-card{
+  display:block!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-grid{
+  display:block!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-grid .s111-loan-tile:first-child{
+  display:none!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-grid .s111-loan-tile:nth-child(2){
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-rate{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
   position:relative!important;
+  margin-top:12px!important;
+  padding:14px!important;
+  border:1px solid #e2d5b7!important;
+  border-radius:14px!important;
+  background:#fffdf8!important;
 }
-.currency-field-201::before{
-  content:"₹";
-  position:absolute!important;
-  left:12px!important;
-  top:50%!important;
-  transform:translateY(-50%)!important;
-  z-index:12!important;
-  color:#8a6500!important;
-  font-size:17px!important;
-  font-weight:900!important;
-  pointer-events:none!important;
-  line-height:1!important;
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-rate > span{
+  display:block!important;
+  width:auto!important;
+  max-width:none!important;
+  margin:0 0 8px!important;
+  color:#39342d!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+  font-weight:850!important;
+  white-space:normal!important;
 }
-.currency-field-201 input{
-  padding-left:32px!important;
+body.dny-loan-mode-200 #valuation-main-sections #loanRate{
+  display:block!important;
+  width:100%!important;
+  min-height:48px!important;
+  box-sizing:border-box!important;
+  padding:10px 52px 10px 14px!important;
+  border:1px solid #d8c899!important;
+  border-radius:12px!important;
+  background:#f7f4eb!important;
+  color:#222!important;
+  font-size:18px!important;
+  font-weight:850!important;
+}
+body.dny-loan-mode-200 #dnyLoanRateEdit200{
+  top:43px!important;
+  right:12px!important;
+  width:38px!important;
+  height:38px!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-rate > #l70{
+  display:none!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .s111-loan-note{
+  display:block!important;
+  margin:9px 2px 0!important;
+  color:#6f675c!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .main-loan-eligible-result{
+  display:flex!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin-top:12px!important;
+}
+body.dny-loan-mode-200 #valuation-main-sections .main-loan-eligible-result #l70{
+  display:block!important;
+  color:#9a6800!important;
+  font-size:21px!important;
+  font-weight:950!important;
 }
 
-/* Dnyandeep loan-rate row needs a slightly lower symbol because it has a label above */
-body.dny-loan-mode-200 .s111-loan-rate.currency-field-201::before{
-  top:57px!important;
-  transform:none!important;
+/* Standard saved valuation must show its parent main container too. */
+body.standard-saved-open-202 main{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
 }
-
-/* IDBI cards */
-#idbi-valuation-screen .idbi-rate.currency-field-201::before,
-#idbi-valuation-screen .idbi-field.currency-field-201::before{
-  top:auto!important;
-  bottom:22px!important;
-  transform:none!important;
-}
-
-/* Standard bank customer/loan fields */
-#valuation-main-sections .s111-loan-tile.currency-field-201::before{
-  top:auto!important;
-  bottom:22px!important;
-  transform:none!important;
+body.standard-saved-open-202 #valuation-main-sections{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
 }
 </style>
 
-<script id="all-bank-rupee-js-201">
+<script id="three-issue-fix-js-202">
 (function(){
   'use strict';
 
-  function markCurrency201(input){
-    if(!input) return;
-    var parent=input.parentElement;
-    if(!parent) return;
-    parent.classList.add('currency-field-201');
-
-    /* Make labels explicitly show ₹ where useful. */
-    var label=parent.querySelector('label');
-    if(label){
-      var t=String(label.textContent||'').trim();
-      if(t && !t.includes('₹') &&
-         (t.toLowerCase().includes('rate per gram') ||
-          t.toLowerCase().includes('loan amount') ||
-          t.toLowerCase().includes('sanctioned loan'))){
-        label.textContent=t+' (₹)';
-      }
-    }
+  function bankOf202(r){
+    return String((r&&r.customer&&r.customer.bank)||(r&&r.bank)||'').trim().toUpperCase();
+  }
+  function isIdbi202(r){
+    var b=bankOf202(r);
+    return !!r && (r.valuationType==='IDBI_BANK'||r.bankSpecific===true||b.indexOf('IDBI')>=0);
+  }
+  function isDny202(r){
+    var b=r ? bankOf202(r) : String(
+      (document.getElementById('bankName')&&document.getElementById('bankName').value)||
+      (document.getElementById('mainBankSelect')&&document.getElementById('mainBankSelect').value)||''
+    ).toUpperCase();
+    return b.indexOf('DNYANDEEP')>=0;
+  }
+  function records202(){
+    try{
+      var a=typeof window.getSaved==='function'?window.getSaved():JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return []}
   }
 
-  function applyAllCurrency201(){
-    /*
-      Shared standard valuation screen = SBI + MGB + Dnyandeep.
-      IDBI has its own dedicated screen.
-    */
-    [
-      document.getElementById('rate'),            // SBI / MGB / DNY market rate
-      document.getElementById('sanctionedLoan'), // SBI / MGB / DNY sanctioned loan
-      document.getElementById('loanRate'),        // DNY loan rate / gram
-      document.getElementById('idbiRate'),        // IDBI market rate
-      document.getElementById('idbiLoan')         // IDBI sanctioned loan
-    ].forEach(markCurrency201);
+  function money202(n){
+    n=Number(n)||0;
+    try{return '₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2});}
+    catch(e){return '₹'+n.toFixed(2);}
+  }
 
-    /* Explicit shared-market-rate label. */
-    var mainRate=document.getElementById('rate');
+  function cleanCurrencyLabels202(){
+    var mainRate=document.querySelector('#valuation-main-sections #rate');
     if(mainRate){
-      var mainLabel=mainRate.parentElement && mainRate.parentElement.querySelector('label');
-      if(mainLabel) mainLabel.textContent='MARKET RATE / GRAM (₹)';
+      var l=mainRate.parentElement&&mainRate.parentElement.querySelector('label');
+      if(l) l.textContent='MARKET RATE / GRAM (₹)';
     }
 
-    /* IDBI market-rate label. */
-    var idbiRate=document.getElementById('idbiRate');
-    if(idbiRate){
-      var p=idbiRate.parentElement;
-      var l=p&&p.querySelector('label');
-      if(l) l.textContent='Rate per gram (22K) (₹)';
+    var san=document.getElementById('sanctionedLoan');
+    var sanTile=san&&san.closest('.s111-loan-tile');
+    if(sanTile){
+      var st=sanTile.querySelector('.s111-loan-title span:last-child');
+      if(st) st.textContent='Sanctioned Loan Amount (₹)';
     }
 
-    /* IDBI sanctioned-loan label. */
-    var idbiLoan=document.getElementById('idbiLoan');
-    if(idbiLoan){
-      var p2=idbiLoan.parentElement;
-      var l2=p2&&p2.querySelector('label');
-      if(l2) l2.textContent='Sanctioned Loan Amount (₹)';
+    var lr=document.querySelector('#valuation-main-sections .s111-loan-rate > span');
+    if(lr && isDny202()) lr.textContent='Loan Rate per gram (₹)';
+
+    var ir=document.getElementById('idbiRate');
+    if(ir){
+      var il=ir.parentElement&&ir.parentElement.querySelector('label');
+      if(il) il.textContent='Rate per gram (22K) (₹)';
     }
 
-    /* Standard sanctioned-loan title. */
-    var sanTitle=document.querySelector(
-      '#valuation-main-sections .s111-loan-tile:nth-child(2) .s111-loan-title span:last-child'
-    );
-    if(sanTitle) sanTitle.textContent='Sanctioned Loan Amount (₹)';
-
-    /* Dnyandeep loan-rate label. */
-    var loanRateRow=document.querySelector('#valuation-main-sections .s111-loan-rate > span');
-    if(loanRateRow && document.body.classList.contains('dny-loan-mode-200')){
-      loanRateRow.textContent='Loan Rate per gram (₹)';
+    var iln=document.getElementById('idbiLoan');
+    if(iln){
+      var ill=iln.parentElement&&iln.parentElement.querySelector('label');
+      if(ill) ill.textContent='Sanctioned Loan Amount (₹)';
     }
   }
 
-  var oldOpen=window.openBank;
-  if(typeof oldOpen==='function' && !oldOpen.__rupee201){
-    var f=function(){
-      var r=oldOpen.apply(this,arguments);
-      requestAnimationFrame(applyAllCurrency201);
-      return r;
-    };
-    f.__rupee201=true;
-    window.openBank=f;
-  }
-
-  /* Reapply after loading a saved valuation because some old UI code rewrites labels. */
-  ['openSavedDirectFinal','loadData','idbiLoadData'].forEach(function(name){
-    var old=window[name];
-    if(typeof old!=='function' || old.__rupee201) return;
-    var f=function(){
-      var r=old.apply(this,arguments);
-      requestAnimationFrame(applyAllCurrency201);
-      return r;
-    };
-    f.__rupee201=true;
-    window[name]=f;
-  });
-
-  window.applyAllCurrency201=applyAllCurrency201;
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){
-      requestAnimationFrame(applyAllCurrency201);
+  function dnyEligible202(){
+    var rounded=0;
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(el){
+      var g=parseFloat(el.querySelector('.gross')&&el.querySelector('.gross').value)||0;
+      var s=parseFloat(el.querySelector('.stone')&&el.querySelector('.stone').value)||0;
+      var p=parseFloat(el.querySelector('.purity')&&el.querySelector('.purity').value)||0;
+      var net=Math.max(0,g-s);
+      var pure=net*p/100;
+      rounded += Math.floor((pure+1e-9)*10)/10;
     });
-  }else{
-    requestAnimationFrame(applyAllCurrency201);
+    var rate=parseFloat((document.getElementById('loanRate')||{}).value)||0;
+    return Math.max(0,rounded*rate);
   }
+
+  function applyDnyEligibleUI202(){
+    if(!isDny202()) return;
+
+    document.body.classList.add('dny-loan-mode-200');
+
+    var card=document.querySelector('#valuation-main-sections .s111-loan-card');
+    if(!card)return;
+
+    var h=card.querySelector('.s111-card-head h2');
+    if(h)h.textContent='LOAN CALCULATION';
+
+    var rateLabel=card.querySelector('.s111-loan-rate > span');
+    if(rateLabel)rateLabel.textContent='Loan Rate per gram (₹)';
+
+    var note=document.getElementById('s111-loan-note');
+    if(note)note.textContent='Eligible Loan = Total Rounded Gold Weight × Loan Rate per gram.';
+
+    var result=card.querySelector('.main-loan-eligible-result');
+    var l65=document.getElementById('l65');
+    var l70=document.getElementById('l70');
+
+    if(!result){
+      result=document.createElement('div');
+      result.className='main-loan-eligible-result';
+      result.innerHTML='<span>Eligible Loan Amount</span>';
+      card.appendChild(result);
+    }
+    var caption=result.querySelector('span');
+    if(caption)caption.textContent='Eligible Loan Amount';
+
+    if(l70 && l70.parentElement!==result) result.appendChild(l70);
+    if(l65) l65.style.setProperty('display','none','important');
+
+    var eligible=dnyEligible202();
+    if(l70)l70.textContent=money202(eligible);
+
+    var san=document.getElementById('sanctionedLoan');
+    if(san)san.max=eligible.toFixed(2);
+  }
+
+  function applyNormalEligible202(){
+    if(isDny202())return;
+    document.body.classList.remove('dny-loan-mode-200');
+    var card=document.querySelector('#valuation-main-sections .s111-loan-card');
+    if(!card)return;
+    var result=card.querySelector('.main-loan-eligible-result');
+    var l65=document.getElementById('l65');
+    if(result&&l65&&l65.parentElement!==result)result.appendChild(l65);
+    if(l65)l65.style.removeProperty('display');
+  }
+
+  /* Make sanctioned-loan validation use the Dnyandeep eligible amount instead of old LTV. */
+  var oldValidate=window.validateSanctionedLoan;
+  window.validateSanctionedLoan=function(showMessage){
+    if(isDny202()){
+      var el=document.getElementById('sanctionedLoan');
+      if(!el)return true;
+      var max=dnyEligible202();
+      var loan=Math.max(0,parseFloat(el.value)||0);
+      el.max=max.toFixed(2);
+      if(loan>max){
+        el.value=max.toFixed(2);
+        if(showMessage!==false)alert('Sanctioned Loan Amount cannot be greater than Eligible Loan Amount: '+money202(max));
+        return false;
+      }
+      return true;
+    }
+    return typeof oldValidate==='function'?oldValidate(showMessage):true;
+  };
+
+  var oldLimit=window.getCurrentLtvLoanLimit;
+  window.getCurrentLtvLoanLimit=function(){
+    if(isDny202())return dnyEligible202();
+    return typeof oldLimit==='function'?oldLimit():0;
+  };
+
+  /* calculate() still calculates all gold figures; after it finishes, overwrite DNY eligible correctly. */
+  var oldCalc=window.calculate;
+  if(typeof oldCalc==='function'&&!oldCalc.__fix202){
+    var cf=function(){
+      var r=oldCalc.apply(this,arguments);
+      if(isDny202())applyDnyEligibleUI202();
+      else applyNormalEligible202();
+      return r;
+    };
+    cf.__fix202=true;
+    window.calculate=cf;
+  }
+
+  function forceStandardSavedVisible202(r){
+    if(!r||isIdbi202(r))return;
+    document.body.classList.add('standard-saved-open-202');
+    document.body.classList.remove('idbi-open','bankHomeMode','bank-home-mode','savedClean168Open','savedHomeMode','customersHomeMode','dashboardHomeMode','storageMode','storage-backup-mode');
+
+    var app=document.querySelector('body > .app');
+    var mainParent=document.querySelector('body > .app > main') || document.querySelector('main');
+    var main=document.getElementById('valuation-main-sections');
+    var idbi=document.getElementById('idbi-valuation-screen');
+
+    if(app){
+      app.style.setProperty('display','block','important');
+      app.style.setProperty('visibility','visible','important');
+      app.style.setProperty('opacity','1','important');
+    }
+    if(mainParent){
+      mainParent.style.setProperty('display','block','important');
+      mainParent.style.setProperty('visibility','visible','important');
+      mainParent.style.setProperty('opacity','1','important');
+    }
+    if(idbi)idbi.style.setProperty('display','none','important');
+    if(main){
+      main.style.setProperty('display','block','important');
+      main.style.setProperty('visibility','visible','important');
+      main.style.setProperty('opacity','1','important');
+    }
+
+    var bank=bankOf202(r);
+    var hidden=document.getElementById('bankName');
+    var sel=document.getElementById('mainBankSelect');
+    if(hidden)hidden.value=bank;
+    if(sel)sel.value=bank;
+
+    if(bank.indexOf('DNYANDEEP')>=0){
+      document.body.classList.add('dny-loan-mode-200');
+      applyDnyEligibleUI202();
+    }else{
+      applyNormalEligible202();
+    }
+    cleanCurrencyLabels202();
+    if(typeof window.refreshStandardActionBar192==='function')window.refreshStandardActionBar192();
+    window.scrollTo(0,0);
+  }
+
+  /* Authoritative final wrapper for Saved Valuations Open. */
+  var oldDirect=window.openSavedDirectFinal;
+  if(typeof oldDirect==='function'&&!oldDirect.__fix202){
+    var od=function(i){
+      var all=records202(),r=all[Number(i)];
+      var out=oldDirect.apply(this,arguments);
+      if(r&&!isIdbi202(r)){
+        requestAnimationFrame(function(){forceStandardSavedVisible202(r);});
+        setTimeout(function(){forceStandardSavedVisible202(r);},120);
+      }else{
+        document.body.classList.remove('standard-saved-open-202');
+      }
+      return out;
+    };
+    od.__fix202=true;
+    window.openSavedDirectFinal=od;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  /* When any standard bank is opened normally, clear stale saved-only class and apply correct loan UI. */
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function'&&!oldOpen.__fix202){
+    var ob=function(bank){
+      document.body.classList.remove('standard-saved-open-202');
+      var out=oldOpen.apply(this,arguments);
+      requestAnimationFrame(function(){
+        cleanCurrencyLabels202();
+        if(String(bank||'').toUpperCase().indexOf('DNYANDEEP')>=0)applyDnyEligibleUI202();
+        else applyNormalEligible202();
+      });
+      return out;
+    };
+    ob.__fix202=true;
+    window.openBank=ob;
+  }
+
+  /* DNY loan rate edits should immediately refresh the eligible loan. */
+  var loanRate=document.getElementById('loanRate');
+  if(loanRate){
+    loanRate.addEventListener('input',function(){if(isDny202())applyDnyEligibleUI202();});
+    loanRate.addEventListener('change',function(){if(isDny202())applyDnyEligibleUI202();});
+  }
+
+  function init202(){
+    cleanCurrencyLabels202();
+    if(isDny202())applyDnyEligibleUI202();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init202);
+  else init202();
 })();
 </script>
-<!-- /RUPEE SYMBOLS FOR ALL FOUR BANKS 201 -->
+<!-- /THREE ISSUE FIX 202 -->
 
 </body>
 </html>
