@@ -14553,5 +14553,100 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 </script>
 <!-- /SAVED VALUATIONS DEFINITIVE NEWEST-FIRST RENDER FIX 186 -->
 
+
+<!-- FOOTER SAVE LOAD SHARE ONLY ON VALUATION SCREENS FIX 187 -->
+<style id="footer-valuation-only-css-187">
+/* Hide the global Save / Load / Share footer everywhere by default. */
+body > footer{
+  display:none !important;
+}
+/* Show it only when a valuation screen is active. */
+body.gv-valuation-footer-visible > footer{
+  display:flex !important;
+}
+</style>
+
+<script id="footer-valuation-only-js-187">
+(function(){
+  'use strict';
+
+  function visible(el){
+    if(!el)return false;
+    var cs=window.getComputedStyle?getComputedStyle(el):null;
+    return el.style.display!=='none' && (!cs || (cs.display!=='none' && cs.visibility!=='hidden'));
+  }
+
+  function isValuationScreen(){
+    var body=document.body;
+    if(!body)return false;
+
+    // Never show on management / overlay screens.
+    if(body.classList.contains('bankHomeMode') ||
+       body.classList.contains('bank-home-mode') ||
+       body.classList.contains('customersHomeMode') ||
+       body.classList.contains('savedClean168Open') ||
+       body.classList.contains('savedHomeMode') ||
+       body.classList.contains('dashboardHomeMode') ||
+       body.classList.contains('storageMode') ||
+       body.classList.contains('storage-backup-mode') ||
+       body.classList.contains('menu-viewing')){
+      return false;
+    }
+
+    var idbi=document.getElementById('idbi-valuation-screen');
+    if(visible(idbi)) return true;
+
+    var main=document.getElementById('valuation-main-sections');
+    if(visible(main)) return true;
+
+    return false;
+  }
+
+  function refreshFooter(){
+    var show=isValuationScreen();
+    document.body.classList.toggle('gv-valuation-footer-visible',show);
+  }
+
+  // Expose for other navigation code if needed.
+  window.refreshValuationFooter187=refreshFooter;
+
+  // Wrap navigation functions so footer state follows the screen immediately.
+  [
+    'showBankHome',
+    'openBank',
+    'openIDBIValuation',
+    'openCustomersHome',
+    'openSavedClean168',
+    'openDashboardHome',
+    'openStorageBackupScreen',
+    'closeStorageBackupScreen',
+    'openSavedDirectFinal',
+    'loadSaved'
+  ].forEach(function(name){
+    var old=window[name];
+    if(typeof old!=='function' || old.__footer187)return;
+    var f=function(){
+      var out=old.apply(this,arguments);
+      setTimeout(refreshFooter,0);
+      setTimeout(refreshFooter,120);
+      return out;
+    };
+    f.__footer187=true;
+    window[name]=f;
+  });
+
+  // Back/history and late UI changes can occur without calling a wrapped function.
+  window.addEventListener('popstate',function(){setTimeout(refreshFooter,80)});
+  document.addEventListener('click',function(){setTimeout(refreshFooter,120)},true);
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){setTimeout(refreshFooter,250)});
+  }else{
+    setTimeout(refreshFooter,250);
+  }
+})();
+</script>
+<!-- /FOOTER SAVE LOAD SHARE ONLY ON VALUATION SCREENS FIX 187 -->
+
 </body>
 </html>
