@@ -16403,5 +16403,99 @@ body.bank-home-mode main{
 </script>
 <!-- /BANK HOME TOP POSITION FIX AFTER EXIT 206 -->
 
+
+<!-- MOBILE BACK EXITS OPENED SAVED VALUATION 207 -->
+<script id="mobile-back-saved-exit-207">
+(function(){
+  'use strict';
+
+  var armed207=false;
+  var handling207=false;
+
+  function savedOpen207(){
+    return !!(window._editingValuationId || window._idbiEditingId);
+  }
+
+  function arm207(){
+    if(!savedOpen207() || armed207) return;
+    armed207=true;
+    try{
+      history.pushState(
+        Object.assign({},history.state||{},{savedValuationGuard207:true}),
+        '',
+        location.href
+      );
+    }catch(e){}
+  }
+
+  /* Arm Android/mobile Back whenever a saved valuation is opened. */
+  var oldDirect=window.openSavedDirectFinal;
+  if(typeof oldDirect==='function'&&!oldDirect.__mobileBack207){
+    var od=function(){
+      var r=oldDirect.apply(this,arguments);
+      requestAnimationFrame(arm207);
+      setTimeout(arm207,80);
+      return r;
+    };
+    od.__mobileBack207=true;
+    window.openSavedDirectFinal=od;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  var oldClean=window.openSavedCleanItem168;
+  if(typeof oldClean==='function'&&!oldClean.__mobileBack207){
+    var oc=function(){
+      var r=oldClean.apply(this,arguments);
+      requestAnimationFrame(arm207);
+      setTimeout(arm207,80);
+      return r;
+    };
+    oc.__mobileBack207=true;
+    window.openSavedCleanItem168=oc;
+  }
+
+  window.addEventListener('popstate',async function(){
+    if(handling207 || !savedOpen207()) return;
+
+    handling207=true;
+    armed207=false;
+
+    try{
+      /* Use the same exit route as the on-screen Back button:
+         auto-save opened saved valuation, close it, and return to Bank Selection. */
+      if(window._idbiEditingId && typeof window.idbiBackToBankHome196==='function'){
+        await window.idbiBackToBankHome196();
+      }else if(window._editingValuationId && typeof window.backToBankSelection194==='function'){
+        await window.backToBankSelection194();
+      }else{
+        if(typeof window.autoSaveOpenedValuation205==='function'){
+          await window.autoSaveOpenedValuation205();
+        }
+        if(typeof window.normalizeBankHome206==='function'){
+          window.normalizeBankHome206();
+        }else if(typeof window.showBankHome==='function'){
+          window.showBankHome();
+        }
+      }
+    }catch(e){
+      console.error('Mobile Back saved valuation exit failed:',e);
+      try{
+        if(typeof window.normalizeBankHome206==='function')window.normalizeBankHome206();
+      }catch(_){}
+    }finally{
+      handling207=false;
+    }
+  },true);
+
+  /* If an already-open saved valuation exists when this patch initializes. */
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){setTimeout(arm207,100);});
+  }else{
+    setTimeout(arm207,100);
+  }
+})();
+</script>
+<!-- /MOBILE BACK EXITS OPENED SAVED VALUATION 207 -->
+
 </body>
 </html>
