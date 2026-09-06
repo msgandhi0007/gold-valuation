@@ -8086,7 +8086,7 @@ window.handleMainBankSelection=function(value){
       var gw=n(val('idbiGW'+i)), less=n(val('idbiLess'+i)), pct=n(val('idbiImpPct'+i)), purity=n(val('idbiPurity'+i));
       var notW=Math.max(0,gw-less), imp=notW*pct/100, net=Math.max(0,notW-imp), eq=net*purity/22;
       if(gw>0 || less>0 || val('idbiItem'+i)) rows.push({
-        name:val('idbiItem'+i)||('Item '+i), gross:gw, stone:less, purity:purity,
+        name:(typeof window.getIdbiJewelleryName204==='function'?window.getIdbiJewelleryName204(i):(val('idbiItem'+i)||('Item '+i))), gross:gw, stone:less, purity:purity,
         less:less, impurityPct:pct, notWeight:notW, impurity:imp, netWeight:net, equivalent22k:eq,
         value:eq*n(val('idbiRate'))
       });
@@ -8161,10 +8161,10 @@ window.handleMainBankSelection=function(value){
 
   window.idbiPrintCertificate=function(){
     var r=idbiRecord();
-    var rows=r.items.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+x.gross.toFixed(3)+'</td><td>'+x.less.toFixed(3)+'</td><td>'+x.notWeight.toFixed(3)+'</td><td>'+x.impurityPct.toFixed(2)+'%</td><td>'+x.impurity.toFixed(3)+'</td><td>'+x.netWeight.toFixed(3)+'</td><td>'+x.purity.toFixed(2)+'K</td><td>'+x.equivalent22k.toFixed(3)+'</td><td>'+money(x.value)+'</td></tr>';}).join('');
+    var rows=r.items.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+String(x.name||('Item '+(i+1)))+'</td><td>'+x.gross.toFixed(3)+'</td><td>'+x.less.toFixed(3)+'</td><td>'+x.notWeight.toFixed(3)+'</td><td>'+x.impurityPct.toFixed(2)+'%</td><td>'+x.impurity.toFixed(3)+'</td><td>'+x.netWeight.toFixed(3)+'</td><td>'+x.purity.toFixed(2)+'K</td><td>'+x.equivalent22k.toFixed(3)+'</td><td>'+money(x.value)+'</td></tr>';}).join('');
     var w=window.open('','_blank');
     if(!w){alert('Please allow pop-ups to print the IDBI certificate.');return;}
-    w.document.write('<!doctype html><html><head><title>IDBI BANK Valuation</title><style>body{font-family:Arial;color:#111;padding:25px}h1{text-align:center;color:#9b6b00;margin:0}h2{text-align:center}table{width:100%;border-collapse:collapse;font-size:10px;margin-top:18px}th,td{border:1px solid #777;padding:5px;text-align:center}th{background:#eee}.meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px}.box{border:1px solid #aaa;padding:8px}.total{font-size:16px;font-weight:bold;margin-top:15px} @media print{@page{size:A4 landscape;margin:10mm}}</style></head><body><h1>RAJENDRA JEWELLERS</h1><h2>IDBI BANK GOLD VALUATION</h2><div class="meta"><div class="box"><b>Customer</b><br>'+r.customer.name+'</div><div class="box"><b>Mobile</b><br>'+r.customer.mobile+'</div><div class="box"><b>Date</b><br>'+r.customer.date+'</div></div><div class="box" style="margin-top:10px"><b>Rate per gram (22K):</b> '+money(r.rate)+'</div><table><thead><tr><th>Sr</th><th>Gross</th><th>Less</th><th>Not Weight</th><th>Impurity %</th><th>Impurity</th><th>Net Weight</th><th>Purity</th><th>22K Equivalent</th><th>Gold Ornament Value</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><th colspan="3">TOTAL</th><th>'+r.idbi.totalNotWeight.toFixed(3)+'</th><th></th><th>'+r.idbi.totalImpurity.toFixed(3)+'</th><th>'+r.idbi.totalNetWeight.toFixed(3)+'</th><th></th><th>'+r.idbi.total22k.toFixed(3)+'</th><th>'+money(r.totalValue)+'</th></tr></tfoot></table><div class="total">Eligible Loan: '+money(r.eligibleLoan)+' &nbsp;&nbsp; Loan Amount: '+money(r.sanctionedLoan)+'</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
+    w.document.write('<!doctype html><html><head><title>IDBI BANK Valuation</title><style>body{font-family:Arial;color:#111;padding:25px}h1{text-align:center;color:#9b6b00;margin:0}h2{text-align:center}table{width:100%;border-collapse:collapse;font-size:10px;margin-top:18px}th,td{border:1px solid #777;padding:5px;text-align:center}th{background:#eee}.meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px}.box{border:1px solid #aaa;padding:8px}.total{font-size:16px;font-weight:bold;margin-top:15px} @media print{@page{size:A4 landscape;margin:10mm}}</style></head><body><h1>RAJENDRA JEWELLERS</h1><h2>IDBI BANK GOLD VALUATION</h2><div class="meta"><div class="box"><b>Customer</b><br>'+r.customer.name+'</div><div class="box"><b>Mobile</b><br>'+r.customer.mobile+'</div><div class="box"><b>Date</b><br>'+r.customer.date+'</div></div><div class="box" style="margin-top:10px"><b>Rate per gram (22K):</b> '+money(r.rate)+'</div><table><thead><tr><th>Sr</th><th>Jewellery Item</th><th>Gross</th><th>Less</th><th>Not Weight</th><th>Impurity %</th><th>Impurity</th><th>Net Weight</th><th>Purity</th><th>22K Equivalent</th><th>Gold Ornament Value</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><th colspan="4">TOTAL</th><th>'+r.idbi.totalNotWeight.toFixed(3)+'</th><th></th><th>'+r.idbi.totalImpurity.toFixed(3)+'</th><th>'+r.idbi.totalNetWeight.toFixed(3)+'</th><th></th><th>'+r.idbi.total22k.toFixed(3)+'</th><th>'+money(r.totalValue)+'</th></tr></tfoot></table><div class="total">Eligible Loan: '+money(r.eligibleLoan)+' &nbsp;&nbsp; Loan Amount: '+money(r.sanctionedLoan)+'</div><script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>');
     w.document.close();
   };
 
@@ -8252,7 +8252,7 @@ window.handleMainBankSelection=function(value){
    if(gw<=0&&less<=0)continue;
    var notw=Math.max(0,gw-less),imp=notw*pct/100,netw=Math.max(0,notw-imp),e22=netw*pur/22,val=e22*rate;
    g+=gw;l+=less;impT+=imp;net+=netw;eq+=e22;v+=val;
-   var item=document.getElementById('idbiItem'+i)?.value||('Item '+i);
+   var item=(typeof window.getIdbiJewelleryName204==='function'?window.getIdbiJewelleryName204(i):(document.getElementById('idbiItem'+i)?.value||('Item '+i)));
    rows.push('<tr><td>'+item+'</td><td>'+gw.toFixed(3)+'</td><td>'+less.toFixed(3)+'</td><td>'+imp.toFixed(3)+'</td><td>'+netw.toFixed(3)+'</td><td>'+pur.toFixed(2)+'K</td><td>'+e22.toFixed(3)+'</td><td>'+money(val)+'</td></tr>');
   }
   body.innerHTML=rows.join('')||'<tr><td colspan="8">No jewellery items entered</td></tr>';
@@ -13407,7 +13407,7 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
     var rows=(r.idbi&&Array.isArray(r.idbi.rows))?r.idbi.rows:(Array.isArray(r.items)?r.items:[]);
     rows.forEach(function(x,j){
       var k=j+1;if(k>10)return;
-      setv('idbiItem'+k,x.name||x.itemName||('Item '+k));
+      if(typeof window.setIdbiJewelleryName204==='function')window.setIdbiJewelleryName204(k,x.name||x.itemName||('Item '+k));else setv('idbiItem'+k,x.name||x.itemName||('Item '+k));
       setv('idbiGW'+k,num(x.gross!=null?x.gross:x.grossWeight,0));
       setv('idbiLess'+k,num(x.less!=null?x.less:(x.stone!=null?x.stone:x.stoneWeight),0));
       setv('idbiImpPct'+k,x.impurityPct!=null?x.impurityPct:(x.impurityPercent!=null?x.impurityPercent:6));
@@ -15950,6 +15950,162 @@ body.standard-saved-open-202 #valuation-main-sections{
 })();
 </script>
 <!-- /SAVED STANDARD BANK IDENTITY FIX 203 -->
+
+
+<!-- IDBI EDITABLE OTHER JEWELLERY NAME 204 -->
+<style id="idbi-other-name-css-204">
+#idbi-valuation-screen .idbi-other-name-204{
+  display:none;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:9px;
+  min-height:52px;
+  padding:11px 13px;
+  border:1px solid #d8c899;
+  border-radius:12px;
+  background:#fff;
+  color:#222;
+  font-size:17px;
+  font-weight:700;
+}
+#idbi-valuation-screen .idbi-other-name-204.show{
+  display:block!important;
+}
+</style>
+<script id="idbi-other-name-js-204">
+(function(){
+  'use strict';
+
+  var preset204=[
+    'Chain','Ring','Necklace/long','Bangle','Bracelet','Kada','Pendant',
+    'Earrings','Tops','L.Mangalsutra','S.Mangalsutra','Mala','Other'
+  ];
+
+  function ensureOther204(i){
+    var sel=document.getElementById('idbiItem'+i);
+    if(!sel)return null;
+
+    var inp=document.getElementById('idbiOtherName'+i);
+    if(!inp){
+      inp=document.createElement('input');
+      inp.type='text';
+      inp.id='idbiOtherName'+i;
+      inp.className='idbi-other-name-204';
+      inp.placeholder='Enter jewellery item name';
+      inp.autocomplete='off';
+      sel.insertAdjacentElement('afterend',inp);
+
+      inp.addEventListener('input',function(){
+        if(typeof window.idbiCalculate==='function')window.idbiCalculate();
+        if(typeof window.updateIdbiSummary==='function')window.updateIdbiSummary();
+      });
+    }
+
+    if(!sel.__other204){
+      sel.__other204=true;
+      sel.addEventListener('change',function(){
+        toggleOther204(i,true);
+      });
+    }
+    return inp;
+  }
+
+  function toggleOther204(i,focus){
+    var sel=document.getElementById('idbiItem'+i);
+    var inp=ensureOther204(i);
+    if(!sel||!inp)return;
+    var other=sel.value==='Other';
+    inp.classList.toggle('show',other);
+    inp.style.display=other?'block':'none';
+    if(other && focus){
+      requestAnimationFrame(function(){inp.focus();});
+    }
+  }
+
+  window.getIdbiJewelleryName204=function(i){
+    var sel=document.getElementById('idbiItem'+i);
+    if(!sel)return 'Item '+i;
+    if(sel.value==='Other'){
+      var inp=ensureOther204(i);
+      var custom=String(inp&&inp.value||'').trim();
+      return custom || 'Other';
+    }
+    return String(sel.value||'').trim() || ('Item '+i);
+  };
+
+  window.setIdbiJewelleryName204=function(i,name){
+    var sel=document.getElementById('idbiItem'+i);
+    if(!sel)return;
+    var value=String(name||'').trim();
+    var inp=ensureOther204(i);
+
+    var exact=preset204.find(function(x){
+      return x.toLowerCase()===value.toLowerCase();
+    });
+
+    if(exact && exact!=='Other'){
+      sel.value=exact;
+      if(inp)inp.value='';
+    }else if(value && !/^Item\s+\d+$/i.test(value)){
+      sel.value='Other';
+      if(inp)inp.value=value==='Other'?'':value;
+    }else{
+      sel.value='';
+      if(inp)inp.value='';
+    }
+    toggleOther204(i,false);
+  };
+
+  function init204(){
+    for(var i=1;i<=10;i++){
+      ensureOther204(i);
+      toggleOther204(i,false);
+    }
+  }
+
+  /* New/rebuilt IDBI rows need the custom field attached. */
+  var oldRows=window.idbiRows;
+  if(typeof oldRows==='function'&&!oldRows.__other204){
+    var rf=function(){
+      var r=oldRows.apply(this,arguments);
+      init204();
+      return r;
+    };
+    rf.__other204=true;
+    window.idbiRows=rf;
+  }
+
+  var oldRemove=window.idbiRemoveRow;
+  if(typeof oldRemove==='function'&&!oldRemove.__other204){
+    var rem=function(i){
+      var r=oldRemove.apply(this,arguments);
+      var inp=document.getElementById('idbiOtherName'+i);
+      if(inp){inp.value='';inp.classList.remove('show');inp.style.display='none';}
+      return r;
+    };
+    rem.__other204=true;
+    window.idbiRemoveRow=rem;
+  }
+
+  var oldReset=window.idbiReset;
+  if(typeof oldReset==='function'&&!oldReset.__other204){
+    var reset=function(){
+      var r=oldReset.apply(this,arguments);
+      for(var i=1;i<=10;i++){
+        var inp=document.getElementById('idbiOtherName'+i);
+        if(inp){inp.value='';inp.classList.remove('show');inp.style.display='none';}
+      }
+      return r;
+    };
+    reset.__other204=true;
+    window.idbiReset=reset;
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init204);
+  else init204();
+})();
+</script>
+<!-- /IDBI EDITABLE OTHER JEWELLERY NAME 204 -->
 
 </body>
 </html>
