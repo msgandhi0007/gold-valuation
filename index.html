@@ -20099,5 +20099,295 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /IDBI BACK BUTTON POSITION FIX 217 -->
 
+
+<!-- PREMIUM OUTER VALUATION BOX 218 -->
+<style id="premium-outer-valuation-box-css-218">
+/* One premium outer shell around all valuation cards.
+   Back button, bank banner and fixed Save/Load/Share rail stay outside. */
+
+.premium-valuation-outer-218{
+  width:calc(100% - 18px)!important;
+  max-width:418px!important;
+  margin:8px auto 10px!important;
+  padding:10px!important;
+  box-sizing:border-box!important;
+  position:relative!important;
+  overflow:visible!important;
+  border:1px solid #c99725!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(240,190,54,.13),transparent 24%),
+    radial-gradient(circle at 88% 100%,rgba(216,151,18,.10),transparent 26%),
+    linear-gradient(180deg,#fffdf8 0%,#fbf4e5 100%)!important;
+  box-shadow:
+    0 12px 28px rgba(92,58,6,.13),
+    inset 0 0 0 1px rgba(255,255,255,.92),
+    inset 0 0 0 4px rgba(231,191,91,.08)!important;
+}
+
+.premium-valuation-outer-218:before{
+  content:""!important;
+  position:absolute!important;
+  inset:5px!important;
+  border:1px solid rgba(191,132,12,.22)!important;
+  border-radius:13px!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+
+.premium-valuation-outer-218:after{
+  content:"◆"!important;
+  position:absolute!important;
+  left:50%!important;
+  top:-10px!important;
+  transform:translateX(-50%)!important;
+  width:28px!important;
+  height:20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:#fff9ec!important;
+  color:#bd7a00!important;
+  font-size:12px!important;
+  border-left:1px solid #c99725!important;
+  border-right:1px solid #c99725!important;
+  border-radius:8px!important;
+  z-index:3!important;
+}
+
+.premium-valuation-outer-218 > *{
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* Existing cards become coordinated inner cards */
+.premium-valuation-outer-218 > .card,
+.premium-valuation-outer-218 > .idbi-customer,
+.premium-valuation-outer-218 > .idbi-rate,
+.premium-valuation-outer-218 > .idbi-items-section,
+.premium-valuation-outer-218 > .idbi-summary-section,
+.premium-valuation-outer-218 > .idbi-loan,
+.premium-valuation-outer-218 > .idbi-secondary-actions,
+.premium-valuation-outer-218 > .idbi-feature-note{
+  width:100%!important;
+  max-width:none!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  box-sizing:border-box!important;
+}
+
+/* Tight, consistent spacing between cards inside one shell */
+.premium-valuation-outer-218 > .card,
+.premium-valuation-outer-218 > .idbi-customer,
+.premium-valuation-outer-218 > .idbi-rate,
+.premium-valuation-outer-218 > .idbi-items-section,
+.premium-valuation-outer-218 > .idbi-summary-section,
+.premium-valuation-outer-218 > .idbi-loan,
+.premium-valuation-outer-218 > .idbi-secondary-actions{
+  margin-top:0!important;
+  margin-bottom:8px!important;
+}
+
+.premium-valuation-outer-218 > :last-child{
+  margin-bottom:0!important;
+}
+
+/* Internal cards visually belong to same premium frame */
+.premium-valuation-outer-218 .card,
+.premium-valuation-outer-218 .idbi-customer,
+.premium-valuation-outer-218 .idbi-rate,
+.premium-valuation-outer-218 .idbi-items-section,
+.premium-valuation-outer-218 .idbi-summary-section,
+.premium-valuation-outer-218 .idbi-loan,
+.premium-valuation-outer-218 .idbi-secondary-actions{
+  border-color:#e5cf98!important;
+  box-shadow:0 4px 11px rgba(82,52,5,.055)!important;
+}
+
+/* IDBI elements that previously sat without a card now get matching inner cards */
+#premiumIdbiOuter218 > .idbi-rate,
+#premiumIdbiOuter218 > .idbi-items-section,
+#premiumIdbiOuter218 > .idbi-loan,
+#premiumIdbiOuter218 > .idbi-secondary-actions{
+  padding:9px!important;
+  border:1px solid #e5cf98!important;
+  border-radius:11px!important;
+  background:#fffefb!important;
+}
+
+#premiumIdbiOuter218 > .idbi-feature-note{
+  padding:8px 10px!important;
+  border:1px dashed #dfc37b!important;
+  border-radius:10px!important;
+  background:#fff8e8!important;
+  color:#76540e!important;
+  font-size:9px!important;
+  line-height:1.35!important;
+}
+
+/* Fixed bottom action bars must never be absorbed into outer shell */
+#standardValuationActionBar192,
+#idbi-valuation-screen .idbi-bottom-actions{
+  position:fixed!important;
+  z-index:80!important;
+}
+
+/* Keep banner visually separated above the premium shell */
+#valuationBankBrand209,
+#idbiBankBrand209{
+  margin-bottom:10px!important;
+}
+
+@media(max-width:380px){
+  .premium-valuation-outer-218{
+    width:calc(100% - 12px)!important;
+    padding:8px!important;
+    border-radius:16px!important;
+  }
+  .premium-valuation-outer-218:before{
+    inset:4px!important;
+    border-radius:12px!important;
+  }
+}
+</style>
+
+<script id="premium-outer-valuation-box-js-218">
+(function(){
+  'use strict';
+
+  function buildStandardOuter218(){
+    var root=document.getElementById('valuation-main-sections');
+    if(!root || document.getElementById('premiumStandardOuter218')) return;
+
+    var selector=root.querySelector('#main-bank-selector');
+    var action=root.querySelector('#standardValuationActionBar192');
+
+    var wanted=[
+      root.querySelector('.s111-customer'),
+      root.querySelector('.s111-jewellery'),
+      root.querySelector('.s111-summary'),
+      root.querySelector('.s111-loan-card'),
+      root.querySelector('.s113-quick-actions'),
+      root.querySelector('.s111-secondary-actions')
+    ].filter(Boolean);
+
+    if(!wanted.length) return;
+
+    var outer=document.createElement('div');
+    outer.id='premiumStandardOuter218';
+    outer.className='premium-valuation-outer-218';
+
+    if(selector){
+      selector.insertAdjacentElement('afterend',outer);
+    }else{
+      root.insertBefore(outer,action||null);
+    }
+
+    wanted.forEach(function(el){ outer.appendChild(el); });
+
+    if(action && action.parentNode!==root){
+      root.appendChild(action);
+    }
+  }
+
+  function buildIdbiOuter218(){
+    var screen=document.getElementById('idbi-valuation-screen');
+    if(!screen || document.getElementById('premiumIdbiOuter218')) return;
+
+    var head=screen.querySelector('.idbi-head');
+    var bottom=screen.querySelector('.idbi-bottom-actions');
+
+    var wanted=[
+      screen.querySelector('.idbi-customer'),
+      screen.querySelector('.idbi-rate'),
+      screen.querySelector('.idbi-items-section'),
+      screen.querySelector('#idbi-summary-section'),
+      screen.querySelector('.idbi-loan'),
+      screen.querySelector('.idbi-secondary-actions'),
+      screen.querySelector('.idbi-feature-note')
+    ].filter(Boolean);
+
+    if(!wanted.length) return;
+
+    var outer=document.createElement('div');
+    outer.id='premiumIdbiOuter218';
+    outer.className='premium-valuation-outer-218';
+
+    if(head){
+      head.insertAdjacentElement('afterend',outer);
+    }else{
+      screen.insertBefore(outer,bottom||null);
+    }
+
+    wanted.forEach(function(el){ outer.appendChild(el); });
+
+    if(bottom && bottom.parentNode!==screen){
+      screen.appendChild(bottom);
+    }
+  }
+
+  function keepIdbiBannerOutside218(){
+    var outer=document.getElementById('premiumIdbiOuter218');
+    var brand=document.getElementById('idbiBankBrand209');
+    if(!outer || !brand) return;
+
+    /* Logo code inserts the IDBI banner immediately before .idbi-customer.
+       Since customer is now inside the premium shell, move banner back above shell. */
+    if(outer.contains(brand)){
+      outer.insertAdjacentElement('beforebegin',brand);
+    }else if(brand.nextElementSibling!==outer){
+      outer.insertAdjacentElement('beforebegin',brand);
+    }
+  }
+
+  function install218(){
+    buildStandardOuter218();
+    buildIdbiOuter218();
+    keepIdbiBannerOutside218();
+  }
+
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function' && !oldOpen.__premiumOuter218){
+    var f=function(){
+      var r=oldOpen.apply(this,arguments);
+      requestAnimationFrame(function(){
+        install218();
+        requestAnimationFrame(keepIdbiBannerOutside218);
+      });
+      return r;
+    };
+    f.__premiumOuter218=true;
+    window.openBank=f;
+  }
+
+  var oldSaved=window.openSavedDirectFinal;
+  if(typeof oldSaved==='function' && !oldSaved.__premiumOuter218){
+    var g=function(){
+      var r=oldSaved.apply(this,arguments);
+      requestAnimationFrame(function(){
+        install218();
+        requestAnimationFrame(keepIdbiBannerOutside218);
+      });
+      setTimeout(keepIdbiBannerOutside218,70);
+      return r;
+    };
+    g.__premiumOuter218=true;
+    window.openSavedDirectFinal=g;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      install218();
+      setTimeout(keepIdbiBannerOutside218,60);
+    });
+  }else{
+    install218();
+    setTimeout(keepIdbiBannerOutside218,60);
+  }
+})();
+</script>
+<!-- /PREMIUM OUTER VALUATION BOX 218 -->
+
 </body>
 </html>
