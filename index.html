@@ -16107,5 +16107,191 @@ body.standard-saved-open-202 #valuation-main-sections{
 </script>
 <!-- /IDBI EDITABLE OTHER JEWELLERY NAME 204 -->
 
+
+<!-- AUTO SAVE OPENED SAVED VALUATION ON BACK/EXIT 205 -->
+<script id="autosave-opened-on-exit-205">
+(function(){
+  'use strict';
+
+  function localRecords205(){
+    try{
+      var a=typeof window.getSaved==='function'
+        ? window.getSaved()
+        : JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return [];}
+  }
+
+  async function saveFile205(record, originalFilename){
+    if(!record || typeof window.saveBlobToStorageFolder!=='function') return;
+    try{
+      var bank=String(record.customer&&record.customer.bank||record.bank||'').toUpperCase();
+      var filename=originalFilename||'';
+      if(!filename){
+        if(bank.indexOf('IDBI')>=0){
+          var safe=String(record.customer&&record.customer.name||'Customer')
+            .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').slice(0,60);
+          filename='IDBI-Valuation-'+safe+'-'+String(record.id)+'.json';
+        }else{
+          var safeName=String(record.customer&&record.customer.name||'Customer').trim()
+            .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+          var safeDate=String(record.customer&&record.customer.date||'Valuation')
+            .trim().replace(/[^0-9-]/g,'-');
+          var cert=String(record.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+          filename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
+        }
+      }
+      var blob=new Blob([JSON.stringify(record,null,2)],{type:'application/json'});
+      await window.saveBlobToStorageFolder(filename,blob,'Valuations');
+    }catch(e){
+      console.warn('Auto-save valuation file failed:',e);
+    }
+  }
+
+  async function autoSaveStandard205(){
+    var id=window._editingValuationId;
+    if(!id) return false;
+
+    /* If the saved valuation was never unlocked, nothing could have changed. */
+    if(!window._editUnlocked) return true;
+
+    try{
+      if(typeof window.currentData!=='function') return false;
+      var all=localRecords205();
+      var idx=all.findIndex(function(x){return String(x.id)===String(id);});
+      if(idx<0) return false;
+
+      var old=all[idx]||{};
+      var d=window.currentData();
+      d.id=old.id;
+      d.certificateNo=old.certificateNo||d.certificateNo||'';
+      d.createdAt=old.createdAt||d.createdAt||new Date().toISOString();
+      d.modifiedAt=new Date().toISOString();
+      d.auditStatus='Edited';
+      if(!d.customer)d.customer={};
+      d.customer.bank=
+        d.customer.bank ||
+        (old.customer&&old.customer.bank) ||
+        old.bank ||
+        '';
+
+      all[idx]=d;
+      localStorage.setItem('goldValuations',JSON.stringify(all));
+      window._currentSavedRecord=d;
+
+      await saveFile205(d,window._editingValuationOriginalFilename||null);
+      return true;
+    }catch(e){
+      console.error('Auto-save standard valuation failed:',e);
+      return false;
+    }
+  }
+
+  async function autoSaveIdbi205(){
+    var id=window._idbiEditingId;
+    if(!id) return false;
+
+    try{
+      if(typeof window.idbiRecord!=='function') return false;
+      var all=localRecords205();
+      var idx=all.findIndex(function(x){return String(x.id)===String(id);});
+      if(idx<0) return false;
+
+      var old=all[idx]||{};
+      var rec=window.idbiRecord();
+      rec.id=old.id;
+      rec.certificateNo=old.certificateNo||rec.certificateNo||'';
+      rec.createdAt=old.createdAt||rec.createdAt||new Date().toISOString();
+      rec.modifiedAt=new Date().toISOString();
+      rec.auditStatus='Edited';
+      rec.valuationType='IDBI_BANK';
+      rec.bankSpecific=true;
+      rec.bank='IDBI BANK';
+      if(rec.customer)rec.customer.bank='IDBI BANK';
+
+      all[idx]=rec;
+      localStorage.setItem('goldValuations',JSON.stringify(all));
+      window._currentSavedRecord=rec;
+
+      await saveFile205(rec,null);
+      return true;
+    }catch(e){
+      console.error('Auto-save IDBI valuation failed:',e);
+      return false;
+    }
+  }
+
+  function clearOpenedState205(){
+    try{
+      if(typeof window.clearValuationEditMode==='function')window.clearValuationEditMode();
+    }catch(e){}
+    window._editingValuationId=null;
+    window._editingValuationOriginalFilename=null;
+    window._editUnlocked=false;
+    window._idbiEditingId=null;
+    window._currentSavedRecord=null;
+  }
+
+  function goBankHome205(){
+    var standard=document.getElementById('valuation-main-sections');
+    var idbi=document.getElementById('idbi-valuation-screen');
+    var main=document.querySelector('main');
+    var bar=document.getElementById('standardValuationActionBar192');
+    var home=document.getElementById('bankHome');
+
+    if(standard)standard.style.setProperty('display','none','important');
+    if(idbi)idbi.style.setProperty('display','none','important');
+    if(main)main.style.setProperty('display','none','important');
+    if(bar)bar.style.setProperty('display','none','important');
+
+    document.body.classList.remove(
+      'idbi-open','standard-saved-open-202','customersHomeMode',
+      'savedClean168Open','savedHomeMode','dashboardHomeMode',
+      'storageMode','storage-backup-mode','menu-viewing'
+    );
+    document.body.classList.add('bankHomeMode');
+
+    if(home)home.style.setProperty('display','block','important');
+    window.scrollTo(0,0);
+  }
+
+  window.backToBankSelection194=async function(){
+    var wasSaved=!!window._editingValuationId;
+    if(wasSaved){
+      await autoSaveStandard205();
+    }
+
+    /* Exit the opened valuation completely. */
+    if(typeof window.resetAfterSave==='function'){
+      try{window.resetAfterSave();}catch(e){}
+    }
+    clearOpenedState205();
+    goBankHome205();
+    return false;
+  };
+
+  window.idbiBackToBankHome196=async function(){
+    var wasSaved=!!window._idbiEditingId;
+    if(wasSaved){
+      await autoSaveIdbi205();
+    }
+
+    if(typeof window.idbiReset==='function'){
+      try{window.idbiReset();}catch(e){}
+    }
+    clearOpenedState205();
+    goBankHome205();
+    return false;
+  };
+
+  window.autoSaveOpenedValuation205=async function(){
+    if(window._idbiEditingId)return autoSaveIdbi205();
+    if(window._editingValuationId)return autoSaveStandard205();
+    return false;
+  };
+})();
+</script>
+<!-- /AUTO SAVE OPENED SAVED VALUATION ON BACK/EXIT 205 -->
+
 </body>
 </html>
