@@ -4470,18 +4470,49 @@ function setupBankDropdown(){
   });
 }
 
-function makeCertificateNo(){
-  const key='goldValuationNextCert';
+function certificateFinancialYear(dateValue){
+  const d=dateValue ? new Date(dateValue) : new Date();
+  const y=d.getFullYear(), m=d.getMonth()+1;
+  const start=m>=4 ? y : y-1;
+  return String(start).slice(-2)+'-'+String(start+1).slice(-2);
+}
+function certificateBankCode(bank){
+  const b=String(bank||'').trim().toUpperCase();
+  if(b.includes('IDBI')) return 'IDBI';
+  if(b.includes('MAHARASHTRA GRAMIN')) return 'MGB';
+  if(b.includes('DNYANDEEP')) return 'DNY';
+  if(b.includes('SBI') || b.includes('STATE BANK')) return 'SBI';
+  return 'RJ';
+}
+function certificateBankFrom(source){
+  if(source && typeof source==='object'){
+    const b=source.customer?.bank || source.bank || source.bankName || '';
+    if(b) return String(b);
+    if(source.valuationType==='IDBI_BANK' || source.bankSpecific) return 'IDBI BANK';
+  }
+  if(typeof source==='string' && source.trim()) return source.trim();
+
+  const main=document.getElementById('mainBankSelect');
+  const hidden=document.getElementById('bankName');
+  const idbi=document.getElementById('idbi-valuation-screen');
+  if(idbi && getComputedStyle(idbi).display!=='none') return 'IDBI BANK';
+  return String(main?.value || hidden?.value || window._currentSavedRecord?.customer?.bank || '').trim();
+}
+function makeCertificateNo(source){
+  const bank=certificateBankFrom(source);
+  const code=certificateBankCode(bank);
+  const fy=certificateFinancialYear();
+  const key='goldValuationNextCert:'+code+':'+fy;
   let n=parseInt(localStorage.getItem(key)||'0',10);
   if(!Number.isFinite(n)||n<0)n=0;
   n+=1;
   localStorage.setItem(key,String(n));
-  return 'RJ/'+new Date().getFullYear()+'/'+String(n).padStart(5,'0');
+  return code+'/'+fy+'/'+String(n).padStart(3,'0');
 }
 function ensureCertificateNo(d){
   if(!d || typeof d!=='object') return '';
   if(d.certificateNo) return d.certificateNo;
-  d.certificateNo=makeCertificateNo();
+  d.certificateNo=makeCertificateNo(d);
   return d.certificateNo;
 }
 function getActiveCertificateNo(){
@@ -7738,7 +7769,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(!source){ alert('Saved valuation not found.'); return; }
       const copy=JSON.parse(JSON.stringify(source));
       copy.id=Date.now()+Math.floor(Math.random()*1000);
-      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo():'';
+      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo(copy):'';
       copy.createdAt=new Date().toISOString(); copy.modifiedAt=copy.createdAt;
       copy.auditStatus='Duplicated'; copy.duplicatedFromId=source.id||null;
       // A duplicate is a new draft: it must not overwrite the source record.
@@ -8086,7 +8117,7 @@ window.handleMainBankSelection=function(value){
         rec.id=a[existing].id; rec.createdAt=a[existing].createdAt||rec.createdAt; rec.modifiedAt=new Date().toISOString(); rec.auditStatus='Edited';
         a[existing]=rec;
       }else{
-        if(typeof makeCertificateNo==='function')rec.certificateNo=makeCertificateNo();
+        if(typeof makeCertificateNo==='function')rec.certificateNo=makeCertificateNo(rec);
         a.push(rec);
       }
       localStorage.setItem('goldValuations',JSON.stringify(a));
@@ -8192,7 +8223,7 @@ window.handleMainBankSelection=function(value){
     var a=getSaved(),d=a[i];
     if(d && d.valuationType==='IDBI_BANK'){
       var copy=JSON.parse(JSON.stringify(d)); copy.id=Date.now()+Math.floor(Math.random()*1000);
-      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo():'';
+      copy.certificateNo=typeof makeCertificateNo==='function'?makeCertificateNo(copy):'';
       copy.createdAt=new Date().toISOString();copy.modifiedAt=copy.createdAt;copy.auditStatus='Duplicated';copy.duplicatedFromId=d.id;
       a.push(copy);localStorage.setItem('goldValuations',JSON.stringify(a));alert('IDBI valuation duplicated as a new draft.');renderSaved();return;
     }
@@ -14571,6 +14602,11 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 
 
 
+<!-- BANK-SPECIFIC CERTIFICATE NUMBERING 193
+New certificates use separate bank/FY counters:
+SBI/26-27/001, IDBI/26-27/001, MGB/26-27/001, DNY/26-27/001.
+Financial year changes automatically on 1 April. Existing saved certificate numbers are preserved.
+-->
 <!-- STRUCTURAL VALUATION ACTION BAR FIX 192 -->
 <style id="structural-valuation-actionbar-css-192">
 #standardValuationActionBar192{
