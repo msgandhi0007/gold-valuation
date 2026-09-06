@@ -16806,5 +16806,680 @@ body.bank-home-mode main{
 </script>
 <!-- /BANK LOGOS IN BANK HOME + VALUATION HEADERS 209 -->
 
+
+<!-- PREMIUM BLACK + GOLD WHOLE APP THEME 210 -->
+<style id="premium-whole-app-theme-210">
+:root{
+  --pj-black:#0c0905;
+  --pj-black2:#1a1207;
+  --pj-gold:#c89112;
+  --pj-gold2:#f2c24c;
+  --pj-gold3:#a96900;
+  --pj-cream:#f8f1e4;
+  --pj-card:#fffdf8;
+  --pj-line:#e4cf9b;
+  --pj-text:#17130d;
+  --pj-muted:#776d5d;
+  --pj-green:#17834d;
+  --pj-red:#cf304c;
+  --pj-shadow:0 8px 24px rgba(79,52,8,.09);
+}
+html,body{
+  background:
+    radial-gradient(circle at 15% 0%,rgba(238,194,74,.10),transparent 24%),
+    linear-gradient(180deg,#fbf7ef 0%,#f7f0e3 100%)!important;
+  color:var(--pj-text)!important;
+}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif!important}
+
+/* ---------- RAJENDRA JEWELLERS PREMIUM BRAND HEADER ---------- */
+.s111-header{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:18px 18px 20px!important;
+  min-height:170px!important;
+  border:0!important;
+  border-radius:0 0 24px 24px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(242,194,76,.24),transparent 34%),
+    linear-gradient(145deg,#070502 0%,#1d1205 50%,#070502 100%)!important;
+  box-shadow:0 10px 28px rgba(48,30,0,.25)!important;
+}
+.s111-header:before,
+.s111-header:after{
+  content:"";
+  position:absolute!important;
+  width:170px!important;height:170px!important;
+  border:1px solid rgba(242,194,76,.20)!important;
+  border-radius:50%!important;
+  top:-80px!important;
+}
+.s111-header:before{left:-60px!important}
+.s111-header:after{right:-60px!important}
+.s111-brand-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:14px!important;
+  position:relative!important;
+  z-index:2!important;
+  margin-top:4px!important;
+}
+.s111-rj-logo{
+  width:76px!important;height:76px!important;
+  min-width:76px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle at 50% 40%,#1a1207 0 55%,#050301 56% 100%)!important;
+  border:4px solid #d7a52c!important;
+  color:#f3c84f!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-size:31px!important;
+  font-weight:900!important;
+  letter-spacing:1px!important;
+  box-shadow:
+    0 0 0 3px rgba(242,194,76,.12),
+    0 8px 22px rgba(0,0,0,.35)!important;
+  position:relative!important;
+}
+.s111-rj-logo:before{
+  content:"♛";
+  position:absolute!important;
+  top:-22px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  color:#e8b62f!important;
+  font-size:26px!important;
+  line-height:1!important;
+}
+.s111-brand-row .brand{
+  color:#f2c24c!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-size:25px!important;
+  line-height:1.02!important;
+  font-weight:900!important;
+  letter-spacing:.5px!important;
+  text-shadow:0 2px 0 #5f3a00!important;
+}
+.s111-brand-row .sub{
+  margin-top:5px!important;
+  color:#fff8e6!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  letter-spacing:1.6px!important;
+}
+.s111-brand-row>div:last-child:after{
+  content:"Trusted Value for a Brighter Tomorrow";
+  display:block!important;
+  margin-top:7px!important;
+  color:#e9d7a7!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-style:italic!important;
+  font-size:12px!important;
+  letter-spacing:.2px!important;
+}
+.s111-top-tools{
+  position:absolute!important;
+  right:15px!important;
+  top:15px!important;
+  z-index:4!important;
+  display:flex!important;
+  gap:8px!important;
+}
+.s111-top-tools button,.menu-btn{
+  width:43px!important;height:43px!important;
+  min-width:43px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(242,194,76,.70)!important;
+  background:#fffaf0!important;
+  color:#8a5a00!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.20)!important;
+}
+.s111-header .s111-rate{display:none!important}
+
+/* ---------- BANK HOME ---------- */
+#bankHome{
+  padding:20px 14px 130px!important;
+  background:transparent!important;
+}
+#bankHome>h2{
+  margin:0!important;
+  color:#18140d!important;
+  font-size:29px!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  letter-spacing:-.6px!important;
+}
+#bankHome>p{
+  margin:7px 0 17px!important;
+  color:var(--pj-muted)!important;
+  font-size:15px!important;
+}
+#bankHome .bankChoice{
+  display:grid!important;
+  gap:11px!important;
+}
+#bankHome .bankChoice>button{
+  min-height:91px!important;
+  width:100%!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:18px!important;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,250,237,.96))!important;
+  color:#17130d!important;
+  box-shadow:var(--pj-shadow)!important;
+  padding:13px 16px!important;
+  text-align:left!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  overflow:hidden!important;
+  position:relative!important;
+}
+#bankHome .bankChoice>button:after{
+  content:"›";
+  position:absolute!important;
+  right:16px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  color:#a86b00!important;
+  font-size:37px!important;
+  font-weight:500!important;
+}
+#bankHome .bankChoice>button small{
+  display:block!important;
+  margin-top:5px!important;
+  color:#a96e00!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+#bankHome .bankChoice>button .bank-logo-wrap-209{
+  padding-right:28px!important;
+}
+#bankHome .bank-logo-209{
+  width:96px!important;height:62px!important;
+  object-fit:contain!important;
+  border-radius:8px!important;
+}
+#bankHome .dashboardHomeBtn,
+#bankHome .savedHomeBtn,
+#bankHome .customersHomeBtn,
+#bankHome .storageBtn{
+  min-height:74px!important;
+}
+#bankHome .dashboardHomeBtn{border-left:5px solid #d8a517!important}
+#bankHome .savedHomeBtn{border-left:5px solid #e0a31c!important}
+#bankHome .customersHomeBtn{border-left:5px solid #1689d8!important}
+#bankHome .storageBtn{border-left:5px solid #5c646b!important}
+
+/* ---------- SHARED VALUATION SCREEN ---------- */
+#valuation-main-sections,
+#idbi-valuation-screen{
+  background:transparent!important;
+  color:var(--pj-text)!important;
+}
+#valuation-main-sections .card,
+#idbi-valuation-screen .idbi-customer,
+#idbi-valuation-screen .idbi-item-card,
+#idbi-valuation-screen .idbi-summary-section,
+#idbi-valuation-screen .idbi-loan{
+  background:var(--pj-card)!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:18px!important;
+  box-shadow:var(--pj-shadow)!important;
+}
+#valuationBankBackBar194{
+  margin:14px 15px 6px!important;
+}
+#valuationBackToBanks194,
+#idbi-valuation-screen .idbi-back{
+  border:1px solid var(--pj-line)!important;
+  background:#fffdf7!important;
+  color:#2a2114!important;
+  border-radius:13px!important;
+  box-shadow:0 5px 14px rgba(95,62,8,.06)!important;
+  font-weight:850!important;
+}
+#valuationCurrentBank194{display:none!important}
+#valuationBankBrand209,
+#idbiBankBrand209{
+  margin:7px 15px 12px!important;
+  padding:9px 14px!important;
+  min-height:76px!important;
+  border:0!important;
+  border-radius:16px!important;
+  background:
+    radial-gradient(circle at 25% 50%,rgba(242,194,76,.14),transparent 35%),
+    linear-gradient(135deg,#fffdf8,#fff8e9)!important;
+  box-shadow:0 5px 18px rgba(94,61,5,.08)!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+#valuationBankBrand209:after,
+#idbiBankBrand209:after{
+  content:"Gold Valuation";
+  position:absolute!important;
+  right:15px!important;
+  bottom:12px!important;
+  color:#a96f00!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+#valuationBankLogo209,#idbiBankLogo209{
+  width:115px!important;height:66px!important;
+  background:transparent!important;
+  padding:0!important;
+}
+#valuationBankBrand209 .bank-brand-name-209,
+#idbiBankBrand209 .bank-brand-name-209{
+  padding-bottom:15px!important;
+  color:#17130d!important;
+  font-size:18px!important;
+  font-weight:950!important;
+}
+
+/* IDBI: remove duplicate old heading and keep only compact bank brand */
+#idbi-valuation-screen>.idbi-head{
+  margin:12px 15px 6px!important;
+  padding:0!important;
+  min-height:50px!important;
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+#idbi-valuation-screen>.idbi-head>div:first-child{
+  display:none!important;
+}
+
+/* Customer + item headings */
+#valuation-main-sections h2,
+#idbi-valuation-screen h2,
+#idbi-valuation-screen .idbi-items-title{
+  color:#20190f!important;
+  font-weight:950!important;
+}
+#valuation-main-sections input,
+#valuation-main-sections select,
+#idbi-valuation-screen input,
+#idbi-valuation-screen select{
+  background:#fff!important;
+  color:#1a1712!important;
+  border:1px solid #d9cfbb!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+#valuation-main-sections input:focus,
+#valuation-main-sections select:focus,
+#idbi-valuation-screen input:focus,
+#idbi-valuation-screen select:focus{
+  border-color:#d5a51f!important;
+  box-shadow:0 0 0 3px rgba(213,165,31,.12)!important;
+  outline:none!important;
+}
+#valuation-main-sections .s111-calc-grid>div,
+#idbi-valuation-screen .idbi-calc-grid>div{
+  background:#fff4d3!important;
+  border:1px solid #ead6a0!important;
+  color:#1a1712!important;
+}
+#valuation-main-sections .primary,
+#idbi-valuation-screen .idbi-items-title button{
+  background:linear-gradient(180deg,#e3aa16,#bd7900)!important;
+  color:white!important;
+  border:1px solid #af7000!important;
+  border-radius:13px!important;
+  font-weight:900!important;
+}
+
+/* Fixed Save / Load / Share: premium black rail + gold buttons */
+#standardValuationActionBar192,
+#idbi-valuation-screen .idbi-bottom-actions{
+  background:linear-gradient(180deg,#161009,#070503)!important;
+  border-top:1px solid rgba(242,194,76,.45)!important;
+  box-shadow:0 -7px 20px rgba(0,0,0,.20)!important;
+}
+#standardValuationActionBar192 button,
+#idbi-valuation-screen .idbi-bottom-actions button{
+  border:1px solid #b87500!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#e8ac11,#b86f00)!important;
+  color:#fff!important;
+  font-weight:950!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+/* ---------- DASHBOARD ---------- */
+#dashboardHome{
+  padding:18px 14px 120px!important;
+  background:transparent!important;
+}
+#dashboardHome .dashboard-head,
+#savedClean168 .sc-head,
+#customersHomeScreen .custTop,
+#storageBackupScreen .sbTop{
+  padding:14px 15px!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(242,194,76,.22),transparent 40%),
+    linear-gradient(135deg,#120d06,#211504)!important;
+  border:1px solid #8e640d!important;
+  color:#fff!important;
+  box-shadow:0 8px 20px rgba(47,31,4,.15)!important;
+}
+#dashboardHome .dashboard-head h2,
+#savedClean168 .sc-head h1,
+#customersHomeScreen .custTop h2,
+#storageBackupScreen .sbTop h2{
+  color:#f2c24c!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:900!important;
+}
+#dashboardHome .dashboard-head button,
+#savedClean168 .sc-back,
+#customersHomeScreen .custBack,
+#storageBackupScreen .sbTop button{
+  background:#fff8e6!important;
+  border:1px solid #d6a927!important;
+  color:#6f4700!important;
+  border-radius:12px!important;
+  font-weight:850!important;
+}
+#dashboardHome .dashboard-filter{
+  background:#fffdf8!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:14px!important;
+  padding:7px!important;
+  margin:14px 0!important;
+}
+#dashboardHome .dashboard-filter button{
+  border-radius:10px!important;
+  border:0!important;
+  background:#f6ead0!important;
+  color:#6b4a0c!important;
+  font-weight:850!important;
+}
+#dashboardHome .dashboard-filter button.active{
+  background:linear-gradient(180deg,#e2aa1c,#bb7800)!important;
+  color:#fff!important;
+}
+#dashboardHome .dashboard-card,
+#dashboardHome .dashboard-section,
+#dashboardHome .dashboard-bank{
+  background:#fffdf8!important;
+  color:#17130d!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:16px!important;
+  box-shadow:var(--pj-shadow)!important;
+}
+#dashboardHome .dashboard-card b{color:#8c5b00!important}
+#dashboardHome .dashboard-section h3{color:#17130d!important}
+
+/* ---------- SAVED VALUATIONS ---------- */
+#savedClean168{
+  background:transparent!important;
+}
+#savedClean168 .sc-wrap{
+  padding:18px 14px 120px!important;
+  background:transparent!important;
+}
+#savedClean168 .sc-sub{color:var(--pj-muted)!important}
+#savedClean168 .sc-stat,
+#savedClean168 #scList>div{
+  background:#fffdf8!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:16px!important;
+  box-shadow:var(--pj-shadow)!important;
+  color:#17130d!important;
+}
+#savedClean168 input,
+#savedClean168 select{
+  background:#fffdf8!important;
+  color:#17130d!important;
+  border:1px solid #d8c58f!important;
+  border-radius:13px!important;
+}
+#savedClean168 .sc-card,
+#savedClean168 [class*="saved"]{
+  color:#17130d!important;
+}
+#savedClean168 button{
+  border-radius:12px!important;
+}
+#savedClean168 button[onclick*="openSaved"],
+#savedClean168 .sc-open{
+  background:linear-gradient(180deg,#e2aa1a,#bd7900)!important;
+  color:#fff!important;
+  border-color:#ad7000!important;
+}
+
+/* ---------- CUSTOMERS ---------- */
+#customersHomeScreen{
+  padding:18px 14px 120px!important;
+  background:transparent!important;
+}
+#customersHomeScreen .custHero,
+#customersHomeScreen .custPanel,
+#customersHomeScreen .custOverview>div,
+#customersHomeScreen #custHistoryList>div,
+#customersHomeScreen #custSummaryList>div{
+  background:#fffdf8!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:16px!important;
+  box-shadow:var(--pj-shadow)!important;
+  color:#17130d!important;
+}
+#customersHomeScreen .custTabs{
+  background:#f6ead0!important;
+  border-radius:12px!important;
+  padding:5px!important;
+}
+#customersHomeScreen .custTabs button{
+  background:transparent!important;
+  color:#6b4a0c!important;
+  border-radius:9px!important;
+  font-weight:850!important;
+}
+#customersHomeScreen .custTabs button.active{
+  background:linear-gradient(180deg,#e2aa1a,#bd7900)!important;
+  color:#fff!important;
+}
+#customersHomeScreen input,
+#customersHomeScreen select{
+  background:#fff!important;
+  color:#17130d!important;
+  border:1px solid #d8c58f!important;
+  border-radius:12px!important;
+}
+
+/* ---------- STORAGE & BACKUP ---------- */
+#storageBackupScreen{
+  padding:18px 14px 120px!important;
+  background:transparent!important;
+}
+#storageBackupScreen .sbCard{
+  background:#fffdf8!important;
+  border:1px solid var(--pj-line)!important;
+  border-radius:17px!important;
+  box-shadow:var(--pj-shadow)!important;
+  color:#17130d!important;
+}
+#storageBackupScreen .sbCard h2,
+#storageBackupScreen .sbCard h3{
+  color:#1e170d!important;
+  font-weight:950!important;
+}
+#storageBackupScreen .sbStatus{
+  background:#f8f1df!important;
+  border:1px solid #ead8aa!important;
+  color:#655b4c!important;
+  border-radius:11px!important;
+}
+#storageBackupScreen button,
+#storageBackupScreen label.sbBlue{
+  border-radius:12px!important;
+  font-weight:850!important;
+}
+#storageBackupScreen .sbGold,
+#storageBackupScreen #sbAutoBackupNowBtn{
+  background:linear-gradient(180deg,#e2aa1a,#bd7900)!important;
+  color:#fff!important;
+  border:1px solid #ad7000!important;
+}
+#storageBackupScreen .sbGreen{
+  background:linear-gradient(180deg,#238c57,#12643d)!important;
+  color:#fff!important;
+}
+#storageBackupScreen .sbBlue{
+  background:linear-gradient(180deg,#377fbc,#235b90)!important;
+  color:#fff!important;
+}
+#storageBackupScreen .sbDark{
+  background:linear-gradient(180deg,#2d2519,#15100a)!important;
+  color:#f2c24c!important;
+  border:1px solid #9c741b!important;
+}
+
+/* ---------- UTILITY SCREEN BRANDING ---------- */
+body.dashboardHomeMode .s111-header,
+body.savedClean168Open .s111-header,
+body.savedHomeMode .s111-header,
+body.customersHomeMode .s111-header,
+body.storageMode .s111-header,
+body.storage-backup-mode .s111-header{
+  min-height:88px!important;
+  padding:11px 16px!important;
+  border-radius:0 0 18px 18px!important;
+}
+body.dashboardHomeMode .s111-rj-logo,
+body.savedClean168Open .s111-rj-logo,
+body.savedHomeMode .s111-rj-logo,
+body.customersHomeMode .s111-rj-logo,
+body.storageMode .s111-rj-logo,
+body.storage-backup-mode .s111-rj-logo{
+  width:55px!important;height:55px!important;min-width:55px!important;
+  font-size:22px!important;
+}
+body.dashboardHomeMode .s111-brand-row .brand,
+body.savedClean168Open .s111-brand-row .brand,
+body.savedHomeMode .s111-brand-row .brand,
+body.customersHomeMode .s111-brand-row .brand,
+body.storageMode .s111-brand-row .brand,
+body.storage-backup-mode .s111-brand-row .brand{
+  font-size:19px!important;
+}
+body.dashboardHomeMode .s111-brand-row .sub,
+body.savedClean168Open .s111-brand-row .sub,
+body.savedHomeMode .s111-brand-row .sub,
+body.customersHomeMode .s111-brand-row .sub,
+body.storageMode .s111-brand-row .sub,
+body.storage-backup-mode .s111-brand-row .sub{
+  font-size:9px!important;
+}
+body.dashboardHomeMode .s111-brand-row>div:last-child:after,
+body.savedClean168Open .s111-brand-row>div:last-child:after,
+body.savedHomeMode .s111-brand-row>div:last-child:after,
+body.customersHomeMode .s111-brand-row>div:last-child:after,
+body.storageMode .s111-brand-row>div:last-child:after,
+body.storage-backup-mode .s111-brand-row>div:last-child:after{
+  display:none!important;
+}
+
+/* Hide Rajendra hero on actual bank valuation screens: preview uses bank branding there */
+body.premiumBankValuation210 .s111-header{
+  display:none!important;
+}
+
+/* Mobile fit */
+@media(max-width:430px){
+  .s111-header{min-height:155px!important;padding:16px 12px 18px!important}
+  .s111-rj-logo{width:68px!important;height:68px!important;min-width:68px!important}
+  .s111-brand-row .brand{font-size:21px!important}
+  .s111-brand-row .sub{font-size:10px!important}
+  .s111-brand-row>div:last-child:after{font-size:10px!important}
+  #bankHome>h2{font-size:27px!important}
+  #bankHome .bank-logo-209{width:90px!important;height:58px!important}
+  #valuationBankLogo209,#idbiBankLogo209{width:102px!important;height:62px!important}
+}
+</style>
+
+<script id="premium-whole-app-theme-js-210">
+(function(){
+  'use strict';
+
+  function setValuationMode210(on){
+    document.body.classList.toggle('premiumBankValuation210',!!on);
+  }
+
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function'&&!oldOpen.__premium210){
+    var f=function(){
+      setValuationMode210(true);
+      return oldOpen.apply(this,arguments);
+    };
+    f.__premium210=true;
+    window.openBank=f;
+  }
+
+  var oldIdbi=window.openIDBIValuation;
+  if(typeof oldIdbi==='function'&&!oldIdbi.__premium210){
+    var g=function(){
+      setValuationMode210(true);
+      return oldIdbi.apply(this,arguments);
+    };
+    g.__premium210=true;
+    window.openIDBIValuation=g;
+  }
+
+  ['showBankHome','openDashboardHome','openSavedClean168','openCustomersHome','openStorageBackupScreen'].forEach(function(name){
+    var old=window[name];
+    if(typeof old!=='function'||old.__premium210)return;
+    var fn=function(){
+      setValuationMode210(false);
+      return old.apply(this,arguments);
+    };
+    fn.__premium210=true;
+    window[name]=fn;
+  });
+
+  /* Saved valuation opening is also a valuation screen. */
+  var oldSaved=window.openSavedDirectFinal;
+  if(typeof oldSaved==='function'&&!oldSaved.__premium210){
+    var h=function(){
+      setValuationMode210(true);
+      return oldSaved.apply(this,arguments);
+    };
+    h.__premium210=true;
+    window.openSavedDirectFinal=h;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  /* Better symbols for utility cards without changing functionality. */
+  function polishHome210(){
+    var home=document.getElementById('bankHome');
+    if(!home)return;
+    var map=[
+      ['.dashboardHomeBtn','📊'],
+      ['.savedHomeBtn','📁'],
+      ['.customersHomeBtn','👥'],
+      ['.storageBtn','🗄️']
+    ];
+    map.forEach(function(x){
+      var el=home.querySelector(x[0]);
+      if(!el||el.dataset.premiumIcon210==='1')return;
+      el.dataset.premiumIcon210='1';
+      if(el.firstChild && el.firstChild.nodeType===3){
+        el.firstChild.nodeValue=x[1]+' '+el.firstChild.nodeValue.replace(/^[^A-Z]*/,'');
+      }
+    });
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',polishHome210);
+  else polishHome210();
+})();
+</script>
+<!-- /PREMIUM BLACK + GOLD WHOLE APP THEME 210 -->
+
 </body>
 </html>
