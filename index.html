@@ -18495,5 +18495,522 @@ body.premiumBankValuation210{background:radial-gradient(circle at 50% 0%,rgba(23
 </script>
 <!-- /MASTER APPROVED PREVIEW FIX 213 -->
 
+
+<!-- EXACT ALL FOUR BANK VALUATION SCREENS 214 -->
+<style id="exact-all-bank-screens-css-214">
+/* ====== Master mobile canvas ====== */
+body.premiumBankValuation210{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(229,174,34,.08),transparent 22%),
+    linear-gradient(180deg,#fbf7ee 0%,#f8f2e6 100%)!important;
+}
+body.premiumBankValuation210 #valuation-main-sections,
+body.premiumBankValuation210 #idbi-valuation-screen{
+  width:100%!important;
+  max-width:520px!important;
+  margin:0 auto!important;
+  padding:0 0 86px!important;
+  box-sizing:border-box!important;
+}
+
+/* ====== Back button ====== */
+#valuationBankBackBar194{
+  width:calc(100% - 28px)!important;
+  max-width:492px!important;
+  margin:14px auto 8px!important;
+  padding:0!important;
+  min-height:42px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+}
+#valuationBackToBanks194,
+#idbi-valuation-screen .idbi-back{
+  width:auto!important;
+  min-width:190px!important;
+  max-width:72%!important;
+  min-height:42px!important;
+  padding:8px 14px!important;
+  border-radius:11px!important;
+  border:1px solid #dec68e!important;
+  background:#fffdf8!important;
+  color:#17130d!important;
+  font-size:13px!important;
+  line-height:1.15!important;
+  font-weight:850!important;
+  white-space:nowrap!important;
+  box-shadow:0 4px 12px rgba(81,53,7,.05)!important;
+}
+
+/* ====== Bank banner: responsive exactly to screen width ====== */
+#valuationBankBrand209,
+#idbiBankBrand209{
+  width:calc(100% - 28px)!important;
+  max-width:492px!important;
+  min-height:96px!important;
+  margin:0 auto 10px!important;
+  padding:10px 12px!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:minmax(88px,31%) minmax(98px,37%) minmax(72px,32%)!important;
+  align-items:center!important;
+  gap:0!important;
+  overflow:hidden!important;
+  position:relative!important;
+  border:1px solid #ead5a1!important;
+  border-radius:16px!important;
+  background:
+    radial-gradient(ellipse at 4% 132%,rgba(236,183,38,.24),transparent 35%),
+    radial-gradient(ellipse at 80% 130%,rgba(244,205,90,.20),transparent 39%),
+    linear-gradient(180deg,#fffefb 0%,#fff8e9 100%)!important;
+  box-shadow:0 4px 13px rgba(82,53,7,.07)!important;
+}
+#valuationBankBrand209:before,
+#idbiBankBrand209:before{
+  content:""!important;
+  position:absolute!important;
+  left:-8%!important;
+  bottom:-30px!important;
+  width:72%!important;
+  height:62px!important;
+  border-radius:50%!important;
+  border-top:1px solid rgba(205,146,18,.28)!important;
+  transform:rotate(-3deg)!important;
+  pointer-events:none!important;
+}
+#valuationBankBrand209:after,
+#idbiBankBrand209:after{
+  display:none!important;
+  content:none!important;
+}
+
+#valuationBankLogo209,
+#idbiBankLogo209{
+  grid-column:1!important;
+  width:100%!important;
+  max-width:118px!important;
+  height:70px!important;
+  object-fit:contain!important;
+  justify-self:center!important;
+  background:transparent!important;
+  margin:0!important;
+  padding:0 9px 0 0!important;
+  border-right:1px solid #d8ad4d!important;
+  border-radius:0!important;
+  box-sizing:border-box!important;
+  z-index:2!important;
+}
+
+#valuationBankBrand209 .bank-brand-name-209,
+#idbiBankBrand209 .bank-brand-name-209{
+  grid-column:2!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0 8px!important;
+  align-self:center!important;
+  color:#18233e!important;
+  text-align:left!important;
+  font-size:13px!important;
+  line-height:1.08!important;
+  font-weight:950!important;
+  letter-spacing:0!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  box-sizing:border-box!important;
+  z-index:3!important;
+}
+#valuationBankBrand209 .bank-brand-name-209 .bank-sub-213,
+#idbiBankBrand209 .bank-brand-name-209 .bank-sub-213{
+  display:block!important;
+  margin-top:6px!important;
+  color:#c77f00!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:850!important;
+}
+
+#valuationBankBrand209 .bank-slogan-212,
+#idbiBankBrand209 .bank-slogan-212{
+  grid-column:3!important;
+  position:static!important;
+  inset:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  margin:0!important;
+  padding:0 0 0 8px!important;
+  border-left:1px solid #d8ad4d!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  color:#286c62!important;
+  text-align:center!important;
+  font:italic 9.5px/1.2 Georgia,"Times New Roman",serif!important;
+  box-sizing:border-box!important;
+  z-index:3!important;
+}
+
+/* Specific bank sizing so no wrapping/overlap */
+#valuationBankBrand209[data-bank213="SBI BANK"] .bank-brand-name-209,
+#idbiBankBrand209[data-bank213="IDBI BANK"] .bank-brand-name-209{
+  font-size:15px!important;
+}
+#valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-brand-name-209{
+  font-size:11px!important;
+  line-height:1.02!important;
+}
+#valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-brand-name-209{
+  font-size:10.5px!important;
+  line-height:1.03!important;
+}
+#valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-slogan-212{
+  font-size:8.4px!important;
+}
+#valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-slogan-212{
+  font-size:8.8px!important;
+}
+
+/* ====== Customer Details card ====== */
+#valuation-main-sections .s111-customer-card,
+#idbi-valuation-screen .idbi-customer{
+  width:calc(100% - 28px)!important;
+  max-width:492px!important;
+  margin:0 auto 10px!important;
+  padding:11px!important;
+  box-sizing:border-box!important;
+  border:1px solid #e4cc8b!important;
+  border-radius:15px!important;
+  background:#fffefb!important;
+  box-shadow:0 4px 14px rgba(84,55,7,.06)!important;
+}
+#valuation-main-sections .s111-customer-card h2,
+#idbi-valuation-screen .idbi-customer h2{
+  margin:0 0 9px!important;
+  color:#17213d!important;
+  font-size:16px!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+}
+#valuation-main-sections .s111-customer-card h2:before,
+#idbi-valuation-screen .idbi-customer h2:before{
+  content:"👤"!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:35px!important;
+  height:35px!important;
+  margin-right:8px!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#b77a00!important;
+  box-shadow:0 3px 9px rgba(0,0,0,.09)!important;
+  vertical-align:middle!important;
+  font-size:18px!important;
+}
+#valuation-main-sections .s111-customer-grid,
+#idbi-valuation-screen .idbi-customer-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+}
+#valuation-main-sections .s111-customer-grid .field,
+#idbi-valuation-screen .idbi-customer-grid .field{
+  min-width:0!important;
+}
+#valuation-main-sections .s111-customer-grid label,
+#idbi-valuation-screen .idbi-customer-grid label{
+  margin:0 0 4px!important;
+  color:#354260!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections .s111-customer-grid input,
+#valuation-main-sections .s111-customer-grid select,
+#idbi-valuation-screen .idbi-customer-grid input,
+#idbi-valuation-screen .idbi-customer-grid select{
+  width:100%!important;
+  min-width:0!important;
+  min-height:39px!important;
+  padding:8px 9px!important;
+  box-sizing:border-box!important;
+  border:1px solid #d8d9dd!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#17213d!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+
+/* ====== Jewellery header card ====== */
+#valuation-main-sections .s111-item-card,
+#idbi-valuation-screen .idbi-item-card{
+  width:calc(100% - 28px)!important;
+  max-width:492px!important;
+  margin:0 auto 10px!important;
+  padding:11px!important;
+  box-sizing:border-box!important;
+  border:1px solid #e4cc8b!important;
+  border-radius:15px!important;
+  background:#fffefb!important;
+  box-shadow:0 4px 14px rgba(84,55,7,.06)!important;
+}
+#valuation-main-sections .s111-card-head,
+#idbi-valuation-screen .idbi-items-title{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  min-height:42px!important;
+  margin:0 0 8px!important;
+}
+#valuation-main-sections .s111-card-head h2,
+#idbi-valuation-screen .idbi-items-title{
+  margin:0!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+  white-space:nowrap!important;
+  color:#17213d!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  line-height:1!important;
+}
+#valuation-main-sections .s111-card-head h2:before{
+  content:"💎"!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:35px!important;
+  height:35px!important;
+  margin-right:8px!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  box-shadow:0 3px 9px rgba(0,0,0,.09)!important;
+  vertical-align:middle!important;
+}
+#valuation-main-sections .s111-card-head .primary,
+#idbi-valuation-screen .idbi-items-title button{
+  flex:0 0 auto!important;
+  min-height:39px!important;
+  padding:8px 12px!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#e4aa0f,#c77d00)!important;
+  border:1px solid #b16b00!important;
+  color:#17130d!important;
+  font-size:12.5px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+
+/* Item interior */
+#valuation-main-sections .item,
+#idbi-valuation-screen .idbi-item-card{
+  border:1px solid #e1e1e1!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  padding:10px!important;
+}
+#valuation-main-sections .itemhead,
+#idbi-valuation-screen .idbi-item-head{
+  margin-bottom:7px!important;
+}
+#valuation-main-sections .itemhead strong,
+#idbi-valuation-screen .idbi-item-head strong{
+  color:#121827!important;
+  font-size:21px!important;
+  font-weight:950!important;
+}
+#valuation-main-sections .remove,
+#idbi-valuation-screen .idbi-remove{
+  min-height:36px!important;
+  padding:7px 11px!important;
+  border:1px solid #ef4470!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#e8305d!important;
+  font-size:12px!important;
+  font-weight:850!important;
+}
+#valuation-main-sections .item label,
+#idbi-valuation-screen .idbi-item-card label{
+  color:#43506c!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+}
+#valuation-main-sections .item input,
+#valuation-main-sections .item select,
+#idbi-valuation-screen .idbi-item-card input,
+#idbi-valuation-screen .idbi-item-card select{
+  min-height:39px!important;
+  padding:8px 9px!important;
+  border-radius:8px!important;
+  border:1px solid #d8d9dd!important;
+  font-size:13px!important;
+}
+#valuation-main-sections .calc,
+#idbi-valuation-screen .idbi-calc-grid{
+  gap:6px!important;
+  margin-top:8px!important;
+}
+#valuation-main-sections .metric,
+#idbi-valuation-screen .idbi-calc-grid>div{
+  min-height:58px!important;
+  padding:7px!important;
+  border-radius:9px!important;
+  background:#fff2c9!important;
+  border:1px solid #ead49a!important;
+  text-align:center!important;
+}
+
+/* ====== Fixed bottom action rail ====== */
+#standardValuationActionBar192,
+#idbi-valuation-screen .idbi-bottom-actions{
+  min-height:70px!important;
+  padding:7px 11px!important;
+  gap:7px!important;
+  background:linear-gradient(180deg,#181007,#080502)!important;
+  border-top:1px solid #a97008!important;
+}
+#standardValuationActionBar192 button,
+#idbi-valuation-screen .idbi-bottom-actions button{
+  min-height:50px!important;
+  border-radius:9px!important;
+  border:1px solid #a96700!important;
+  background:linear-gradient(180deg,#e7ad16,#c27a00)!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+}
+
+/* ====== Very narrow phones ====== */
+@media(max-width:380px){
+  #valuationBankBrand209,
+  #idbiBankBrand209{
+    grid-template-columns:minmax(78px,30%) minmax(92px,39%) minmax(63px,31%)!important;
+    padding:8px 9px!important;
+  }
+  #valuationBankLogo209,
+  #idbiBankLogo209{
+    max-width:96px!important;
+    height:60px!important;
+  }
+  #valuationBankBrand209 .bank-brand-name-209,
+  #idbiBankBrand209 .bank-brand-name-209{
+    font-size:12px!important;
+    padding:0 6px!important;
+  }
+  #valuationBankBrand209[data-bank213="MAHARASHTRA GRAMIN BANK"] .bank-brand-name-209{
+    font-size:10px!important;
+  }
+  #valuationBankBrand209[data-bank213="DNYANDEEP CO-OP SOCIETY LTD"] .bank-brand-name-209{
+    font-size:9.4px!important;
+  }
+  #valuationBankBrand209 .bank-slogan-212,
+  #idbiBankBrand209 .bank-slogan-212{
+    padding-left:6px!important;
+    font-size:7.8px!important;
+  }
+  #valuation-main-sections .s111-card-head h2,
+  #idbi-valuation-screen .idbi-items-title{
+    font-size:14px!important;
+  }
+  #valuation-main-sections .s111-card-head .primary,
+  #idbi-valuation-screen .idbi-items-title button{
+    padding:7px 9px!important;
+    font-size:11.5px!important;
+  }
+}
+</style>
+
+<script id="exact-all-bank-screens-js-214">
+(function(){
+  'use strict';
+
+  var slogans214={
+    'SBI BANK':'The banker to every Indian',
+    'IDBI BANK':'Banking for a Brighter Tomorrow',
+    'MAHARASHTRA GRAMIN BANK':'आपल्या विकासासाठी आपल्या बँक',
+    'DNYANDEEP CO-OP SOCIETY LTD':'People • Trust • Progress'
+  };
+
+  function normalize214(v){
+    v=String(v||'').trim().toUpperCase();
+    if(v.indexOf('IDBI')>=0)return 'IDBI BANK';
+    if(v.indexOf('MAHARASHTRA')>=0&&v.indexOf('GRAMIN')>=0)return 'MAHARASHTRA GRAMIN BANK';
+    if(v.indexOf('DNYANDEEP')>=0)return 'DNYANDEEP CO-OP SOCIETY LTD';
+    if(v.indexOf('SBI')>=0||v.indexOf('STATE BANK')>=0)return 'SBI BANK';
+    return v;
+  }
+
+  function current214(){
+    var h=document.getElementById('bankName');
+    var s=document.getElementById('mainBankSelect');
+    return normalize214((h&&h.value)||(s&&s.value)||'');
+  }
+
+  function renderHeader214(){
+    var bank=current214();
+    if(!bank)return;
+
+    var brand=bank==='IDBI BANK'
+      ?document.getElementById('idbiBankBrand209')
+      :document.getElementById('valuationBankBrand209');
+    if(!brand)return;
+
+    brand.setAttribute('data-bank213',bank);
+
+    var name=brand.querySelector('.bank-brand-name-209');
+    if(name){
+      var title=bank;
+      if(bank==='MAHARASHTRA GRAMIN BANK')title='MAHARASHTRA<br>GRAMIN BANK';
+      if(bank==='DNYANDEEP CO-OP SOCIETY LTD')title='DNYANDEEP CO&#8209;OP<br>SOCIETY LTD';
+      name.innerHTML=title+'<span class="bank-sub-213">Gold Valuation</span>';
+    }
+
+    var old=brand.querySelector('.bank-slogan-212');
+    if(old)old.remove();
+    var slogan=document.createElement('span');
+    slogan.className='bank-slogan-212';
+    slogan.textContent=slogans214[bank]||'';
+    brand.appendChild(slogan);
+  }
+
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function'&&!oldOpen.__exact214){
+    var f=function(){
+      var r=oldOpen.apply(this,arguments);
+      requestAnimationFrame(renderHeader214);
+      return r;
+    };
+    f.__exact214=true;
+    window.openBank=f;
+  }
+
+  var oldSaved=window.openSavedDirectFinal;
+  if(typeof oldSaved==='function'&&!oldSaved.__exact214){
+    var g=function(){
+      var r=oldSaved.apply(this,arguments);
+      requestAnimationFrame(renderHeader214);
+      setTimeout(renderHeader214,60);
+      return r;
+    };
+    g.__exact214=true;
+    window.openSavedDirectFinal=g;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      requestAnimationFrame(renderHeader214);
+    });
+  }else{
+    requestAnimationFrame(renderHeader214);
+  }
+})();
+</script>
+<!-- /EXACT ALL FOUR BANK VALUATION SCREENS 214 -->
+
 </body>
 </html>
