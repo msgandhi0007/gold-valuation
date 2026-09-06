@@ -5553,7 +5553,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(sm)sm.addEventListener('click',e=>{if(e.target===sm)closeCustomerStatement();});
 
   updateDashboard();
-  setInterval(updateDashboard,2000);
+  /* Dashboard polling removed: refresh on demand/open instead. */
 });
 
 </script>
@@ -5971,7 +5971,7 @@ function updateCustomerHistory(){
     return `<div class="history-row">\n      <div class="history-top"><div><button type="button" class="customer-name-link customer-row-toggle" onclick="toggleCustomerHistoryRow(${i}, this)">${name}</button><div class="customer-click-hint">Tap customer name to view valuation</div><div class="history-meta">📱 ${mobile}${bank?' · 🏦 '+bank:''} · 📅 ${date}</div></div><div class="history-amount">${typeof money==='function'?money(val):'₹'+val.toLocaleString('en-IN')}</div></div>\n      <div style="font-size:12px;opacity:.72;margin-top:7px">Sanctioned Loan: <b>${typeof money==='function'?money(loan):'₹'+loan.toLocaleString('en-IN')}</b></div>\n      <div style="font-size:11px;margin-top:7px;line-height:1.6;background:#f8f9fa;border-radius:9px;padding:7px 9px">🕒 <b>Created:</b> ${esc(formatAuditDate86(r.createdAt))}<br>✏️ <b>Last modified:</b> ${esc(formatAuditDate86(r.modifiedAt))}<br>📝 <b>Status:</b> ${esc(r.auditStatus||'Created')}</div>\n      <div class="history-actions"><button type="button" onclick="event.stopPropagation();openHistoryRecord(window._historyShown[${i}])">✏️ Edit / Open</button><button type="button" onclick="event.stopPropagation();printHistoryRecord(window._historyShown[${i}])">📄 PDF</button><button type="button" onclick="event.stopPropagation();deleteHistoryRecord(window._historyShown[${i}])" style="color:#b42318">🗑️ Delete</button></div>\n    </div>`;
   }).join('');
 }
-document.addEventListener('DOMContentLoaded',()=>{updateCustomerHistory();setInterval(updateCustomerHistory,2000);});
+document.addEventListener('DOMContentLoaded',()=>{updateCustomerHistory();});
 
 </script>
 
@@ -16496,6 +16496,86 @@ body.bank-home-mode main{
 })();
 </script>
 <!-- /MOBILE BACK EXITS OPENED SAVED VALUATION 207 -->
+
+
+<!-- FAST DASHBOARD OPEN 208 -->
+<script id="fast-dashboard-open-208">
+(function(){
+  'use strict';
+
+  var fullOpen208=window.openDashboardHome;
+  var pending208=false;
+
+  function immediateShell208(){
+    var b=document.body;
+
+    b.classList.remove(
+      'bankHomeMode','bank-home-mode','storageMode','storage-backup-mode',
+      'savedHomeMode','savedClean168Open','customersHomeMode',
+      'idbi-open','standard-saved-open-202','menu-viewing'
+    );
+    b.classList.add('dashboardHomeMode');
+
+    var ids=[
+      'bankHome','customersHomeScreen','savedClean168',
+      'savedValuationsHome','storageBackupScreen',
+      'valuation-main-sections','idbi-valuation-screen'
+    ];
+    ids.forEach(function(id){
+      var e=document.getElementById(id);
+      if(e)e.style.setProperty('display','none','important');
+    });
+
+    var d=document.getElementById('dashboardHome');
+    if(d){
+      d.style.setProperty('display','block','important');
+      d.style.setProperty('visibility','visible','important');
+      d.style.setProperty('opacity','1','important');
+    }
+
+    var bar=document.getElementById('standardValuationActionBar192');
+    if(bar)bar.style.setProperty('display','none','important');
+
+    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(e){window.scrollTo(0,0);}
+  }
+
+  window.openDashboardHome=function(){
+    /* Show the Dashboard shell immediately so the tap feels instant. */
+    immediateShell208();
+
+    if(pending208)return;
+    pending208=true;
+
+    /* Let the browser paint first, then run the existing dashboard calculations. */
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        try{
+          if(typeof fullOpen208==='function'){
+            fullOpen208();
+          }else if(typeof window.updateDashboard==='function'){
+            window.updateDashboard();
+          }
+        }catch(e){
+          console.error('Dashboard refresh failed:',e);
+        }
+
+        /* Keep the shell visible even if an old wrapper touched display/classes. */
+        immediateShell208();
+        pending208=false;
+      },0);
+    });
+  };
+
+  /* Refresh only while Dashboard is actually visible, and only when requested. */
+  window.refreshDashboardFast208=function(){
+    if(!document.body.classList.contains('dashboardHomeMode'))return;
+    if(typeof window.updateDashboard==='function'){
+      requestAnimationFrame(function(){window.updateDashboard();});
+    }
+  };
+})();
+</script>
+<!-- /FAST DASHBOARD OPEN 208 -->
 
 </body>
 </html>
