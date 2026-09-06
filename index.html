@@ -21599,5 +21599,89 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 223 -->
 
+
+<!-- STEP 224 - SBI certificate fields editable + remember defaults -->
+<style id="sbi-cert-field-fix-css-224">
+/* SBI certificate details must remain editable even when a saved valuation is opened */
+#sbiCertificateDetails223 input{
+  pointer-events:auto!important;
+  opacity:1!important;
+  -webkit-text-fill-color:#17243d!important;
+  color:#17243d!important;
+  background:#fff!important;
+}
+</style>
+<script id="sbi-cert-field-fix-js-224">
+(function(){
+  'use strict';
+  const editableIds=[
+    'sbiCertBranch223','sbiCertAccount223','sbiCertRelation223',
+    'sbiCertResident223','sbiCertCashInCharge223','sbiCertPlace223',
+    'sbiCertMethod223'
+  ];
+  const remembered={
+    sbiCertBranch223:'sbiCertDefaultBranch223',
+    sbiCertCashInCharge223:'sbiCertDefaultCash223',
+    sbiCertPlace223:'sbiCertDefaultPlace223'
+  };
+
+  function keepEditable(){
+    editableIds.forEach(id=>{
+      const x=document.getElementById(id);
+      if(!x)return;
+      x.disabled=false;
+      x.readOnly=false;
+      x.removeAttribute('disabled');
+      x.removeAttribute('readonly');
+    });
+  }
+
+  function restoreRemembered(){
+    Object.entries(remembered).forEach(([id,key])=>{
+      const x=document.getElementById(id);
+      if(x && !x.value.trim()){
+        const v=localStorage.getItem(key);
+        if(v)x.value=v;
+      }
+    });
+  }
+
+  function saveRemembered(e){
+    const key=remembered[e.target?.id];
+    if(key){
+      const v=e.target.value.trim();
+      if(v)localStorage.setItem(key,v);
+    }
+  }
+
+  document.addEventListener('input',saveRemembered,true);
+  document.addEventListener('change',saveRemembered,true);
+  document.addEventListener('focusin',function(e){
+    if(editableIds.includes(e.target?.id)) keepEditable();
+  },true);
+
+  /* Run after saved-record locking/restoration code */
+  const refresh=()=>{keepEditable();restoreRemembered();};
+  setTimeout(refresh,100);
+  setTimeout(refresh,500);
+  setTimeout(refresh,1200);
+
+  const oldLock=window.applyValuationEditLock;
+  if(typeof oldLock==='function'){
+    window.applyValuationEditLock=function(){
+      const r=oldLock.apply(this,arguments);
+      setTimeout(refresh,0);
+      return r;
+    };
+    try{applyValuationEditLock=window.applyValuationEditLock}catch(e){}
+  }
+
+  /* Branch, Cash in Charge and Place remember the last entered values.
+     Account/relation/resident remain valuation-specific. */
+  window.refreshSbiCertificateFields224=refresh;
+})();
+</script>
+<!-- /STEP 224 -->
+
 </body>
 </html>
