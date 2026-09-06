@@ -16293,5 +16293,115 @@ body.standard-saved-open-202 #valuation-main-sections{
 </script>
 <!-- /AUTO SAVE OPENED SAVED VALUATION ON BACK/EXIT 205 -->
 
+
+<!-- BANK HOME TOP POSITION FIX AFTER EXIT 206 -->
+<style id="bank-home-top-fix-css-206">
+body.bankHomeMode #bankHome,
+body.bank-home-mode #bankHome{
+  margin-top:0!important;
+  padding-top:22px!important;
+  position:relative!important;
+  top:0!important;
+  transform:none!important;
+}
+body.bankHomeMode main,
+body.bank-home-mode main{
+  margin-top:0!important;
+  padding-top:0!important;
+  transform:none!important;
+}
+</style>
+
+<script id="bank-home-top-fix-js-206">
+(function(){
+  'use strict';
+
+  function normalizeBankHome206(){
+    var home=document.getElementById('bankHome');
+    var app=document.querySelector('body > .app');
+    var main=document.querySelector('main');
+    var standard=document.getElementById('valuation-main-sections');
+    var idbi=document.getElementById('idbi-valuation-screen');
+
+    if(standard)standard.style.setProperty('display','none','important');
+    if(idbi)idbi.style.setProperty('display','none','important');
+
+    if(app){
+      app.style.removeProperty('transform');
+      app.style.removeProperty('top');
+      app.style.removeProperty('margin-top');
+      app.style.setProperty('display','block','important');
+    }
+
+    if(main){
+      main.style.removeProperty('transform');
+      main.style.removeProperty('top');
+      main.style.removeProperty('margin-top');
+      main.style.removeProperty('padding-top');
+      main.style.setProperty('display','none','important');
+    }
+
+    if(home){
+      home.style.setProperty('display','block','important');
+      home.style.removeProperty('transform');
+      home.style.removeProperty('top');
+      home.style.removeProperty('margin-top');
+    }
+
+    /* Reset every possible scroll container, not only window. */
+    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(e){window.scrollTo(0,0);}
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+
+    if(app && app.scrollTop) app.scrollTop=0;
+    if(home && home.scrollTop) home.scrollTop=0;
+
+    requestAnimationFrame(function(){
+      try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(e){window.scrollTo(0,0);}
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      if(home)home.scrollIntoView({block:'start',inline:'nearest'});
+    });
+  }
+
+  /* Strengthen both Back routes added in step 205. */
+  var oldStd=window.backToBankSelection194;
+  if(typeof oldStd==='function'&&!oldStd.__top206){
+    var s=async function(){
+      var r=await oldStd.apply(this,arguments);
+      normalizeBankHome206();
+      return r;
+    };
+    s.__top206=true;
+    window.backToBankSelection194=s;
+  }
+
+  var oldIdbi=window.idbiBackToBankHome196;
+  if(typeof oldIdbi==='function'&&!oldIdbi.__top206){
+    var i=async function(){
+      var r=await oldIdbi.apply(this,arguments);
+      normalizeBankHome206();
+      return r;
+    };
+    i.__top206=true;
+    window.idbiBackToBankHome196=i;
+  }
+
+  var oldHome=window.showBankHome;
+  if(typeof oldHome==='function'&&!oldHome.__top206){
+    var h=function(){
+      var r=oldHome.apply(this,arguments);
+      normalizeBankHome206();
+      return r;
+    };
+    h.__top206=true;
+    window.showBankHome=h;
+  }
+
+  window.normalizeBankHome206=normalizeBankHome206;
+})();
+</script>
+<!-- /BANK HOME TOP POSITION FIX AFTER EXIT 206 -->
+
 </body>
 </html>
