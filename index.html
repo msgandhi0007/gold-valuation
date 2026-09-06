@@ -14432,5 +14432,126 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 #sbAutoBackupStatus{white-space:pre-line;margin-top:14px}
 </style>
 
+
+<!-- SAVED VALUATIONS DEFINITIVE NEWEST-FIRST RENDER FIX 186 -->
+<script id="saved-valuations-definitive-newest-first-186">
+(function(){
+  'use strict';
+  function N(v){var x=Number(String(v==null?'':v).replace(/[^0-9.-]/g,''));return Number.isFinite(x)?x:0}
+  function E(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c})}
+  function all(){
+    try{
+      var a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return []}
+  }
+  function bank(r){return String((r&&r.customer&&r.customer.bank)||(r&&r.bank)||((r&&r.valuationType)==='IDBI_BANK'?'IDBI BANK':'')).trim()||'Unknown Bank'}
+  function date(r){return String((r&&r.customer&&r.customer.date)||(r&&r.date)||(r&&r.valuationDate)||(r&&r.createdAt)||'').slice(0,10)}
+  function rows(r){return Array.isArray(r&&r.idbi&&r.idbi.rows)?r.idbi.rows:(Array.isArray(r&&r.items)?r.items:[])}
+  function gross(r){return rows(r).reduce(function(t,x){return t+N(x&&(x.gross!=null?x.gross:x.grossWeight))},0)}
+  function value(r){
+    var a=[r&&r.totalValue,r&&r.valuationTotal,r&&r.value,r&&r.idbi&&r.idbi.totalValue];
+    for(var i=0;i<a.length;i++)if(a[i]!=null&&String(a[i]).trim()!==''&&N(a[i])!==0)return N(a[i]);
+    var rate=N(r&&r.rate),t=0;
+    rows(r).forEach(function(x){
+      if(x&&x.value!=null&&String(x.value).trim()!==''&&N(x.value)!==0){t+=N(x.value);return}
+      var g=N(x&&(x.gross!=null?x.gross:x.grossWeight));
+      var s=N(x&&(x.stone!=null?x.stone:(x.less!=null?x.less:x.stoneWeight)));
+      var net=Math.max(0,g-s),pure=net*N(x&&x.purity)/100;
+      t+=Math.floor((pure+1e-9)*10)/10*rate;
+    });
+    return t
+  }
+  function loan(r){
+    var a=[r&&r.sanctionedLoan,r&&r.customer&&r.customer.sanctionedLoan,r&&r.loanAmount,r&&r.loan];
+    for(var i=0;i<a.length;i++)if(a[i]!=null&&String(a[i]).trim()!=='')return N(a[i]);
+    return 0
+  }
+  function money(v){return '₹'+Math.round(N(v)).toLocaleString('en-IN')}
+  function dt(v){
+    var d=new Date(v||'');
+    if(!v||!Number.isFinite(d.getTime()))return '—';
+    return d.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+  }
+  function createdStamp(r,i){
+    var t=Date.parse((r&&r.createdAt)||(r&&r.savedAt)||'');
+    if(Number.isFinite(t)&&t>0)return t;
+    var d=Date.parse(date(r)||'');
+    if(Number.isFinite(d)&&d>0)return d+(i||0);
+    var id=Number(r&&r.id);
+    if(Number.isFinite(id)&&id>1000000000000)return id;
+    return i||0
+  }
+  function editedText(r){
+    var v=r&&((r.modifiedAt)||(r.updatedAt));
+    if(!v)return '—';
+    var c=r&&((r.createdAt)||(r.savedAt));
+    if(c&&String(c)===String(v))return '—';
+    return dt(v)
+  }
+
+  window.renderSavedClean168=function(){
+    var records=all(), qEl=document.getElementById('scSearch'), bEl=document.getElementById('scBank'), dEl=document.getElementById('scDate');
+    if(!qEl||!bEl||!dEl)return;
+    var q=(qEl.value||'').trim().toLowerCase(),bf=bEl.value,df=dEl.value,d=new Date();
+    var today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),month=today.slice(0,7);
+
+    var total=document.getElementById('scTotal'),td=document.getElementById('scToday'),banks=document.getElementById('scBanks');
+    if(total)total.textContent=records.length;
+    if(td)td.textContent=records.filter(function(r){return date(r)===today}).length;
+    if(banks)banks.textContent=new Set(records.map(bank).filter(Boolean)).size;
+
+    var arr=records.map(function(r,i){return {r:r,i:i}})
+      .filter(function(o){
+        var r=o.r,b=bank(r),dd=date(r),hay=[r&&r.customer&&r.customer.name,r&&r.customer&&r.customer.mobile,r&&r.certificateNo,b].join(' ').toLowerCase();
+        if(q&&hay.indexOf(q)<0)return false;
+        if(bf!=='ALL'&&b!==bf)return false;
+        if(df==='today'&&dd!==today)return false;
+        if(df==='month'&&dd.slice(0,7)!==month)return false;
+        if(df==='older'&&dd.slice(0,7)===month)return false;
+        return true
+      })
+      .sort(function(A,B){
+        var cb=createdStamp(B.r,B.i),ca=createdStamp(A.r,A.i);
+        if(cb!==ca)return cb-ca;
+        return B.i-A.i
+      });
+
+    var count=document.getElementById('scCount');
+    if(count)count.textContent=arr.length+' valuation'+(arr.length===1?'':'s')+' found';
+    var list=document.getElementById('scList');
+    if(!list)return;
+    if(!arr.length){
+      list.innerHTML='<div class="sc-empty"><b>No saved valuations found</b><br><small>Change filters or clear search.</small></div>';
+      return
+    }
+
+    list.innerHTML=arr.map(function(o){
+      var r=o.r,i=o.i,name=(r&&r.customer&&r.customer.name)||'Unnamed Customer',mobile=(r&&r.customer&&r.customer.mobile)||'No mobile';
+      return '<div class="sc-card">'+
+        '<div class="sc-top"><div><div class="sc-name">'+E(name)+'</div><div class="sc-meta">📱 '+E(mobile)+' · 📅 '+E(date(r)||'—')+'</div></div><div class="sc-value">'+money(value(r))+'</div></div>'+
+        '<span class="sc-bank">🏦 '+E(bank(r))+'</span>'+
+        '<div class="sc-save-times"><span>🕒 <b>Created:</b> '+E(dt((r&&r.createdAt)||(r&&r.savedAt)))+'</span><span>✏️ <b>Edited:</b> '+E(editedText(r))+'</span></div>'+
+        '<div class="sc-metrics"><div class="sc-metric"><small>Gross Weight</small><b>'+gross(r).toFixed(3)+' g</b></div><div class="sc-metric"><small>Items</small><b>'+rows(r).filter(function(x){return N(x&&(x.gross!=null?x.gross:x.grossWeight))>0}).length+'</b></div><div class="sc-metric"><small>Sanctioned Loan</small><b>'+money(loan(r))+'</b></div></div>'+
+        '<div class="sc-actions"><button class="open" onclick="openSavedCleanItem168('+i+')">Open</button><button onclick="revalueSavedClean168('+i+')">Revalue</button><button onclick="printSavedClean168('+i+')">Print PDF</button><button onclick="shareSavedClean168('+i+')">Share PDF</button><button class="delete" onclick="deleteSavedClean168('+i+')">Delete</button></div>'+
+      '</div>'
+    }).join('')
+  };
+
+  // Repoint the screen opener to the definitive renderer.
+  var oldOpen=window.openSavedClean168;
+  window.openSavedClean168=function(){
+    var out;
+    if(typeof oldOpen==='function')out=oldOpen.apply(this,arguments);
+    setTimeout(function(){try{window.renderSavedClean168()}catch(e){console.error(e)}},0);
+    return out===undefined?false:out
+  };
+  window.openSavedValuationsHome=window.openSavedClean168;
+  window.openLoad=window.openSavedClean168;
+  window.dashboardOpenSaved87=window.openSavedClean168;
+})();
+</script>
+<!-- /SAVED VALUATIONS DEFINITIVE NEWEST-FIRST RENDER FIX 186 -->
+
 </body>
 </html>
