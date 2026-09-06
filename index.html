@@ -3994,6 +3994,26 @@ body:not(.menu-viewing) .s111-rate{
   </section>
 
 
+
+  <!-- SBI ONLY: Annexure PL-61(i) certificate details -->
+  <section id="sbiCertificateDetails223" class="card s111-sbi-certificate-details" style="display:none">
+    <div class="s111-card-head">
+      <div class="s111-head-icon gold">▤</div>
+      <h2>SBI Certificate Details</h2>
+    </div>
+    <div class="sbi-cert-grid-223">
+      <div class="field"><label>Branch</label><input id="sbiCertBranch223" type="text" placeholder="Enter SBI branch"></div>
+      <div class="field"><label>Account No.</label><input id="sbiCertAccount223" type="text" inputmode="numeric" placeholder="Enter account number"></div>
+      <div class="field"><label>S/W/D of</label><input id="sbiCertRelation223" type="text" placeholder="Father / Husband name"></div>
+      <div class="field"><label>Resident of</label><input id="sbiCertResident223" type="text" placeholder="Enter address / place"></div>
+      <div class="field"><label>Cash in Charge</label><input id="sbiCertCashInCharge223" type="text" placeholder="Name of cash in charge"></div>
+      <div class="field"><label>Place</label><input id="sbiCertPlace223" type="text" placeholder="Place"></div>
+      <div class="field sbi-cert-full-223"><label>Method(s) used for purity testing</label><input id="sbiCertMethod223" type="text" placeholder="Touchstone / XRF / other method"></div>
+    </div>
+    <div class="sbi-cert-note-223">These fields are used only for the SBI Annexure PL-61(i) Appraiser Certificate.</div>
+  </section>
+
+
   
 <section id="main-bank-selector" class="main-bank-selector bank-back-only-194">
   <div id="valuationBankBackBar194" class="valuation-bank-backbar-194">
@@ -4365,6 +4385,78 @@ body:not(.menu-viewing) .s111-rate{
   </div>
 </div>
 <div class="cert-note">This valuation is prepared based on the customer/jewellery information and market rate entered in the application. The valuation is subject to physical verification of the jewellery and applicable institutional policies.</div>
+  </div>
+</div>
+
+
+
+<div id="sbiCertificate223" class="certificate sbi-certificate-223">
+  <div class="sbi-cert-page-223">
+    <div class="sbi-annexure-223">Annexure - PL-61(i)</div>
+    <div class="sbi-cert-title-223">APPRAISER CERTIFICATE</div>
+
+    <div class="sbi-to-223">
+      <div>The Branch Manager</div>
+      <div>State Bank of India</div>
+      <div><span id="sbiPBranch223"></span> Branch <span class="sbi-ac-223">Ac. No: <span id="sbiPAccount223"></span></span></div>
+    </div>
+
+    <div class="sbi-dear-223">Dear Sir,</div>
+    <div class="sbi-body-223">
+      I hereby certify that Sri/Smt <b id="sbiPName223"></b> S/W/D of
+      <b id="sbiPRelation223"></b>, Resident of <b id="sbiPResident223"></b>,
+      who has sought Gold loan from the Bank is not my relative and the gold against which the loan is sought
+      is not purchased from me. The ornaments/Coins have been weighed and appraised by me
+      on <b id="sbiPDateText223"></b> in the presence of Sri/Smt <b id="sbiPCash223"></b> (cash in charge)
+      and the exact weight, purity of the metal and market value of each item as on date are indicated below:
+    </div>
+
+    <table class="sbi-cert-table-223">
+      <thead>
+        <tr>
+          <th>Sl.No</th>
+          <th>Description of the Article</th>
+          <th>Gross<br>Weight</th>
+          <th>Approximate weight of the precious stones in the ornaments<br>(Grams)</th>
+          <th>Purity<br>(Carat)</th>
+          <th>Net Weight<br>(Grams)</th>
+          <th>Market Value Rs.</th>
+        </tr>
+      </thead>
+      <tbody id="sbiPRows223"></tbody>
+      <tfoot>
+        <tr>
+          <th></th><th>Total</th>
+          <th id="sbiPGross223"></th>
+          <th id="sbiPStone223"></th>
+          <th></th>
+          <th id="sbiPNet223"></th>
+          <th id="sbiPValue223"></th>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="sbi-method-223">Method(s) used for purity testing: <b id="sbiPMethod223"></b></div>
+    <div class="sbi-declare-223">
+      I solemnly declare that weight, purity of the gold ornaments/precious stones indicated above are
+      correct and I undertake to indemnify the Bank against any loss it may sustain on account of any
+      inaccuracy in the above appraisal.
+    </div>
+
+    <div class="sbi-place-223">Place: <b id="sbiPPlace223"></b></div>
+    <div class="sbi-date-223">Date: <b id="sbiPDate223"></b></div>
+
+    <div class="sbi-sign-row-223">
+      <div>Name &amp; Signature of the Borrower</div>
+      <div class="sbi-appraiser-sign-223">
+        <div>Yours faithfully</div>
+        <div class="sbi-sign-space-223"></div>
+        <div>Name &amp; Signature of the Appraiser</div>
+        <div class="sbi-appraiser-name-223">MAHENDRA SHANTILAL GANDHI</div>
+        <div>REGISTERED GOLD APPRAISER</div>
+        <div>PPDC/GA/2026/244642</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -21258,6 +21350,254 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 }
 </style>
 <!-- /UNIFIED VALUATION WIDTH + BALANCED ACTIONS 222 -->
+
+
+<!-- STEP 223 - SBI Annexure PL-61(i) certificate only -->
+<style id="sbi-pl61i-css-223">
+#sbiCertificateDetails223{border-color:#ddc47f!important}
+#sbiCertificateDetails223 h2{margin:0}
+.sbi-cert-grid-223{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sbi-cert-grid-223 .field{min-width:0}
+.sbi-cert-grid-223 .field label{font-size:14px!important;white-space:normal!important}
+.sbi-cert-grid-223 input{width:100%;padding:12px;border:1px solid #d8d2c5;border-radius:12px;font-size:16px}
+.sbi-cert-full-223{grid-column:1/-1}
+.sbi-cert-note-223{margin-top:10px;font-size:12px;color:#78652f;background:#fff8df;border:1px solid #ead79b;border-radius:10px;padding:9px}
+@media(max-width:430px){.sbi-cert-grid-223{grid-template-columns:1fr}.sbi-cert-full-223{grid-column:auto}}
+
+#sbiCertificate223{display:none;background:white;color:#111;font-family:Arial,Helvetica,sans-serif}
+.sbi-cert-page-223{width:760px;min-height:1080px;margin:0 auto;padding:28px 26px 34px;border:1.5px solid #333;background:#fff;box-sizing:border-box;font-size:14px;line-height:1.28}
+.sbi-annexure-223{text-align:right;font-weight:700;font-size:17px;margin:8px 12px 18px}
+.sbi-cert-title-223{text-align:center;font-weight:800;text-decoration:underline;font-size:20px;margin-bottom:24px}
+.sbi-to-223{font-size:15px;line-height:1.35;margin-bottom:24px}
+.sbi-ac-223{float:right;margin-right:115px}
+.sbi-dear-223{margin-bottom:7px}
+.sbi-body-223{text-align:justify;margin-bottom:8px}
+.sbi-cert-table-223{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.sbi-cert-table-223 th,.sbi-cert-table-223 td{border:1px solid #444;padding:4px 5px;vertical-align:top}
+.sbi-cert-table-223 th{font-weight:500;text-align:center}
+.sbi-cert-table-223 th:nth-child(1){width:7%}
+.sbi-cert-table-223 th:nth-child(2){width:25%}
+.sbi-cert-table-223 th:nth-child(3){width:10%}
+.sbi-cert-table-223 th:nth-child(4){width:15%}
+.sbi-cert-table-223 th:nth-child(5){width:9%}
+.sbi-cert-table-223 th:nth-child(6){width:11%}
+.sbi-cert-table-223 th:nth-child(7){width:23%}
+.sbi-cert-table-223 tbody td{height:24px}
+.sbi-cert-table-223 td:not(:nth-child(2)){text-align:center}
+.sbi-cert-table-223 td:nth-child(7){text-align:right}
+.sbi-method-223{margin-top:20px}
+.sbi-declare-223{margin-top:7px;text-align:justify}
+.sbi-place-223{margin-top:26px}
+.sbi-date-223{margin-top:38px}
+.sbi-sign-row-223{display:flex;justify-content:space-between;align-items:flex-end;margin-top:26px}
+.sbi-sign-row-223>div{width:45%}
+.sbi-appraiser-sign-223{text-align:center}
+.sbi-sign-space-223{height:34px}
+.sbi-appraiser-name-223{font-weight:700;margin-top:5px}
+@media print{
+  body.sbi-printing-223 .certificate{display:none!important}
+  body.sbi-printing-223 #sbiCertificate223{display:block!important}
+}
+</style>
+
+<script id="sbi-pl61i-js-223">
+(function(){
+  'use strict';
+  const IDS=['sbiCertBranch223','sbiCertAccount223','sbiCertRelation223','sbiCertResident223','sbiCertCashInCharge223','sbiCertPlace223','sbiCertMethod223'];
+  const DEFAULT_KEYS={
+    sbiCertBranch223:'sbiCertDefaultBranch223',
+    sbiCertCashInCharge223:'sbiCertDefaultCash223',
+    sbiCertPlace223:'sbiCertDefaultPlace223',
+    sbiCertMethod223:'sbiCertDefaultMethod223'
+  };
+  function el(id){return document.getElementById(id)}
+  function isSbi(){
+    const b=String(document.getElementById('mainBankSelect')?.value||document.getElementById('bankName')?.value||window._currentSavedRecord?.customer?.bank||'').toUpperCase();
+    return b.includes('SBI')||b.includes('STATE BANK');
+  }
+  function detailsFromForm(){
+    return {
+      branch:el('sbiCertBranch223')?.value||'',
+      accountNo:el('sbiCertAccount223')?.value||'',
+      relation:el('sbiCertRelation223')?.value||'',
+      resident:el('sbiCertResident223')?.value||'',
+      cashInCharge:el('sbiCertCashInCharge223')?.value||'',
+      place:el('sbiCertPlace223')?.value||'',
+      purityMethod:el('sbiCertMethod223')?.value||''
+    };
+  }
+  function restoreDetails(record){
+    const d=record?.sbiCertificate||{};
+    const map={
+      sbiCertBranch223:d.branch,
+      sbiCertAccount223:d.accountNo,
+      sbiCertRelation223:d.relation,
+      sbiCertResident223:d.resident,
+      sbiCertCashInCharge223:d.cashInCharge,
+      sbiCertPlace223:d.place,
+      sbiCertMethod223:d.purityMethod
+    };
+    IDS.forEach(id=>{
+      const x=el(id); if(!x)return;
+      const fallback=DEFAULT_KEYS[id]?localStorage.getItem(DEFAULT_KEYS[id])||'':'';
+      x.value=(map[id]!==undefined&&map[id]!==null&&map[id]!=='')?map[id]:fallback;
+    });
+  }
+  function rememberDefaults(){
+    Object.keys(DEFAULT_KEYS).forEach(id=>{const x=el(id);if(x&&x.value.trim())localStorage.setItem(DEFAULT_KEYS[id],x.value.trim())});
+  }
+  function updateVisibility(){
+    const card=el('sbiCertificateDetails223');
+    if(card)card.style.display=isSbi()?'block':'none';
+  }
+  window.refreshSbiCertificateDetails223=updateVisibility;
+
+  document.addEventListener('change',function(e){
+    if(e.target && (e.target.id==='mainBankSelect'||e.target.id==='bankName')) setTimeout(updateVisibility,0);
+    if(e.target && DEFAULT_KEYS[e.target.id]) rememberDefaults();
+  });
+  document.addEventListener('input',function(e){if(e.target&&DEFAULT_KEYS[e.target.id])rememberDefaults()});
+
+  const oldCurrent=window.currentData;
+  if(typeof oldCurrent==='function'){
+    window.currentData=function(){
+      const d=oldCurrent.apply(this,arguments);
+      if(isSbi())d.sbiCertificate=detailsFromForm();
+      return d;
+    };
+    currentData=window.currentData;
+  }
+
+  const oldSetEdit=window.setValuationEditMode;
+  if(typeof oldSetEdit==='function'){
+    window.setValuationEditMode=function(record,filename){
+      const r=oldSetEdit.apply(this,arguments);
+      setTimeout(function(){updateVisibility(); if(record&&String(record?.customer?.bank||'').toUpperCase().includes('SBI'))restoreDetails(record)},0);
+      return r;
+    };
+    setValuationEditMode=window.setValuationEditMode;
+  }
+
+  const oldLock=window.applyValuationEditLock;
+  if(typeof oldLock==='function'){
+    window.applyValuationEditLock=function(locked){
+      const r=oldLock.apply(this,arguments);
+      IDS.forEach(id=>{const x=el(id);if(x)x.disabled=!!locked});
+      return r;
+    };
+    applyValuationEditLock=window.applyValuationEditLock;
+  }
+
+  const oldReset=window.resetAfterSave;
+  if(typeof oldReset==='function'){
+    window.resetAfterSave=function(){
+      const r=oldReset.apply(this,arguments);
+      ['sbiCertAccount223','sbiCertRelation223','sbiCertResident223'].forEach(id=>{const x=el(id);if(x)x.value=''});
+      restoreDetails(null);
+      updateVisibility();
+      return r;
+    };
+    resetAfterSave=window.resetAfterSave;
+  }
+
+  function fmtDate(v){
+    if(!v)return '';
+    const p=String(v).split('-');
+    return p.length===3?(p[2]+'/'+p[1]+'/'+p[0]):String(v);
+  }
+  function moneyPlain(n){return Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+  window.populateSbiCertificate223=function(){
+    const d=detailsFromForm();
+    rememberDefaults();
+    const name=el('customerName')?.value||'';
+    const date=el('valuationDate')?.value||'';
+    const rate=Number(el('rate')?.value||0);
+    el('sbiPBranch223').textContent=d.branch||'…………………';
+    el('sbiPAccount223').textContent=d.accountNo||'…………………';
+    el('sbiPName223').textContent=name||'………………………………';
+    el('sbiPRelation223').textContent=d.relation||'……………………';
+    el('sbiPResident223').textContent=d.resident||'……………………';
+    el('sbiPDateText223').textContent=fmtDate(date)||'…………………';
+    el('sbiPCash223').textContent=d.cashInCharge||'……………………';
+    el('sbiPMethod223').textContent=d.purityMethod||'……………………';
+    el('sbiPPlace223').textContent=d.place||'……………………';
+    el('sbiPDate223').textContent=fmtDate(date)||'……………………';
+
+    let rows='',tg=0,ts=0,tn=0,tv=0,n=0;
+    document.querySelectorAll('#items .item').forEach(item=>{
+      const g=Number(item.querySelector('.gross')?.value||0);
+      const s=Number(item.querySelector('.stone')?.value||0);
+      const p=Number(item.querySelector('.purity')?.value||0);
+      const nm=(typeof getItemName==='function'?getItemName(item):item.querySelector('.itemName')?.value)||'';
+      if(!g && !nm)return;
+      n++;
+      const net=Math.max(0,g-s);
+      const pure=net*p/100;
+      const rounded=Math.floor((pure+1e-9)*10)/10;
+      const value=rounded*rate;
+      const carat=p*24/100;
+      tg+=g;ts+=s;tn+=net;tv+=value;
+      rows+='<tr><td>'+n+'</td><td>'+esc(nm)+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+carat.toFixed(2)+'</td><td>'+net.toFixed(2)+'</td><td>'+moneyPlain(value)+'</td></tr>';
+    });
+    const target=el('sbiPRows223');
+    if(target){
+      target.innerHTML=rows;
+      for(let i=n;i<8;i++)target.insertAdjacentHTML('beforeend','<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+    }
+    el('sbiPGross223').textContent=tg.toFixed(2);
+    el('sbiPStone223').textContent=ts.toFixed(2);
+    el('sbiPNet223').textContent=tn.toFixed(2);
+    el('sbiPValue223').textContent=moneyPlain(tv);
+    return document.getElementById('sbiCertificate223');
+  };
+
+  const genericBuild=window.buildCertificatePdf;
+  if(typeof genericBuild==='function'){
+    window.buildCertificatePdf=async function(){
+      if(!isSbi())return genericBuild.apply(this,arguments);
+      if(!window.html2canvas||!window.jspdf||!window.jspdf.jsPDF)throw new Error('PDF library is not ready.');
+      const cert=window.populateSbiCertificate223();
+      if(!cert)throw new Error('SBI certificate section not found.');
+      const old={display:cert.style.display,position:cert.style.position,left:cert.style.left,top:cert.style.top,width:cert.style.width,zIndex:cert.style.zIndex};
+      cert.style.setProperty('display','block','important');
+      cert.style.position='absolute';cert.style.left='0';cert.style.top='0';cert.style.width='780px';cert.style.zIndex='-1';
+      await new Promise(r=>setTimeout(r,120));
+      const canvas=await html2canvas(cert,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      const margin=6,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width,maxH=pageH-margin*2;
+      const drawH=Math.min(imgH,maxH);
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.96),'JPEG',margin,margin,imgW,drawH,undefined,'FAST');
+      const name=el('customerName')?.value||'Customer',date=el('valuationDate')?.value||'Valuation';
+      const filename=(typeof pdfFileName==='function'?pdfFileName(name,date):(name+' - '+date+'.pdf'));
+      const blob=pdf.output('blob');
+      Object.assign(cert.style,old);
+      return {blob,filename};
+    };
+  }
+
+  const oldPrint=window.printCertificate;
+  if(typeof oldPrint==='function'){
+    window.printCertificate=function(){
+      if(!isSbi())return oldPrint.apply(this,arguments);
+      window.populateSbiCertificate223();
+      document.body.classList.add('sbi-printing-223');
+      const c=el('sbiCertificate223'); if(c)c.style.display='block';
+      setTimeout(function(){
+        try{window.focus();window.print()}finally{
+          setTimeout(function(){document.body.classList.remove('sbi-printing-223');if(c)c.style.display='none'},400);
+        }
+      },180);
+    };
+    printCertificate=window.printCertificate;
+  }
+
+  // On startup use stored defaults and show the card only for SBI.
+  setTimeout(function(){restoreDetails(window._currentSavedRecord||null);updateVisibility()},250);
+})();
+</script>
+<!-- /STEP 223 -->
 
 </body>
 </html>
