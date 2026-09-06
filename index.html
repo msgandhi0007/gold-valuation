@@ -14872,5 +14872,166 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
 </script>
 <!-- /IDBI BACK MUST RETURN TO MAIN BANK HOME 196 -->
 
+
+<!-- BANK-SPECIFIC 22K RATE PERSISTENCE 197 -->
+<script id="bank-specific-rate-persistence-197">
+(function(){
+  'use strict';
+
+  function normalizeBank197(bank){
+    bank=String(bank||'').trim().toUpperCase();
+    if(bank.includes('IDBI')) return 'IDBI';
+    if(bank.includes('MAHARASHTRA GRAMIN')) return 'MGB';
+    if(bank.includes('DNYANDEEP')) return 'DNY';
+    if(bank.includes('SBI') || bank.includes('STATE BANK')) return 'SBI';
+    return '';
+  }
+
+  function currentBank197(){
+    var b='';
+    var hidden=document.getElementById('bankName');
+    var sel=document.getElementById('mainBankSelect');
+    if(hidden && hidden.value) b=hidden.value;
+    if(!b && sel && sel.value) b=sel.value;
+    if(!b && window.currentBank) b=window.currentBank;
+    if(!b && window._currentBank) b=window._currentBank;
+    return normalizeBank197(b);
+  }
+
+  function rateKey197(bankCode){
+    return 'goldValuation22KRate:'+bankCode;
+  }
+
+  function standardRateInput197(){
+    var candidates=[
+      document.getElementById('ratePerGram'),
+      document.getElementById('goldRate'),
+      document.getElementById('rate'),
+      document.querySelector('input[name="ratePerGram"]'),
+      document.querySelector('input[data-role="rate-per-gram"]')
+    ].filter(Boolean);
+
+    // Prefer an input inside the standard valuation screen.
+    for(var i=0;i<candidates.length;i++){
+      if(candidates[i].closest && candidates[i].closest('#valuation-main-sections')) return candidates[i];
+    }
+
+    var labels=document.querySelectorAll('#valuation-main-sections label, #valuation-main-sections .label, #valuation-main-sections div, #valuation-main-sections span');
+    for(var j=0;j<labels.length;j++){
+      var t=(labels[j].textContent||'').toLowerCase();
+      if(t.includes('rate per gram') && t.includes('22k')){
+        var box=labels[j].parentElement;
+        if(box){
+          var inp=box.querySelector('input');
+          if(inp) return inp;
+        }
+      }
+    }
+    return null;
+  }
+
+  function idbiRateInput197(){
+    var ids=['idbiRatePerGram','idbiGoldRate','idbiRate'];
+    for(var i=0;i<ids.length;i++){
+      var el=document.getElementById(ids[i]);
+      if(el) return el;
+    }
+    var scope=document.getElementById('idbi-valuation-screen');
+    if(!scope) return null;
+    var inputs=scope.querySelectorAll('input');
+    for(var j=0;j<inputs.length;j++){
+      var p=inputs[j].parentElement;
+      var t=(p ? p.textContent : '').toLowerCase();
+      if(t.includes('rate per gram') && t.includes('22k')) return inputs[j];
+    }
+    return null;
+  }
+
+  function rateInputForBank197(bankCode){
+    return bankCode==='IDBI' ? idbiRateInput197() : standardRateInput197();
+  }
+
+  function saveRate197(bankCode, input){
+    bankCode=bankCode||currentBank197();
+    input=input||rateInputForBank197(bankCode);
+    if(!bankCode || !input) return;
+    var val=String(input.value||'').trim();
+    var n=parseFloat(val.replace(/,/g,''));
+    if(Number.isFinite(n) && n>=0){
+      localStorage.setItem(rateKey197(bankCode), String(n));
+    }
+  }
+
+  function restoreRate197(bankCode){
+    bankCode=bankCode||currentBank197();
+    if(!bankCode) return;
+    var input=rateInputForBank197(bankCode);
+    if(!input) return;
+    var saved=localStorage.getItem(rateKey197(bankCode));
+    if(saved!==null && saved!==''){
+      input.value=saved;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  }
+
+  function bindInput197(input, bankCode){
+    if(!input || input.__bankRateBound197) return;
+    input.__bankRateBound197=true;
+    input.addEventListener('input',function(){ saveRate197(bankCode,input); });
+    input.addEventListener('change',function(){ saveRate197(bankCode,input); });
+    input.addEventListener('blur',function(){ saveRate197(bankCode,input); });
+  }
+
+  function bindCurrent197(bankCode){
+    bankCode=bankCode||currentBank197();
+    var input=rateInputForBank197(bankCode);
+    bindInput197(input,bankCode);
+    restoreRate197(bankCode);
+  }
+
+  // When a bank is opened, restore only that bank's own saved market rate.
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function' && !oldOpen.__bankRate197){
+    var fn=function(bank){
+      var code=normalizeBank197(bank);
+      var r=oldOpen.apply(this,arguments);
+      requestAnimationFrame(function(){ bindCurrent197(code); });
+      return r;
+    };
+    fn.__bankRate197=true;
+    window.openBank=fn;
+  }
+
+  // Save the current bank's rate before regular valuation save,
+  // so resets after save never overwrite it with 0.
+  ['saveData','idbiSaveData'].forEach(function(name){
+    var old=window[name];
+    if(typeof old!=='function' || old.__bankRate197) return;
+    var fn=function(){
+      var code=currentBank197();
+      saveRate197(code);
+      var r=old.apply(this,arguments);
+      requestAnimationFrame(function(){ restoreRate197(code); });
+      return r;
+    };
+    fn.__bankRate197=true;
+    window[name]=fn;
+  });
+
+  // Public helpers for any later app logic.
+  window.restoreBankRate197=restoreRate197;
+  window.saveBankRate197=saveRate197;
+
+  document.addEventListener('DOMContentLoaded',function(){
+    ['SBI','MGB','DNY','IDBI'].forEach(function(code){
+      bindInput197(rateInputForBank197(code),code);
+    });
+    requestAnimationFrame(function(){ bindCurrent197(); });
+  });
+})();
+</script>
+<!-- /BANK-SPECIFIC 22K RATE PERSISTENCE 197 -->
+
 </body>
 </html>
