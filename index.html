@@ -14554,63 +14554,74 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 <!-- /SAVED VALUATIONS DEFINITIVE NEWEST-FIRST RENDER FIX 186 -->
 
 
-<!-- FOOTER SAVE LOAD SHARE ONLY ON VALUATION SCREENS FIX 187 -->
-<style id="footer-valuation-only-css-187">
-/* Hide the global Save / Load / Share footer everywhere by default. */
-body > footer{
-  display:none !important;
-}
-/* Show it only when a valuation screen is active. */
-body.gv-valuation-footer-visible > footer{
-  display:flex !important;
-}
-</style>
 
-<script id="footer-valuation-only-js-187">
+
+
+
+
+
+
+
+
+<!-- FAST VALUATION-ONLY FOOTER FIX 190 -->
+<style id="fast-footer-valuation-only-css-190">
+/* Global Save / Load / Share bar is hidden unless the lightweight controller enables it. */
+body > footer.gv-footer-hidden-190{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body > footer.gv-footer-shown-190{display:flex!important;visibility:visible!important;pointer-events:auto!important}
+</style>
+<script id="fast-footer-valuation-only-js-190">
 (function(){
   'use strict';
 
-  function visible(el){
-    if(!el)return false;
-    var cs=window.getComputedStyle?getComputedStyle(el):null;
-    return el.style.display!=='none' && (!cs || (cs.display!=='none' && cs.visibility!=='hidden'));
+  function footer(){return document.querySelector('body > footer')}
+
+  function hideFooter(){
+    var f=footer(); if(!f)return;
+    f.classList.remove('gv-footer-shown-190');
+    f.classList.add('gv-footer-hidden-190');
+  }
+  function showFooter(){
+    var f=footer(); if(!f)return;
+    f.classList.remove('gv-footer-hidden-190');
+    f.classList.add('gv-footer-shown-190');
   }
 
-  function isValuationScreen(){
-    var body=document.body;
-    if(!body)return false;
+  function shown(el){
+    if(!el)return false;
+    var s=getComputedStyle(el);
+    return s.display!=='none' && s.visibility!=='hidden';
+  }
 
-    // Never show on management / overlay screens.
-    if(body.classList.contains('bankHomeMode') ||
-       body.classList.contains('bank-home-mode') ||
-       body.classList.contains('customersHomeMode') ||
-       body.classList.contains('savedClean168Open') ||
-       body.classList.contains('savedHomeMode') ||
-       body.classList.contains('dashboardHomeMode') ||
-       body.classList.contains('storageMode') ||
-       body.classList.contains('storage-backup-mode') ||
-       body.classList.contains('menu-viewing')){
-      return false;
+  function syncFooter(){
+    /* Any utility/home screen wins and hides the footer. */
+    var blockers=['bankHome','dashboardHome','customersHomeScreen','savedClean168','savedValuationsHome','storageBackupScreen','saveManager'];
+    for(var i=0;i<blockers.length;i++){
+      if(shown(document.getElementById(blockers[i]))){hideFooter();return}
     }
 
-    var idbi=document.getElementById('idbi-valuation-screen');
-    if(visible(idbi)) return true;
+    /* IDBI has its own Save / Load / Share controls, so global footer stays hidden there. */
+    if(shown(document.getElementById('idbi-valuation-screen'))){hideFooter();return}
 
-    var main=document.getElementById('valuation-main-sections');
-    if(visible(main)) return true;
+    /* The global footer belongs only to SBI / Maharashtra Gramin / Dnyandeep valuation. */
+    if(shown(document.getElementById('valuation-main-sections'))){showFooter();return}
 
-    return false;
+    hideFooter();
   }
 
-  function refreshFooter(){
-    var show=isValuationScreen();
-    document.body.classList.toggle('gv-valuation-footer-visible',show);
+  window.syncValuationFooter190=syncFooter;
+
+  function wrap(name){
+    var old=window[name];
+    if(typeof old!=='function'||old.__gvFooter190)return;
+    var f=function(){
+      var r=old.apply(this,arguments);
+      requestAnimationFrame(syncFooter);
+      return r;
+    };
+    f.__gvFooter190=true;
+    window[name]=f;
   }
 
-  // Expose for other navigation code if needed.
-  window.refreshValuationFooter187=refreshFooter;
-
-  // Wrap navigation functions so footer state follows the screen immediately.
   [
     'showBankHome',
     'openBank',
@@ -14622,189 +14633,23 @@ body.gv-valuation-footer-visible > footer{
     'closeStorageBackupScreen',
     'openSavedDirectFinal',
     'loadSaved'
-  ].forEach(function(name){
-    var old=window[name];
-    if(typeof old!=='function' || old.__footer187)return;
-    var f=function(){
-      var out=old.apply(this,arguments);
-      setTimeout(refreshFooter,0);
-      setTimeout(refreshFooter,120);
-      return out;
-    };
-    f.__footer187=true;
-    window[name]=f;
-  });
+  ].forEach(wrap);
 
-  // Back/history and late UI changes can occur without calling a wrapped function.
-  window.addEventListener('popstate',function(){setTimeout(refreshFooter,80)});
-  document.addEventListener('click',function(){setTimeout(refreshFooter,120)},true);
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){setTimeout(refreshFooter,250)});
-  }else{
-    setTimeout(refreshFooter,250);
-  }
-})();
-</script>
-<!-- /FOOTER SAVE LOAD SHARE ONLY ON VALUATION SCREENS FIX 187 -->
-
-
-<!-- STRICT FOOTER VISIBILITY FIX 188 -->
-<script id="strict-footer-visibility-fix-188">
-(function(){
-  'use strict';
-
-  function shown(el){
-    if(!el) return false;
-    var s=getComputedStyle(el);
-    if(s.display==='none'||s.visibility==='hidden'||s.opacity==='0') return false;
-    var r=el.getBoundingClientRect();
-    return r.width>0 && r.height>0;
-  }
-
-  function refresh188(){
-    var body=document.body;
-    if(!body)return;
-
-    /* If any non-valuation full screen is actually visible, footer MUST be hidden. */
-    var nonValuationIds=[
-      'bankHome',
-      'dashboardHome',
-      'customersHomeScreen',
-      'savedClean168',
-      'savedValuationsHome',
-      'storageBackupScreen',
-      'saveManager'
-    ];
-    for(var i=0;i<nonValuationIds.length;i++){
-      if(shown(document.getElementById(nonValuationIds[i]))){
-        body.classList.remove('gv-valuation-footer-visible');
-        return;
-      }
-    }
-
-    /* Show only when one of the real four-bank valuation areas is visible. */
-    var idbi=shown(document.getElementById('idbi-valuation-screen'));
-    var standard=shown(document.getElementById('valuation-main-sections'));
-
-    body.classList.toggle('gv-valuation-footer-visible', idbi || standard);
-  }
-
-  window.refreshValuationFooter187=refresh188;
-  window.refreshValuationFooter188=refresh188;
-
-  /* Observe display/class changes so navigation cannot leave a stale footer state. */
-  var observer=new MutationObserver(function(){requestAnimationFrame(refresh188)});
-  if(document.body){
-    observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class','style']});
-  }
-
-  document.addEventListener('click',function(){
-    setTimeout(refresh188,0);
-    setTimeout(refresh188,150);
-  },true);
-  window.addEventListener('popstate',function(){setTimeout(refresh188,50)});
-  window.addEventListener('pageshow',function(){setTimeout(refresh188,50)});
+  /* Back navigation is the only case that can bypass the wrapped public functions. */
+  window.addEventListener('popstate',function(){setTimeout(syncFooter,0)});
 
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){
-      observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class','style']});
-      setTimeout(refresh188,100);
+      hideFooter();
+      requestAnimationFrame(syncFooter);
     });
-  }else setTimeout(refresh188,100);
+  }else{
+    hideFooter();
+    requestAnimationFrame(syncFooter);
+  }
 })();
 </script>
-<!-- /STRICT FOOTER VISIBILITY FIX 188 -->
-
-
-<!-- HARD FOOTER VISIBILITY FIX 189 -->
-<script id="hard-footer-visibility-fix-189">
-(function(){
-  'use strict';
-
-  function globalFooter(){
-    return document.querySelector('body > footer');
-  }
-  function cssVisible(el){
-    if(!el)return false;
-    var s=getComputedStyle(el);
-    if(s.display==='none'||s.visibility==='hidden')return false;
-    var r=el.getBoundingClientRect();
-    return r.width>0&&r.height>0;
-  }
-  function overlayVisible(id){
-    return cssVisible(document.getElementById(id));
-  }
-
-  function standardValuationIsOpen(){
-    var main=document.getElementById('valuation-main-sections');
-    if(!cssVisible(main))return false;
-
-    // If any full-screen utility/home page is visible, valuation is NOT the active screen.
-    var blockers=['bankHome','dashboardHome','customersHomeScreen','savedClean168','savedValuationsHome','storageBackupScreen','saveManager'];
-    for(var i=0;i<blockers.length;i++)if(overlayVisible(blockers[i]))return false;
-
-    var b=document.body;
-    if(b.classList.contains('bankHomeMode')||
-       b.classList.contains('bank-home-mode')||
-       b.classList.contains('dashboardHomeMode')||
-       b.classList.contains('customersHomeMode')||
-       b.classList.contains('savedClean168Open')||
-       b.classList.contains('savedHomeMode')||
-       b.classList.contains('storageMode')||
-       b.classList.contains('storage-backup-mode')||
-       b.classList.contains('menu-viewing'))return false;
-
-    return true;
-  }
-
-  function updateFooter189(){
-    var f=globalFooter();
-    if(!f)return;
-
-    // Direct inline !important beats every older footer CSS rule.
-    if(standardValuationIsOpen()){
-      f.style.setProperty('display','flex','important');
-      f.style.setProperty('visibility','visible','important');
-      f.style.setProperty('pointer-events','auto','important');
-    }else{
-      f.style.setProperty('display','none','important');
-      f.style.setProperty('visibility','hidden','important');
-      f.style.setProperty('pointer-events','none','important');
-    }
-  }
-
-  window.refreshValuationFooter187=updateFooter189;
-  window.refreshValuationFooter188=updateFooter189;
-  window.refreshValuationFooter189=updateFooter189;
-
-  // Run after every navigation/display change.
-  function later(){
-    updateFooter189();
-    setTimeout(updateFooter189,25);
-    setTimeout(updateFooter189,150);
-    setTimeout(updateFooter189,400);
-  }
-
-  document.addEventListener('click',later,true);
-  window.addEventListener('popstate',later);
-  window.addEventListener('pageshow',later);
-  window.addEventListener('hashchange',later);
-
-  var mo=new MutationObserver(function(){requestAnimationFrame(updateFooter189)});
-  function start(){
-    if(document.body)mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style','aria-hidden']});
-    later();
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
-  else start();
-
-  // Final safety check while the app is open. This is tiny and prevents old
-  // navigation code from restoring the footer after a delayed timeout.
-  setInterval(updateFooter189,500);
-})();
-</script>
-<!-- /HARD FOOTER VISIBILITY FIX 189 -->
+<!-- /FAST VALUATION-ONLY FOOTER FIX 190 -->
 
 </body>
 </html>
