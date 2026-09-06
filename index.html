@@ -4874,9 +4874,9 @@ function cancelValuationEdit(){
 function resetAfterSave(){
 document.getElementById('customerName').value='';
 document.getElementById('customerMobile').value='';
-if(document.getElementById('bankName')) document.getElementById('bankName').value='';
+/* Bank remains selected until user goes Back to Bank Selection. */
 if(document.getElementById('valuationDate')) document.getElementById('valuationDate').value=new Date().toISOString().slice(0,10);
-if(document.getElementById('rate')) document.getElementById('rate').value=0;
+/* Market rate is bank-specific and intentionally preserved after save. */
 if(document.getElementById('ltv1')) document.getElementById('ltv1').value=65;
 if(document.getElementById('loanRate')) document.getElementById('loanRate').value=0;
 if(document.getElementById('sanctionedLoan')) document.getElementById('sanctionedLoan').value=0;
@@ -14873,165 +14873,266 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
 <!-- /IDBI BACK MUST RETURN TO MAIN BANK HOME 196 -->
 
 
-<!-- BANK-SPECIFIC 22K RATE PERSISTENCE 197 -->
-<script id="bank-specific-rate-persistence-197">
+
+<!-- BANK RATE LOCK + EDIT + PERSISTENCE 198 -->
+<style id="bank-rate-lock-css-198">
+.rate-lock-wrap-198{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.rate-lock-wrap-198 input{
+  flex:1!important;
+  min-width:0!important;
+  padding-right:48px!important;
+}
+.rate-edit-btn-198{
+  position:absolute!important;
+  right:8px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  border-radius:10px!important;
+  border:1px solid #d2b764!important;
+  background:#fff8df!important;
+  color:#8b6100!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:3!important;
+}
+.rate-edit-btn-198.editing{
+  background:#e9f8ed!important;
+  border-color:#68a977!important;
+  color:#176c2e!important;
+}
+.rate-locked-198{
+  background:#f7f4eb!important;
+  color:#282828!important;
+  font-weight:800!important;
+  cursor:default!important;
+}
+</style>
+
+<script id="bank-rate-lock-js-198">
 (function(){
   'use strict';
 
-  function normalizeBank197(bank){
-    bank=String(bank||'').trim().toUpperCase();
-    if(bank.includes('IDBI')) return 'IDBI';
-    if(bank.includes('MAHARASHTRA GRAMIN')) return 'MGB';
-    if(bank.includes('DNYANDEEP')) return 'DNY';
-    if(bank.includes('SBI') || bank.includes('STATE BANK')) return 'SBI';
+  function bankCode198(bank){
+    var b=String(bank||'').trim().toUpperCase();
+    if(b.includes('IDBI')) return 'IDBI';
+    if(b.includes('MAHARASHTRA GRAMIN')) return 'MGB';
+    if(b.includes('DNYANDEEP')) return 'DNY';
+    if(b.includes('SBI') || b.includes('STATE BANK')) return 'SBI';
     return '';
   }
 
-  function currentBank197(){
-    var b='';
-    var hidden=document.getElementById('bankName');
-    var sel=document.getElementById('mainBankSelect');
-    if(hidden && hidden.value) b=hidden.value;
-    if(!b && sel && sel.value) b=sel.value;
-    if(!b && window.currentBank) b=window.currentBank;
-    if(!b && window._currentBank) b=window._currentBank;
-    return normalizeBank197(b);
+  function currentCode198(){
+    var h=document.getElementById('bankName');
+    var s=document.getElementById('mainBankSelect');
+    var b=(h&&h.value)||(s&&s.value)||window.currentBank||window._currentBank||'';
+    return bankCode198(b);
   }
 
-  function rateKey197(bankCode){
-    return 'goldValuation22KRate:'+bankCode;
+  function key198(code){ return 'goldValuation22KRate:'+code; }
+
+  function input198(code){
+    if(code==='IDBI') return document.getElementById('idbiRate');
+    return document.getElementById('rate');
   }
 
-  function standardRateInput197(){
-    var candidates=[
-      document.getElementById('ratePerGram'),
-      document.getElementById('goldRate'),
-      document.getElementById('rate'),
-      document.querySelector('input[name="ratePerGram"]'),
-      document.querySelector('input[data-role="rate-per-gram"]')
-    ].filter(Boolean);
-
-    // Prefer an input inside the standard valuation screen.
-    for(var i=0;i<candidates.length;i++){
-      if(candidates[i].closest && candidates[i].closest('#valuation-main-sections')) return candidates[i];
-    }
-
-    var labels=document.querySelectorAll('#valuation-main-sections label, #valuation-main-sections .label, #valuation-main-sections div, #valuation-main-sections span');
-    for(var j=0;j<labels.length;j++){
-      var t=(labels[j].textContent||'').toLowerCase();
-      if(t.includes('rate per gram') && t.includes('22k')){
-        var box=labels[j].parentElement;
-        if(box){
-          var inp=box.querySelector('input');
-          if(inp) return inp;
-        }
+  function calc198(code){
+    try{
+      if(code==='IDBI'){
+        if(typeof window.idbiCalculate==='function') window.idbiCalculate();
+        else if(typeof window.idbiCalc==='function') window.idbiCalc();
+      }else if(typeof window.calculate==='function'){
+        window.calculate();
       }
-    }
-    return null;
+    }catch(e){}
   }
 
-  function idbiRateInput197(){
-    var ids=['idbiRatePerGram','idbiGoldRate','idbiRate'];
-    for(var i=0;i<ids.length;i++){
-      var el=document.getElementById(ids[i]);
-      if(el) return el;
-    }
-    var scope=document.getElementById('idbi-valuation-screen');
-    if(!scope) return null;
-    var inputs=scope.querySelectorAll('input');
-    for(var j=0;j<inputs.length;j++){
-      var p=inputs[j].parentElement;
-      var t=(p ? p.textContent : '').toLowerCase();
-      if(t.includes('rate per gram') && t.includes('22k')) return inputs[j];
-    }
-    return null;
-  }
-
-  function rateInputForBank197(bankCode){
-    return bankCode==='IDBI' ? idbiRateInput197() : standardRateInput197();
-  }
-
-  function saveRate197(bankCode, input){
-    bankCode=bankCode||currentBank197();
-    input=input||rateInputForBank197(bankCode);
-    if(!bankCode || !input) return;
-    var val=String(input.value||'').trim();
-    var n=parseFloat(val.replace(/,/g,''));
-    if(Number.isFinite(n) && n>=0){
-      localStorage.setItem(rateKey197(bankCode), String(n));
+  function save198(code){
+    code=code||currentCode198();
+    var inp=input198(code);
+    if(!code||!inp) return;
+    var n=parseFloat(String(inp.value||'').replace(/,/g,''));
+    if(Number.isFinite(n) && n>0){
+      localStorage.setItem(key198(code),String(n));
     }
   }
 
-  function restoreRate197(bankCode){
-    bankCode=bankCode||currentBank197();
-    if(!bankCode) return;
-    var input=rateInputForBank197(bankCode);
-    if(!input) return;
-    var saved=localStorage.getItem(rateKey197(bankCode));
-    if(saved!==null && saved!==''){
-      input.value=saved;
-      input.dispatchEvent(new Event('input',{bubbles:true}));
-      input.dispatchEvent(new Event('change',{bubbles:true}));
+  function stored198(code){
+    var v=localStorage.getItem(key198(code));
+    var n=parseFloat(v);
+    return Number.isFinite(n)&&n>0 ? n : null;
+  }
+
+  function ensureButton198(code){
+    var inp=input198(code);
+    if(!inp) return null;
+
+    var wrap=inp.parentElement;
+    if(!wrap) return null;
+    wrap.classList.add('rate-lock-wrap-198');
+
+    var id='rateEdit198_'+code;
+    var btn=document.getElementById(id);
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.id=id;
+      btn.className='rate-edit-btn-198';
+      btn.textContent='✏️';
+      btn.title='Edit market rate';
+      btn.setAttribute('aria-label','Edit market rate');
+      wrap.appendChild(btn);
+
+      btn.addEventListener('click',function(){
+        if(inp.readOnly){
+          inp.readOnly=false;
+          inp.classList.remove('rate-locked-198');
+          btn.classList.add('editing');
+          btn.textContent='✓';
+          btn.title='Save market rate';
+          inp.focus();
+          try{inp.select();}catch(e){}
+        }else{
+          var n=parseFloat(String(inp.value||'').replace(/,/g,''));
+          if(!(Number.isFinite(n)&&n>0)){
+            alert('Please enter a valid Market Rate per gram (22K).');
+            inp.focus();
+            return;
+          }
+          localStorage.setItem(key198(code),String(n));
+          inp.readOnly=true;
+          inp.classList.add('rate-locked-198');
+          btn.classList.remove('editing');
+          btn.textContent='✏️';
+          btn.title='Edit market rate';
+          calc198(code);
+        }
+      });
+    }
+    return btn;
+  }
+
+  function lock198(code){
+    var inp=input198(code);
+    if(!inp) return;
+    ensureButton198(code);
+    inp.readOnly=true;
+    inp.classList.add('rate-locked-198');
+    var btn=document.getElementById('rateEdit198_'+code);
+    if(btn){
+      btn.classList.remove('editing');
+      btn.textContent='✏️';
+      btn.title='Edit market rate';
     }
   }
 
-  function bindInput197(input, bankCode){
-    if(!input || input.__bankRateBound197) return;
-    input.__bankRateBound197=true;
-    input.addEventListener('input',function(){ saveRate197(bankCode,input); });
-    input.addEventListener('change',function(){ saveRate197(bankCode,input); });
-    input.addEventListener('blur',function(){ saveRate197(bankCode,input); });
+  function restore198(code){
+    code=code||currentCode198();
+    if(!code) return;
+    var inp=input198(code);
+    if(!inp) return;
+
+    var v=stored198(code);
+    if(v!==null){
+      inp.value=String(v);
+      lock198(code);
+      calc198(code);
+    }else{
+      // First use for this bank: allow entry. After value is entered, ✓ locks it.
+      ensureButton198(code);
+      inp.readOnly=false;
+      inp.classList.remove('rate-locked-198');
+      var btn=document.getElementById('rateEdit198_'+code);
+      if(btn){
+        btn.classList.add('editing');
+        btn.textContent='✓';
+        btn.title='Save market rate';
+      }
+      // Do not force the input to 0 if another valid value is already there.
+    }
   }
 
-  function bindCurrent197(bankCode){
-    bankCode=bankCode||currentBank197();
-    var input=rateInputForBank197(bankCode);
-    bindInput197(input,bankCode);
-    restoreRate197(bankCode);
+  function preserveBeforeReset198(code){
+    var inp=input198(code);
+    if(inp){
+      var n=parseFloat(String(inp.value||'').replace(/,/g,''));
+      if(Number.isFinite(n)&&n>0) localStorage.setItem(key198(code),String(n));
+    }
   }
 
-  // When a bank is opened, restore only that bank's own saved market rate.
+  // Restore the correct bank rate every time a bank is opened.
   var oldOpen=window.openBank;
-  if(typeof oldOpen==='function' && !oldOpen.__bankRate197){
-    var fn=function(bank){
-      var code=normalizeBank197(bank);
+  if(typeof oldOpen==='function' && !oldOpen.__rate198){
+    var f=function(bank){
+      var code=bankCode198(bank);
       var r=oldOpen.apply(this,arguments);
-      requestAnimationFrame(function(){ bindCurrent197(code); });
+      requestAnimationFrame(function(){restore198(code);});
       return r;
     };
-    fn.__bankRate197=true;
-    window.openBank=fn;
+    f.__rate198=true;
+    window.openBank=f;
   }
 
-  // Save the current bank's rate before regular valuation save,
-  // so resets after save never overwrite it with 0.
+  // Save rate BEFORE valuation save and restore it AFTER all reset code has completed.
   ['saveData','idbiSaveData'].forEach(function(name){
     var old=window[name];
-    if(typeof old!=='function' || old.__bankRate197) return;
-    var fn=function(){
-      var code=currentBank197();
-      saveRate197(code);
+    if(typeof old!=='function'||old.__rate198) return;
+    var f=function(){
+      var code=currentCode198();
+      preserveBeforeReset198(code);
+      var result=old.apply(this,arguments);
+
+      if(result && typeof result.then==='function'){
+        return result.finally(function(){
+          requestAnimationFrame(function(){restore198(code);});
+        });
+      }
+      requestAnimationFrame(function(){restore198(code);});
+      return result;
+    };
+    f.__rate198=true;
+    window[name]=f;
+  });
+
+  // If any existing reset function executes, restore from the remembered bank afterwards.
+  ['resetAfterSave','idbiResetData'].forEach(function(name){
+    var old=window[name];
+    if(typeof old!=='function'||old.__rateReset198) return;
+    var f=function(){
+      var code=currentCode198();
+      preserveBeforeReset198(code);
       var r=old.apply(this,arguments);
-      requestAnimationFrame(function(){ restoreRate197(code); });
+      requestAnimationFrame(function(){restore198(code);});
       return r;
     };
-    fn.__bankRate197=true;
-    window[name]=fn;
+    f.__rateReset198=true;
+    window[name]=f;
   });
 
-  // Public helpers for any later app logic.
-  window.restoreBankRate197=restoreRate197;
-  window.saveBankRate197=saveRate197;
+  window.restoreBankRate198=restore198;
+  window.saveBankRate198=save198;
 
-  document.addEventListener('DOMContentLoaded',function(){
-    ['SBI','MGB','DNY','IDBI'].forEach(function(code){
-      bindInput197(rateInputForBank197(code),code);
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      requestAnimationFrame(function(){restore198(currentCode198());});
     });
-    requestAnimationFrame(function(){ bindCurrent197(); });
-  });
+  }else{
+    requestAnimationFrame(function(){restore198(currentCode198());});
+  }
 })();
 </script>
-<!-- /BANK-SPECIFIC 22K RATE PERSISTENCE 197 -->
+<!-- /BANK RATE LOCK + EDIT + PERSISTENCE 198 -->
 
 </body>
 </html>
