@@ -20708,5 +20708,117 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /MOBILE READABILITY UPGRADE 221 -->
 
+
+<!-- PREMIUM OUTER BOX CLEANUP 222 -->
+<style id="premium-outer-box-cleanup-css-222">
+/* Remove one redundant premium shell while preserving all inner cards and functions */
+#premiumStandardOuter218,
+#premiumIdbiOuter218{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:0!important;
+}
+
+/* Let valuation content use more of the mobile width */
+#valuation-main-sections,
+#idbi-valuation-screen{
+  width:100%!important;
+}
+#premiumStandardOuter218 > *,
+#premiumIdbiOuter218 > *{
+  max-width:none!important;
+}
+
+/* Keep the real content cards premium and clean */
+#premiumStandardOuter218 .card,
+#premiumStandardOuter218 .section-card,
+#premiumStandardOuter218 .premium-card,
+#premiumIdbiOuter218 .card,
+#premiumIdbiOuter218 .section-card,
+#premiumIdbiOuter218 .premium-card{
+  border-radius:20px!important;
+}
+
+/* Improve 3-column jewellery input readability on phones */
+#premiumStandardOuter218 .grid,
+#premiumIdbiOuter218 .grid{
+  column-gap:8px!important;
+}
+#premiumStandardOuter218 .field,
+#premiumIdbiOuter218 .field{
+  min-width:0!important;
+}
+#premiumStandardOuter218 .field label,
+#premiumIdbiOuter218 .field label{
+  font-size:13px!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.15!important;
+}
+#premiumStandardOuter218 input,
+#premiumStandardOuter218 select,
+#premiumIdbiOuter218 input,
+#premiumIdbiOuter218 select{
+  min-width:0!important;
+}
+
+/* Keep customer labels readable without forcing truncation */
+#premiumStandardOuter218 .customer-details label,
+#premiumIdbiOuter218 .customer-details label{
+  font-size:14px!important;
+}
+
+/* Jewellery item title stays strong but balanced */
+#premiumStandardOuter218 .item h3,
+#premiumStandardOuter218 [class*="item"] h3,
+#premiumIdbiOuter218 .idbi-item h3,
+#premiumIdbiOuter218 [class*="item"] h3{
+  font-size:21px!important;
+}
+
+/* More compact calculated labels, values remain prominent */
+#premiumStandardOuter218 .metric small,
+#premiumStandardOuter218 .metric-label,
+#premiumStandardOuter218 .result-label,
+#premiumStandardOuter218 .calc-label,
+#premiumIdbiOuter218 .metric small,
+#premiumIdbiOuter218 .metric-label,
+#premiumIdbiOuter218 .result-label,
+#premiumIdbiOuter218 .calc-label{
+  font-size:13px!important;
+}
+#premiumStandardOuter218 .metric b,
+#premiumStandardOuter218 .metric-value,
+#premiumStandardOuter218 .result-value,
+#premiumIdbiOuter218 .metric b,
+#premiumIdbiOuter218 .metric-value,
+#premiumIdbiOuter218 .result-value{
+  font-size:18px!important;
+}
+
+/* Prevent the jewellery 3-column row from pushing outside the card */
+@media(max-width:430px){
+  #premiumStandardOuter218 .grid,
+  #premiumIdbiOuter218 .grid{
+    gap:7px!important;
+  }
+  #premiumStandardOuter218 .field label,
+  #premiumIdbiOuter218 .field label{
+    font-size:12.5px!important;
+  }
+  #premiumStandardOuter218 .field input,
+  #premiumIdbiOuter218 .field input{
+    font-size:16px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+}
+</style>
+<!-- /PREMIUM OUTER BOX CLEANUP 222 -->
+
 </body>
 </html>
