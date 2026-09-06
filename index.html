@@ -14716,5 +14716,95 @@ body.gv-valuation-footer-visible > footer{
 </script>
 <!-- /STRICT FOOTER VISIBILITY FIX 188 -->
 
+
+<!-- HARD FOOTER VISIBILITY FIX 189 -->
+<script id="hard-footer-visibility-fix-189">
+(function(){
+  'use strict';
+
+  function globalFooter(){
+    return document.querySelector('body > footer');
+  }
+  function cssVisible(el){
+    if(!el)return false;
+    var s=getComputedStyle(el);
+    if(s.display==='none'||s.visibility==='hidden')return false;
+    var r=el.getBoundingClientRect();
+    return r.width>0&&r.height>0;
+  }
+  function overlayVisible(id){
+    return cssVisible(document.getElementById(id));
+  }
+
+  function standardValuationIsOpen(){
+    var main=document.getElementById('valuation-main-sections');
+    if(!cssVisible(main))return false;
+
+    // If any full-screen utility/home page is visible, valuation is NOT the active screen.
+    var blockers=['bankHome','dashboardHome','customersHomeScreen','savedClean168','savedValuationsHome','storageBackupScreen','saveManager'];
+    for(var i=0;i<blockers.length;i++)if(overlayVisible(blockers[i]))return false;
+
+    var b=document.body;
+    if(b.classList.contains('bankHomeMode')||
+       b.classList.contains('bank-home-mode')||
+       b.classList.contains('dashboardHomeMode')||
+       b.classList.contains('customersHomeMode')||
+       b.classList.contains('savedClean168Open')||
+       b.classList.contains('savedHomeMode')||
+       b.classList.contains('storageMode')||
+       b.classList.contains('storage-backup-mode')||
+       b.classList.contains('menu-viewing'))return false;
+
+    return true;
+  }
+
+  function updateFooter189(){
+    var f=globalFooter();
+    if(!f)return;
+
+    // Direct inline !important beats every older footer CSS rule.
+    if(standardValuationIsOpen()){
+      f.style.setProperty('display','flex','important');
+      f.style.setProperty('visibility','visible','important');
+      f.style.setProperty('pointer-events','auto','important');
+    }else{
+      f.style.setProperty('display','none','important');
+      f.style.setProperty('visibility','hidden','important');
+      f.style.setProperty('pointer-events','none','important');
+    }
+  }
+
+  window.refreshValuationFooter187=updateFooter189;
+  window.refreshValuationFooter188=updateFooter189;
+  window.refreshValuationFooter189=updateFooter189;
+
+  // Run after every navigation/display change.
+  function later(){
+    updateFooter189();
+    setTimeout(updateFooter189,25);
+    setTimeout(updateFooter189,150);
+    setTimeout(updateFooter189,400);
+  }
+
+  document.addEventListener('click',later,true);
+  window.addEventListener('popstate',later);
+  window.addEventListener('pageshow',later);
+  window.addEventListener('hashchange',later);
+
+  var mo=new MutationObserver(function(){requestAnimationFrame(updateFooter189)});
+  function start(){
+    if(document.body)mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style','aria-hidden']});
+    later();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+  else start();
+
+  // Final safety check while the app is open. This is tiny and prevents old
+  // navigation code from restoring the footer after a delayed timeout.
+  setInterval(updateFooter189,500);
+})();
+</script>
+<!-- /HARD FOOTER VISIBILITY FIX 189 -->
+
 </body>
 </html>
