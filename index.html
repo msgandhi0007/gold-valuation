@@ -14874,57 +14874,64 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
 
 
 
-<!-- BANK RATE LOCK + EDIT + PERSISTENCE 198 -->
-<style id="bank-rate-lock-css-198">
-.rate-lock-wrap-198{
+
+<!-- BANK RATE LOCK + VISIBLE INPUT + MOBILE CURSOR FIX 199 -->
+<style id="bank-rate-lock-css-199">
+/* Keep the rate input fully visible. The edit button sits inside the rate card,
+   not inside the label/input flex row. */
+#valuation-main-sections .s111-rate,
+#idbi-valuation-screen .idbi-rate{
   position:relative!important;
-  display:flex!important;
-  align-items:center!important;
-  gap:8px!important;
 }
-.rate-lock-wrap-198 input{
-  flex:1!important;
+#valuation-main-sections .s111-rate .s111-rate-content{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+}
+#valuation-main-sections #rate,
+#idbi-valuation-screen #idbiRate{
+  display:block!important;
+  width:100%!important;
   min-width:0!important;
+  box-sizing:border-box!important;
   padding-right:48px!important;
 }
-.rate-edit-btn-198{
+.rate-edit-btn-199{
   position:absolute!important;
-  right:8px!important;
-  top:50%!important;
-  transform:translateY(-50%)!important;
-  width:38px!important;
-  height:38px!important;
-  min-width:38px!important;
-  border-radius:10px!important;
+  right:13px!important;
+  bottom:11px!important;
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  border-radius:9px!important;
   border:1px solid #d2b764!important;
   background:#fff8df!important;
   color:#8b6100!important;
-  font-size:18px!important;
+  font-size:16px!important;
   font-weight:900!important;
   padding:0!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
-  z-index:3!important;
+  z-index:10!important;
 }
-.rate-edit-btn-198.editing{
+.rate-edit-btn-199.editing{
   background:#e9f8ed!important;
   border-color:#68a977!important;
   color:#176c2e!important;
 }
-.rate-locked-198{
+.rate-locked-199{
   background:#f7f4eb!important;
-  color:#282828!important;
+  color:#222!important;
   font-weight:800!important;
-  cursor:default!important;
 }
 </style>
 
-<script id="bank-rate-lock-js-198">
+<script id="bank-rate-lock-js-199">
 (function(){
   'use strict';
 
-  function bankCode198(bank){
+  function bankCode199(bank){
     var b=String(bank||'').trim().toUpperCase();
     if(b.includes('IDBI')) return 'IDBI';
     if(b.includes('MAHARASHTRA GRAMIN')) return 'MGB';
@@ -14933,21 +14940,20 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
     return '';
   }
 
-  function currentCode198(){
+  function currentCode199(){
     var h=document.getElementById('bankName');
     var s=document.getElementById('mainBankSelect');
-    var b=(h&&h.value)||(s&&s.value)||window.currentBank||window._currentBank||'';
-    return bankCode198(b);
+    return bankCode199((h&&h.value)||(s&&s.value)||window.currentBank||window._currentBank||'');
   }
 
-  function key198(code){ return 'goldValuation22KRate:'+code; }
-
-  function input198(code){
-    if(code==='IDBI') return document.getElementById('idbiRate');
-    return document.getElementById('rate');
+  function key199(code){ return 'goldValuation22KRate:'+code; }
+  function rateInput199(code){ return code==='IDBI' ? document.getElementById('idbiRate') : document.getElementById('rate'); }
+  function rateCard199(code){
+    var inp=rateInput199(code);
+    return inp ? (inp.closest('.idbi-rate') || inp.closest('.s111-rate')) : null;
   }
 
-  function calc198(code){
+  function calc199(code){
     try{
       if(code==='IDBI'){
         if(typeof window.idbiCalculate==='function') window.idbiCalculate();
@@ -14958,78 +14964,72 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
     }catch(e){}
   }
 
-  function save198(code){
-    code=code||currentCode198();
-    var inp=input198(code);
-    if(!code||!inp) return;
-    var n=parseFloat(String(inp.value||'').replace(/,/g,''));
-    if(Number.isFinite(n) && n>0){
-      localStorage.setItem(key198(code),String(n));
-    }
-  }
-
-  function stored198(code){
-    var v=localStorage.getItem(key198(code));
-    var n=parseFloat(v);
+  function stored199(code){
+    var n=parseFloat(localStorage.getItem(key199(code)));
     return Number.isFinite(n)&&n>0 ? n : null;
   }
 
-  function ensureButton198(code){
-    var inp=input198(code);
-    if(!inp) return null;
+  function save199(code){
+    code=code||currentCode199();
+    var inp=rateInput199(code);
+    if(!code||!inp)return false;
+    var n=parseFloat(String(inp.value||'').replace(/,/g,''));
+    if(!(Number.isFinite(n)&&n>0))return false;
+    localStorage.setItem(key199(code),String(n));
+    return true;
+  }
 
-    var wrap=inp.parentElement;
-    if(!wrap) return null;
-    wrap.classList.add('rate-lock-wrap-198');
+  function button199(code){
+    var card=rateCard199(code);
+    var inp=rateInput199(code);
+    if(!card||!inp)return null;
 
-    var id='rateEdit198_'+code;
+    var id='rateEdit199_'+code;
     var btn=document.getElementById(id);
     if(!btn){
       btn=document.createElement('button');
       btn.type='button';
       btn.id=id;
-      btn.className='rate-edit-btn-198';
+      btn.className='rate-edit-btn-199';
       btn.textContent='✏️';
       btn.title='Edit market rate';
       btn.setAttribute('aria-label','Edit market rate');
-      wrap.appendChild(btn);
+      card.appendChild(btn);
 
       btn.addEventListener('click',function(){
         if(inp.readOnly){
           inp.readOnly=false;
-          inp.classList.remove('rate-locked-198');
+          inp.classList.remove('rate-locked-199');
           btn.classList.add('editing');
           btn.textContent='✓';
           btn.title='Save market rate';
           inp.focus();
-          try{inp.select();}catch(e){}
+          try{ inp.select(); }catch(e){}
         }else{
-          var n=parseFloat(String(inp.value||'').replace(/,/g,''));
-          if(!(Number.isFinite(n)&&n>0)){
+          if(!save199(code)){
             alert('Please enter a valid Market Rate per gram (22K).');
             inp.focus();
             return;
           }
-          localStorage.setItem(key198(code),String(n));
           inp.readOnly=true;
-          inp.classList.add('rate-locked-198');
+          inp.classList.add('rate-locked-199');
           btn.classList.remove('editing');
           btn.textContent='✏️';
           btn.title='Edit market rate';
-          calc198(code);
+          calc199(code);
         }
       });
     }
     return btn;
   }
 
-  function lock198(code){
-    var inp=input198(code);
-    if(!inp) return;
-    ensureButton198(code);
+  function lock199(code){
+    var inp=rateInput199(code);
+    if(!inp)return;
+    button199(code);
     inp.readOnly=true;
-    inp.classList.add('rate-locked-198');
-    var btn=document.getElementById('rateEdit198_'+code);
+    inp.classList.add('rate-locked-199');
+    var btn=document.getElementById('rateEdit199_'+code);
     if(btn){
       btn.classList.remove('editing');
       btn.textContent='✏️';
@@ -15037,102 +15037,137 @@ body.storage-backup-mode #standardValuationActionBar192{display:none!important}
     }
   }
 
-  function restore198(code){
-    code=code||currentCode198();
-    if(!code) return;
-    var inp=input198(code);
-    if(!inp) return;
+  function unlockFirstUse199(code){
+    var inp=rateInput199(code);
+    if(!inp)return;
+    button199(code);
+    inp.readOnly=false;
+    inp.classList.remove('rate-locked-199');
+    var btn=document.getElementById('rateEdit199_'+code);
+    if(btn){
+      btn.classList.add('editing');
+      btn.textContent='✓';
+      btn.title='Save market rate';
+    }
+  }
 
-    var v=stored198(code);
+  function restore199(code){
+    code=code||currentCode199();
+    if(!code)return;
+    var inp=rateInput199(code);
+    if(!inp)return;
+    var v=stored199(code);
     if(v!==null){
       inp.value=String(v);
-      lock198(code);
-      calc198(code);
+      lock199(code);
+      calc199(code);
     }else{
-      // First use for this bank: allow entry. After value is entered, ✓ locks it.
-      ensureButton198(code);
-      inp.readOnly=false;
-      inp.classList.remove('rate-locked-198');
-      var btn=document.getElementById('rateEdit198_'+code);
-      if(btn){
-        btn.classList.add('editing');
-        btn.textContent='✓';
-        btn.title='Save market rate';
-      }
-      // Do not force the input to 0 if another valid value is already there.
+      /* First use: show a normal editable input, not a blank/hidden field. */
+      if(String(inp.value||'').trim()==='0') inp.value='';
+      unlockFirstUse199(code);
     }
   }
 
-  function preserveBeforeReset198(code){
-    var inp=input198(code);
-    if(inp){
-      var n=parseFloat(String(inp.value||'').replace(/,/g,''));
-      if(Number.isFinite(n)&&n>0) localStorage.setItem(key198(code),String(n));
-    }
+  function preserve199(code){
+    var inp=rateInput199(code);
+    if(!inp)return;
+    var n=parseFloat(String(inp.value||'').replace(/,/g,''));
+    if(Number.isFinite(n)&&n>0) localStorage.setItem(key199(code),String(n));
   }
 
-  // Restore the correct bank rate every time a bank is opened.
+  /* Bank opening restores its own rate after all existing navigation code. */
   var oldOpen=window.openBank;
-  if(typeof oldOpen==='function' && !oldOpen.__rate198){
+  if(typeof oldOpen==='function' && !oldOpen.__rate199){
     var f=function(bank){
-      var code=bankCode198(bank);
+      var code=bankCode199(bank);
       var r=oldOpen.apply(this,arguments);
-      requestAnimationFrame(function(){restore198(code);});
+      requestAnimationFrame(function(){restore199(code);});
       return r;
     };
-    f.__rate198=true;
+    f.__rate199=true;
     window.openBank=f;
   }
 
-  // Save rate BEFORE valuation save and restore it AFTER all reset code has completed.
+  /* Preserve before Save; restore after Save/reset completes. */
   ['saveData','idbiSaveData'].forEach(function(name){
     var old=window[name];
-    if(typeof old!=='function'||old.__rate198) return;
+    if(typeof old!=='function'||old.__rate199)return;
     var f=function(){
-      var code=currentCode198();
-      preserveBeforeReset198(code);
+      var code=currentCode199();
+      preserve199(code);
       var result=old.apply(this,arguments);
-
-      if(result && typeof result.then==='function'){
-        return result.finally(function(){
-          requestAnimationFrame(function(){restore198(code);});
-        });
+      if(result&&typeof result.then==='function'){
+        return result.finally(function(){requestAnimationFrame(function(){restore199(code);});});
       }
-      requestAnimationFrame(function(){restore198(code);});
+      requestAnimationFrame(function(){restore199(code);});
       return result;
     };
-    f.__rate198=true;
+    f.__rate199=true;
     window[name]=f;
   });
 
-  // If any existing reset function executes, restore from the remembered bank afterwards.
-  ['resetAfterSave','idbiResetData'].forEach(function(name){
+  /* MOBILE NEXT / CURSOR:
+     When Android keyboard moves focus to a numeric field, put the caret at the end.
+     If the field is only the default zero, clear it so the next value starts cleanly. */
+  function prepareNumeric199(inp){
+    if(!inp || inp.__cursor199)return;
+    inp.__cursor199=true;
+
+    inp.addEventListener('focus',function(){
+      if(inp.readOnly)return;
+
+      if(String(inp.value)==='0' && !inp.classList.contains('purity')){
+        inp.value='';
+        if(inp.classList.contains('gross')||inp.classList.contains('stone')){
+          try{ if(typeof window.calculate==='function') window.calculate(); }catch(e){}
+        }
+      }
+
+      requestAnimationFrame(function(){
+        try{
+          /* number inputs support select() on most Android browsers; fallback is harmless */
+          if(typeof inp.select==='function' && inp.value!=='') inp.select();
+        }catch(e){}
+      });
+    });
+  }
+
+  function bindNumericFields199(root){
+    root=root||document;
+    root.querySelectorAll(
+      '#valuation-main-sections input.gross,'+
+      '#valuation-main-sections input.stone,'+
+      '#valuation-main-sections input.purity,'+
+      '#idbi-valuation-screen input[type="number"]'
+    ).forEach(prepareNumeric199);
+  }
+
+  /* New jewellery rows are dynamically added, so bind after Add New Item too. */
+  ['addItem','idbiAddRow'].forEach(function(name){
     var old=window[name];
-    if(typeof old!=='function'||old.__rateReset198) return;
+    if(typeof old!=='function'||old.__cursor199)return;
     var f=function(){
-      var code=currentCode198();
-      preserveBeforeReset198(code);
       var r=old.apply(this,arguments);
-      requestAnimationFrame(function(){restore198(code);});
+      requestAnimationFrame(function(){bindNumericFields199(document);});
       return r;
     };
-    f.__rateReset198=true;
+    f.__cursor199=true;
     window[name]=f;
   });
 
-  window.restoreBankRate198=restore198;
-  window.saveBankRate198=save198;
+  window.restoreBankRate199=restore199;
+  window.saveBankRate199=save199;
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){
-      requestAnimationFrame(function(){restore198(currentCode198());});
-    });
-  }else{
-    requestAnimationFrame(function(){restore198(currentCode198());});
+  function init199(){
+    bindNumericFields199(document);
+    requestAnimationFrame(function(){restore199(currentCode199());});
   }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init199);
+  else init199();
 })();
 </script>
-<!-- /BANK RATE LOCK + EDIT + PERSISTENCE 198 -->
+<!-- /BANK RATE LOCK + VISIBLE INPUT + MOBILE CURSOR FIX 199 -->
 
 </body>
 </html>
