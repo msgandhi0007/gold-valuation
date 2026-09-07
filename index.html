@@ -22248,7 +22248,13 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       '</table>'+
       '<div class="idbi-cert-bottom233">'+
         '<div><div>Place: <b>Bhor</b></div><div>Date: <b>'+esc(fmtDate(r.customer&&r.customer.date))+'</b></div></div>'+
-        '<div class="idbi-cert-sign233">Signature of the Appraising Goldsmith</div>'+
+        '<div class="idbi-cert-sign233">'+
+          '<div>Signature of the Appraising Goldsmith</div>'+
+          '<div class="idbi-valuer-space234"></div>'+
+          '<div class="idbi-valuer-name234">MAHENDRA SHANTILAL GANDHI</div>'+
+          '<div>REGISTERED GOLD APPRAISER</div>'+
+          '<div>PPDC/GA/2026/244642</div>'+
+        '</div>'+
       '</div>'+
     '</div>';
   }
@@ -22267,14 +22273,14 @@ body.premiumBankValuation210 #idbi-valuation-screen{
     var style=document.createElement('style');
     style.id='idbiPage1Style233';
     style.textContent=`
-      .idbi-cert-page233{width:794px;min-height:1122px;background:#fff;padding:58px 54px 48px;box-sizing:border-box;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.42}
-      .idbi-cert-title233{text-align:center;text-decoration:underline;font-size:20px;font-weight:800;margin:5px 0 15px}
-      .idbi-cert-text233{text-align:justify;margin:0 0 11px}
-      .idbi-acid233{margin-top:5px}
-      .idbi-cert-table233{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.2px;line-height:1.15;margin-top:7px}
-      .idbi-cert-table233 th,.idbi-cert-table233 td{border:1px solid #555;padding:3px 2px;text-align:center;vertical-align:middle;overflow-wrap:anywhere}
-      .idbi-cert-table233 thead th{font-weight:500;vertical-align:top;height:88px}
-      .idbi-cert-table233 tbody tr{height:21px}
+      .idbi-cert-page233{width:794px;min-height:1122px;background:#fff;padding:54px 48px 42px;box-sizing:border-box;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.58}
+      .idbi-cert-title233{text-align:center;text-decoration:underline;font-size:22px;font-weight:800;margin:5px 0 18px;line-height:1.35}
+      .idbi-cert-text233{text-align:justify;margin:0 0 14px;line-height:1.58}
+      .idbi-acid233{margin-top:7px;line-height:1.58}
+      .idbi-cert-table233{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11.2px;line-height:1.28;margin-top:10px}
+      .idbi-cert-table233 th,.idbi-cert-table233 td{border:1px solid #555;padding:5px 3px;text-align:center;vertical-align:middle;overflow-wrap:anywhere}
+      .idbi-cert-table233 thead th{font-weight:600;vertical-align:middle;height:104px;line-height:1.24}
+      .idbi-cert-table233 tbody tr{height:28px}
       .idbi-cert-table233 tbody td{font-weight:700}
       .idbi-cert-table233 .blank td{font-weight:400}
       .idbi-cert-table233 .desc{text-align:left;padding-left:4px}
@@ -22291,8 +22297,10 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       .idbi-cert-table233 th:nth-child(9),.idbi-cert-table233 td:nth-child(9){width:11%}
       .idbi-cert-table233 th:nth-child(10),.idbi-cert-table233 td:nth-child(10){width:8%}
       .idbi-cert-table233 th:nth-child(11),.idbi-cert-table233 td:nth-child(11){width:10%}
-      .idbi-cert-bottom233{display:flex;justify-content:space-between;align-items:flex-end;margin-top:25px;padding:0 25px;font-size:13px}
-      .idbi-cert-sign233{min-width:260px;text-align:center;padding-top:25px}
+      .idbi-cert-bottom233{display:flex;justify-content:space-between;align-items:flex-end;margin-top:28px;padding:0 18px;font-size:15px;line-height:1.45}
+      .idbi-cert-sign233{min-width:285px;text-align:center;padding-top:18px;font-size:14px;line-height:1.35}
+      .idbi-valuer-space234{height:28px}
+      .idbi-valuer-name234{font-weight:800;margin-top:4px}
     `;
     document.head.appendChild(style);
 
@@ -22300,8 +22308,12 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       var canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
       var jsPDF=window.jspdf.jsPDF;
       var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      /* IDBI certificate is always generated as A4 portrait. */
+      if(pdf.internal.pageSize.getWidth()>pdf.internal.pageSize.getHeight()){
+        throw new Error('Portrait PDF page setup failed.');
+      }
       var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-      var margin=5;
+      var margin=7;
       var ratio=Math.min((pw-margin*2)/canvas.width,(ph-margin*2)/canvas.height);
       var w=canvas.width*ratio,h=canvas.height*ratio;
       pdf.addImage(canvas.toDataURL('image/jpeg',0.97),'JPEG',(pw-w)/2,(ph-h)/2,w,h,undefined,'FAST');
@@ -22355,6 +22367,20 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 })();
 </script>
 <!-- /STEP 233 -->
+
+
+<!-- STEP 234 - IDBI certificate valuer / larger text / portrait lock -->
+<style id="idbi-certificate-layout-234">
+@page idbiPortrait234 {
+  size:A4 portrait;
+  margin:7mm;
+}
+#idbiPage1Holder233,
+.idbi-cert-page233{
+  page:idbiPortrait234;
+}
+</style>
+<!-- /STEP 234 -->
 
 </body>
 </html>
