@@ -24699,5 +24699,63 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- /STEP 258 -->
 
 <!-- STEP 259 - GUARANTEED DIRECT AUTO BACKUP TRIGGER IN CORE SAVE PATHS -->
+<!-- STEP 260 - RELIABLE AUTO BACKUP USING ACTIVE STORAGE FOLDER -->
+<script id="step260-reliable-auto-backup">
+(function(){
+  'use strict';
+  const ENABLE_KEY='goldValuationAutoBackupEnabled';
+  let busy=false, pending=false;
+  function enabled(){return localStorage.getItem(ENABLE_KEY)!=='false';}
+  function rawLocal(){const raw={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);raw[k]=localStorage.getItem(k);}return raw;}
+  function refresh(){
+    try{
+      const e=document.getElementById('sbAutoBackupStatus'); if(!e)return;
+      const last=localStorage.getItem('goldValuationLastAutoBackup');
+      const d=last?new Date(last):null;
+      const when=(d&&Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
+      e.textContent=enabled()?'Auto Backup: ON ✓\
+Last automatic backup: '+when+'\
+File: Backups/Auto_Backup_Latest.json':'Auto Backup: OFF\
+Turn it on to create a full backup after every successful valuation save.';
+    }catch(e){}
+  }
+  async function doBackup(){
+    if(!enabled())return false;
+    if(busy){pending=true;return true;}
+    busy=true;
+    try{
+      if(typeof window.saveBlobToStorageFolder!=='function')return false;
+      const raw=rawLocal();
+      let vals=[];try{const a=JSON.parse(raw.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      const now=new Date();
+      const payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V3',version:3,backupType:'automatic',createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(raw).length},rawData:raw};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const latest=await window.saveBlobToStorageFolder('Auto_Backup_Latest.json',blob,'Backups');
+      if(!latest)return false;
+      const day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+      try{await window.saveBlobToStorageFolder('Auto_Backup_'+day+'.json',blob,'Backups');}catch(e){}
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      setTimeout(refresh,0);
+      return true;
+    }catch(e){console.warn('Step 260 automatic backup failed:',e);return false;}
+    finally{
+      busy=false;
+      if(pending){pending=false;setTimeout(function(){doBackup();},150);}
+    }
+  }
+  window.gvAutomaticFullBackup=doBackup;
+  window.runAutoBackupNow184=async function(){
+    if(!enabled()){alert('Auto Backup is turned off. Turn it on first.');return false;}
+    const e=document.getElementById('sbAutoBackupStatus');if(e)e.textContent='Creating automatic backup…';
+    const ok=await doBackup();refresh();
+    if(ok)alert('Automatic backup created successfully in Storage Folder → Backups.');
+    else alert('Automatic backup could not be created. Tap Refresh in Storage & Backup and try again.');
+    return false;
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh,300);});else setTimeout(refresh,300);
+})();
+</script>
+<!-- /STEP 260 -->
 </body>
 </html>
