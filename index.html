@@ -22610,5 +22610,102 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 237 -->
 
+
+<!-- STEP 238 - certificate of the JUST-SAVED valuation opens immediately -->
+<script id="step238-just-saved-certificate">
+(function(){
+  'use strict';
+  if(window.__step238Installed)return;
+  window.__step238Installed=true;
+
+  function bank238(){
+    var v='';
+    try{
+      var s=document.getElementById('mainBankSelect');
+      var h=document.getElementById('bankName');
+      v=(s&&s.value)||(h&&h.value)||window.currentBank||'';
+    }catch(e){}
+    return String(v).toUpperCase();
+  }
+  function idbi238(){ return bank238().indexOf('IDBI')>=0 ||
+    (document.body && document.body.classList.contains('idbiMode')); }
+
+  function lastSaved238(){
+    try{
+      var raw=localStorage.getItem('valuations');
+      var a=raw?JSON.parse(raw):[];
+      if(!Array.isArray(a)||!a.length)return null;
+      return a.slice().sort(function(x,y){
+        return new Date(y.modified||y.created||0)-new Date(x.modified||x.created||0);
+      })[0];
+    }catch(e){return null;}
+  }
+
+  async function cert238(isIdbi, rec){
+    /* rec is captured immediately AFTER the save; certificate is generated before reset/navigation can change fields */
+    if(isIdbi){
+      if(typeof window.buildIdbiPage1Certificate233==='function'){
+        var r=rec || (typeof window.idbiRecord==='function'?window.idbiRecord():null);
+        var out=await window.buildIdbiPage1Certificate233(r);
+        if(out&&out.blob){
+          var u=URL.createObjectURL(out.blob),a=document.createElement('a');
+          a.href=u;a.download=out.filename||'IDBI Valuation Certificate.pdf';
+          document.body.appendChild(a);a.click();a.remove();
+          setTimeout(function(){URL.revokeObjectURL(u)},2500);
+          return;
+        }
+      }
+      if(typeof window.idbiPrintCertificate==='function') return window.idbiPrintCertificate();
+    }else if(typeof window.buildCertificatePdf==='function'){
+      var out2=await window.buildCertificatePdf(rec);
+      if(out2&&out2.blob){
+        var u2=URL.createObjectURL(out2.blob),a2=document.createElement('a');
+        a2.href=u2;a2.download=out2.filename||'Valuation Certificate.pdf';
+        document.body.appendChild(a2);a2.click();a2.remove();
+        setTimeout(function(){URL.revokeObjectURL(u2)},2500);
+        return;
+      }
+    }
+    throw new Error('Certificate builder unavailable');
+  }
+
+  function wrap238(name,isIdbi){
+    var f=window[name];
+    if(typeof f!=='function'||f.__step238)return;
+    /* unwrap the earlier automatic-certificate wrapper to prevent duplicate PDFs */
+    if(f.__certOnly237 && typeof f.__original237==='function') f=f.__original237;
+    if(f.__wrapped236 && typeof f.__original236==='function') f=f.__original236;
+
+    function w(){
+      var self=this,args=arguments,r;
+      r=f.apply(self,args);
+      function done(v){
+        var saved=lastSaved238();
+        /* generate immediately from the just-saved state/record */
+        Promise.resolve().then(function(){return cert238(isIdbi,saved);})
+          .catch(function(e){console.error('Step 238 certificate:',e);});
+        return v;
+      }
+      return r&&typeof r.then==='function'?r.then(done):done(r);
+    }
+    w.__step238=true; w.__original238=f;
+    window[name]=w;
+    try{
+      if(name==='saveData') saveData=w;
+      if(name==='idbiSaveData') idbiSaveData=w;
+    }catch(e){}
+  }
+
+  function install238(){
+    wrap238('saveData',false);
+    wrap238('idbiSaveData',true);
+  }
+  install238();
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(install238,0)},{once:true});
+  setTimeout(install238,1500);
+})();
+</script>
+<!-- /STEP 238 -->
+
 </body>
 </html>
