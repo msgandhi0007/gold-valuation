@@ -22160,5 +22160,201 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /STEP 231 -->
 
+
+<!-- STEP 233 - IDBI certificate Page 1 only, based on supplied bank form -->
+<script id="idbi-page1-certificate-233">
+(function(){
+  'use strict';
+
+  function esc(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c;
+    });
+  }
+  function num(v){ return Number(v)||0; }
+  function money(v){
+    return '₹'+num(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function safe(v){
+    return String(v||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').trim().slice(0,60)||'Customer';
+  }
+  function fmtDate(v){
+    if(!v)return '';
+    var p=String(v).split('-');
+    return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : String(v);
+  }
+
+  function makeIdbiPage1Html233(r){
+    var rows=(r.items||[]).filter(function(x){
+      return num(x.gross)>0 || num(x.less)>0 || (x.name && !/^Item\s+\d+$/i.test(x.name));
+    });
+
+    var tq=0,tg=0,ts=0,ti=0,tn=0,teq=0,tv=0;
+    var tr=rows.map(function(x,i){
+      var qty=Math.max(1,parseInt(x.quantity||x.qty||1)||1);
+      var gross=num(x.gross);
+      var stone=num(x.less!=null?x.less:x.stone);
+      var impurity=num(x.impurity);
+      var net=num(x.netWeight);
+      var purity=num(x.purity);
+      var eq=num(x.equivalent22k);
+      var value=num(x.value);
+      tq+=qty; tg+=gross; ts+=stone; ti+=impurity; tn+=net; teq+=eq; tv+=value;
+      return '<tr>'+
+        '<td>'+(i+1)+'</td>'+
+        '<td class="desc">'+esc(x.name||('Item '+(i+1)))+'</td>'+
+        '<td>'+qty+'</td>'+
+        '<td>'+gross.toFixed(3)+'</td>'+
+        '<td>'+stone.toFixed(3)+'</td>'+
+        '<td>'+impurity.toFixed(3)+'</td>'+
+        '<td>'+net.toFixed(3)+'</td>'+
+        '<td>'+Math.round(purity)+'</td>'+
+        '<td>'+eq.toFixed(3)+'</td>'+
+        '<td>'+money(r.rate)+'</td>'+
+        '<td>'+money(value)+'</td>'+
+      '</tr>';
+    }).join('');
+
+    for(var i=rows.length;i<10;i++){
+      tr+='<tr class="blank"><td>'+(i+1)+'</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+    }
+
+    return '<div class="idbi-cert-page233">'+
+      '<div class="idbi-cert-title233">CERTIFICATE OF THE GOLDSMITH/SHROFF</div>'+
+      '<div class="idbi-cert-text233">'+
+        'I, Shri. <b>MAHENDRA SHANTILAL GANDHI</b> son of Shri. <b>SHANTILAL GANDHI</b> aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net Weight of gold there in is <b>'+tn.toFixed(3)+'</b> Grams of carat. I hereby certify that the Bank may safely grant a loan of <b>'+money(r.sanctionedLoan)+'</b> against delivery of the said gold ornaments/ and/or gold coins issued by banks. I am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any time as and when demanded by the Bank.'+
+      '</div>'+
+      '<div class="idbi-cert-text233 idbi-acid233">I hereby confirm that Acid test has been conducted for the Gold Ornaments/ and/or gold coins issued by banks pledged by Shri. <b>'+esc(r.customer&&r.customer.name)+'</b>.</div>'+
+      '<table class="idbi-cert-table233">'+
+        '<thead><tr>'+
+          '<th>Sr.<br>No</th>'+
+          '<th>Description of Ornaments</th>'+
+          '<th>No. of<br>Items</th>'+
+          '<th>Gross<br>Weight<br>Grams</th>'+
+          '<th>Stone<br>Wt.<br>Grams</th>'+
+          '<th>Impurity<br>Grams</th>'+
+          '<th>Net Weight<br>Grams</th>'+
+          '<th>Purity<br>in carat</th>'+
+          '<th>Equivalent weight of 22 carat gold contents<br>(Grams)</th>'+
+          '<th>Rate per gram<br>for 22 carat</th>'+
+          '<th>Value of the gold ornaments</th>'+
+        '</tr></thead>'+
+        '<tbody>'+tr+'</tbody>'+
+        '<tfoot>'+
+          '<tr><th></th><th>Total</th><th>'+tq+'</th><th>'+tg.toFixed(3)+'</th><th>'+ts.toFixed(3)+'</th><th>'+ti.toFixed(3)+'</th><th>'+tn.toFixed(3)+'</th><th></th><th>'+teq.toFixed(3)+'</th><th></th><th>'+money(tv)+'</th></tr>'+
+          '<tr><th></th><th colspan="9" class="left">Total Amount of gold:-</th><th>'+money(tv)+'</th></tr>'+
+          '<tr><th></th><th colspan="9" class="left">Loan amount:-</th><th>'+money(r.sanctionedLoan)+'</th></tr>'+
+        '</tfoot>'+
+      '</table>'+
+      '<div class="idbi-cert-bottom233">'+
+        '<div><div>Place: <b>Bhor</b></div><div>Date: <b>'+esc(fmtDate(r.customer&&r.customer.date))+'</b></div></div>'+
+        '<div class="idbi-cert-sign233">Signature of the Appraising Goldsmith</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  window.buildIdbiPage1Certificate233 = async function(record){
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
+    var r=record || (typeof window.idbiRecord==='function'?window.idbiRecord():null);
+    if(!r) throw new Error('IDBI valuation is unavailable.');
+
+    var holder=document.createElement('div');
+    holder.id='idbiPage1Holder233';
+    holder.style.cssText='position:fixed;left:-12000px;top:0;width:794px;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;z-index:-1;';
+    holder.innerHTML=makeIdbiPage1Html233(r);
+    document.body.appendChild(holder);
+
+    var style=document.createElement('style');
+    style.id='idbiPage1Style233';
+    style.textContent=`
+      .idbi-cert-page233{width:794px;min-height:1122px;background:#fff;padding:58px 54px 48px;box-sizing:border-box;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.42}
+      .idbi-cert-title233{text-align:center;text-decoration:underline;font-size:20px;font-weight:800;margin:5px 0 15px}
+      .idbi-cert-text233{text-align:justify;margin:0 0 11px}
+      .idbi-acid233{margin-top:5px}
+      .idbi-cert-table233{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.2px;line-height:1.15;margin-top:7px}
+      .idbi-cert-table233 th,.idbi-cert-table233 td{border:1px solid #555;padding:3px 2px;text-align:center;vertical-align:middle;overflow-wrap:anywhere}
+      .idbi-cert-table233 thead th{font-weight:500;vertical-align:top;height:88px}
+      .idbi-cert-table233 tbody tr{height:21px}
+      .idbi-cert-table233 tbody td{font-weight:700}
+      .idbi-cert-table233 .blank td{font-weight:400}
+      .idbi-cert-table233 .desc{text-align:left;padding-left:4px}
+      .idbi-cert-table233 tfoot th{font-weight:700}
+      .idbi-cert-table233 .left{text-align:left;padding-left:5px}
+      .idbi-cert-table233 th:nth-child(1),.idbi-cert-table233 td:nth-child(1){width:5%}
+      .idbi-cert-table233 th:nth-child(2),.idbi-cert-table233 td:nth-child(2){width:20%}
+      .idbi-cert-table233 th:nth-child(3),.idbi-cert-table233 td:nth-child(3){width:7%}
+      .idbi-cert-table233 th:nth-child(4),.idbi-cert-table233 td:nth-child(4){width:8%}
+      .idbi-cert-table233 th:nth-child(5),.idbi-cert-table233 td:nth-child(5){width:8%}
+      .idbi-cert-table233 th:nth-child(6),.idbi-cert-table233 td:nth-child(6){width:8%}
+      .idbi-cert-table233 th:nth-child(7),.idbi-cert-table233 td:nth-child(7){width:8%}
+      .idbi-cert-table233 th:nth-child(8),.idbi-cert-table233 td:nth-child(8){width:7%}
+      .idbi-cert-table233 th:nth-child(9),.idbi-cert-table233 td:nth-child(9){width:11%}
+      .idbi-cert-table233 th:nth-child(10),.idbi-cert-table233 td:nth-child(10){width:8%}
+      .idbi-cert-table233 th:nth-child(11),.idbi-cert-table233 td:nth-child(11){width:10%}
+      .idbi-cert-bottom233{display:flex;justify-content:space-between;align-items:flex-end;margin-top:25px;padding:0 25px;font-size:13px}
+      .idbi-cert-sign233{min-width:260px;text-align:center;padding-top:25px}
+    `;
+    document.head.appendChild(style);
+
+    try{
+      var canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      var jsPDF=window.jspdf.jsPDF;
+      var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      var pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+      var margin=5;
+      var ratio=Math.min((pw-margin*2)/canvas.width,(ph-margin*2)/canvas.height);
+      var w=canvas.width*ratio,h=canvas.height*ratio;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.97),'JPEG',(pw-w)/2,(ph-h)/2,w,h,undefined,'FAST');
+      var blob=pdf.output('blob');
+      var filename=safe(r.customer&&r.customer.name)+' - '+String((r.customer&&r.customer.date)||new Date().toISOString().slice(0,10))+'.pdf';
+      return {blob:blob,filename:filename};
+    }finally{
+      holder.remove();
+      style.remove();
+    }
+  };
+
+  /* IDBI Share now uses Page 1 bank certificate only. */
+  window.idbiShareData = async function(){
+    try{
+      var r=typeof window.idbiRecord==='function'?window.idbiRecord():null;
+      var out=await window.buildIdbiPage1Certificate233(r);
+      var file=new File([out.blob],out.filename,{type:'application/pdf'});
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({title:'IDBI Bank Appraiser Certificate',text:'IDBI Bank Appraiser Certificate',files:[file]});
+        return;
+      }
+      var url=URL.createObjectURL(out.blob),a=document.createElement('a');
+      a.href=url;a.download=out.filename;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url)},1500);
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      console.error(e);
+      alert('IDBI certificate PDF could not be generated. '+(e&&e.message?e.message:''));
+    }
+  };
+
+  /* IDBI Certificate/PDF button now creates Page 1 only. */
+  window.idbiPrintCertificate = async function(){
+    try{
+      var r=typeof window.idbiRecord==='function'?window.idbiRecord():null;
+      var out=await window.buildIdbiPage1Certificate233(r);
+      var url=URL.createObjectURL(out.blob);
+      var a=document.createElement('a');
+      a.href=url;
+      a.download=out.filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url)},1800);
+    }catch(e){
+      console.error(e);
+      alert('IDBI certificate PDF could not be generated. '+(e&&e.message?e.message:''));
+    }
+  };
+})();
+</script>
+<!-- /STEP 233 -->
+
 </body>
 </html>
