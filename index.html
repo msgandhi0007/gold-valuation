@@ -23504,5 +23504,208 @@ body.mgb-cert-243 #certificate table td:nth-child(8){width:15%!important}
 </script>
 <!-- /STEP 245 -->
 
+
+<!-- STEP 246 - ONE certificate PDF window only after Save, all four banks -->
+<script id="single-certificate-window-after-save-246">
+(function(){
+  'use strict';
+  if(window.__singlePdf246Installed)return;
+  window.__singlePdf246Installed=true;
+
+  function unwrapKnown246(fn){
+    var guard=0;
+    while(typeof fn==='function' && guard++<20){
+      if(fn.__step238 && fn.__original238){fn=fn.__original238;continue;}
+      if(fn.__step239 && fn.__original239){fn=fn.__original239;continue;}
+      if(fn.__certOnly237 && fn.__original237){fn=fn.__original237;continue;}
+      if(fn.__wrapped236 && fn.__original236){fn=fn.__original236;continue;}
+      break;
+    }
+    return fn;
+  }
+
+  function storeState246(){
+    try{return localStorage.getItem('goldValuations')||'[]';}
+    catch(e){return '';}
+  }
+
+  function openOneWindow246(){
+    try{
+      /* Same fixed name guarantees that repeated legacy calls cannot create extra tabs. */
+      var w=window.open('about:blank','GV_CERTIFICATE_PDF');
+      if(w && !w.closed){
+        try{
+          w.document.open();
+          w.document.write(
+            '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">'+
+            '<title>Valuation Certificate</title>'+
+            '<body style="font-family:Arial,sans-serif;padding:24px;text-align:center">'+
+            '<b>Generating valuation certificate PDF...</b></body>'
+          );
+          w.document.close();
+        }catch(e){}
+      }
+      return w;
+    }catch(e){return null;}
+  }
+
+  function showPdf246(win,out){
+    if(!out || !out.blob)throw new Error('Certificate PDF was not generated.');
+    var url=URL.createObjectURL(out.blob);
+    if(win && !win.closed){
+      win.location.replace(url);
+    }else{
+      var a=document.createElement('a');
+      a.href=url;
+      a.target='_blank';
+      a.rel='noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    setTimeout(function(){try{URL.revokeObjectURL(url)}catch(e){}},120000);
+  }
+
+  async function installStandard246(){
+    var current=window.saveData;
+    if(typeof current!=='function' || current.__singlePdf246)return;
+
+    var original=unwrapKnown246(current);
+
+    async function wrapped(){
+      var before=storeState246();
+      var pdfWin=openOneWindow246();
+
+      /* Keep the just-saved form intact until certificate capture is finished. */
+      var realReset=window.resetAfterSave;
+      var resetRequested=false;
+      if(typeof realReset==='function'){
+        window.resetAfterSave=function(){resetRequested=true;};
+        try{resetAfterSave=window.resetAfterSave}catch(e){}
+      }
+
+      var result,err=null;
+      try{
+        result=await original.apply(this,arguments);
+      }catch(e){err=e;}
+
+      if(typeof realReset==='function'){
+        window.resetAfterSave=realReset;
+        try{resetAfterSave=realReset}catch(e){}
+      }
+
+      var after=storeState246();
+      var saved=(after!==before);
+
+      if(err || !saved){
+        if(pdfWin && !pdfWin.closed)try{pdfWin.close()}catch(e){}
+        if(err)throw err;
+        return result;
+      }
+
+      try{
+        if(typeof window.buildCertificatePdf!=='function')
+          throw new Error('Certificate PDF builder unavailable.');
+        var out=await window.buildCertificatePdf();
+        showPdf246(pdfWin,out);
+      }catch(e){
+        console.error('Step 246 standard certificate:',e);
+        if(pdfWin && !pdfWin.closed)try{pdfWin.close()}catch(x){}
+      }finally{
+        if(resetRequested && typeof realReset==='function'){
+          try{realReset()}catch(e){console.error(e)}
+        }
+      }
+      return result;
+    }
+
+    wrapped.__singlePdf246=true;
+    wrapped.__original246=original;
+    window.saveData=wrapped;
+    try{saveData=wrapped}catch(e){}
+  }
+
+  async function installIdbi246(){
+    var current=window.idbiSaveData;
+    if(typeof current!=='function' || current.__singlePdf246)return;
+
+    var original=unwrapKnown246(current);
+
+    async function wrapped(){
+      var before=storeState246();
+      var pdfWin=openOneWindow246();
+
+      var recordBefore=null;
+      try{
+        if(typeof window.idbiRecord==='function')recordBefore=window.idbiRecord();
+      }catch(e){}
+
+      var realReset=window.idbiReset;
+      var resetRequested=false;
+      if(typeof realReset==='function'){
+        window.idbiReset=function(){resetRequested=true;};
+      }
+
+      var result,err=null;
+      try{
+        result=await original.apply(this,arguments);
+      }catch(e){err=e;}
+
+      if(typeof realReset==='function')window.idbiReset=realReset;
+
+      var after=storeState246();
+      var saved=(after!==before);
+
+      if(err || !saved){
+        if(pdfWin && !pdfWin.closed)try{pdfWin.close()}catch(e){}
+        if(err)throw err;
+        return result;
+      }
+
+      try{
+        if(typeof window.buildIdbiPage1Certificate233!=='function')
+          throw new Error('IDBI certificate PDF builder unavailable.');
+        var r=window._currentSavedRecord || recordBefore;
+        var out=await window.buildIdbiPage1Certificate233(r);
+        showPdf246(pdfWin,out);
+      }catch(e){
+        console.error('Step 246 IDBI certificate:',e);
+        if(pdfWin && !pdfWin.closed)try{pdfWin.close()}catch(x){}
+      }finally{
+        if(resetRequested && typeof realReset==='function'){
+          try{realReset()}catch(e){console.error(e)}
+        }
+      }
+      return result;
+    }
+
+    wrapped.__singlePdf246=true;
+    wrapped.__original246=original;
+    window.idbiSaveData=wrapped;
+    try{idbiSaveData=wrapped}catch(e){}
+  }
+
+  function install246(){
+    installStandard246();
+    installIdbi246();
+  }
+
+  /*
+    Older Step 238/239 scripts schedule delayed re-wrapping.
+    Install after all of them, then once more as a final guard.
+  */
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(install246,2600);
+      setTimeout(install246,3400);
+    },{once:true});
+  }else{
+    setTimeout(install246,2600);
+    setTimeout(install246,3400);
+  }
+})();
+</script>
+<!-- /STEP 246 -->
+
 </body>
 </html>
