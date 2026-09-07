@@ -22382,5 +22382,117 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /STEP 234 -->
 
+
+<!-- STEP 236 - fast save + auto-open certificate PDF after save, all banks -->
+<script id="fast-save-auto-pdf-236">
+(function(){
+  'use strict';
+  if(window.__fastSaveAutoPdf236)return;
+  window.__fastSaveAutoPdf236=true;
+
+  function currentBank236(){
+    var b='';
+    try{
+      var s=document.getElementById('mainBankSelect');
+      if(s) b=s.value||'';
+      var h=document.getElementById('bankName');
+      if(!b && h) b=h.value||'';
+      if(!b && window.currentBank) b=window.currentBank;
+    }catch(e){}
+    return String(b||'').toUpperCase();
+  }
+
+  function isIdbi236(){
+    return currentBank236().indexOf('IDBI')>=0 ||
+      (document.body && document.body.classList.contains('idbiMode'));
+  }
+
+  function defer236(fn){
+    setTimeout(function(){
+      try{ fn(); }catch(e){ console.error(e); }
+    },80);
+  }
+
+  async function openPdfAfterSave236(isIdbi){
+    /* Let the successful save paint immediately; PDF work starts just after it. */
+    await new Promise(function(resolve){ requestAnimationFrame(function(){setTimeout(resolve,40);}); });
+    try{
+      if(isIdbi){
+        if(typeof window.idbiPrintCertificate==='function'){
+          await window.idbiPrintCertificate();
+          return;
+        }
+      }else{
+        /* Existing standard-bank certificate generator/button path. */
+        var candidates=[
+          window.printCertificate,
+          window.generateCertificate,
+          window.generatePDF,
+          window.printValuationCertificate
+        ];
+        for(var i=0;i<candidates.length;i++){
+          if(typeof candidates[i]==='function'){
+            var r=candidates[i]();
+            if(r && typeof r.then==='function') await r;
+            return;
+          }
+        }
+        var btn=[].slice.call(document.querySelectorAll('button,a')).find(function(el){
+          var t=(el.textContent||'').toLowerCase();
+          return t.indexOf('valuation certificate')>=0 || t.indexOf('certificate / pdf')>=0;
+        });
+        if(btn) btn.click();
+      }
+    }catch(e){
+      console.error('Auto PDF after save:',e);
+    }
+  }
+
+  function wrap236(name,isIdbi){
+    var original=window[name];
+    if(typeof original!=='function' || original.__wrapped236)return;
+    function wrapped(){
+      var args=arguments, self=this, result;
+      var start=performance.now();
+      try{
+        result=original.apply(self,args);
+      }catch(e){ throw e; }
+
+      function after(){
+        /* PDF generation is deliberately outside the critical save path. */
+        defer236(function(){ openPdfAfterSave236(isIdbi); });
+        if(window.requestIdleCallback){
+          requestIdleCallback(function(){
+            try{
+              if(typeof window.renderDashboard==='function') window.renderDashboard();
+            }catch(e){}
+          },{timeout:1200});
+        }
+      }
+
+      if(result && typeof result.then==='function'){
+        return result.then(function(v){ after(); return v; });
+      }
+      after();
+      return result;
+    }
+    wrapped.__wrapped236=true;
+    wrapped.__original236=original;
+    window[name]=wrapped;
+  }
+
+  function install236(){
+    wrap236('saveData',false);
+    wrap236('idbiSaveData',true);
+  }
+
+  install236();
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(install236,0);},{once:true});
+  /* Some legacy patches replace save functions late; one final install pass only. */
+  setTimeout(install236,1200);
+})();
+</script>
+<!-- /STEP 236 -->
+
 </body>
 </html>
