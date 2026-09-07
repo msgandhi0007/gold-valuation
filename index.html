@@ -24384,5 +24384,167 @@ body:not(.idbi-open) #valuation-main-sections::before{
 </style>
 <!-- /STEP 254 -->
 
+
+<!-- STEP 255 - Exact Select Bank RJ header cloned into all valuation screens -->
+<style id="exact-select-bank-header-all-valuations-255">
+/* One canonical clone style: exactly match the Select Bank header footprint. */
+.rj-header-clone-255{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+}
+.rj-header-clone-255 .s111-header{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+
+/* Remove Step 254 image pseudo-headers so only the real cloned header shows. */
+body:not(.idbi-open) #valuation-main-sections::before,
+#idbi-valuation-screen::before{
+  display:none!important;
+  content:none!important;
+}
+
+/* Valuation screens should not show any older embedded s111 header besides the clone. */
+#valuation-main-sections > .s111-header,
+#idbi-valuation-screen > .s111-header{
+  display:none!important;
+}
+
+/* Keep exact Select Bank header proportions on mobile. */
+#valuation-main-sections .rj-header-clone-255 .s111-header,
+#idbi-valuation-screen .rj-header-clone-255 .s111-header{
+  border-radius:0!important;
+}
+
+/* No added side margins around the cloned header. */
+#valuation-main-sections .rj-header-clone-255,
+#idbi-valuation-screen .rj-header-clone-255{
+  margin-left:0!important;
+  margin-right:0!important;
+}
+
+/* Back button/bank banner begin immediately after the exact shared header. */
+#valuationBankBackBar194,
+#idbi-valuation-screen > .idbi-head{
+  margin-top:10px!important;
+}
+</style>
+
+<script id="exact-select-bank-header-all-valuations-js-255">
+(function(){
+  'use strict';
+  if(window.__rj255)return;
+  window.__rj255=true;
+
+  function canonicalHeader255(){
+    // Prefer the exact header on Bank Selection page.
+    var home=document.getElementById('bankHome');
+    if(home){
+      var h=home.querySelector('.s111-header');
+      if(h)return h;
+    }
+    // Fallback to the first app header if structure changes.
+    return document.querySelector('.s111-header');
+  }
+
+  function makeClone255(id){
+    var source=canonicalHeader255();
+    if(!source)return null;
+
+    var wrap=document.createElement('div');
+    wrap.className='rj-header-clone-255';
+    wrap.id=id;
+
+    var clone=source.cloneNode(true);
+
+    // Strip IDs from the clone to avoid duplicate IDs and event conflicts.
+    clone.querySelectorAll('[id]').forEach(function(el){el.removeAttribute('id')});
+    clone.removeAttribute('id');
+
+    // Remove any click handlers/interactive controls from the cloned branding area.
+    clone.querySelectorAll('button,a,input,select,textarea').forEach(function(el){
+      el.setAttribute('tabindex','-1');
+      el.style.pointerEvents='none';
+    });
+
+    wrap.appendChild(clone);
+    return wrap;
+  }
+
+  function ensureStandard255(){
+    var root=document.getElementById('valuation-main-sections');
+    if(!root || document.getElementById('rjStandardHeader255'))return;
+
+    var clone=makeClone255('rjStandardHeader255');
+    if(!clone)return;
+
+    // Insert as the very first visible element in the valuation screen.
+    root.insertBefore(clone,root.firstChild);
+  }
+
+  function ensureIdbi255(){
+    var root=document.getElementById('idbi-valuation-screen');
+    if(!root || document.getElementById('rjIdbiHeader255'))return;
+
+    var clone=makeClone255('rjIdbiHeader255');
+    if(!clone)return;
+
+    root.insertBefore(clone,root.firstChild);
+  }
+
+  function refresh255(){
+    ensureStandard255();
+    ensureIdbi255();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',refresh255,{once:true});
+  }else{
+    refresh255();
+  }
+
+  // Re-ensure after app navigation; clones remain identical to Select Bank header.
+  var oldOpen=window.openBank;
+  if(typeof oldOpen==='function'&&!oldOpen.__rj255){
+    var f=function(){
+      var r=oldOpen.apply(this,arguments);
+      requestAnimationFrame(refresh255);
+      return r;
+    };
+    f.__rj255=true;
+    window.openBank=f;
+  }
+
+  var oldIdbi=window.openIDBIValuation;
+  if(typeof oldIdbi==='function'&&!oldIdbi.__rj255){
+    var g=function(){
+      var r=oldIdbi.apply(this,arguments);
+      requestAnimationFrame(refresh255);
+      return r;
+    };
+    g.__rj255=true;
+    window.openIDBIValuation=g;
+  }
+
+  var oldSaved=window.openSavedDirectFinal;
+  if(typeof oldSaved==='function'&&!oldSaved.__rj255){
+    var h=function(){
+      var r=oldSaved.apply(this,arguments);
+      requestAnimationFrame(refresh255);
+      return r;
+    };
+    h.__rj255=true;
+    window.openSavedDirectFinal=h;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+})();
+</script>
+<!-- /STEP 255 -->
+
 </body>
 </html>
