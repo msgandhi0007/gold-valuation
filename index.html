@@ -23222,5 +23222,146 @@ body.mgb-cert-243 #certificate .valuer-details{
 </script>
 <!-- /STEP 243 -->
 
+
+<!-- STEP 244 - MGB certificate No. of Items/data alignment fix -->
+<script id="mgb-certificate-table-alignment-fix-244">
+(function(){
+  'use strict';
+  if(window.__mgb244)return;
+  window.__mgb244=true;
+
+  function bank244(){
+    return String(
+      document.getElementById('mainBankSelect')?.value ||
+      document.getElementById('bankName')?.value ||
+      window._currentSavedRecord?.customer?.bank || ''
+    ).trim().toUpperCase();
+  }
+  function isMgb244(){
+    var b=bank244();
+    return b.indexOf('MAHARASHTRA GRAMIN')>=0 || b==='MGB';
+  }
+  function esc244(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function money244(v){
+    return '₹'+(Number(v)||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  }
+
+  function rebuildMgbRows244(){
+    if(!isMgb244())return;
+    var body=document.getElementById('cRows');
+    if(!body)return;
+
+    var rate=Number(document.getElementById('rate')?.value||0);
+    var rows='', no=0, tq=0,tg=0,ts=0,tr=0,tv=0,tn=0,weighted=0;
+
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(item){
+      var g=Number(item.querySelector('.gross')?.value||0);
+      var s=Number(item.querySelector('.stone')?.value||0);
+      var p=Number(item.querySelector('.purity')?.value||0);
+      var name=(typeof window.getItemName==='function')?window.getItemName(item):(item.querySelector('.itemName')?.value||'');
+      var qty=Math.max(1,parseInt(item.querySelector('.itemQty229')?.value||1)||1);
+
+      /* Only actual entered jewellery rows belong in the certificate. */
+      if(!(g>0 || s>0 || String(name||'').trim()))return;
+
+      no++;
+      var net=Math.max(0,g-s);
+      var pure=net*p/100;
+      var rounded=Math.floor((pure+1e-9)*10)/10;
+      var value=rounded*rate;
+
+      tq+=qty; tg+=g; ts+=s; tn+=net; weighted+=net*p; tr+=rounded; tv+=value;
+
+      rows+='<tr>'+
+        '<td>'+no+'</td>'+
+        '<td>'+esc244(name||('Item '+no))+'</td>'+
+        '<td>'+qty+'</td>'+
+        '<td>'+g.toFixed(2)+'</td>'+
+        '<td>'+s.toFixed(2)+'</td>'+
+        '<td>'+p.toFixed(2)+'%</td>'+
+        '<td>'+rounded.toFixed(2)+'</td>'+
+        '<td>'+money244(value)+'</td>'+
+      '</tr>';
+    });
+
+    body.innerHTML=rows||'<tr><td colspan="8">No items</td></tr>';
+
+    /* Ensure the MGB header is exactly the required 8-column order. */
+    var table=body.closest('table');
+    var head=table&&table.querySelector('thead tr');
+    if(head){
+      head.innerHTML=
+        '<th>Sr.</th>'+
+        '<th>Jewellery Item</th>'+
+        '<th>No. of Items</th>'+
+        '<th>Gross Wt.</th>'+
+        '<th>Stone Wt.</th>'+
+        '<th>Purity</th>'+
+        '<th>Rounded Wt.</th>'+
+        '<th>Value</th>';
+    }
+
+    /* Rebuild TOTAL row to the same 8-column structure. */
+    var foot=table&&table.querySelector('tfoot');
+    if(foot){
+      var avg=tn?weighted/tn:0;
+      foot.innerHTML='<tr>'+
+        '<th colspan="2">TOTAL</th>'+
+        '<th>'+tq+'</th>'+
+        '<th>'+tg.toFixed(2)+'</th>'+
+        '<th>'+ts.toFixed(2)+'</th>'+
+        '<th>'+avg.toFixed(2)+'%</th>'+
+        '<th>'+tr.toFixed(2)+'</th>'+
+        '<th>'+money244(tv)+'</th>'+
+      '</tr>';
+    }
+  }
+
+  /* Step 243 inserts the column generically. Run after it and replace the
+     MGB jewellery table with an exact 8-column row structure. */
+  var oldBuild=window.buildCertificatePdf;
+  if(typeof oldBuild==='function'&&!oldBuild.__mgb244){
+    var build=async function(){
+      if(isMgb244()){
+        /* Step 243's wrapper calls its enhancer before its original builder.
+           Rebuild again on the next microtask so rows/header/totals align. */
+        Promise.resolve().then(rebuildMgbRows244);
+        rebuildMgbRows244();
+      }
+      return await oldBuild.apply(this,arguments);
+    };
+    build.__mgb244=true;
+    build.__original244=oldBuild;
+    window.buildCertificatePdf=build;
+    try{buildCertificatePdf=build}catch(e){}
+  }
+})();
+</script>
+
+<style id="mgb-certificate-table-widths-244">
+body.mgb-cert-243 #certificate #cRows.closest-table-placeholder{display:initial}
+body.mgb-cert-243 #certificate table th:nth-child(1),
+body.mgb-cert-243 #certificate table td:nth-child(1){width:6%!important}
+body.mgb-cert-243 #certificate table th:nth-child(2),
+body.mgb-cert-243 #certificate table td:nth-child(2){width:21%!important}
+body.mgb-cert-243 #certificate table th:nth-child(3),
+body.mgb-cert-243 #certificate table td:nth-child(3){width:11%!important;text-align:center!important}
+body.mgb-cert-243 #certificate table th:nth-child(4),
+body.mgb-cert-243 #certificate table td:nth-child(4){width:12%!important}
+body.mgb-cert-243 #certificate table th:nth-child(5),
+body.mgb-cert-243 #certificate table td:nth-child(5){width:11%!important}
+body.mgb-cert-243 #certificate table th:nth-child(6),
+body.mgb-cert-243 #certificate table td:nth-child(6){width:11%!important}
+body.mgb-cert-243 #certificate table th:nth-child(7),
+body.mgb-cert-243 #certificate table td:nth-child(7){width:13%!important}
+body.mgb-cert-243 #certificate table th:nth-child(8),
+body.mgb-cert-243 #certificate table td:nth-child(8){width:15%!important}
+</style>
+<!-- /STEP 244 -->
+
 </body>
 </html>
