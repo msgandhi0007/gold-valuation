@@ -3683,6 +3683,14 @@ body:not(.menu-viewing) .s111-rate{
 <link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png">
 <link rel="apple-touch-icon" href="app-icon-192.png">
 <meta name="theme-color" content="#a96d00">
+<style id="item-number-field-all-banks-227">
+/* Step 227 — automatic Item No. on all four bank valuation screens. */
+.item-number-field-227{display:grid;grid-template-columns:auto 64px;align-items:center;justify-content:start;gap:10px;margin:0 0 10px!important}
+.item-number-field-227 label{margin:0!important;font-size:13px!important;font-weight:800!important;color:#4b5563!important;white-space:nowrap!important}
+.item-number-field-227 input{width:64px!important;height:38px!important;min-height:38px!important;padding:6px 8px!important;text-align:center!important;border:1px solid #d8c58f!important;border-radius:10px!important;background:#fff8e7!important;color:#111827!important;font-size:15px!important;font-weight:900!important;box-shadow:none!important;opacity:1!important}
+#idbi-valuation-screen .idbi-item-number-227 label{color:#d6e0e7!important}
+#idbi-valuation-screen .idbi-item-number-227 input{background:#071c29!important;border-color:#466477!important;color:#f4bd35!important}
+</style>
 </head>
 <body>
 <div id="appCover" aria-label="Gold Valuation App cover">
@@ -4727,6 +4735,7 @@ function printCertificate(){
 function addItem(data={name:'',gross:0,stone:0,purity:80}){
 count++;const d=document.createElement('div');d.className='item';d.id='item'+count;
 d.innerHTML=`<div class="itemhead"><span>Item ${count}</span><button class="remove" onclick="removeItem(${count})">Remove</button></div>
+<div class="item-number-field-227"><label>Item No.</label><input class="itemNo227" type="text" value="${count}" readonly tabindex="-1"></div>
 <div class="field" style="margin-bottom:10px"><label>Jewellery Item Name</label>
 <select class="itemName">
 <option value="">Select Gold Item</option>
@@ -4771,7 +4780,7 @@ if(itemSelect && itemSelect.value==='Other'){
 calculate();
 }
 function removeItem(id){document.getElementById('item'+id)?.remove();renumber();calculate()}
-function renumber(){[...document.querySelectorAll('.item')].forEach((x,i)=>x.querySelector('.itemhead span').textContent='Item '+(i+1))}
+function renumber(){[...document.querySelectorAll('.item')].forEach((x,i)=>{const n=i+1;const h=x.querySelector('.itemhead span');if(h)h.textContent='Item '+n;const f=x.querySelector('.itemNo227');if(f)f.value=n;})}
 function calculate(){
 const rate=num(document.getElementById('rate').value);let tg=0,ts=0,tn=0,tr=0,tv=0,wp=0,rows='',no=0;
 document.querySelectorAll('.item').forEach(el=>{no++;const g=num(el.querySelector('.gross').value),s=num(el.querySelector('.stone').value),p=num(el.querySelector('.purity').value),net=Math.max(0,g-s),pure=net*p/100,rounded=Math.floor((pure+1e-9)*10)/10,value=rounded*rate;
@@ -8023,6 +8032,7 @@ document.addEventListener('DOMContentLoaded',function(){
       card.className='idbi-item-card';
       card.innerHTML=
         '<div class="idbi-item-head"><strong>Item '+i+'</strong><button type="button" onclick="idbiRemoveRow('+i+')">Remove</button></div>'+
+        '<div class="item-number-field-227 idbi-item-number-227"><label>Item No.</label><input type="text" value="'+i+'" readonly tabindex="-1"></div>'+
         '<label>Jewellery Item Name</label>'+
         '<select id="idbiItem'+i+'" class="idbi-item-select">'+idbiItemOptions+'</select>'+
         '<div class="idbi-input-grid">'+
