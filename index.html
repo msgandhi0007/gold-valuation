@@ -5097,6 +5097,15 @@ async function saveData(){
       }
     }
 
+    // STEP 259: Guaranteed full Auto Backup after every successful standard-bank save.
+    // Run directly from the real save path so later/legacy Save wrappers cannot bypass it.
+    if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
+      try{
+        window.__gvLastAutoBackupFingerprint='';
+        Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 259 standard auto backup failed:',e);});
+      }catch(e){console.warn('Step 259 standard auto backup failed:',e);}
+    }
+
     const action=existingIndex>=0?'updated':'saved';
     // STEP 247: Storage-folder access is optional. A successful app save must
     // continue directly to certificate generation without an interrupting popup.
@@ -8252,6 +8261,13 @@ window.handleMainBankSelection=function(value){
         var filename='IDBI-Valuation-'+safe+'-'+String(rec.id)+'.json';
         try{await window.saveBlobToStorageFolder(filename,new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Valuations');}catch(e){}
         try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
+      }
+      // STEP 259: Guaranteed full Auto Backup after every successful IDBI save.
+      if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
+        try{
+          window.__gvLastAutoBackupFingerprint='';
+          Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 259 IDBI auto backup failed:',e);});
+        }catch(e){console.warn('Step 259 IDBI auto backup failed:',e);}
       }
       window._currentSavedRecord=rec; window._idbiEditingId=null;
       // STEP 247: no success/storage popup; continue directly to certificate PDF.
@@ -24681,5 +24697,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 258 -->
+
+<!-- STEP 259 - GUARANTEED DIRECT AUTO BACKUP TRIGGER IN CORE SAVE PATHS -->
 </body>
 </html>
