@@ -23363,5 +23363,146 @@ body.mgb-cert-243 #certificate table td:nth-child(8){width:15%!important}
 </style>
 <!-- /STEP 244 -->
 
+
+<!-- STEP 245 - preserve exact sanctioned loan when opening saved valuations -->
+<script id="saved-sanctioned-loan-preserve-245">
+(function(){
+  'use strict';
+  if(window.__savedLoan245)return;
+  window.__savedLoan245=true;
+
+  function records245(){
+    try{
+      var a=typeof window.getSaved==='function'
+        ? window.getSaved()
+        : JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return []}
+  }
+
+  function isIdbi245(r){
+    var b=String((r&&r.customer&&r.customer.bank)||(r&&r.bank)||'').toUpperCase();
+    return !!r && (r.valuationType==='IDBI_BANK'||r.bankSpecific===true||b.indexOf('IDBI')>=0);
+  }
+
+  function savedLoan245(r){
+    if(!r)return '';
+    if(r.sanctionedLoan!==undefined && r.sanctionedLoan!==null) return r.sanctionedLoan;
+    if(r.sanctioned!==undefined && r.sanctioned!==null) return r.sanctioned;
+    if(r.loanAmount!==undefined && r.loanAmount!==null) return r.loanAmount;
+    if(r.customer && r.customer.sanctionedLoan!==undefined && r.customer.sanctionedLoan!==null)
+      return r.customer.sanctionedLoan;
+    return '';
+  }
+
+  function applyExact245(r){
+    if(!r)return;
+    var v=savedLoan245(r);
+    var el=document.getElementById(isIdbi245(r)?'idbiLoan':'sanctionedLoan');
+    if(el) el.value=(v===undefined||v===null)?'':String(v);
+  }
+
+  /*
+    Validation is correct while ENTERING/EDITING a valuation, but it must not
+    rewrite a historical saved amount merely because the record is being opened.
+  */
+  var oldValidate=window.validateSanctionedLoan;
+  if(typeof oldValidate==='function'&&!oldValidate.__saved245){
+    var validate=function(showMessage){
+      if(window.__restoringSavedLoan245){
+        var el=document.getElementById('sanctionedLoan');
+        if(el && typeof window.getCurrentLtvLoanLimit==='function'){
+          try{el.max=Number(window.getCurrentLtvLoanLimit()||0).toFixed(2);}catch(e){}
+        }
+        return true;
+      }
+      return oldValidate.apply(this,arguments);
+    };
+    validate.__saved245=true;
+    validate.__original245=oldValidate;
+    window.validateSanctionedLoan=validate;
+  }
+
+  function restoreSequence245(r){
+    applyExact245(r);
+    requestAnimationFrame(function(){applyExact245(r)});
+    setTimeout(function(){applyExact245(r)},80);
+    setTimeout(function(){applyExact245(r)},180);
+    setTimeout(function(){
+      applyExact245(r);
+      window.__restoringSavedLoan245=false;
+    },350);
+  }
+
+  /* Direct load route used by the Saved Valuations screen. */
+  var oldLoad=window.loadSaved;
+  if(typeof oldLoad==='function'&&!oldLoad.__savedLoan245){
+    var load=function(i){
+      var r=records245()[Number(i)];
+      if(r)window.__restoringSavedLoan245=true;
+      try{
+        var out=oldLoad.apply(this,arguments);
+        if(r)restoreSequence245(r);
+        return out;
+      }catch(e){
+        window.__restoringSavedLoan245=false;
+        throw e;
+      }
+    };
+    load.__savedLoan245=true;
+    load.__original245=oldLoad;
+    window.loadSaved=load;
+  }
+
+  /* Clean Saved Valuations / Customer History route. */
+  var oldDirect=window.openSavedDirectFinal;
+  if(typeof oldDirect==='function'&&!oldDirect.__savedLoan245){
+    var direct=function(i){
+      var r=records245()[Number(i)];
+      if(r)window.__restoringSavedLoan245=true;
+      try{
+        var out=oldDirect.apply(this,arguments);
+        if(r)restoreSequence245(r);
+        return out;
+      }catch(e){
+        window.__restoringSavedLoan245=false;
+        throw e;
+      }
+    };
+    direct.__savedLoan245=true;
+    direct.__original245=oldDirect;
+    window.openSavedDirectFinal=direct;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  /* Printing an existing saved valuation must also use the stored amount exactly. */
+  var oldPrint=window.printSaved;
+  if(typeof oldPrint==='function'&&!oldPrint.__savedLoan245){
+    var print=function(i){
+      var r=records245()[Number(i)];
+      if(r)window.__restoringSavedLoan245=true;
+      try{
+        var out=oldPrint.apply(this,arguments);
+        if(r){
+          applyExact245(r);
+          setTimeout(function(){
+            applyExact245(r);
+            window.__restoringSavedLoan245=false;
+          },250);
+        }
+        return out;
+      }catch(e){
+        window.__restoringSavedLoan245=false;
+        throw e;
+      }
+    };
+    print.__savedLoan245=true;
+    print.__original245=oldPrint;
+    window.printSaved=print;
+  }
+})();
+</script>
+<!-- /STEP 245 -->
+
 </body>
 </html>
