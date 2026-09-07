@@ -5102,7 +5102,7 @@ async function saveData(){
     if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
       try{
         window.__gvLastAutoBackupFingerprint='';
-        Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 259 standard auto backup failed:',e);});
+        await window.gvAutomaticFullBackup();
       }catch(e){console.warn('Step 259 standard auto backup failed:',e);}
     }
 
@@ -8266,7 +8266,7 @@ window.handleMainBankSelection=function(value){
       if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
         try{
           window.__gvLastAutoBackupFingerprint='';
-          Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 259 IDBI auto backup failed:',e);});
+          await window.gvAutomaticFullBackup();
         }catch(e){console.warn('Step 259 IDBI auto backup failed:',e);}
       }
       window._currentSavedRecord=rec; window._idbiEditingId=null;
@@ -24699,63 +24699,112 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- /STEP 258 -->
 
 <!-- STEP 259 - GUARANTEED DIRECT AUTO BACKUP TRIGGER IN CORE SAVE PATHS -->
-<!-- STEP 260 - RELIABLE AUTO BACKUP USING ACTIVE STORAGE FOLDER -->
-<script id="step260-reliable-auto-backup">
+
+<!-- STEP 261 - RELIABLE AUTO BACKUP USING SAME WORKING STORAGE SAVE PATH -->
+<script id="step261-reliable-auto-backup">
 (function(){
   'use strict';
-  const ENABLE_KEY='goldValuationAutoBackupEnabled';
-  let busy=false, pending=false;
-  function enabled(){return localStorage.getItem(ENABLE_KEY)!=='false';}
-  function rawLocal(){const raw={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);raw[k]=localStorage.getItem(k);}return raw;}
-  function refresh(){
+  if(window.__step261AutoBackupInstalled)return;
+  window.__step261AutoBackupInstalled=true;
+
+  function enabled261(){
+    return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';
+  }
+  function rawLocal261(){
+    var raw={};
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      raw[k]=localStorage.getItem(k);
+    }
+    return raw;
+  }
+  function refresh261(){
     try{
-      const e=document.getElementById('sbAutoBackupStatus'); if(!e)return;
-      const last=localStorage.getItem('goldValuationLastAutoBackup');
-      const d=last?new Date(last):null;
-      const when=(d&&Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
-      e.textContent=enabled()?'Auto Backup: ON ✓\
-Last automatic backup: '+when+'\
-File: Backups/Auto_Backup_Latest.json':'Auto Backup: OFF\
-Turn it on to create a full backup after every successful valuation save.';
+      var e=document.getElementById('sbAutoBackupStatus');
+      if(!e)return;
+      var last=localStorage.getItem('goldValuationLastAutoBackup');
+      var file=localStorage.getItem('goldValuationLastAutoBackupFile')||'Auto_Backup_Latest.json';
+      var d=last?new Date(last):null;
+      var when=(d&&Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
+      e.textContent=enabled261()
+        ? 'Auto Backup: ON ✓\nLast automatic backup: '+when+'\nFile: Backups/'+file
+        : 'Auto Backup: OFF\nTurn it on to create a full backup after every successful valuation save.';
     }catch(e){}
   }
-  async function doBackup(){
-    if(!enabled())return false;
-    if(busy){pending=true;return true;}
-    busy=true;
+
+  // Important: use saveBlobToStorageFolder(), the exact same storage path that
+  // successfully saves valuation JSON files on Android. This avoids a second
+  // permission request through an independent IndexedDB handle path.
+  window.gvAutomaticFullBackup=async function(){
+    if(!enabled261())return false;
+    if(window.__step261AutoBackupBusy)return false;
+    if(typeof window.saveBlobToStorageFolder!=='function')return false;
+    window.__step261AutoBackupBusy=true;
     try{
-      if(typeof window.saveBlobToStorageFolder!=='function')return false;
-      const raw=rawLocal();
-      let vals=[];try{const a=JSON.parse(raw.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
-      const now=new Date();
-      const payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V3',version:3,backupType:'automatic',createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(raw).length},rawData:raw};
-      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-      const latest=await window.saveBlobToStorageFolder('Auto_Backup_Latest.json',blob,'Backups');
-      if(!latest)return false;
-      const day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-      try{await window.saveBlobToStorageFolder('Auto_Backup_'+day+'.json',blob,'Backups');}catch(e){}
+      var raw=rawLocal261();
+      var vals=[];
+      try{var a=JSON.parse(raw.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      var now=new Date();
+      var payload={
+        app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+        format:'GOLD_VALUATION_BACKUP_V3',
+        version:3,
+        backupType:'automatic',
+        createdAt:now.toISOString(),
+        summary:{valuations:vals.length,storageKeys:Object.keys(raw).length},
+        rawData:raw
+      };
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+
+      // Always-current full recovery copy.
+      var ok=await window.saveBlobToStorageFolder('Auto_Backup_Latest.json',blob,'Backups');
+      if(!ok)return false;
+
+      // Daily recovery point; failure here must not invalidate the Latest backup.
+      try{
+        var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        await window.saveBlobToStorageFolder('Auto_Backup_'+day+'.json',blob,'Backups');
+      }catch(e){console.warn('Daily auto backup copy failed',e);}
+
       localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
       localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
-      setTimeout(refresh,0);
+      setTimeout(refresh261,0);
       return true;
-    }catch(e){console.warn('Step 260 automatic backup failed:',e);return false;}
-    finally{
-      busy=false;
-      if(pending){pending=false;setTimeout(function(){doBackup();},150);}
+    }catch(e){
+      console.warn('Step 261 automatic backup failed',e);
+      return false;
+    }finally{
+      window.__step261AutoBackupBusy=false;
     }
-  }
-  window.gvAutomaticFullBackup=doBackup;
+  };
+
+  // Keep manual Backup Now using this same reliable full-backup engine.
   window.runAutoBackupNow184=async function(){
-    if(!enabled()){alert('Auto Backup is turned off. Turn it on first.');return false;}
-    const e=document.getElementById('sbAutoBackupStatus');if(e)e.textContent='Creating automatic backup…';
-    const ok=await doBackup();refresh();
+    if(!enabled261()){
+      alert('Auto Backup is turned off. Turn it on first.');
+      return false;
+    }
+    var e=document.getElementById('sbAutoBackupStatus');
+    if(e)e.textContent='Creating automatic backup…';
+    var ok=await window.gvAutomaticFullBackup();
+    refresh261();
     if(ok)alert('Automatic backup created successfully in Storage Folder → Backups.');
-    else alert('Automatic backup could not be created. Tap Refresh in Storage & Backup and try again.');
+    else alert('Automatic backup could not be created. Check Storage Folder access and try again.');
     return false;
   };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh,300);});else setTimeout(refresh,300);
+
+  // Refresh visible timestamp whenever Storage & Backup opens.
+  document.addEventListener('click',function(ev){
+    var t=ev.target;
+    if(t && ((t.textContent||'').includes('Storage') || (t.textContent||'').includes('Backup'))){
+      setTimeout(refresh261,120);
+    }
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh261,500)},{once:true});
+  else setTimeout(refresh261,500);
 })();
 </script>
-<!-- /STEP 260 -->
+<!-- /STEP 261 -->
+
 </body>
 </html>
