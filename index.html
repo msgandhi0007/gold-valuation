@@ -24622,5 +24622,64 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 257 -->
+
+
+<!-- STEP 258: FINAL AUTO BACKUP AFTER SUCCESSFUL SAVE -->
+<script id="step258-final-auto-backup-after-save">
+(function(){
+  'use strict';
+  const ENABLE_KEY='goldValuationAutoBackupEnabled';
+  function enabled258(){
+    const v=localStorage.getItem(ENABLE_KEY);
+    return v===null ? true : v==='true';
+  }
+  function state258(){
+    try{return localStorage.getItem('goldValuations')||'[]';}catch(e){return '';}
+  }
+  function refreshStatus258(){
+    try{
+      const e=document.getElementById('sbAutoBackupStatus');
+      if(!e)return;
+      const last=localStorage.getItem('goldValuationLastAutoBackup');
+      const file=localStorage.getItem('goldValuationLastAutoBackupFile')||'Auto_Backup_Latest.json';
+      const d=last?new Date(last):null;
+      const when=(d && Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
+      e.textContent=enabled258()
+        ? 'Auto Backup: ON ✓\\nLast automatic backup: '+when+'\\nFile: Backups/'+file
+        : 'Auto Backup: OFF\\nTurn it on to create a full backup after every successful valuation save.';
+    }catch(e){}
+  }
+  function run258(){
+    if(!enabled258() || typeof window.gvAutomaticFullBackup!=='function')return;
+    /* A new successful save must always refresh Auto_Backup_Latest.json. */
+    try{window.__gvLastAutoBackupFingerprint='';}catch(e){}
+    Promise.resolve(window.gvAutomaticFullBackup()).then(function(ok){
+      if(ok)setTimeout(refreshStatus258,0);
+    }).catch(function(e){console.warn('Step 258 auto backup failed',e);});
+  }
+  function wrap258(name){
+    const old=window[name];
+    if(typeof old!=='function' || old.__autoBackup258)return;
+    async function wrapped(){
+      const before=state258();
+      const result=await old.apply(this,arguments);
+      const after=state258();
+      if(after!==before)run258();
+      return result;
+    }
+    wrapped.__autoBackup258=true;
+    wrapped.__original258=old;
+    window[name]=wrapped;
+    try{if(name==='saveData')saveData=wrapped; if(name==='idbiSaveData')idbiSaveData=wrapped;}catch(e){}
+  }
+  function install258(){wrap258('saveData');wrap258('idbiSaveData');}
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){setTimeout(install258,3800);},{once:true});
+  }else setTimeout(install258,3800);
+  /* final guard after all legacy delayed wrappers */
+  setTimeout(install258,4800);
+})();
+</script>
+<!-- /STEP 258 -->
 </body>
 </html>
