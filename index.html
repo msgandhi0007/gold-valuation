@@ -22494,5 +22494,121 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 236 -->
 
+
+<!-- STEP 237 - after save open CERTIFICATE PDF ONLY, never print the valuation screen -->
+<script id="certificate-only-after-save-237">
+(function(){
+  'use strict';
+
+  function safeName237(v){
+    return String(v||'Valuation').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').trim() || 'Valuation';
+  }
+
+  function downloadBlob237(blob, filename){
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download=safeName237(filename||'Valuation Certificate.pdf');
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url)},2000);
+  }
+
+  async function openStandardCertificateOnly237(){
+    /*
+      IMPORTANT: use the existing PDF builder directly.
+      Do NOT call printCertificate(), window.print(), or click the certificate button,
+      because those routes can print the whole valuation screen.
+    */
+    if(typeof window.buildCertificatePdf!=='function'){
+      throw new Error('Certificate PDF builder is unavailable.');
+    }
+    var out=await window.buildCertificatePdf();
+    if(!out || !out.blob) throw new Error('Certificate PDF was not created.');
+    downloadBlob237(out.blob,out.filename);
+  }
+
+  async function openIdbiCertificateOnly237(){
+    /*
+      IDBI uses its dedicated Page-1-only portrait PDF builder.
+      Do not invoke any browser-print path.
+    */
+    if(typeof window.buildIdbiPage1Certificate233==='function'){
+      var r=typeof window.idbiRecord==='function' ? window.idbiRecord() : null;
+      var out=await window.buildIdbiPage1Certificate233(r);
+      if(!out || !out.blob) throw new Error('IDBI certificate PDF was not created.');
+      downloadBlob237(out.blob,out.filename);
+      return;
+    }
+    if(typeof window.idbiPrintCertificate==='function'){
+      await window.idbiPrintCertificate();
+      return;
+    }
+    throw new Error('IDBI certificate PDF builder is unavailable.');
+  }
+
+  async function certificateOnlyAfterSave237(isIdbi){
+    await new Promise(function(resolve){
+      requestAnimationFrame(function(){setTimeout(resolve,60);});
+    });
+    try{
+      if(isIdbi) await openIdbiCertificateOnly237();
+      else await openStandardCertificateOnly237();
+    }catch(e){
+      console.error('Certificate-only after save:',e);
+    }
+  }
+
+  function wrapSave237(name,isIdbi){
+    var fn=window[name];
+    if(typeof fn!=='function' || fn.__certOnly237)return;
+
+    /*
+      If Step 236 wrapped the save function, unwrap it first so its old
+      auto-open logic cannot run as well.
+    */
+    if(fn.__wrapped236 && typeof fn.__original236==='function'){
+      fn=fn.__original236;
+    }
+
+    function wrapped(){
+      var self=this,args=arguments;
+      var result=fn.apply(self,args);
+
+      function afterSuccess(v){
+        setTimeout(function(){certificateOnlyAfterSave237(isIdbi);},0);
+        return v;
+      }
+
+      if(result && typeof result.then==='function'){
+        return result.then(afterSuccess);
+      }
+      afterSuccess(result);
+      return result;
+    }
+
+    wrapped.__certOnly237=true;
+    wrapped.__original237=fn;
+    window[name]=wrapped;
+    try{
+      if(name==='saveData') saveData=wrapped;
+      if(name==='idbiSaveData') idbiSaveData=wrapped;
+    }catch(e){}
+  }
+
+  function install237(){
+    wrapSave237('saveData',false);
+    wrapSave237('idbiSaveData',true);
+  }
+
+  install237();
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(install237,0);},{once:true});
+  setTimeout(install237,1400);
+})();
+</script>
+<!-- /STEP 237 -->
+
 </body>
 </html>
