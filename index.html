@@ -5098,9 +5098,9 @@ async function saveData(){
     }
 
     const action=existingIndex>=0?'updated':'saved';
-    const location=fileSaved ? ' It was also saved in your selected Storage Folder → Valuations.' : ' The app copy is saved, but the selected Storage Folder is not available.';
-    const backupMsg=backupSaved ? ' A protected backup copy was also saved in → Backups.' : '';
-    alert('Valuation '+action+' successfully under '+d.customer.bank+'.'+location+backupMsg+' Form has been reset for the next customer.');
+    // STEP 247: Storage-folder access is optional. A successful app save must
+    // continue directly to certificate generation without an interrupting popup.
+    // Folder/backup failures remain non-fatal and are handled in Storage & Backup.
     resetAfterSave();
   }catch(e){
     console.error(e);
@@ -8254,7 +8254,7 @@ window.handleMainBankSelection=function(value){
         try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
       }
       window._currentSavedRecord=rec; window._idbiEditingId=null;
-      alert('IDBI Bank valuation saved successfully.');
+      // STEP 247: no success/storage popup; continue directly to certificate PDF.
       if(typeof renderSaved==='function')renderSaved();
       // STEP 151 - After a successful IDBI save, clear the complete IDBI valuation form.
       if(typeof window.idbiReset==='function') window.idbiReset();
@@ -23706,6 +23706,14 @@ body.mgb-cert-243 #certificate table td:nth-child(8){width:15%!important}
 })();
 </script>
 <!-- /STEP 246 -->
+
+
+<!-- STEP 247
+     All banks: successful Save is silent.
+     Optional Storage Folder availability never interrupts normal valuation saving.
+     Validation/error alerts are preserved.
+     Step 246 single-PDF-window flow remains unchanged.
+-->
 
 </body>
 </html>
