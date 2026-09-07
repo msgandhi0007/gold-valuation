@@ -23919,5 +23919,179 @@ body.dny-cert-248 #certificate table td:nth-child(8){width:15%!important}
 </style>
 <!-- /STEP 248 -->
 
+
+<!-- STEP 249 - Dnyandeep exact table alignment, dedicated PDF builder -->
+<script id="dny-dedicated-certificate-builder-249">
+(function(){
+  'use strict';
+  if(window.__dny249)return;
+  window.__dny249=true;
+
+  function bank249(){
+    return String(
+      document.getElementById('mainBankSelect')?.value ||
+      document.getElementById('bankName')?.value ||
+      window._currentSavedRecord?.customer?.bank || ''
+    ).trim().toUpperCase();
+  }
+  function isDny249(){ return bank249().indexOf('DNYANDEEP')>=0; }
+  function esc249(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function money249(v){
+    return '₹'+(Number(v)||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  }
+
+  async function buildDnyPdf249(){
+    if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF)
+      throw new Error('PDF library is not ready.');
+
+    var $=function(id){return document.getElementById(id)};
+    var cert=$('certificate');
+    if(!cert)throw new Error('Certificate section not found.');
+
+    var rate=Number($('rate')?.value||0);
+    var name=$('customerName')?.value||'';
+    var date=$('valuationDate')?.value||'';
+    var loan=Number($('sanctionedLoan')?.value||0);
+
+    if($('cCertNo')){
+      $('cCertNo').textContent=typeof window.getCertificateNo==='function'
+        ? window.getCertificateNo(window._currentSavedRecord||null) : '';
+      try{if(typeof window.persistCurrentCertificateNo==='function')window.persistCurrentCertificateNo()}catch(e){}
+    }
+    if($('cBank'))$('cBank').textContent=bank249()||'—';
+    if($('cName'))$('cName').textContent=name||'—';
+    if($('cMobile'))$('cMobile').textContent=$('customerMobile')?.value||'—';
+    if($('cDate'))$('cDate').textContent=date||'—';
+    if($('cRate'))$('cRate').textContent=money249(rate)+'/g';
+    if($('cLoan'))$('cLoan').textContent=money249(loan);
+
+    var rows='',no=0,tq=0,tg=0,ts=0,tn=0,weighted=0,tr=0,tv=0;
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(item){
+      var g=Number(item.querySelector('.gross')?.value||0);
+      var s=Number(item.querySelector('.stone')?.value||0);
+      var p=Number(item.querySelector('.purity')?.value||0);
+      var nm=(typeof window.getItemName==='function')
+        ? window.getItemName(item)
+        : (item.querySelector('.itemName')?.value||'');
+      var qty=Math.max(1,parseInt(item.querySelector('.itemQty229')?.value||1)||1);
+
+      if(!(g>0 || s>0 || String(nm||'').trim()))return;
+
+      no++;
+      var net=Math.max(0,g-s);
+      var pure=net*p/100;
+      var rounded=Math.floor((pure+1e-9)*10)/10;
+      var value=rounded*rate;
+
+      tq+=qty;tg+=g;ts+=s;tn+=net;weighted+=net*p;tr+=rounded;tv+=value;
+
+      rows+='<tr>'+
+        '<td>'+no+'</td>'+
+        '<td>'+esc249(nm||('Item '+no))+'</td>'+
+        '<td>'+qty+'</td>'+
+        '<td>'+g.toFixed(2)+'</td>'+
+        '<td>'+s.toFixed(2)+'</td>'+
+        '<td>'+p.toFixed(2)+'%</td>'+
+        '<td>'+rounded.toFixed(2)+'</td>'+
+        '<td>'+money249(value)+'</td>'+
+      '</tr>';
+    });
+
+    var body=$('cRows');
+    if(body)body.innerHTML=rows||'<tr><td colspan="8">No items</td></tr>';
+
+    var table=body&&body.closest('table');
+    var head=table&&table.querySelector('thead tr');
+    if(head){
+      head.innerHTML=
+        '<th>Sr.</th>'+
+        '<th>Jewellery Item</th>'+
+        '<th>No. of Items</th>'+
+        '<th>Gross Wt.</th>'+
+        '<th>Stone Wt.</th>'+
+        '<th>Purity</th>'+
+        '<th>Rounded Wt.</th>'+
+        '<th>Value</th>';
+    }
+    var foot=table&&table.querySelector('tfoot');
+    if(foot){
+      var avg=tn?weighted/tn:0;
+      foot.innerHTML='<tr>'+
+        '<th colspan="2">TOTAL</th>'+
+        '<th>'+tq+'</th>'+
+        '<th>'+tg.toFixed(2)+'</th>'+
+        '<th>'+ts.toFixed(2)+'</th>'+
+        '<th>'+avg.toFixed(2)+'%</th>'+
+        '<th>'+tr.toFixed(2)+'</th>'+
+        '<th>'+money249(tv)+'</th>'+
+      '</tr>';
+    }
+
+    if($('cGross'))$('cGross').textContent=tg.toFixed(2);
+    if($('cStone'))$('cStone').textContent=ts.toFixed(2);
+    if($('cPurity'))$('cPurity').textContent=(tn?weighted/tn:0).toFixed(2)+'%';
+    if($('cRounded'))$('cRounded').textContent=tr.toFixed(2);
+    if($('cValue'))$('cValue').textContent=money249(tv);
+    if($('cTotal'))$('cTotal').textContent=money249(tv);
+    if($('cLoanTotal'))$('cLoanTotal').textContent=money249(loan);
+
+    document.body.classList.add('dny-cert-248');
+
+    var old={
+      display:cert.style.display,position:cert.style.position,left:cert.style.left,
+      top:cert.style.top,width:cert.style.width,zIndex:cert.style.zIndex
+    };
+    cert.style.setProperty('display','block','important');
+    cert.style.position='absolute';
+    cert.style.left='0';
+    cert.style.top='0';
+    cert.style.width='780px';
+    cert.style.zIndex='-1';
+
+    try{
+      await new Promise(function(resolve){setTimeout(resolve,140)});
+      var canvas=await window.html2canvas(cert,{
+        scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false
+      });
+      var jsPDF=window.jspdf.jsPDF;
+      var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      var pageW=210,pageH=297,margin=8;
+      var imgW=pageW-margin*2;
+      var imgH=canvas.height*imgW/canvas.width;
+      var maxH=pageH-margin*2;
+      var drawH=Math.min(imgH,maxH);
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',
+        margin,margin,imgW,drawH,undefined,'FAST');
+      var filename=(typeof window.pdfFileName==='function')
+        ? window.pdfFileName(name,date)
+        : ((name||'Customer')+' - '+(date||'Valuation')+'.pdf');
+      return {blob:pdf.output('blob'),filename:filename};
+    }finally{
+      Object.assign(cert.style,old);
+      document.body.classList.remove('dny-cert-248');
+    }
+  }
+
+  var oldBuild=window.buildCertificatePdf;
+  if(typeof oldBuild==='function'&&!oldBuild.__dny249){
+    var build=async function(){
+      if(isDny249())return await buildDnyPdf249();
+      return await oldBuild.apply(this,arguments);
+    };
+    build.__dny249=true;
+    build.__original249=oldBuild;
+    window.buildCertificatePdf=build;
+    try{buildCertificatePdf=build}catch(e){}
+  }
+
+  window.buildDnyCertificatePdf249=buildDnyPdf249;
+})();
+</script>
+<!-- /STEP 249 -->
+
 </body>
 </html>
