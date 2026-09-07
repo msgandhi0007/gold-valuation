@@ -4425,6 +4425,7 @@ body:not(.menu-viewing) .s111-rate{
         <tr>
           <th>Sl.No</th>
           <th>Description of the Article</th>
+          <th>No. of<br>Items</th>
           <th>Gross<br>Weight</th>
           <th>Approximate weight of the precious stones in the ornaments<br>(Grams)</th>
           <th>Purity<br>(Carat)</th>
@@ -4436,6 +4437,7 @@ body:not(.menu-viewing) .s111-rate{
       <tfoot>
         <tr>
           <th></th><th>Total</th>
+          <th id="sbiPQty230"></th>
           <th id="sbiPGross223"></th>
           <th id="sbiPStone223"></th>
           <th></th>
@@ -21546,7 +21548,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
     el('sbiPPlace223').textContent=d.place||'……………………';
     el('sbiPDate223').textContent=fmtDate(date)||'……………………';
 
-    let rows='',tg=0,ts=0,tn=0,tv=0,n=0;
+    let rows='',tq=0,tg=0,ts=0,tn=0,tv=0,n=0;
     document.querySelectorAll('#items .item').forEach(item=>{
       const g=Number(item.querySelector('.gross')?.value||0);
       const s=Number(item.querySelector('.stone')?.value||0);
@@ -21554,20 +21556,22 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       const nm=(typeof getItemName==='function'?getItemName(item):item.querySelector('.itemName')?.value)||'';
       if(!g && !nm)return;
       n++;
+      const qty=Math.max(1,parseInt(item.querySelector('.itemQty229')?.value||1)||1);
       const net=Math.max(0,g-s);
       const pure=net*p/100;
       const rounded=Math.floor((pure+1e-9)*10)/10;
       const value=rounded*rate;
       const manualCarat=Number(el('sbiCertCarat225')?.value||0);
       const carat=manualCarat>0?manualCarat:(p*24/100);
-      tg+=g;ts+=s;tn+=net;tv+=value;
-      rows+='<tr><td>'+n+'</td><td>'+esc(nm)+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+carat.toFixed(2)+'</td><td>'+net.toFixed(2)+'</td><td>'+moneyPlain(value)+'</td></tr>';
+      tq+=qty;tg+=g;ts+=s;tn+=net;tv+=value;
+      rows+='<tr><td>'+n+'</td><td>'+esc(nm)+'</td><td>'+qty+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+Math.round(carat)+'</td><td>'+net.toFixed(2)+'</td><td>'+moneyPlain(value)+'</td></tr>';
     });
     const target=el('sbiPRows223');
     if(target){
       target.innerHTML=rows;
-      for(let i=n;i<8;i++)target.insertAdjacentHTML('beforeend','<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+      for(let i=n;i<8;i++)target.insertAdjacentHTML('beforeend','<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
     }
+    el('sbiPQty230').textContent=tq;
     el('sbiPGross223').textContent=tg.toFixed(2);
     el('sbiPStone223').textContent=ts.toFixed(2);
     el('sbiPNet223').textContent=tn.toFixed(2);
@@ -22027,6 +22031,52 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 
 /* Quantity is a count only. Weight and value calculations continue to use entered weights. */
 </style>
+
+
+<!-- STEP 230 - SBI certificate quantity column / integer carat / balanced widths -->
+<style id="sbi-certificate-quantity-layout-230">
+/* SBI PL-61(i) only: 8-column layout with No. of Items after Description. */
+.sbi-cert-table-223 th:nth-child(1),
+.sbi-cert-table-223 td:nth-child(1){width:6%!important;text-align:center!important}
+
+.sbi-cert-table-223 th:nth-child(2),
+.sbi-cert-table-223 td:nth-child(2){width:21%!important}
+
+.sbi-cert-table-223 th:nth-child(3),
+.sbi-cert-table-223 td:nth-child(3){width:8%!important;text-align:center!important}
+
+.sbi-cert-table-223 th:nth-child(4),
+.sbi-cert-table-223 td:nth-child(4){width:9%!important;text-align:center!important}
+
+.sbi-cert-table-223 th:nth-child(5),
+.sbi-cert-table-223 td:nth-child(5){width:13%!important;text-align:center!important}
+
+.sbi-cert-table-223 th:nth-child(6),
+.sbi-cert-table-223 td:nth-child(6){width:8%!important;text-align:center!important}
+
+.sbi-cert-table-223 th:nth-child(7),
+.sbi-cert-table-223 td:nth-child(7){width:11%!important;text-align:center!important}
+
+.sbi-cert-table-223 th:nth-child(8),
+.sbi-cert-table-223 td:nth-child(8){width:24%!important;text-align:center!important}
+
+/* Keep headings compact enough to fit on one A4 page. */
+.sbi-cert-table-223 th{
+  font-size:11px!important;
+  line-height:1.12!important;
+  word-break:normal!important;
+}
+.sbi-cert-table-223 td{
+  font-size:11px!important;
+}
+
+/* Market Value and Net Weight centered as requested. */
+.sbi-cert-table-223 td:nth-child(7),
+.sbi-cert-table-223 td:nth-child(8){
+  text-align:center!important;
+}
+</style>
+<!-- /STEP 230 -->
 
 </body>
 </html>
