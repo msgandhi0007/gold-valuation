@@ -23715,5 +23715,209 @@ body.mgb-cert-243 #certificate table td:nth-child(8){width:15%!important}
      Step 246 single-PDF-window flow remains unchanged.
 -->
 
+
+<!-- STEP 248 - Dnyandeep Co-op Society certificate refinement -->
+<style id="dny-certificate-refinement-248">
+body.dny-cert-248 #certificate{
+  font-size:17px!important;
+  line-height:1.42!important;
+}
+body.dny-cert-248 #certificate h1{font-size:27px!important}
+body.dny-cert-248 #certificate h2{font-size:19px!important}
+body.dny-cert-248 #certificate h3{font-size:17px!important}
+
+body.dny-cert-248 #certificate table{
+  width:100%!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+}
+body.dny-cert-248 #certificate th{
+  font-size:14px!important;
+  font-weight:800!important;
+  padding:8px 5px!important;
+  vertical-align:middle!important;
+}
+body.dny-cert-248 #certificate td{
+  font-size:14px!important;
+  padding:7px 5px!important;
+  vertical-align:middle!important;
+}
+body.dny-cert-248 #certificate tbody tr td{
+  font-weight:700!important;
+}
+body.dny-cert-248 #certificate tfoot th,
+body.dny-cert-248 #certificate tfoot td{
+  font-weight:850!important;
+}
+body.dny-cert-248 #certificate .cert-section-title,
+body.dny-cert-248 #certificate .section-title{
+  font-size:16px!important;
+  font-weight:850!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+body.dny-cert-248 #certificate .cert-total-box,
+body.dny-cert-248 #certificate .total-box{
+  min-height:58px!important;
+  padding:10px!important;
+}
+body.dny-cert-248 #certificate .cert-signature,
+body.dny-cert-248 #certificate .signature,
+body.dny-cert-248 #certificate .valuer-details{
+  font-size:16px!important;
+  line-height:1.45!important;
+}
+</style>
+
+<script id="dny-certificate-refinement-js-248">
+(function(){
+  'use strict';
+  if(window.__dny248)return;
+  window.__dny248=true;
+
+  function bank248(){
+    return String(
+      document.getElementById('mainBankSelect')?.value ||
+      document.getElementById('bankName')?.value ||
+      window._currentSavedRecord?.customer?.bank || ''
+    ).trim().toUpperCase();
+  }
+  function isDny248(){
+    return bank248().indexOf('DNYANDEEP')>=0;
+  }
+  function esc248(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function money248(v){
+    return '₹'+(Number(v)||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  }
+
+  function rebuildDnyTable248(){
+    if(!isDny248())return;
+
+    var body=document.getElementById('cRows');
+    if(!body)return;
+
+    var rate=Number(document.getElementById('rate')?.value||0);
+    var rows='',no=0,tq=0,tg=0,ts=0,tr=0,tv=0,tn=0,weighted=0;
+
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(item){
+      var g=Number(item.querySelector('.gross')?.value||0);
+      var s=Number(item.querySelector('.stone')?.value||0);
+      var p=Number(item.querySelector('.purity')?.value||0);
+      var name=(typeof window.getItemName==='function')
+        ? window.getItemName(item)
+        : (item.querySelector('.itemName')?.value||'');
+      var qty=Math.max(1,parseInt(item.querySelector('.itemQty229')?.value||1)||1);
+
+      if(!(g>0 || s>0 || String(name||'').trim()))return;
+
+      no++;
+      var net=Math.max(0,g-s);
+      var pure=net*p/100;
+      var rounded=Math.floor((pure+1e-9)*10)/10;
+      var value=rounded*rate;
+
+      tq+=qty;tg+=g;ts+=s;tn+=net;weighted+=net*p;tr+=rounded;tv+=value;
+
+      rows+='<tr>'+
+        '<td>'+no+'</td>'+
+        '<td>'+esc248(name||('Item '+no))+'</td>'+
+        '<td>'+qty+'</td>'+
+        '<td>'+g.toFixed(2)+'</td>'+
+        '<td>'+s.toFixed(2)+'</td>'+
+        '<td>'+p.toFixed(2)+'%</td>'+
+        '<td>'+rounded.toFixed(2)+'</td>'+
+        '<td>'+money248(value)+'</td>'+
+      '</tr>';
+    });
+
+    body.innerHTML=rows||'<tr><td colspan="8">No items</td></tr>';
+
+    var table=body.closest('table');
+    var head=table&&table.querySelector('thead tr');
+    if(head){
+      head.innerHTML=
+        '<th>Sr.</th>'+
+        '<th>Jewellery Item</th>'+
+        '<th>No. of Items</th>'+
+        '<th>Gross Wt.</th>'+
+        '<th>Stone Wt.</th>'+
+        '<th>Purity</th>'+
+        '<th>Rounded Wt.</th>'+
+        '<th>Value</th>';
+    }
+
+    var foot=table&&table.querySelector('tfoot');
+    if(foot){
+      var avg=tn?weighted/tn:0;
+      foot.innerHTML='<tr>'+
+        '<th colspan="2">TOTAL</th>'+
+        '<th>'+tq+'</th>'+
+        '<th>'+tg.toFixed(2)+'</th>'+
+        '<th>'+ts.toFixed(2)+'</th>'+
+        '<th>'+avg.toFixed(2)+'%</th>'+
+        '<th>'+tr.toFixed(2)+'</th>'+
+        '<th>'+money248(tv)+'</th>'+
+      '</tr>';
+    }
+  }
+
+  var oldBuild=window.buildCertificatePdf;
+  if(typeof oldBuild==='function'&&!oldBuild.__dny248){
+    var build=async function(){
+      var dny=isDny248();
+      if(dny){
+        document.body.classList.add('dny-cert-248');
+        rebuildDnyTable248();
+      }
+      try{
+        return await oldBuild.apply(this,arguments);
+      }finally{
+        if(dny)document.body.classList.remove('dny-cert-248');
+      }
+    };
+    build.__dny248=true;
+    build.__original248=oldBuild;
+    window.buildCertificatePdf=build;
+    try{buildCertificatePdf=build}catch(e){}
+  }
+
+  document.addEventListener('click',function(e){
+    if(!isDny248())return;
+    var b=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!b)return;
+    var t=String(b.textContent||'').toUpperCase();
+    if(t.indexOf('CERTIFICATE')>=0 || t.indexOf('PDF')>=0){
+      document.body.classList.add('dny-cert-248');
+      rebuildDnyTable248();
+      setTimeout(function(){document.body.classList.remove('dny-cert-248')},2500);
+    }
+  },true);
+})();
+</script>
+
+<style id="dny-certificate-table-widths-248">
+body.dny-cert-248 #certificate table th:nth-child(1),
+body.dny-cert-248 #certificate table td:nth-child(1){width:6%!important}
+body.dny-cert-248 #certificate table th:nth-child(2),
+body.dny-cert-248 #certificate table td:nth-child(2){width:21%!important}
+body.dny-cert-248 #certificate table th:nth-child(3),
+body.dny-cert-248 #certificate table td:nth-child(3){width:11%!important;text-align:center!important}
+body.dny-cert-248 #certificate table th:nth-child(4),
+body.dny-cert-248 #certificate table td:nth-child(4){width:12%!important}
+body.dny-cert-248 #certificate table th:nth-child(5),
+body.dny-cert-248 #certificate table td:nth-child(5){width:11%!important}
+body.dny-cert-248 #certificate table th:nth-child(6),
+body.dny-cert-248 #certificate table td:nth-child(6){width:11%!important}
+body.dny-cert-248 #certificate table th:nth-child(7),
+body.dny-cert-248 #certificate table td:nth-child(7){width:13%!important}
+body.dny-cert-248 #certificate table th:nth-child(8),
+body.dny-cert-248 #certificate table td:nth-child(8){width:15%!important}
+</style>
+<!-- /STEP 248 -->
+
 </body>
 </html>
