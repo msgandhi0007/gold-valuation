@@ -4416,7 +4416,7 @@ body:not(.menu-viewing) .s111-rate{
       <b id="sbiPRelation223"></b>, Resident of <b id="sbiPResident223"></b>,
       who has sought Gold loan from the Bank is not my relative and the gold against which the loan is sought
       is not purchased from me. The ornaments/Coins have been weighed and appraised by me
-      on <b id="sbiPDateText223"></b> in the presence of Sri/Smt <b id="sbiPCash223"></b> (cash in charge)
+      <br><span class="sbi-on-date-line-231">on <b id="sbiPDateText223"></b> in the presence of Sri/Smt <b id="sbiPCash223"></b> (cash in charge)</span>
       and the exact weight, purity of the metal and market value of each item as on date are indicated below:
     </div>
 
@@ -4458,7 +4458,10 @@ body:not(.menu-viewing) .s111-rate{
     <div class="sbi-date-223">Date: <b id="sbiPDate223"></b></div>
 
     <div class="sbi-sign-row-223">
-      <div>Name &amp; Signature of the Borrower</div>
+      <div class="sbi-borrower-sign-231">
+        <div>Name &amp; Signature of the Borrower</div>
+        <div class="sbi-borrower-name-231" id="sbiPBorrowerName231"></div>
+      </div>
       <div class="sbi-appraiser-sign-223">
         <div>Yours faithfully</div>
         <div class="sbi-sign-space-223"></div>
@@ -21540,9 +21543,12 @@ body.premiumBankValuation210 #idbi-valuation-screen{
     el('sbiPBranch223').textContent=d.branch||'…………………';
     el('sbiPAccount223').textContent=d.accountNo||'…………………';
     el('sbiPName223').textContent=name||'………………………………';
+    if(el('sbiPBorrowerName231')) el('sbiPBorrowerName231').textContent=name||'';
     el('sbiPRelation223').textContent=d.relation||'……………………';
     el('sbiPResident223').textContent=d.resident||'……………………';
-    el('sbiPDateText223').textContent=fmtDate(date)||'…………………';
+    const fullDate223=fmtDate(date)||'';
+    const shortDate231=fullDate223 ? fullDate223.replace(/(\d{2}\/\d{2}\/)(\d{4})$/,function(m,p,y){return p+y.slice(-2);}) : '';
+    el('sbiPDateText223').textContent=shortDate231||'…………………';
     el('sbiPCash223').textContent=d.cashInCharge||'……………………';
     el('sbiPMethod223').textContent=d.purityMethod||'……………………';
     el('sbiPPlace223').textContent=d.place||'……………………';
@@ -22077,6 +22083,82 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 }
 </style>
 <!-- /STEP 230 -->
+
+
+<!-- STEP 231 - SBI certificate final layout refinements -->
+<style id="sbi-certificate-layout-refinements-231">
+/* Increase the overall SBI certificate typography by about 2px */
+.sbi-cert-page-223{
+  font-size:16px!important;
+  line-height:1.30!important;
+}
+.sbi-annexure-223{font-size:19px!important}
+.sbi-cert-title-223{font-size:22px!important}
+.sbi-to-223{font-size:17px!important}
+.sbi-cert-table-223{font-size:13px!important}
+.sbi-cert-table-223 th{font-size:13px!important;line-height:1.12!important}
+.sbi-cert-table-223 td{font-size:13px!important}
+.sbi-method-223,
+.sbi-declare-223,
+.sbi-place-223,
+.sbi-date-223,
+.sbi-sign-row-223{font-size:15px!important}
+
+/* More room for No. of Items, less for Market Value; keep table within A4. */
+.sbi-cert-table-223 th:nth-child(1),
+.sbi-cert-table-223 td:nth-child(1){width:6%!important}
+.sbi-cert-table-223 th:nth-child(2),
+.sbi-cert-table-223 td:nth-child(2){width:20%!important}
+.sbi-cert-table-223 th:nth-child(3),
+.sbi-cert-table-223 td:nth-child(3){width:11%!important}
+.sbi-cert-table-223 th:nth-child(4),
+.sbi-cert-table-223 td:nth-child(4){width:9%!important}
+.sbi-cert-table-223 th:nth-child(5),
+.sbi-cert-table-223 td:nth-child(5){width:14%!important}
+.sbi-cert-table-223 th:nth-child(6),
+.sbi-cert-table-223 td:nth-child(6){width:8%!important}
+.sbi-cert-table-223 th:nth-child(7),
+.sbi-cert-table-223 td:nth-child(7){width:12%!important}
+.sbi-cert-table-223 th:nth-child(8),
+.sbi-cert-table-223 td:nth-child(8){width:20%!important}
+
+/* Entered jewellery details and total row must print bold. */
+.sbi-cert-table-223 tbody tr:not(:has(td:empty)) td{
+  font-weight:700!important;
+}
+.sbi-cert-table-223 tbody tr td:first-child:not(:empty){
+  font-weight:700!important;
+}
+.sbi-cert-table-223 tfoot th{
+  font-weight:800!important;
+}
+
+/* Body date phrase starts on its own line. */
+.sbi-on-date-line-231{
+  display:inline-block!important;
+  margin-top:2px!important;
+}
+
+/* Move borrower signature about three lines upward. */
+.sbi-sign-row-223{
+  margin-top:6px!important;
+  transform:translateY(-42px);
+}
+.sbi-borrower-sign-231{
+  align-self:flex-end!important;
+}
+.sbi-borrower-name-231{
+  margin-top:5px!important;
+  font-weight:800!important;
+  text-transform:uppercase;
+}
+
+/* Keep appraiser block balanced after larger font. */
+.sbi-appraiser-sign-223{
+  font-size:14px!important;
+}
+</style>
+<!-- /STEP 231 -->
 
 </body>
 </html>
