@@ -24546,5 +24546,81 @@ body:not(.idbi-open) #valuation-main-sections::before,
 </script>
 <!-- /STEP 255 -->
 
+
+
+<!-- STEP 257 - RESTORE BACKUP: SHOW APP BACKUPS FROM SELECTED STORAGE FOLDER -->
+<style id="restore-backup-folder-list-257-css">
+#gvRestore257{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.58);display:none;padding:18px;overflow:auto}
+#gvRestore257 .rb257box{max-width:520px;margin:38px auto;background:#fffdf8;border:1px solid #dfc67c;border-radius:22px;padding:18px;box-shadow:0 18px 55px #0005}
+#gvRestore257 .rb257head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+#gvRestore257 h2{margin:0;font-size:22px;color:#201a10}#gvRestore257 .rb257close{border:1px solid #d9c58d;background:#fff;border-radius:12px;padding:9px 13px;font-weight:800}
+#gvRestore257 .rb257note{font-size:13px;color:#756b5d;line-height:1.45;margin:7px 0 13px}
+#gvRestore257 .rb257file{width:100%;text-align:left;border:1px solid #e2d2a6;background:#fff;border-radius:14px;padding:12px;margin:8px 0;color:#201a10}
+#gvRestore257 .rb257file b{display:block;font-size:14px;overflow-wrap:anywhere}#gvRestore257 .rb257file span{display:block;color:#7a6d5c;font-size:12px;margin-top:5px}
+#gvRestore257 .rb257empty{padding:22px 8px;text-align:center;color:#776d60}
+#gvRestore257 .rb257browse{width:100%;margin-top:12px;border:1px solid #c99b25;background:#fff8e5;border-radius:13px;padding:12px;font-weight:800;color:#805500}
+</style>
+<script id="restore-backup-folder-list-257-js">
+(function(){
+'use strict';
+function status(t){var e=document.getElementById('sbDataStatus');if(e)e.textContent=t}
+function esc(s){return String(s||'').replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]})}
+function bankOf(r){return String(r?.customer?.bank||r?.bank||(r?.valuationType==='IDBI_BANK'?'IDBI BANK':'')).trim().toUpperCase()}
+function recKey(r){
+  var id=String(r?.id||'').trim();if(id)return 'id:'+id;
+  var c=String(r?.certificateNo||'').trim();if(c)return 'cert:'+c.toLowerCase();
+  return [String(r?.customer?.name||'').trim().toLowerCase(),String(r?.customer?.mobile||'').trim(),String(r?.customer?.date||'').trim(),bankOf(r)].join('|');
+}
+function stamp(r){var n=Date.parse(r?.modifiedAt||r?.updatedAt||r?.createdAt||r?.savedAt||'');return isFinite(n)?n:0}
+function mergeVals(a,b){
+  var m=new Map();[].concat(a||[],b||[]).forEach(function(r){if(!r||typeof r!=='object')return;var k=recKey(r),old=m.get(k);if(!old||stamp(r)>=stamp(old))m.set(k,r)});
+  var out=Array.from(m.values());
+  try{if(typeof window.dedupeValuations==='function')out=window.dedupeValuations(out)}catch(e){}
+  return out;
+}
+function rawFromPayload(p){
+  if(p&&p.rawData&&typeof p.rawData==='object')return p.rawData;
+  if(p&&p.data&&typeof p.data==='object'){var x={};Object.keys(p.data).forEach(function(k){var v=p.data[k];x[k]=typeof v==='string'?v:JSON.stringify(v)});return x}
+  if(p&&typeof p==='object'&&!Array.isArray(p)){var x={};Object.keys(p).forEach(function(k){var v=p[k];x[k]=typeof v==='string'?v:JSON.stringify(v)});return x}
+  return null;
+}
+function valsFromRaw(raw){try{var a=JSON.parse(raw?.goldValuations||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+async function restorePayload(p,name){
+  var raw=rawFromPayload(p);if(!raw||!Object.keys(raw).length)throw new Error('Invalid or unsupported backup file.');
+  var incoming=valsFromRaw(raw),current=valsFromRaw({goldValuations:localStorage.getItem('goldValuations')||'[]'}),merged=mergeVals(current,incoming);
+  if(!confirm('Restore backup “'+name+'”?\n\nBackup valuations: '+incoming.length+'\nCurrent valuations: '+current.length+'\nAfter merge: '+merged.length+'\n\nExisting valuations will be kept and duplicates will be prevented.'))return false;
+  Object.keys(raw).forEach(function(k){if(k!=='goldValuations')localStorage.setItem(k,raw[k]==null?'':String(raw[k]))});
+  localStorage.setItem('goldValuations',JSON.stringify(merged));
+  try{window.renderSavedClean168?.()}catch(e){} try{window.renderCustomersHome?.()}catch(e){} try{window.renderDashboardHome?.()}catch(e){}
+  status('Restore complete ✓\n'+incoming.length+' backup valuations read • '+merged.length+' valuations now in app\nRestored from Backups/'+name);
+  alert('Backup restored successfully. Existing valuations were kept and duplicates prevented.');
+  setTimeout(function(){location.reload()},180);return true;
+}
+async function restoreFileHandle(fh){var f=await fh.getFile(),p=JSON.parse(await f.text());return restorePayload(p,f.name)}
+function close(){var m=document.getElementById('gvRestore257');if(m)m.style.display='none'}
+window.closeRestore257=close;
+window.openRestoreBackups257=async function(){
+  var m=document.getElementById('gvRestore257');if(!m)return;var list=m.querySelector('.rb257list');m.style.display='block';list.innerHTML='<div class="rb257empty">Reading Storage Folder → Backups…</div>';
+  try{
+    var h=window.gvStorage&&window.gvStorage.getUsableHandle?await window.gvStorage.getUsableHandle(true):null;
+    if(!h)throw new Error('Selected Storage Folder is unavailable. Tap Refresh and allow access.');
+    var d=await h.getDirectoryHandle('Backups',{create:true}),arr=[];
+    if(d.values){for await(var e of d.values())if(e.kind==='file'&&/\.json$/i.test(e.name)){try{var f=await e.getFile();arr.push({e:e,name:e.name,size:f.size,mtime:f.lastModified})}catch(x){arr.push({e:e,name:e.name,size:0,mtime:0})}}}
+    arr.sort(function(a,b){return b.mtime-a.mtime});
+    if(!arr.length){list.innerHTML='<div class="rb257empty">No JSON backup files found in the selected Backups folder.</div>';return}
+    list.innerHTML='';arr.forEach(function(x){var b=document.createElement('button');b.type='button';b.className='rb257file';b.innerHTML='<b>💾 '+esc(x.name)+'</b><span>'+(x.mtime?new Date(x.mtime).toLocaleString('en-IN'):'Backup file')+(x.size?' • '+Math.max(1,Math.round(x.size/1024))+' KB':'')+'</span>';b.onclick=async function(){try{b.disabled=true;await restoreFileHandle(x.e)}catch(err){console.error(err);status('Restore failed: '+(err.message||'Could not read backup file.'));alert('Could not restore this backup file.')}finally{b.disabled=false}};list.appendChild(b)});
+  }catch(err){list.innerHTML='<div class="rb257empty">'+esc(err.message||'Could not open the Backups folder.')+'</div>'}
+};
+function build(){
+  if(document.getElementById('gvRestore257'))return;
+  var m=document.createElement('div');m.id='gvRestore257';m.innerHTML='<div class="rb257box"><div class="rb257head"><h2>📥 Restore Backup</h2><button type="button" class="rb257close" onclick="closeRestore257()">✕ Close</button></div><div class="rb257note">Backups saved by this app in <b>Storage Folder → Backups</b> are shown below. Tap a backup to restore it.</div><div class="rb257list"></div><button type="button" class="rb257browse">Choose another JSON file</button><input class="rb257input" type="file" accept=".json,application/json" hidden></div>';document.body.appendChild(m);
+  var input=m.querySelector('.rb257input');m.querySelector('.rb257browse').onclick=function(){input.click()};input.onchange=async function(){var f=input.files&&input.files[0];if(!f)return;try{await restorePayload(JSON.parse(await f.text()),f.name)}catch(e){status('Invalid or unsupported backup file. No data was changed.');alert('Invalid or unsupported backup file.')}finally{input.value=''}};
+  m.addEventListener('click',function(e){if(e.target===m)close()});
+  var old=document.getElementById('sbRestore');if(old){var lab=old.closest('label');if(lab){lab.innerHTML='📥 Restore Backup';lab.style.cursor='pointer';lab.onclick=function(e){e.preventDefault();window.openRestoreBackups257()}}}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
+})();
+</script>
+<!-- /STEP 257 -->
 </body>
 </html>
