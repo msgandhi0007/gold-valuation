@@ -23064,5 +23064,163 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 242 -->
 
+
+<!-- STEP 243 - Maharashtra Gramin Bank certificate refinement -->
+<style id="mgb-certificate-refinement-243">
+body.mgb-cert-243 #certificate{
+  font-size:17px!important;
+  line-height:1.42!important;
+}
+body.mgb-cert-243 #certificate .certificate-inner,
+body.mgb-cert-243 #certificate .cert-page,
+body.mgb-cert-243 #certificate > div{
+  max-width:none!important;
+}
+body.mgb-cert-243 #certificate table{
+  width:100%!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+}
+body.mgb-cert-243 #certificate th{
+  font-size:14px!important;
+  font-weight:800!important;
+  padding:8px 5px!important;
+  vertical-align:middle!important;
+}
+body.mgb-cert-243 #certificate td{
+  font-size:14px!important;
+  padding:7px 5px!important;
+  vertical-align:middle!important;
+}
+body.mgb-cert-243 #certificate tbody tr td{
+  font-weight:700!important;
+}
+body.mgb-cert-243 #certificate tfoot th,
+body.mgb-cert-243 #certificate tfoot td{
+  font-weight:850!important;
+}
+body.mgb-cert-243 #certificate h1{font-size:27px!important}
+body.mgb-cert-243 #certificate h2{font-size:19px!important}
+body.mgb-cert-243 #certificate h3{font-size:17px!important}
+body.mgb-cert-243 #certificate .cert-section-title,
+body.mgb-cert-243 #certificate .section-title{
+  font-size:16px!important;
+  font-weight:850!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+body.mgb-cert-243 #certificate .cert-totals,
+body.mgb-cert-243 #certificate .totals{
+  font-size:17px!important;
+}
+body.mgb-cert-243 #certificate .cert-total-box,
+body.mgb-cert-243 #certificate .total-box{
+  min-height:58px!important;
+  padding:10px!important;
+}
+body.mgb-cert-243 #certificate .cert-signature,
+body.mgb-cert-243 #certificate .signature,
+body.mgb-cert-243 #certificate .valuer-details{
+  font-size:16px!important;
+  line-height:1.45!important;
+}
+</style>
+
+<script id="mgb-certificate-refinement-js-243">
+(function(){
+  'use strict';
+  if(window.__mgb243)return;
+  window.__mgb243=true;
+
+  function bank243(){
+    return String(
+      document.getElementById('mainBankSelect')?.value ||
+      document.getElementById('bankName')?.value ||
+      window._currentSavedRecord?.customer?.bank || ''
+    ).trim().toUpperCase();
+  }
+  function isMgb243(){
+    var b=bank243();
+    return b.indexOf('MAHARASHTRA GRAMIN')>=0 || b==='MGB';
+  }
+
+  function quantities243(){
+    var q=[];
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(item){
+      q.push(Math.max(1,parseInt(item.querySelector('.itemQty229')?.value||1)||1));
+    });
+    return q;
+  }
+
+  function enhance243(){
+    if(!isMgb243())return;
+    document.body.classList.add('mgb-cert-243');
+
+    var cert=document.getElementById('certificate');
+    if(!cert)return;
+
+    /* Add No. of Items only to the jewellery valuation table. */
+    var table=document.getElementById('cRows')?.closest('table');
+    if(!table)return;
+
+    var head=table.querySelector('thead tr');
+    if(head && !head.querySelector('.mgb-qty-head-243')){
+      var cells=head.children;
+      var th=document.createElement('th');
+      th.className='mgb-qty-head-243';
+      th.textContent='No. of Items';
+      if(cells.length>2) head.insertBefore(th,cells[2]); else head.appendChild(th);
+    }
+
+    var qs=quantities243();
+    table.querySelectorAll('tbody tr').forEach(function(tr,i){
+      if(tr.querySelector('.mgb-qty-cell-243'))return;
+      var td=document.createElement('td');
+      td.className='mgb-qty-cell-243';
+      td.textContent=qs[i]||1;
+      if(tr.children.length>2)tr.insertBefore(td,tr.children[2]);else tr.appendChild(td);
+    });
+
+    /* Generic certificate footer/totals can use colspan; expand it by one column. */
+    table.querySelectorAll('tfoot [colspan]').forEach(function(x){
+      if(x.dataset.mgb243)return;
+      var n=parseInt(x.getAttribute('colspan')||'1')||1;
+      x.setAttribute('colspan',String(n+1));
+      x.dataset.mgb243='1';
+    });
+  }
+
+  var oldBuild=window.buildCertificatePdf;
+  if(typeof oldBuild==='function'&&!oldBuild.__mgb243){
+    var build=async function(){
+      var mgb=isMgb243();
+      if(mgb)enhance243();
+      try{
+        return await oldBuild.apply(this,arguments);
+      }finally{
+        if(mgb)document.body.classList.remove('mgb-cert-243');
+      }
+    };
+    build.__mgb243=true;
+    build.__original243=oldBuild;
+    window.buildCertificatePdf=build;
+    try{buildCertificatePdf=build}catch(e){}
+  }
+
+  /* Manual certificate button uses the same refinement. */
+  document.addEventListener('click',function(e){
+    if(!isMgb243())return;
+    var b=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!b)return;
+    var t=String(b.textContent||'').toUpperCase();
+    if(t.indexOf('CERTIFICATE')>=0 || t.indexOf('PDF')>=0){
+      enhance243();
+      setTimeout(function(){document.body.classList.remove('mgb-cert-243')},2500);
+    }
+  },true);
+})();
+</script>
+<!-- /STEP 243 -->
+
 </body>
 </html>
