@@ -22978,5 +22978,91 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </style>
 <!-- /STEP 241 -->
 
+
+<!-- STEP 242 - IDBI saved valuation: show every saved jewellery item card -->
+<script id="idbi-saved-all-item-cards-242">
+(function(){
+  'use strict';
+  if(window.__idbiSavedCards242)return;
+  window.__idbiSavedCards242=true;
+
+  function hasData242(i){
+    function v(id){var e=document.getElementById(id);return e?String(e.value||'').trim():''}
+    var gross=parseFloat(v('idbiGW'+i))||0;
+    var less=parseFloat(v('idbiLess'+i))||0;
+    var name=v('idbiItem'+i);
+    var other=v('idbiOtherName'+i);
+    return gross>0 || less>0 || !!name || !!other;
+  }
+
+  window.syncIdbiSavedItemCards242=function(){
+    var cards=document.querySelectorAll('#idbiRows .idbi-item-card');
+    if(!cards.length && typeof window.idbiRows==='function'){
+      try{window.idbiRows();}catch(e){}
+      cards=document.querySelectorAll('#idbiRows .idbi-item-card');
+    }
+
+    var last=1;
+    for(var i=1;i<=cards.length;i++){
+      if(hasData242(i)) last=i;
+    }
+
+    for(var j=1;j<=cards.length;j++){
+      var show=(j===1 || j<=last);
+      cards[j-1].style.display=show?'block':'none';
+    }
+  };
+
+  function afterLoad242(){
+    requestAnimationFrame(function(){
+      window.syncIdbiSavedItemCards242();
+      setTimeout(window.syncIdbiSavedItemCards242,80);
+    });
+  }
+
+  /* Saved Valuations / Customer History use this route. */
+  var oldOpen=window.openSavedDirectFinal;
+  if(typeof oldOpen==='function' && !oldOpen.__items242){
+    var open=function(){
+      var r=oldOpen.apply(this,arguments);
+      afterLoad242();
+      return r;
+    };
+    open.__items242=true;
+    open.__original242=oldOpen;
+    window.openSavedDirectFinal=open;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  /* Also cover any legacy loader route. */
+  var oldLoad=window.loadSaved;
+  if(typeof oldLoad==='function' && !oldLoad.__items242){
+    var load=function(){
+      var r=oldLoad.apply(this,arguments);
+      afterLoad242();
+      return r;
+    };
+    load.__items242=true;
+    load.__original242=oldLoad;
+    window.loadSaved=load;
+  }
+
+  /* After a fresh IDBI reset, return to Item 1 only. */
+  var oldReset=window.idbiReset;
+  if(typeof oldReset==='function' && !oldReset.__items242){
+    var reset=function(){
+      var r=oldReset.apply(this,arguments);
+      var cards=document.querySelectorAll('#idbiRows .idbi-item-card');
+      cards.forEach(function(card,idx){card.style.display=idx===0?'block':'none';});
+      return r;
+    };
+    reset.__items242=true;
+    reset.__original242=oldReset;
+    window.idbiReset=reset;
+  }
+})();
+</script>
+<!-- /STEP 242 -->
+
 </body>
 </html>
