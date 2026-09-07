@@ -22210,8 +22210,8 @@ body.premiumBankValuation210 #idbi-valuation-screen{
         '<td>'+net.toFixed(3)+'</td>'+
         '<td>'+Math.round(purity)+'</td>'+
         '<td>'+eq.toFixed(3)+'</td>'+
-        '<td>'+money(r.rate)+'</td>'+
-        '<td>'+money(value)+'</td>'+
+        '<td>'+Math.round(num(r.rate)).toLocaleString('en-IN')+'</td>'+
+        '<td>'+Math.round(value).toLocaleString('en-IN')+'</td>'+
       '</tr>';
     }).join('');
 
@@ -22222,7 +22222,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
     return '<div class="idbi-cert-page233">'+
       '<div class="idbi-cert-title233">CERTIFICATE OF THE GOLDSMITH/SHROFF</div>'+
       '<div class="idbi-cert-text233">'+
-        'I, Shri. <b>MAHENDRA SHANTILAL GANDHI</b> son of Shri. <b>SHANTILAL GANDHI</b> aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net Weight of gold there in is <b>'+tn.toFixed(3)+'</b> Grams of carat. I hereby certify that the Bank may safely grant a loan of <b>'+money(r.sanctionedLoan)+'</b> against delivery of the said gold ornaments/ and/or gold coins issued by banks. I am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any time as and when demanded by the Bank.'+
+        'I, Shri. <b>MAHENDRA SHANTILAL GANDHI</b> son of Shri. <b>SHANTILAL GANDHI</b> aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net Weight of gold there in is <b>'+tn.toFixed(3)+'</b> Grams of carat. I hereby certify that the Bank may safely grant a loan of <b>₹'+Math.round(num(r.sanctionedLoan)).toLocaleString('en-IN')+'</b> against delivery of the said gold ornaments/ and/or gold coins issued by banks. I am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any time as and when demanded by the Bank.'+
       '</div>'+
       '<div class="idbi-cert-text233 idbi-acid233">I hereby confirm that Acid test has been conducted for the Gold Ornaments/ and/or gold coins issued by banks pledged by Shri. <b>'+esc(r.customer&&r.customer.name)+'</b>.</div>'+
       '<table class="idbi-cert-table233">'+
@@ -22241,9 +22241,9 @@ body.premiumBankValuation210 #idbi-valuation-screen{
         '</tr></thead>'+
         '<tbody>'+tr+'</tbody>'+
         '<tfoot>'+
-          '<tr><th></th><th>Total</th><th>'+tq+'</th><th>'+tg.toFixed(3)+'</th><th>'+ts.toFixed(3)+'</th><th>'+ti.toFixed(3)+'</th><th>'+tn.toFixed(3)+'</th><th></th><th>'+teq.toFixed(3)+'</th><th></th><th>'+money(tv)+'</th></tr>'+
-          '<tr><th></th><th colspan="9" class="left">Total Amount of gold:-</th><th>'+money(tv)+'</th></tr>'+
-          '<tr><th></th><th colspan="9" class="left">Loan amount:-</th><th>'+money(r.sanctionedLoan)+'</th></tr>'+
+          '<tr><th></th><th>Total</th><th>'+tq+'</th><th>'+tg.toFixed(3)+'</th><th>'+ts.toFixed(3)+'</th><th>'+ti.toFixed(3)+'</th><th>'+tn.toFixed(3)+'</th><th></th><th>'+teq.toFixed(3)+'</th><th></th><th>'+Math.round(tv).toLocaleString('en-IN')+'</th></tr>'+
+          '<tr><th></th><th colspan="9" class="left">Total Amount of gold:-</th><th>'+Math.round(tv).toLocaleString('en-IN')+'</th></tr>'+
+          '<tr><th></th><th colspan="9" class="left">Loan amount:-</th><th>'+Math.round(num(r.sanctionedLoan)).toLocaleString('en-IN')+'</th></tr>'+
         '</tfoot>'+
       '</table>'+
       '<div class="idbi-cert-bottom233">'+
@@ -22273,7 +22273,7 @@ body.premiumBankValuation210 #idbi-valuation-screen{
     var style=document.createElement('style');
     style.id='idbiPage1Style233';
     style.textContent=`
-      .idbi-cert-page233{width:794px;min-height:1122px;background:#fff;padding:54px 48px 42px;box-sizing:border-box;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.58}
+      .idbi-cert-page233{width:794px;min-height:1122px;background:#fff;padding:42px 38px 34px;box-sizing:border-box;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.58;border:2px solid #222}
       .idbi-cert-title233{text-align:center;text-decoration:underline;font-size:22px;font-weight:800;margin:5px 0 18px;line-height:1.35}
       .idbi-cert-text233{text-align:justify;margin:0 0 14px;line-height:1.58}
       .idbi-acid233{margin-top:7px;line-height:1.58}
