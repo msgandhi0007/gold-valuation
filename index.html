@@ -22707,5 +22707,192 @@ body.premiumBankValuation210 #idbi-valuation-screen{
 </script>
 <!-- /STEP 238 -->
 
+
+<!-- STEP 239 - robust Save -> exact certificate PDF -> reset, all banks -->
+<script id="step239-save-certificate-robust">
+(function(){
+  'use strict';
+  if(window.__step239Installed)return;
+  window.__step239Installed=true;
+
+  function downloadToPreopened239(win, blob, filename){
+    var url=URL.createObjectURL(blob);
+    try{
+      if(win && !win.closed){
+        win.location.href=url;
+      }else{
+        var a=document.createElement('a');
+        a.href=url;
+        a.download=filename||'Valuation Certificate.pdf';
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    }finally{
+      setTimeout(function(){URL.revokeObjectURL(url)},120000);
+    }
+  }
+
+  function preopen239(){
+    try{
+      var w=window.open('about:blank','_blank');
+      if(w){
+        try{
+          w.document.write('<!doctype html><title>Generating Certificate</title><body style="font-family:Arial;padding:24px">Generating valuation certificate PDF...</body>');
+          w.document.close();
+        }catch(e){}
+      }
+      return w;
+    }catch(e){ return null; }
+  }
+
+  async function standardPdf239(){
+    if(typeof window.buildCertificatePdf!=='function') throw new Error('Standard certificate PDF builder unavailable');
+    return await window.buildCertificatePdf();
+  }
+
+  async function idbiPdf239(record){
+    if(typeof window.buildIdbiPage1Certificate233==='function'){
+      return await window.buildIdbiPage1Certificate233(record);
+    }
+    throw new Error('IDBI certificate PDF builder unavailable');
+  }
+
+  function unwrap239(fn){
+    var guard=0;
+    while(fn && guard++<8){
+      if(fn.__step238 && fn.__original238){fn=fn.__original238;continue;}
+      if(fn.__certOnly237 && fn.__original237){fn=fn.__original237;continue;}
+      if(fn.__wrapped236 && fn.__original236){fn=fn.__original236;continue;}
+      break;
+    }
+    return fn;
+  }
+
+  function installStandard239(){
+    var original=unwrap239(window.saveData);
+    if(typeof original!=='function' || window.saveData?.__step239)return;
+
+    async function wrapped(){
+      /* Open a PDF tab while the Save tap still has user activation. */
+      var pdfWin=preopen239();
+
+      /* Prevent the original save from clearing fields before PDF is captured. */
+      var realReset=window.resetAfterSave;
+      var resetRequested=false;
+      if(typeof realReset==='function'){
+        window.resetAfterSave=function(){ resetRequested=true; };
+        try{ resetAfterSave=window.resetAfterSave; }catch(e){}
+      }
+
+      var result, saveError=null;
+      try{
+        result=await original.apply(this,arguments);
+      }catch(e){
+        saveError=e;
+      }
+
+      /* Restore reset function immediately after the save operation. */
+      if(typeof realReset==='function'){
+        window.resetAfterSave=realReset;
+        try{ resetAfterSave=realReset; }catch(e){}
+      }
+
+      if(saveError){
+        if(pdfWin && !pdfWin.closed) pdfWin.close();
+        throw saveError;
+      }
+
+      try{
+        /* Fields still contain exactly the valuation that was just saved. */
+        var out=await standardPdf239();
+        if(out && out.blob) downloadToPreopened239(pdfWin,out.blob,out.filename);
+        else if(pdfWin && !pdfWin.closed) pdfWin.close();
+      }catch(e){
+        console.error('Step 239 standard certificate:',e);
+        if(pdfWin && !pdfWin.closed) pdfWin.close();
+      }finally{
+        /* Only after certificate capture, prepare screen for next customer. */
+        if(resetRequested && typeof realReset==='function'){
+          try{ realReset(); }catch(e){console.error(e);}
+        }
+      }
+      return result;
+    }
+
+    wrapped.__step239=true;
+    wrapped.__original239=original;
+    window.saveData=wrapped;
+    try{ saveData=wrapped; }catch(e){}
+  }
+
+  function installIdbi239(){
+    var original=unwrap239(window.idbiSaveData);
+    if(typeof original!=='function' || window.idbiSaveData?.__step239)return;
+
+    async function wrapped(){
+      var pdfWin=preopen239();
+
+      /* Capture the complete IDBI record before original save/reset changes the form. */
+      var record=null;
+      try{
+        if(typeof window.idbiRecord==='function') record=window.idbiRecord();
+      }catch(e){}
+
+      var realReset=window.idbiReset;
+      var resetRequested=false;
+      if(typeof realReset==='function'){
+        window.idbiReset=function(){ resetRequested=true; };
+      }
+
+      var result, saveError=null;
+      try{
+        result=await original.apply(this,arguments);
+      }catch(e){
+        saveError=e;
+      }
+
+      if(typeof realReset==='function') window.idbiReset=realReset;
+
+      if(saveError){
+        if(pdfWin && !pdfWin.closed) pdfWin.close();
+        throw saveError;
+      }
+
+      try{
+        /* Prefer the saved record generated by the save function, but the captured
+           record is guaranteed to match the valuation visible when Save was tapped. */
+        var r=(window._currentSavedRecord && String(window._currentSavedRecord.bank||window._currentSavedRecord.customer?.bank||'').toUpperCase().includes('IDBI'))
+          ? window._currentSavedRecord : record;
+        var out=await idbiPdf239(r);
+        if(out && out.blob) downloadToPreopened239(pdfWin,out.blob,out.filename);
+        else if(pdfWin && !pdfWin.closed) pdfWin.close();
+      }catch(e){
+        console.error('Step 239 IDBI certificate:',e);
+        if(pdfWin && !pdfWin.closed) pdfWin.close();
+      }finally{
+        if(resetRequested && typeof realReset==='function'){
+          try{ realReset(); }catch(e){console.error(e);}
+        }
+      }
+      return result;
+    }
+
+    wrapped.__step239=true;
+    wrapped.__original239=original;
+    window.idbiSaveData=wrapped;
+    try{ idbiSaveData=wrapped; }catch(e){}
+  }
+
+  function install239(){
+    installStandard239();
+    installIdbi239();
+  }
+
+  install239();
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(install239,0)},{once:true});
+  setTimeout(install239,1800);
+})();
+</script>
+<!-- /STEP 239 -->
+
 </body>
 </html>
