@@ -25094,5 +25094,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- /STEP 267 -->
 
+
+<!-- STEP 268 - SBI NET WEIGHT (R) VALUE FIX -->
+<script id="step268-sbi-net-weight-r-value-fix">
+(function(){
+  window.gvSbiNetWeightR268=function(item){
+    item=item||{};
+    function num(v){v=parseFloat(v);return Number.isFinite(v)?v:0;}
+    var stored=[item.roundedWeight,item.rounded,item.netWeightR,item.pureWeightRounded,item.roundedPureWeight];
+    for(var i=0;i<stored.length;i++){
+      if(stored[i]!==undefined && stored[i]!==null && stored[i]!==''){
+        var s=parseFloat(stored[i]);
+        if(Number.isFinite(s)) return Math.floor((s+1e-9)*10)/10;
+      }
+    }
+    var gross=num(item.grossWeight!==undefined?item.grossWeight:item.gross);
+    var stone=num(item.stoneWeight!==undefined?item.stoneWeight:item.stone);
+    var purity=num(item.purity);
+    var net=Math.max(0,gross-stone);
+    var pure=net*purity/100;
+    return Math.floor((pure+1e-9)*10)/10;
+  };
+})();
+</script>
+<!-- /STEP 268 -->
+
 </body>
 </html>
