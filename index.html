@@ -25122,7 +25122,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       return num268(x&&x.gross)>0 || num268(x&&x.netWeight)>0 || String(x&&x.name||'').trim();
     }).slice(0,10);
 
-    var totalGross=0,totalStone=0,totalImpurity=0,totalNet=0,totalEq=0,totalValue=0;
+    var totalQty=0,totalGross=0,totalStone=0,totalImpurity=0,totalNet=0,totalEq=0,totalValue=0;
     var body='';
     rows.forEach(function(x,i){
       var qty=Math.max(1,parseInt(x&&x.quantity!=null?x.quantity:(x&&x.qty!=null?x.qty:1),10)||1);
@@ -25139,7 +25139,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       var rate=num268(r&&r.rate);
       var value=num268(x&&x.value);
       if(!value && eq && rate)value=eq*rate;
-      totalGross+=gross; totalStone+=stone; totalImpurity+=impurity; totalNet+=net; totalEq+=eq; totalValue+=value;
+      totalQty+=qty; totalGross+=gross; totalStone+=stone; totalImpurity+=impurity; totalNet+=net; totalEq+=eq; totalValue+=value;
       body+='<tr>'+ 
         '<td>'+(i+1)+'</td>'+ 
         '<td class="desc268">'+esc268(x.name||('Item '+(i+1)))+'</td>'+ 
@@ -25180,7 +25180,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             '<th>Impurity<br>Grams</th>'+ 
             '<th>Net Weight<br>Grams</th>'+ 
             '<th>Purity<br>in<br>carat</th>'+ 
-            '<th>Equivalent<br>weight of 22<br>carat gold<br>contents =<br>G x H/22<br>(Grams)</th>'+ 
+            '<th>Equivalent<br>22K Weight<br>(Grams)</th>'+ 
             '<th>Rate per<br>gram.<br>(Prescribed by<br>Corporate<br>Office) for 22<br>carat</th>'+ 
             '<th>Value of the<br>gold<br>ornaments.<br>= I x J</th>'+ 
           '</tr>'+ 
@@ -25188,6 +25188,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '</thead>'+ 
         '<tbody>'+body+'</tbody>'+ 
         '<tfoot>'+ 
+          '<tr class="columnTotals268">'+
+            '<td></td>'+ 
+            '<td class="label268 totalLabel268">TOTAL</td>'+ 
+            '<td>'+totalQty+'</td>'+ 
+            '<td>'+totalGross.toFixed(3)+'</td>'+ 
+            '<td>'+totalStone.toFixed(3)+'</td>'+ 
+            '<td>'+totalImpurity.toFixed(3)+'</td>'+ 
+            '<td>'+totalNet.toFixed(3)+'</td>'+ 
+            '<td>'+(totalNet>0 ? (totalEq*22/totalNet).toFixed(2).replace(/\.00$/,'') : '')+'</td>'+ 
+            '<td>'+totalEq.toFixed(3)+'</td>'+ 
+            '<td>'+intMoney268(num268(r&&r.rate))+'</td>'+ 
+            '<td>'+intMoney268(useTotalValue)+'</td>'+ 
+          '</tr>'+ 
           '<tr><td></td><td colspan="9" class="label268">Total Amount of gold:-</td><td>'+intMoney268(useTotalValue)+'</td></tr>'+ 
           '<tr><td></td><td colspan="9" class="label268">Loan amount: -</td><td>'+intMoney268(loan)+'</td></tr>'+ 
         '</tfoot>'+ 
@@ -25241,6 +25254,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       .idbi-ref-table268 .blank268 td{font-weight:400}
       .idbi-ref-table268 tfoot tr{height:25px}
       .idbi-ref-table268 tfoot td{font-size:10.7px}
+      .idbi-ref-table268 .columnTotals268 td{font-weight:700;text-align:center;background:#f4f4f4;font-size:9.6px;padding:3px 2px}
+      .idbi-ref-table268 .columnTotals268 .totalLabel268{text-align:center!important;font-size:10px!important;padding-left:2px!important}
       .idbi-ref-table268 .label268{text-align:left;padding-left:6px;font-size:12px}
       .idbi-ref-table268 th:nth-child(1),.idbi-ref-table268 td:nth-child(1){width:3.8%}
       .idbi-ref-table268 th:nth-child(2),.idbi-ref-table268 td:nth-child(2){width:24.0%}
