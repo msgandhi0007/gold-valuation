@@ -25616,12 +25616,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- /STEP 272 -->
 
 
-<!-- STEP 275 - IDBI DIRECT jsPDF, RESTORED ORIGINAL CERTIFICATE FORMAT -->
-<script id="step275-idbi-direct-scaled-original-format">
+<!-- STEP 276 - IDBI DIRECT jsPDF, RESTORED ORIGINAL CERTIFICATE FORMAT -->
+<script id="step276-idbi-target-scale-fast-format">
 (function(){
 'use strict';
-if(window.__step275IdbiScaledInstalled)return;
-window.__step275IdbiScaledInstalled=true;
+if(window.__step276IdbiTargetInstalled)return;
+window.__step276IdbiTargetInstalled=true;
 
 function n(v){v=Number(v);return Number.isFinite(v)?v:0}
 function s(v){return String(v==null?'':v)}
@@ -25652,7 +25652,7 @@ function cell(pdf,t,x,y,w,h,opt){
   else pdf.text(lines,x+w/2,ty,{align:'center'});
 }
 
-window.buildIdbiDirectPdf275=async function(record){
+window.buildIdbiDirectPdf276=async function(record){
   if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF library is not ready.');
   var r=record||(typeof window.idbiRecord==='function'?window.idbiRecord():null);
   if(!r)throw new Error('IDBI valuation is unavailable.');
@@ -25672,27 +25672,27 @@ window.buildIdbiDirectPdf275=async function(record){
   });
 
   var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-  var L=13,R=197,W=184,y=18;
+  var L=8,R=202,W=194,y=16;
   pdf.setLineWidth(.35);pdf.rect(7,7,196,283);
 
-  text(pdf,'CERTIFICATE OF THE GOLDSMITH/SHROFF',105,y,14,true,'center');
-  pdf.line(53,y+1.4,157,y+1.4);y+=11;
+  text(pdf,'CERTIFICATE OF THE GOLDSMITH/SHROFF',105,y,15.2,true,'center');
+  pdf.line(49,y+1.5,161,y+1.5);y+=11.5;
 
   var intro='I, Shri. MAHENDRA SHANTILAL GANDHI son of Shri. SHANTILAL GANDHI aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net Weight of gold there in is '+tn.toFixed(3)+' Grams of carat. I hereby certify that the Bank may safely grant a loan of ₹'+money(r.sanctionedLoan)+' against delivery of the said gold ornaments/ and/or gold coins issued by banks. I am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any time as and when demanded by the Bank.';
-  y=wrapped(pdf,intro,L,y,W,10.1,4.95)+4;
+  y=wrapped(pdf,intro,L,y,W,10.8,5.15)+4.5;
 
   var borrower=s(r.customer&&r.customer.name);
   var acid='I hereby confirm that Acid test has been conducted for the Gold Ornaments/ and/or gold coins issued by banks pledged by Shri. '+borrower+'.';
-  y=wrapped(pdf,acid,L,y,W,10.1,4.95)+4;
+  y=wrapped(pdf,acid,L,y,W,10.8,5.15)+4.5;
 
   /* Same proportions as the original HTML certificate. */
-  var widths=[9.2,36.8,12.9,14.7,14.7,14.7,14.7,12.9,20.2,14.7,18.5];
+  var widths=[9.7,38.8,13.6,15.5,15.5,15.5,15.5,13.6,21.3,15.5,19.4];
   var heads=['Sr.\nNo','Description of Ornaments','No. of\nItems','Gross\nWeight\nGrams','Stone\nWt.\nGrams','Impurity\nGrams','Net Weight\nGrams','Purity\nin carat','Equivalent weight of 22 carat gold contents\n(Grams)','Rate per gram\nfor 22 carat','Value of the gold ornaments'];
-  var x=L,hh=27;
-  for(var i=0;i<widths.length;i++){cell(pdf,heads[i],x,y,widths[i],hh,{size:6.15,bold:false,lh:2.65});x+=widths[i]}
+  var x=L,hh=28.5;
+  for(var i=0;i<widths.length;i++){cell(pdf,heads[i],x,y,widths[i],hh,{size:6.55,bold:true,lh:2.8});x+=widths[i]}
   y+=hh;
 
-  var rh=6.8;
+  var rh=7.15;
   for(var k=0;k<10;k++){
     var a=rows[k],vals;
     if(a){
@@ -25700,34 +25700,34 @@ window.buildIdbiDirectPdf275=async function(record){
     }else vals=[k+1,'','','','','','','','','',''];
     x=L;
     for(i=0;i<widths.length;i++){
-      cell(pdf,vals[i],x,y,widths[i],rh,{size:6.35,bold:!!a,lh:2.7,align:i===1?'left':(i===10?'right':'center')});x+=widths[i];
+      cell(pdf,vals[i],x,y,widths[i],rh,{size:6.8,bold:!!a,lh:2.85,align:i===1?'left':(i===10?'right':'center')});x+=widths[i];
     }
     y+=rh;
   }
 
   var totals=['','Total',tq,tg.toFixed(3),ts.toFixed(3),ti.toFixed(3),tn.toFixed(3),'',teq.toFixed(3),'',money(tv)];
   x=L;
-  for(i=0;i<widths.length;i++){cell(pdf,totals[i],x,y,widths[i],7,{size:6.35,bold:true,align:i===10?'right':'center'});x+=widths[i]}
-  y+=7;
+  for(i=0;i<widths.length;i++){cell(pdf,totals[i],x,y,widths[i],7.4,{size:6.8,bold:true,align:i===10?'right':'center'});x+=widths[i]}
+  y+=7.4;
 
   /* Exact original two summary rows. */
   var first=widths[0], rest=widths.slice(1,10).reduce(function(a,b){return a+b},0), last=widths[10];
-  cell(pdf,'',L,y,first,6.5,{size:6.2});
-  cell(pdf,'Total Amount of gold:-',L+first,y,rest,6.5,{size:6.75,bold:true,align:'left'});
-  cell(pdf,money(tv),L+first+rest,y,last,6.5,{size:6.75,bold:true,align:'right'});y+=6.5;
+  cell(pdf,'',L,y,first,6.8,{size:6.7});
+  cell(pdf,'Total Amount of gold:-',L+first,y,rest,6.8,{size:7.15,bold:true,align:'left'});
+  cell(pdf,money(tv),L+first+rest,y,last,6.8,{size:7.15,bold:true,align:'right'});y+=6.8;
   cell(pdf,'',L,y,first,6,{size:5.7});
-  cell(pdf,'Loan amount:-',L+first,y,rest,6.5,{size:6.75,bold:true,align:'left'});
-  cell(pdf,money(r.sanctionedLoan),L+first+rest,y,last,6.5,{size:6.75,bold:true,align:'right'});y+=13;
+  cell(pdf,'Loan amount:-',L+first,y,rest,6.8,{size:7.15,bold:true,align:'left'});
+  cell(pdf,money(r.sanctionedLoan),L+first+rest,y,last,6.8,{size:7.15,bold:true,align:'right'});y+=13;
 
   /* Original certificate has no added declaration or borrower-signature section. */
-  var by=244;
-  text(pdf,'Place: ',14,by,9.4,false);text(pdf,'Bhor',26,by,9.4,true);
-  text(pdf,'Date: ',14,by+5.5,9.4,false);text(pdf,fmtDate(r.customer&&r.customer.date),25,by+5.5,9.4,true);
+  var by=246;
+  text(pdf,'Place: ',10,by,10,false);text(pdf,'Bhor',23,by,10,true);
+  text(pdf,'Date: ',10,by+5.5,10,false);text(pdf,fmtDate(r.customer&&r.customer.date),22,by+5.5,10,true);
 
-  text(pdf,'Signature of the Appraising Goldsmith',157,by-19,9.2,false,'center');
-  text(pdf,'MAHENDRA SHANTILAL GANDHI',157,by-4,9.4,true,'center');
-  text(pdf,'REGISTERED GOLD APPRAISER',157,by+1.5,8.8,false,'center');
-  text(pdf,'PPDC/GA/2026/244642',157,by+7,8.8,false,'center');
+  text(pdf,'Signature of the Appraising Goldsmith',160,by-19,9.8,false,'center');
+  text(pdf,'MAHENDRA SHANTILAL GANDHI',160,by-4,10,true,'center');
+  text(pdf,'REGISTERED GOLD APPRAISER',160,by+1.5,9.3,false,'center');
+  text(pdf,'PPDC/GA/2026/244642',160,by+7,9.3,false,'center');
 
   return {
     blob:pdf.output('blob'),
@@ -25737,13 +25737,13 @@ window.buildIdbiDirectPdf275=async function(record){
 
 var previous274=window.buildIdbiPage1Certificate233;
 window.buildIdbiPage1Certificate233=async function(record){
-  return await window.buildIdbiDirectPdf275(record);
+  return await window.buildIdbiDirectPdf276(record);
 };
-window.buildIdbiPage1Certificate233.__step275Scaled=true;
+window.buildIdbiPage1Certificate233.__step276Target=true;
 window.buildIdbiPage1Certificate233.__previous274=previous274;
 })();
 </script>
-<!-- /STEP 275 -->
+<!-- /STEP 276 -->
 
 </body>
 </html>
