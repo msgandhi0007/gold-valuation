@@ -25094,5 +25094,43 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- /STEP 267 -->
 
+
+
+<!-- STEP 268 - FAST PDF RENDER ENGINE FOR ALL BANK CERTIFICATES -->
+<script id="step268-fast-pdf-render-all-banks">
+(function(){
+  'use strict';
+  if(window.__step268Installed)return;
+  window.__step268Installed=true;
+
+  function install268(){
+    var h=window.html2canvas;
+    if(typeof h!=='function' || h.__step268)return false;
+    async function fastHtml2Canvas268(el,opts){
+      opts=Object.assign({},opts||{});
+      /* Mobile certificate PDFs do not need a 2x bitmap. 1.25x keeps A4 text clear
+         while cutting rendered pixels by about 61%, which greatly reduces wait time. */
+      var requested=Number(opts.scale||1);
+      if(requested>1.25) opts.scale=1.25;
+      opts.logging=false;
+      opts.removeContainer=true;
+      return await h(el,opts);
+    }
+    fastHtml2Canvas268.__step268=true;
+    fastHtml2Canvas268.__original268=h;
+    window.html2canvas=fastHtml2Canvas268;
+    try{html2canvas=fastHtml2Canvas268}catch(e){}
+    return true;
+  }
+
+  if(!install268()){
+    var tries=0,tm=setInterval(function(){
+      tries++;
+      if(install268()||tries>30)clearInterval(tm);
+    },100);
+  }
+})();
+</script>
+<!-- /STEP 268 -->
 </body>
 </html>
