@@ -21597,8 +21597,8 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       const value=rounded*rate;
       const manualCarat=Number(el('sbiCertCarat225')?.value||0);
       const carat=manualCarat>0?manualCarat:(p*24/100);
-      tq+=qty;tg+=g;ts+=s;tn+=net;tv+=value;
-      rows+='<tr><td>'+n+'</td><td>'+esc(nm)+'</td><td>'+qty+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+Math.round(carat)+'</td><td>'+net.toFixed(2)+'</td><td>'+moneyPlain(value)+'</td></tr>';
+      tq+=qty;tg+=g;ts+=s;tn+=rounded;tv+=value;
+      rows+='<tr><td>'+n+'</td><td>'+esc(nm)+'</td><td>'+qty+'</td><td>'+g.toFixed(2)+'</td><td>'+s.toFixed(2)+'</td><td>'+Math.round(carat)+'</td><td>'+rounded.toFixed(2)+'</td><td>'+moneyPlain(value)+'</td></tr>';
     });
     const target=el('sbiPRows223');
     if(target){
@@ -25093,31 +25093,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 267 -->
-
-
-<!-- STEP 268 - SBI NET WEIGHT (R) VALUE FIX -->
-<script id="step268-sbi-net-weight-r-value-fix">
-(function(){
-  window.gvSbiNetWeightR268=function(item){
-    item=item||{};
-    function num(v){v=parseFloat(v);return Number.isFinite(v)?v:0;}
-    var stored=[item.roundedWeight,item.rounded,item.netWeightR,item.pureWeightRounded,item.roundedPureWeight];
-    for(var i=0;i<stored.length;i++){
-      if(stored[i]!==undefined && stored[i]!==null && stored[i]!==''){
-        var s=parseFloat(stored[i]);
-        if(Number.isFinite(s)) return Math.floor((s+1e-9)*10)/10;
-      }
-    }
-    var gross=num(item.grossWeight!==undefined?item.grossWeight:item.gross);
-    var stone=num(item.stoneWeight!==undefined?item.stoneWeight:item.stone);
-    var purity=num(item.purity);
-    var net=Math.max(0,gross-stone);
-    var pure=net*purity/100;
-    return Math.floor((pure+1e-9)*10)/10;
-  };
-})();
-</script>
-<!-- /STEP 268 -->
 
 </body>
 </html>
