@@ -14347,6 +14347,8 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
   // All valuation file saves use the same stored handle.
   window.saveBlobToStorageFolder=async function(name,blob,subfolder){
     const h=await selectedHandle(true);if(!h)return false;
+    /* STEP 262: remember the exact handle that just succeeded under the user's Save tap. */
+    window.__gvActiveStorageHandle262=h;
     await ensure(h);
     let path=clean(subfolder);
     if(path==='Valuations'){
@@ -24700,111 +24702,145 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- STEP 259 - GUARANTEED DIRECT AUTO BACKUP TRIGGER IN CORE SAVE PATHS -->
 
-<!-- STEP 261 - RELIABLE AUTO BACKUP USING SAME WORKING STORAGE SAVE PATH -->
-<script id="step261-reliable-auto-backup">
+<!-- STEP 262 - AUTO BACKUP REUSES ACTIVE STORAGE HANDLE FROM THE SAME SAVE TAP -->
+<script id="step262-auto-backup-active-handle">
 (function(){
   'use strict';
-  if(window.__step261AutoBackupInstalled)return;
-  window.__step261AutoBackupInstalled=true;
+  if(window.__step262AutoBackupInstalled)return;
+  window.__step262AutoBackupInstalled=true;
 
-  function enabled261(){
-    return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';
-  }
-  function rawLocal261(){
+  function enabled262(){return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+  function rawLocal262(){
     var raw={};
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i);
-      raw[k]=localStorage.getItem(k);
-    }
+    for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);raw[k]=localStorage.getItem(k);}
     return raw;
   }
-  function refresh261(){
+  function refresh262(){
     try{
-      var e=document.getElementById('sbAutoBackupStatus');
-      if(!e)return;
+      var e=document.getElementById('sbAutoBackupStatus');if(!e)return;
       var last=localStorage.getItem('goldValuationLastAutoBackup');
       var file=localStorage.getItem('goldValuationLastAutoBackupFile')||'Auto_Backup_Latest.json';
       var d=last?new Date(last):null;
       var when=(d&&Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
-      e.textContent=enabled261()
+      e.textContent=enabled262()
         ? 'Auto Backup: ON ✓\nLast automatic backup: '+when+'\nFile: Backups/'+file
         : 'Auto Backup: OFF\nTurn it on to create a full backup after every successful valuation save.';
     }catch(e){}
   }
-
-  // Important: use saveBlobToStorageFolder(), the exact same storage path that
-  // successfully saves valuation JSON files on Android. This avoids a second
-  // permission request through an independent IndexedDB handle path.
-  window.gvAutomaticFullBackup=async function(){
-    if(!enabled261())return false;
-    if(window.__step261AutoBackupBusy)return false;
-    if(typeof window.saveBlobToStorageFolder!=='function')return false;
-    window.__step261AutoBackupBusy=true;
+  async function write262(dir,name,blob){
+    var fh=await dir.getFileHandle(name,{create:true});
+    var w=await fh.createWritable();
+    await w.write(blob);await w.close();
+  }
+  async function activeHandle262(){
+    /* First choice: exact handle already used successfully by this valuation save. */
+    if(window.__gvActiveStorageHandle262)return window.__gvActiveStorageHandle262;
+    /* Fallback only for manual Backup Now / app restart. */
     try{
-      var raw=rawLocal261();
-      var vals=[];
+      if(typeof window.getStorageFolderHandle==='function'){
+        var h=await window.getStorageFolderHandle();
+        if(h){window.__gvActiveStorageHandle262=h;return h;}
+      }
+    }catch(e){}
+    return null;
+  }
+
+  window.gvAutomaticFullBackup=async function(){
+    if(!enabled262())return false;
+    if(window.__step262BackupBusy)return false;
+    window.__step262BackupBusy=true;
+    try{
+      var h=await activeHandle262();
+      if(!h)return false;
+      /* Do NOT call requestPermission here. The handle has just been used successfully
+         by the valuation save, so reuse it directly while Android access is active. */
+      var backups=await h.getDirectoryHandle('Backups',{create:true});
+      var raw=rawLocal262(),vals=[];
       try{var a=JSON.parse(raw.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
       var now=new Date();
       var payload={
         app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
-        format:'GOLD_VALUATION_BACKUP_V3',
-        version:3,
-        backupType:'automatic',
-        createdAt:now.toISOString(),
-        summary:{valuations:vals.length,storageKeys:Object.keys(raw).length},
-        rawData:raw
+        format:'GOLD_VALUATION_BACKUP_V4',version:4,backupType:'automatic',
+        createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(raw).length},rawData:raw
       };
       var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-
-      // Always-current full recovery copy.
-      var ok=await window.saveBlobToStorageFolder('Auto_Backup_Latest.json',blob,'Backups');
-      if(!ok)return false;
-
-      // Daily recovery point; failure here must not invalidate the Latest backup.
+      await write262(backups,'Auto_Backup_Latest.json',blob);
       try{
         var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-        await window.saveBlobToStorageFolder('Auto_Backup_'+day+'.json',blob,'Backups');
-      }catch(e){console.warn('Daily auto backup copy failed',e);}
-
+        await write262(backups,'Auto_Backup_'+day+'.json',blob);
+      }catch(e){console.warn('Step 262 daily backup copy failed',e);}
       localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
       localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
-      setTimeout(refresh261,0);
+      setTimeout(refresh262,0);
       return true;
-    }catch(e){
-      console.warn('Step 261 automatic backup failed',e);
-      return false;
-    }finally{
-      window.__step261AutoBackupBusy=false;
-    }
+    }catch(e){console.warn('Step 262 automatic backup failed',e);return false;}
+    finally{window.__step262BackupBusy=false;}
   };
 
-  // Keep manual Backup Now using this same reliable full-backup engine.
+  /* Manual Backup Now can still ask for folder permission after an app restart. */
   window.runAutoBackupNow184=async function(){
-    if(!enabled261()){
-      alert('Auto Backup is turned off. Turn it on first.');
-      return false;
-    }
-    var e=document.getElementById('sbAutoBackupStatus');
-    if(e)e.textContent='Creating automatic backup…';
-    var ok=await window.gvAutomaticFullBackup();
-    refresh261();
+    if(!enabled262()){alert('Auto Backup is turned off. Turn it on first.');return false;}
+    var e=document.getElementById('sbAutoBackupStatus');if(e)e.textContent='Creating automatic backup…';
+    window.__gvActiveStorageHandle262=null;
+    var ok=await window.gvAutomaticFullBackup();refresh262();
     if(ok)alert('Automatic backup created successfully in Storage Folder → Backups.');
     else alert('Automatic backup could not be created. Check Storage Folder access and try again.');
     return false;
   };
 
-  // Refresh visible timestamp whenever Storage & Backup opens.
   document.addEventListener('click',function(ev){
-    var t=ev.target;
-    if(t && ((t.textContent||'').includes('Storage') || (t.textContent||'').includes('Backup'))){
-      setTimeout(refresh261,120);
-    }
+    var t=ev.target;if(t&&((t.textContent||'').includes('Storage')||(t.textContent||'').includes('Backup')))setTimeout(refresh262,120);
   },true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh261,500)},{once:true});
-  else setTimeout(refresh261,500);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh262,500)},{once:true});
+  else setTimeout(refresh262,500);
 })();
 </script>
-<!-- /STEP 261 -->
+<!-- /STEP 262 -->
 
+
+
+<!-- STEP 263 - AUTO BACKUP DIRECTLY FROM SUCCESSFUL VALUATION FILE WRITE -->
+<script id="step263-auto-backup-direct-write">
+(function(){
+  'use strict';
+  if(window.__step263Installed)return; window.__step263Installed=true;
+  function enabled(){return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+  function raw(){var o={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);o[k]=localStorage.getItem(k);}return o;}
+  async function writeFile(dir,name,blob){var f=await dir.getFileHandle(name,{create:true});var w=await f.createWritable();await w.write(blob);await w.close();}
+  async function directBackup(){
+    if(!enabled())return false;
+    var h=window.__gvActiveStorageHandle262;if(!h)return false;
+    try{
+      var bdir=await h.getDirectoryHandle('Backups',{create:true});
+      var data=raw(), vals=[];try{var a=JSON.parse(data.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      var now=new Date();
+      var payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V4',version:4,backupType:'automatic',createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(data).length},rawData:data};
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      await writeFile(bdir,'Auto_Backup_Latest.json',blob);
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      try{var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');await writeFile(bdir,'Auto_Backup_'+day+'.json',blob);}catch(e){}
+      try{var el=document.getElementById('sbAutoBackupStatus');if(el)el.textContent='Auto Backup: ON ✓\\nLast automatic backup: '+now.toLocaleString('en-IN')+'\\nFile: Backups/Auto_Backup_Latest.json';}catch(e){}
+      return true;
+    }catch(e){console.warn('Step 263 direct auto backup failed',e);return false;}
+  }
+  window.gvDirectAutoBackup263=directBackup;
+  function install(){
+    var old=window.saveBlobToStorageFolder;
+    if(typeof old!=='function'||old.__step263)return;
+    async function wrapped(name,blob,subfolder){
+      var ok=await old.apply(this,arguments);
+      if(ok && String(subfolder||'').replace(/\//g,'')==='Valuations' && enabled()){
+        await directBackup();
+      }
+      return ok;
+    }
+    wrapped.__step263=true;wrapped.__original263=old;window.saveBlobToStorageFolder=wrapped;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(install,0)},{once:true});else install();
+  setTimeout(install,1000);setTimeout(install,5000);
+})();
+</script>
+<!-- /STEP 263 -->
 </body>
 </html>
