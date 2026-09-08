@@ -5080,21 +5080,19 @@ async function saveData(){
       // filename so changing the customer/date does not create a second file.
       valuationFilename=window._editingValuationOriginalFilename || generatedFilename;
       const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-      try{ fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
-
-      // Step 65: keep a protected copy in Selected Storage Folder -> Backups.
-      // This is an automatic per-valuation backup and is overwritten only for
-      // the same valuation filename when that valuation is updated.
-      if(fileSaved){
+      // STEP 271: do not make Save/Certificate wait for Android folder writes.
+      // The valuation is already safely committed to localStorage above.
+      Promise.resolve().then(async function(){
         try{
-          const backupName='Valuation Backup - '+valuationFilename;
-          backupSaved=await window.saveBlobToStorageFolder(backupName,blob,'Backups');
-          if(backupSaved){
-            localStorage.setItem('goldValuationLastAutoBackup',new Date().toISOString());
-            localStorage.setItem('goldValuationLastAutoBackupFile',backupName);
+          fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations');
+          if(fileSaved){
+            try{
+              const backupName='Valuation Backup - '+valuationFilename;
+              backupSaved=await window.saveBlobToStorageFolder(backupName,blob,'Backups');
+            }catch(e){ console.warn('Automatic valuation backup failed:',e); }
           }
-        }catch(e){ console.warn('Automatic valuation backup failed:',e); }
-      }
+        }catch(e){ console.warn('Valuation file save failed:',e); }
+      });
     }
 
     // STEP 259: Guaranteed full Auto Backup after every successful standard-bank save.
@@ -5102,7 +5100,9 @@ async function saveData(){
     if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
       try{
         window.__gvLastAutoBackupFingerprint='';
-        await window.gvAutomaticFullBackup();
+        Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){
+          console.warn('Step 259 standard auto backup failed:',e);
+        });
       }catch(e){console.warn('Step 259 standard auto backup failed:',e);}
     }
 
@@ -8264,14 +8264,20 @@ window.handleMainBankSelection=function(value){
       if(window.saveBlobToStorageFolder){
         var safe=(rec.customer.name||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').slice(0,60);
         var filename='IDBI-Valuation-'+safe+'-'+String(rec.id)+'.json';
-        try{await window.saveBlobToStorageFolder(filename,new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Valuations');}catch(e){}
-        try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
+        var idbiBlob271=new Blob([JSON.stringify(rec,null,2)],{type:'application/json'});
+        // STEP 271: Android folder writes continue after Save/Certificate starts.
+        Promise.resolve().then(async function(){
+          try{await window.saveBlobToStorageFolder(filename,idbiBlob271,'Valuations');}catch(e){}
+          try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',idbiBlob271,'Backups');}catch(e){}
+        });
       }
       // STEP 259: Guaranteed full Auto Backup after every successful IDBI save.
       if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
         try{
           window.__gvLastAutoBackupFingerprint='';
-          await window.gvAutomaticFullBackup();
+          Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){
+            console.warn('Step 259 IDBI auto backup failed:',e);
+          });
         }catch(e){console.warn('Step 259 IDBI auto backup failed:',e);}
       }
       // STEP 264: direct full Auto Backup from the actual successful IDBI save path.
@@ -25365,6 +25371,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 270 -->
+
+
+<!-- STEP 271 - INSTANT LOCAL SAVE + BACKGROUND STORAGE/BACKUP -->
+<script id="step271-fast-save-background-storage">
+(function(){
+  'use strict';
+  window.__step271FastSave=true;
+})();
+</script>
+<!-- /STEP 271 -->
 
 </body>
 </html>
