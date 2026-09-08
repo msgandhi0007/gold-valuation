@@ -25122,28 +25122,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       return num268(x&&x.gross)>0 || num268(x&&x.netWeight)>0 || String(x&&x.name||'').trim();
     }).slice(0,10);
 
-    var totalGross=0,totalNet=0,totalEq=0,totalValue=0;
+    var totalGross=0,totalStone=0,totalImpurity=0,totalNet=0,totalEq=0,totalValue=0;
     var body='';
     rows.forEach(function(x,i){
-      var gross=num268(x.gross);
-      var net=num268(x.netWeight);
-      if(!net){
-        var less=num268(x.less!=null?x.less:x.stone);
-        var notW=Math.max(0,gross-less);
-        var impurity=num268(x.impurity);
-        net=Math.max(0,notW-impurity);
-      }
-      var purity=num268(x.purity);
-      var eq=num268(x.equivalent22k);
+      var qty=Math.max(1,parseInt(x&&x.quantity!=null?x.quantity:(x&&x.qty!=null?x.qty:1),10)||1);
+      var gross=num268(x&&x.gross);
+      var stone=num268(x&&x.stone!=null?x.stone:(x&&x.less!=null?x.less:x&&x.stoneWeight));
+      var notW=Math.max(0,gross-stone);
+      var impurity=num268(x&&x.impurity);
+      if(!impurity && num268(x&&x.impurityPct))impurity=notW*num268(x.impurityPct)/100;
+      var net=num268(x&&x.netWeight);
+      if(!net)net=Math.max(0,notW-impurity);
+      var purity=num268(x&&x.purity);
+      var eq=num268(x&&x.equivalent22k);
       if(!eq && net && purity)eq=net*purity/22;
       var rate=num268(r&&r.rate);
-      var value=num268(x.value);
+      var value=num268(x&&x.value);
       if(!value && eq && rate)value=eq*rate;
-      totalGross+=gross; totalNet+=net; totalEq+=eq; totalValue+=value;
+      totalGross+=gross; totalStone+=stone; totalImpurity+=impurity; totalNet+=net; totalEq+=eq; totalValue+=value;
       body+='<tr>'+ 
         '<td>'+(i+1)+'</td>'+ 
         '<td class="desc268">'+esc268(x.name||('Item '+(i+1)))+'</td>'+ 
+        '<td>'+qty+'</td>'+ 
         '<td>'+gross.toFixed(3)+'</td>'+ 
+        '<td>'+stone.toFixed(3)+'</td>'+ 
+        '<td>'+impurity.toFixed(3)+'</td>'+ 
         '<td>'+net.toFixed(3)+'</td>'+ 
         '<td>'+((Math.round(purity*100)/100).toString().replace(/\.00$/,''))+'</td>'+ 
         '<td>'+eq.toFixed(3)+'</td>'+ 
@@ -25152,7 +25155,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       '</tr>';
     });
     for(var j=rows.length;j<10;j++){
-      body+='<tr class="blank268"><td>'+(j+1)+'</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+      body+='<tr class="blank268"><td>'+(j+1)+'</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
     }
 
     var customer=(r&&r.customer)||{};
@@ -25171,24 +25174,33 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           '<tr class="headers268">'+
             '<th>Sr.<br>No</th>'+ 
             '<th>Description of Ornaments</th>'+ 
+            '<th>No. of<br>Items</th>'+ 
             '<th>Gross<br>Weight<br>Grams</th>'+ 
-            '<th>Net Weight<br>(Gross weight<br>less wax,<br>Stones, dust<br>etc.) Grams</th>'+ 
+            '<th>Stone<br>Weight<br>Grams</th>'+ 
+            '<th>Impurity<br>Grams</th>'+ 
+            '<th>Net Weight<br>Grams</th>'+ 
             '<th>Purity<br>in<br>carat</th>'+ 
-            '<th>Equivalent<br>weight of 22<br>carat gold<br>contents =<br>D x E/22<br>(Grams)</th>'+ 
-            '<th>Rate per<br>gram.<br>(Prescribed by<br>Corporate<br>Office)for 22<br>carat</th>'+ 
-            '<th>Value of the<br>gold<br>ornaments.<br>=F x G</th>'+ 
+            '<th>Equivalent<br>weight of 22<br>carat gold<br>contents =<br>G x H/22<br>(Grams)</th>'+ 
+            '<th>Rate per<br>gram.<br>(Prescribed by<br>Corporate<br>Office) for 22<br>carat</th>'+ 
+            '<th>Value of the<br>gold<br>ornaments.<br>= I x J</th>'+ 
           '</tr>'+ 
-          '<tr class="letters268"><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th></tr>'+ 
+          '<tr class="letters268"><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th><th>K</th></tr>'+ 
         '</thead>'+ 
         '<tbody>'+body+'</tbody>'+ 
         '<tfoot>'+ 
-          '<tr><td></td><td colspan="6" class="label268">Total Amount of gold:-</td><td>'+intMoney268(useTotalValue)+'</td></tr>'+ 
-          '<tr><td></td><td colspan="6" class="label268">Loan amount: -</td><td>'+intMoney268(loan)+'</td></tr>'+ 
+          '<tr><td></td><td colspan="9" class="label268">Total Amount of gold:-</td><td>'+intMoney268(useTotalValue)+'</td></tr>'+ 
+          '<tr><td></td><td colspan="9" class="label268">Loan amount: -</td><td>'+intMoney268(loan)+'</td></tr>'+ 
         '</tfoot>'+ 
       '</table>'+ 
       '<div class="idbi-ref-footer268">'+
         '<div class="place268"><div>Place: <b>Bhor</b></div><div>Date:&nbsp;&nbsp;&nbsp;&nbsp; <b>'+esc268(date268(customer.date))+'</b></div></div>'+ 
-        '<div class="signature268">Signature of the Appraising Goldsmith</div>'+ 
+        '<div class="signature268">'+
+          '<div>Signature of the Appraising Goldsmith</div>'+ 
+          '<div class="sigspace268"></div>'+ 
+          '<div class="valuername268">MAHENDRA SHANTILAL GANDHI</div>'+ 
+          '<div>REGISTERED GOLD APPRAISER</div>'+ 
+          '<div>PPDC/GA/2026/244642</div>'+ 
+        '</div>'+ 
       '</div>'+ 
     '</div>';
   }
@@ -25207,37 +25219,42 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var style=document.createElement('style');
     style.id='idbiReferenceStyle268';
     style.textContent=`
-      .idbi-ref-page268{width:794px;height:1122px;box-sizing:border-box;background:#fff;color:#111;padding:76px 58px 42px;font-family:"Times New Roman",Times,serif;font-size:15.8px;line-height:1.54;overflow:hidden}
-      .idbi-ref-title268{text-align:center;text-decoration:underline;font-weight:700;font-size:20px;line-height:1.2;margin:0 0 16px}
-      .idbi-ref-p268{margin:0 0 13px;text-align:justify}
+      .idbi-ref-page268{width:794px;height:1122px;box-sizing:border-box;background:#fff;color:#111;padding:72px 48px 34px;font-family:"Times New Roman",Times,serif;font-size:15.2px;line-height:1.48;overflow:hidden}
+      .idbi-ref-title268{text-align:center;text-decoration:underline;font-weight:700;font-size:20px;line-height:1.2;margin:0 0 15px}
+      .idbi-ref-p268{margin:0 0 12px;text-align:justify}
       .idbi-ref-p268 b{font-weight:700}
-      .fill268{display:inline-block;min-width:78px;border-bottom:1px solid #222;text-align:center;font-weight:700;line-height:1.1;padding:0 2px}
-      .fill268.money268{min-width:122px}
-      .acid268{margin-top:2px;margin-bottom:10px}
-      .pledge268{display:inline-block;min-width:250px;border-bottom:1px dotted #333;font-weight:700;padding-left:4px}
-      .idbi-ref-table268{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:7px;font-size:11.4px;line-height:1.16}
-      .idbi-ref-table268 th,.idbi-ref-table268 td{border:1px solid #555;padding:3px 3px;text-align:center;vertical-align:middle;font-weight:400}
+      .fill268{display:inline-block;min-width:76px;border-bottom:1px solid #222;text-align:center;font-weight:700;line-height:1.1;padding:0 2px}
+      .fill268.money268{min-width:118px}
+      .acid268{margin-top:2px;margin-bottom:9px}
+      .pledge268{display:inline-block;min-width:235px;border-bottom:1px dotted #333;font-weight:700;padding-left:4px}
+      .idbi-ref-table268{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:6px;font-size:9.05px;line-height:1.08}
+      .idbi-ref-table268 th,.idbi-ref-table268 td{border:1px solid #555;padding:2px 2px;text-align:center;vertical-align:middle;font-weight:400;overflow-wrap:anywhere}
       .idbi-ref-table268 thead th{vertical-align:top;text-align:left}
-      .idbi-ref-table268 .headers268 th{height:118px;padding-top:5px}
-      .idbi-ref-table268 .letters268 th{height:20px;font-weight:700;vertical-align:middle;text-align:left;padding-left:7px}
-      .idbi-ref-table268 tbody tr{height:26px}
-      .idbi-ref-table268 tbody td{font-size:11.2px}
-      .idbi-ref-table268 .desc268{text-align:left;padding-left:5px}
+      .idbi-ref-table268 .headers268 th{height:111px;padding-top:4px}
+      .idbi-ref-table268 .letters268 th{height:18px;font-weight:700;vertical-align:middle;text-align:left;padding-left:4px}
+      .idbi-ref-table268 tbody tr{height:24px}
+      .idbi-ref-table268 tbody td{font-size:9.2px;white-space:nowrap}
+      .idbi-ref-table268 .desc268{text-align:left;padding-left:4px;white-space:normal}
       .idbi-ref-table268 .blank268 td{font-weight:400}
-      .idbi-ref-table268 tfoot tr{height:27px}
-      .idbi-ref-table268 tfoot td{font-size:12px}
-      .idbi-ref-table268 .label268{text-align:left;padding-left:7px;font-size:13.3px}
-      .idbi-ref-table268 th:nth-child(1),.idbi-ref-table268 td:nth-child(1){width:5.5%}
-      .idbi-ref-table268 th:nth-child(2),.idbi-ref-table268 td:nth-child(2){width:29.5%}
-      .idbi-ref-table268 th:nth-child(3),.idbi-ref-table268 td:nth-child(3){width:9.8%}
-      .idbi-ref-table268 th:nth-child(4),.idbi-ref-table268 td:nth-child(4){width:10.7%}
-      .idbi-ref-table268 th:nth-child(5),.idbi-ref-table268 td:nth-child(5){width:7.7%}
-      .idbi-ref-table268 th:nth-child(6),.idbi-ref-table268 td:nth-child(6){width:12.2%}
-      .idbi-ref-table268 th:nth-child(7),.idbi-ref-table268 td:nth-child(7){width:11.0%}
-      .idbi-ref-table268 th:nth-child(8),.idbi-ref-table268 td:nth-child(8){width:13.6%}
-      .idbi-ref-footer268{display:flex;justify-content:space-between;align-items:flex-start;margin-top:24px;padding:0 22px 0 23px;font-size:14.8px;line-height:1.55}
-      .place268{min-width:230px}
-      .signature268{width:300px;text-align:center;padding-top:2px}
+      .idbi-ref-table268 tfoot tr{height:25px}
+      .idbi-ref-table268 tfoot td{font-size:10.7px}
+      .idbi-ref-table268 .label268{text-align:left;padding-left:6px;font-size:12px}
+      .idbi-ref-table268 th:nth-child(1),.idbi-ref-table268 td:nth-child(1){width:4.2%}
+      .idbi-ref-table268 th:nth-child(2),.idbi-ref-table268 td:nth-child(2){width:20.8%}
+      .idbi-ref-table268 th:nth-child(3),.idbi-ref-table268 td:nth-child(3){width:5.6%}
+      .idbi-ref-table268 th:nth-child(4),.idbi-ref-table268 td:nth-child(4){width:7.9%}
+      .idbi-ref-table268 th:nth-child(5),.idbi-ref-table268 td:nth-child(5){width:7.4%}
+      .idbi-ref-table268 th:nth-child(6),.idbi-ref-table268 td:nth-child(6){width:7.4%}
+      .idbi-ref-table268 th:nth-child(7),.idbi-ref-table268 td:nth-child(7){width:8.3%}
+      .idbi-ref-table268 th:nth-child(8),.idbi-ref-table268 td:nth-child(8){width:6.2%}
+      .idbi-ref-table268 th:nth-child(9),.idbi-ref-table268 td:nth-child(9){width:9.2%}
+      .idbi-ref-table268 th:nth-child(10),.idbi-ref-table268 td:nth-child(10){width:10.0%}
+      .idbi-ref-table268 th:nth-child(11),.idbi-ref-table268 td:nth-child(11){width:13.0%}
+      .idbi-ref-footer268{display:flex;justify-content:space-between;align-items:flex-start;margin-top:18px;padding:0 12px 0 20px;font-size:13.7px;line-height:1.4}
+      .place268{min-width:220px;padding-top:2px}
+      .signature268{width:305px;text-align:center;padding-top:1px}
+      .sigspace268{height:30px}
+      .valuername268{font-weight:700;font-size:13.4px}
     `;
     document.head.appendChild(style);
 
