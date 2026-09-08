@@ -25175,5 +25175,196 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 269 -->
+
+<!-- STEP 270 - SBI DIRECT jsPDF CERTIFICATE (NO html2canvas) -->
+<script id="step270-sbi-direct-jspdf">
+(function(){
+  'use strict';
+  if(window.__step270SbiDirectInstalled)return;
+  window.__step270SbiDirectInstalled=true;
+
+  function E(id){ return document.getElementById(id); }
+  function N(v){ v=Number(v); return Number.isFinite(v)?v:0; }
+  function safe270(v){
+    return String(v||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').trim()||'Customer';
+  }
+  function fmtDate270(v,shortYear){
+    if(!v)return '';
+    var p=String(v).split('-');
+    if(p.length!==3)return String(v);
+    return p[2]+'/'+p[1]+'/'+(shortYear?p[0].slice(-2):p[0]);
+  }
+  function money270(v){
+    return N(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function isSbi270(){
+    var b='';
+    try{
+      b=(E('mainBankSelect')&&E('mainBankSelect').value)||
+        (E('bankName')&&E('bankName').value)||
+        (window._currentSavedRecord&&window._currentSavedRecord.customer&&window._currentSavedRecord.customer.bank)||
+        window.currentBank||'';
+    }catch(e){}
+    b=String(b).toUpperCase();
+    return b.indexOf('SBI')>=0 || b.indexOf('STATE BANK')>=0;
+  }
+  function form270(id, fallback){
+    var x=E(id);
+    return String((x&&x.value)||fallback||'').trim();
+  }
+  function items270(){
+    var rate=N(E('rate')&&E('rate').value), out=[];
+    document.querySelectorAll('#items .item').forEach(function(item){
+      var g=N(item.querySelector('.gross')&&item.querySelector('.gross').value);
+      var s=N(item.querySelector('.stone')&&item.querySelector('.stone').value);
+      var p=N(item.querySelector('.purity')&&item.querySelector('.purity').value);
+      var nm='';
+      try{ nm=typeof window.getItemName==='function'?window.getItemName(item):''; }catch(e){}
+      if(!nm) nm=(item.querySelector('.itemName')&&item.querySelector('.itemName').value)||'';
+      if(!g && !nm)return;
+      var qty=Math.max(1,parseInt((item.querySelector('.itemQty229')&&item.querySelector('.itemQty229').value)||1,10)||1);
+      var net=Math.max(0,g-s);
+      var pure=net*p/100;
+      var rounded=Math.floor((pure+1e-9)*10)/10;
+      var manual=N(E('sbiCertCarat225')&&E('sbiCertCarat225').value);
+      var carat=manual>0?manual:(p*24/100);
+      out.push({name:nm,qty:qty,gross:g,stone:s,carat:Math.round(carat),rounded:rounded,value:rounded*rate});
+    });
+    return out;
+  }
+  function txt270(pdf,text,x,y,opt){
+    opt=opt||{};
+    pdf.setFont('helvetica',opt.bold?'bold':'normal');
+    pdf.setFontSize(opt.size||10);
+    if(opt.align) pdf.text(String(text||''),x,y,{align:opt.align});
+    else pdf.text(String(text||''),x,y);
+  }
+  function wrapped270(pdf,text,x,y,maxW,lineH,opt){
+    opt=opt||{};
+    pdf.setFont('helvetica',opt.bold?'bold':'normal');
+    pdf.setFontSize(opt.size||10);
+    var lines=pdf.splitTextToSize(String(text||''),maxW);
+    pdf.text(lines,x,y);
+    return y + Math.max(1,lines.length)*lineH;
+  }
+  function cell270(pdf,text,x,y,w,h,opt){
+    opt=opt||{};
+    pdf.rect(x,y,w,h);
+    pdf.setFont('helvetica',opt.bold?'bold':'normal');
+    pdf.setFontSize(opt.size||7.5);
+    var pad=1.2, lines=pdf.splitTextToSize(String(text==null?'':text),Math.max(2,w-pad*2));
+    var lh=opt.lineH||3.1;
+    var total=lines.length*lh;
+    var ty=y+(h-total)/2+lh*0.78;
+    var align=opt.align||'center';
+    if(align==='left') pdf.text(lines,x+pad,ty);
+    else if(align==='right') pdf.text(lines,x+w-pad,ty,{align:'right'});
+    else pdf.text(lines,x+w/2,ty,{align:'center'});
+  }
+
+  window.buildSbiDirectPdf270=async function(){
+    if(!window.jspdf || !window.jspdf.jsPDF) throw new Error('jsPDF library is not ready.');
+    var jsPDF=window.jspdf.jsPDF;
+    var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    var L=12,R=198,W=R-L,y=13;
+
+    pdf.setDrawColor(40); pdf.setLineWidth(0.35);
+    pdf.rect(8,8,194,281);
+
+    txt270(pdf,'Annexure - PL-61(i)',R-2,y,{size:11,bold:true,align:'right'}); y+=9;
+    txt270(pdf,'APPRAISER CERTIFICATE',105,y,{size:13,bold:true,align:'center'});
+    pdf.line(72,y+1,138,y+1); y+=13;
+
+    var branch=form270('sbiCertBranch223','....................');
+    var account=form270('sbiCertAccount223','....................');
+    var name=form270('customerName','');
+    var relation=form270('sbiCertRelation223','....................');
+    var resident=form270('sbiCertResident223','....................');
+    var cash=form270('sbiCertCashInCharge223','....................');
+    var place=form270('sbiCertPlace223','....................');
+    var method=form270('sbiCertMethod223','....................');
+    var date=form270('valuationDate','');
+
+    txt270(pdf,'The Branch Manager',L,y,{size:10}); y+=5;
+    txt270(pdf,'State Bank of India',L,y,{size:10}); y+=5;
+    txt270(pdf,branch+' Branch',L,y,{size:10});
+    txt270(pdf,'Ac. No: '+account,145,y,{size:10}); y+=10;
+    txt270(pdf,'Dear Sir,',L,y,{size:10}); y+=6;
+
+    var body1='I hereby certify that Sri/Smt '+name+' S/W/D of '+relation+', Resident of '+resident+
+      ', who has bought Gold loan from the Bank is not my relative and the gold against which the loan is sought is not purchased from me. '+
+      'The ornaments/Coins have been weighed and appraised by me';
+    y=wrapped270(pdf,body1,L,y,W,4.4,{size:9.5}); y+=1;
+    var body2='on '+fmtDate270(date,true)+' in the presence of Sri/Smt '+cash+
+      ' (cash in charge) and the exact weight, purity of the metal and market value of each item as on date are indicated below:';
+    y=wrapped270(pdf,body2,L,y,W,4.4,{size:9.5}); y+=3;
+
+    var widths=[10,40,17,20,31,18,22,28];
+    var heads=['Sl.No','Description of the Article','No. of\nItems','Gross\nWeight',
+      'Approximate weight of the precious stones in the ornaments (Grams)',
+      'Purity\n(Carat)','Net Weight (R)','Market Value Rs.'];
+    var x=L,hh=18;
+    for(var i=0;i<widths.length;i++){ cell270(pdf,heads[i],x,y,widths[i],hh,{size:7,bold:false}); x+=widths[i]; }
+    y+=hh;
+
+    var arr=items270(), tq=0,tg=0,ts=0,tn=0,tv=0;
+    var rowCount=Math.max(8,arr.length), rh=7;
+    for(var r=0;r<rowCount;r++){
+      var it=arr[r]||null;
+      var vals=it ? [
+        String(r+1),it.name,String(it.qty),it.gross.toFixed(2),it.stone.toFixed(2),
+        String(it.carat),it.rounded.toFixed(2),money270(it.value)
+      ] : ['','','','','','','',''];
+      if(it){tq+=it.qty;tg+=it.gross;ts+=it.stone;tn+=it.rounded;tv+=it.value;}
+      x=L;
+      for(i=0;i<widths.length;i++){
+        cell270(pdf,vals[i],x,y,widths[i],rh,{size:7.4,bold:!!it,align:i===1?'left':(i===7?'right':'center')});
+        x+=widths[i];
+      }
+      y+=rh;
+    }
+
+    var totals=['','Total',String(tq),tg.toFixed(2),ts.toFixed(2),'',tn.toFixed(2),money270(tv)];
+    x=L;
+    for(i=0;i<widths.length;i++){
+      cell270(pdf,totals[i],x,y,widths[i],8,{size:7.5,bold:true,align:i===1?'center':(i===7?'right':'center')});
+      x+=widths[i];
+    }
+    y+=13;
+
+    txt270(pdf,'Method(s) used for purity testing: '+method,L,y,{size:9.5,bold:false}); y+=7;
+    var declaration='I solemnly declare that weight, purity of the gold ornaments/precious stones indicated above are correct and I undertake to indemnify the Bank against any loss it may sustain on account of any inaccuracy in the above appraisal.';
+    y=wrapped270(pdf,declaration,L,y,W,4.4,{size:9.5}); y+=6;
+
+    txt270(pdf,'Place: '+place,L,y,{size:9.5}); y+=10;
+    txt270(pdf,'Date: '+fmtDate270(date,false),L,y,{size:9.5});
+
+    var sy=Math.max(y+12,246);
+    txt270(pdf,'Name & Signature of the Borrower',L,sy,{size:9});
+    txt270(pdf,name,L,sy+5,{size:9,bold:true});
+
+    txt270(pdf,'Yours faithfully',158,sy-8,{size:9,align:'center'});
+    txt270(pdf,'Name & Signature of the Appraiser',158,sy+1,{size:9,align:'center'});
+    txt270(pdf,'MAHENDRA SHANTILAL GANDHI',158,sy+7,{size:9,bold:true,align:'center'});
+    txt270(pdf,'REGISTERED GOLD APPRAISER',158,sy+12,{size:8.5,align:'center'});
+    txt270(pdf,'PPDC/GA/2026/244642',158,sy+17,{size:8.5,align:'center'});
+
+    var blob=pdf.output('blob');
+    var filename=safe270(name)+' - '+(date||new Date().toISOString().slice(0,10))+'.pdf';
+    return {blob:blob,filename:filename};
+  };
+
+  /* Replace only SBI's slow html2canvas route. Other banks remain untouched. */
+  var previous270=window.buildCertificatePdf;
+  window.buildCertificatePdf=async function(){
+    if(isSbi270()) return await window.buildSbiDirectPdf270();
+    return await previous270.apply(this,arguments);
+  };
+  window.buildCertificatePdf.__step270SbiDirect=true;
+  window.buildCertificatePdf.__previous270=previous270;
+})();
+</script>
+<!-- /STEP 270 -->
+
 </body>
 </html>
