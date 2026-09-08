@@ -25616,12 +25616,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- /STEP 272 -->
 
 
-<!-- STEP 278 - IDBI DIRECT jsPDF, RESTORED ORIGINAL CERTIFICATE FORMAT -->
-<script id="step278-idbi-uploaded-pdf-exact-format">
+<!-- STEP 279 - IDBI DIRECT jsPDF, RESTORED ORIGINAL CERTIFICATE FORMAT -->
+<script id="step279-idbi-reference-pdf-matched-format">
 (function(){
 'use strict';
-if(window.__step278IdbiPdfExactInstalled)return;
-window.__step278IdbiPdfExactInstalled=true;
+if(window.__step279IdbiPdfMatchedInstalled)return;
+window.__step279IdbiPdfMatchedInstalled=true;
 
 function n(v){v=Number(v);return Number.isFinite(v)?v:0}
 function s(v){return String(v==null?'':v)}
@@ -25652,7 +25652,7 @@ function cell(pdf,t,x,y,w,h,opt){
   else pdf.text(lines,x+w/2,ty,{align:'center'});
 }
 
-window.buildIdbiDirectPdf278=async function(record){
+window.buildIdbiDirectPdf279=async function(record){
   if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF library is not ready.');
   var r=record||(typeof window.idbiRecord==='function'?window.idbiRecord():null);
   if(!r)throw new Error('IDBI valuation is unavailable.');
@@ -25679,20 +25679,37 @@ window.buildIdbiDirectPdf278=async function(record){
   pdf.line(50.5,y+1.2,159.5,y+1.2);y=28.0;
 
   var intro='I, Shri. MAHENDRA SHANTILAL GANDHI son of Shri. SHANTILAL GANDHI aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net Weight of gold there in is '+tn.toFixed(3)+' Grams of carat. I hereby certify that the Bank may safely grant a loan of ₹'+money(r.sanctionedLoan)+' against delivery of the said gold ornaments/ and/or gold coins issued by banks. I am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any time as and when demanded by the Bank.';
-  y=wrapped(pdf,intro,L,y,W,9.35,5.15)+4.5;
+  font(pdf,9.35,false);
+  var introLines=[
+    'I, Shri. MAHENDRA SHANTILAL GANDHI son of Shri. SHANTILAL GANDHI aged about 45 years',
+    'residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and',
+    'weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net',
+    'Weight of gold there in is '+tn.toFixed(3)+' Grams of carat. I hereby certify that the Bank may safely grant a',
+    'loan of ₹'+money(r.sanctionedLoan)+' against delivery of the said gold ornaments/ and/or gold coins issued by banks. I',
+    'am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any',
+    'time as and when demanded by the Bank.'
+  ];
+  pdf.text(introLines,L,y);
+  y += introLines.length*5.15+4.5;
 
   var borrower=s(r.customer&&r.customer.name);
   var acid='I hereby confirm that Acid test has been conducted for the Gold Ornaments/ and/or gold coins issued by banks pledged by Shri. '+borrower+'.';
-  y=wrapped(pdf,acid,L,y,W,9.35,5.15)+4.0;
+  font(pdf,9.35,false);
+  var acidLines=[
+    'I hereby confirm that Acid test has been conducted for the Gold Ornaments/ and/or gold coins',
+    'issued by banks pledged by Shri. '+borrower+'.'
+  ];
+  pdf.text(acidLines,L,y);
+  y += acidLines.length*5.15+4.0;
 
   /* Same proportions as the original HTML certificate. */
   var widths=[9.0,36.5,12.8,14.5,14.5,14.5,14.5,12.8,20.0,14.6,18.3];
   var heads=['Sr.\nNo','Description of Ornaments','No. of\nItems','Gross\nWeight\nGrams','Stone\nWt.\nGrams','Impurity\nGrams','Net Weight\nGrams','Purity\nin carat','Equivalent weight of 22 carat gold contents\n(Grams)','Rate per gram\nfor 22 carat','Value of the gold ornaments'];
-  y=89.0; var x=L,hh=26.8;
+  y=86.0; var x=L,hh=25.0;
   for(var i=0;i<widths.length;i++){cell(pdf,heads[i],x,y,widths[i],hh,{size:5.85,bold:false,lh:2.55});x+=widths[i]}
   y+=hh;
 
-  var rh=6.75;
+  var rh=6.85;
   for(var k=0;k<10;k++){
     var a=rows[k],vals;
     if(a){
@@ -25720,14 +25737,14 @@ window.buildIdbiDirectPdf278=async function(record){
   cell(pdf,money(r.sanctionedLoan),L+first+rest,y,last,6.0,{size:6.15,bold:true,align:'right'});y+=12;
 
   /* Original certificate has no added declaration or borrower-signature section. */
-  var by=229.7;
+  var by=231.5;
   text(pdf,'Place: ',18.5,by,8.8,false);text(pdf,'Bhor',30.5,by,8.8,true);
   text(pdf,'Date: ',18.5,by+5.2,8.8,false);text(pdf,fmtDate(r.customer&&r.customer.date),29.0,by+5.2,8.8,true);
 
-  text(pdf,'Signature of the Appraising Goldsmith',157.5,215.4,8.8,false,'center');
-  text(pdf,'MAHENDRA SHANTILAL GANDHI',157.5,228.5,9.0,true,'center');
-  text(pdf,'REGISTERED GOLD APPRAISER',157.5,233.5,8.3,false,'center');
-  text(pdf,'PPDC/GA/2026/244642',157.5,238.4,8.3,false,'center');
+  text(pdf,'Signature of the Appraising Goldsmith',157.5,216.5,8.8,false,'center');
+  text(pdf,'MAHENDRA SHANTILAL GANDHI',157.5,229.5,9.0,true,'center');
+  text(pdf,'REGISTERED GOLD APPRAISER',157.5,234.5,8.3,false,'center');
+  text(pdf,'PPDC/GA/2026/244642',157.5,239.4,8.3,false,'center');
 
   return {
     blob:pdf.output('blob'),
@@ -25737,13 +25754,13 @@ window.buildIdbiDirectPdf278=async function(record){
 
 var previous274=window.buildIdbiPage1Certificate233;
 window.buildIdbiPage1Certificate233=async function(record){
-  return await window.buildIdbiDirectPdf278(record);
+  return await window.buildIdbiDirectPdf279(record);
 };
-window.buildIdbiPage1Certificate233.__step278PdfExact=true;
+window.buildIdbiPage1Certificate233.__step279PdfMatched=true;
 window.buildIdbiPage1Certificate233.__previous274=previous274;
 })();
 </script>
-<!-- /STEP 278 -->
+<!-- /STEP 279 -->
 
 </body>
 </html>
