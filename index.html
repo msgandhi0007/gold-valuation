@@ -4429,7 +4429,7 @@ body:not(.menu-viewing) .s111-rate{
           <th>Gross<br>Weight</th>
           <th>Approximate weight of the precious stones in the ornaments<br>(Grams)</th>
           <th>Purity<br>(Carat)</th>
-          <th>Net Weight<br>(Grams)</th>
+          <th>Net Weight (R)</th>
           <th>Market Value Rs.</th>
         </tr>
       </thead>
@@ -5108,7 +5108,7 @@ async function saveData(){
 
     // STEP 264: direct full Auto Backup from the actual successful standard-bank save path.
     if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
-      try{ await window.gvForceAutoBackup264(); }catch(e){ console.warn('Step 264 standard auto backup failed:',e); }
+      try{ Promise.resolve(window.gvForceAutoBackup264()).catch(function(e){console.warn('Step 264 standard auto backup failed:',e);}); }catch(e){}
     }
 
     const action=existingIndex>=0?'updated':'saved';
@@ -8276,7 +8276,7 @@ window.handleMainBankSelection=function(value){
       }
       // STEP 264: direct full Auto Backup from the actual successful IDBI save path.
       if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
-        try{ await window.gvForceAutoBackup264(); }catch(e){ console.warn('Step 264 IDBI auto backup failed:',e); }
+        try{ Promise.resolve(window.gvForceAutoBackup264()).catch(function(e){console.warn('Step 264 IDBI auto backup failed:',e);}); }catch(e){}
       }
 
       window._currentSavedRecord=rec; window._idbiEditingId=null;
@@ -25043,7 +25043,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
       /* Only back up when the save actually changed app valuation data. */
       if(after!==before && handle && enabled266()){
-        await fullBackup266(handle);
+        /* Step 267: do not block certificate generation while writing the full backup.
+           The backup continues immediately in the background using the already-authorized handle. */
+        Promise.resolve(fullBackup266(handle)).catch(function(e){
+          console.warn('Step 267 background auto backup failed',e);
+        });
       }
     }catch(e){
       console.error('Step 266 Save failed',e);
@@ -25054,6 +25058,41 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 266 -->
+
+
+<!-- STEP 267 - FAST CERTIFICATE OPEN + SBI NET WEIGHT (R) -->
+<script id="step267-fast-certificate-sbi-rounded-label">
+(function(){
+  'use strict';
+
+  function fixSbiHeader267(){
+    try{
+      var cert=document.getElementById('certificate');
+      if(!cert)return;
+      cert.querySelectorAll('th').forEach(function(th){
+        var t=String(th.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+        if(t==='net weight (grams)' || t==='net weight grams'){
+          th.textContent='Net Weight (R)';
+        }
+      });
+    }catch(e){}
+  }
+
+  /* Run immediately before standard certificate capture where possible. */
+  var oldBuild=window.buildCertificatePdf;
+  if(typeof oldBuild==='function' && !oldBuild.__step267){
+    var f=async function(){
+      fixSbiHeader267();
+      return await oldBuild.apply(this,arguments);
+    };
+    f.__step267=true;
+    window.buildCertificatePdf=f;
+  }
+
+  window.fixSbiCertificate267=fixSbiHeader267;
+})();
+</script>
+<!-- /STEP 267 -->
 
 </body>
 </html>
