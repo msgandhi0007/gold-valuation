@@ -5106,6 +5106,11 @@ async function saveData(){
       }catch(e){console.warn('Step 259 standard auto backup failed:',e);}
     }
 
+    // STEP 264: direct full Auto Backup from the actual successful standard-bank save path.
+    if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
+      try{ await window.gvForceAutoBackup264(); }catch(e){ console.warn('Step 264 standard auto backup failed:',e); }
+    }
+
     const action=existingIndex>=0?'updated':'saved';
     // STEP 247: Storage-folder access is optional. A successful app save must
     // continue directly to certificate generation without an interrupting popup.
@@ -8269,6 +8274,11 @@ window.handleMainBankSelection=function(value){
           await window.gvAutomaticFullBackup();
         }catch(e){console.warn('Step 259 IDBI auto backup failed:',e);}
       }
+      // STEP 264: direct full Auto Backup from the actual successful IDBI save path.
+      if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
+        try{ await window.gvForceAutoBackup264(); }catch(e){ console.warn('Step 264 IDBI auto backup failed:',e); }
+      }
+
       window._currentSavedRecord=rec; window._idbiEditingId=null;
       // STEP 247: no success/storage popup; continue directly to certificate PDF.
       if(typeof renderSaved==='function')renderSaved();
@@ -24842,5 +24852,78 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 263 -->
+
+<!-- STEP 264 - DIRECT AUTO BACKUP CALLED INSIDE REAL SAVE FUNCTIONS -->
+<script id="step264-direct-auto-backup-core-save">
+(function(){
+  'use strict';
+  if(window.__step264Installed)return;
+  window.__step264Installed=true;
+
+  function enabled264(){
+    return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';
+  }
+  function raw264(){
+    var out={};
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      out[k]=localStorage.getItem(k);
+    }
+    return out;
+  }
+  function refresh264(now){
+    try{
+      var el=document.getElementById('sbAutoBackupStatus');
+      if(!el)return;
+      var t=now || new Date(localStorage.getItem('goldValuationLastAutoBackup')||'');
+      var when=(t && Number.isFinite(t.getTime())) ? t.toLocaleString('en-IN') : 'Never';
+      el.textContent='Auto Backup: ON ✓\nLast automatic backup: '+when+'\nFile: Backups/Auto_Backup_Latest.json';
+    }catch(e){}
+  }
+
+  window.gvForceAutoBackup264=async function(){
+    if(!enabled264())return false;
+    if(typeof window.saveBlobToStorageFolder!=='function')return false;
+    try{
+      var data=raw264(), vals=[];
+      try{
+        var a=JSON.parse(data.goldValuations||'[]');
+        if(Array.isArray(a))vals=a;
+      }catch(e){}
+      var now=new Date();
+      var payload={
+        app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+        format:'GOLD_VALUATION_BACKUP_V5',
+        version:5,
+        backupType:'automatic',
+        createdAt:now.toISOString(),
+        summary:{valuations:vals.length,storageKeys:Object.keys(data).length},
+        rawData:data
+      };
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+
+      /* Use the exact same save API that already successfully writes valuation JSON files. */
+      var ok=await window.saveBlobToStorageFolder('Auto_Backup_Latest.json',blob,'Backups');
+      if(!ok)return false;
+
+      /* Daily recovery copy is best-effort; latest backup is the required one. */
+      try{
+        var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        await window.saveBlobToStorageFolder('Auto_Backup_'+day+'.json',blob,'Backups');
+      }catch(e){}
+
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      refresh264(now);
+      return true;
+    }catch(e){
+      console.warn('Step 264 direct automatic backup failed',e);
+      return false;
+    }
+  };
+})();
+</script>
+<!-- /STEP 264 -->
+
 </body>
 </html>
