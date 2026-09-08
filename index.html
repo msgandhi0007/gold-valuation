@@ -25616,135 +25616,134 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- /STEP 272 -->
 
 
-<!-- STEP 273 - IDBI DIRECT jsPDF CERTIFICATE (NO html2canvas) -->
-<script id="step273-idbi-direct-jspdf">
+<!-- STEP 274 - IDBI DIRECT jsPDF, RESTORED ORIGINAL CERTIFICATE FORMAT -->
+<script id="step274-idbi-direct-original-format">
 (function(){
-  'use strict';
-  if(window.__step273IdbiDirectInstalled)return;
-  window.__step273IdbiDirectInstalled=true;
+'use strict';
+if(window.__step274IdbiExactInstalled)return;
+window.__step274IdbiExactInstalled=true;
 
-  function N(v){v=Number(v);return Number.isFinite(v)?v:0}
-  function S(v){return String(v==null?'':v)}
-  function safe273(v){return S(v||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').trim()||'Customer'}
-  function money273(v){return Math.round(N(v)).toLocaleString('en-IN')}
-  function txt273(pdf,t,x,y,o){
-    o=o||{};pdf.setFont('helvetica',o.bold?'bold':'normal');pdf.setFontSize(o.size||10);
-    pdf.text(S(t),x,y,o.align?{align:o.align}:undefined);
-  }
-  function wrap273(pdf,t,x,y,w,lh,o){
-    o=o||{};pdf.setFont('helvetica',o.bold?'bold':'normal');pdf.setFontSize(o.size||10);
-    var a=pdf.splitTextToSize(S(t),w);pdf.text(a,x,y);return y+Math.max(1,a.length)*(lh||4.2);
-  }
-  function cell273(pdf,t,x,y,w,h,o){
-    o=o||{};pdf.rect(x,y,w,h);pdf.setFont('helvetica',o.bold?'bold':'normal');pdf.setFontSize(o.size||6.8);
-    var p=1,a=pdf.splitTextToSize(S(t),Math.max(2,w-p*2)),lh=o.lh||2.8;
-    var ty=y+(h-a.length*lh)/2+lh*.78,al=o.align||'center';
-    if(al==='left')pdf.text(a,x+p,ty);
-    else if(al==='right')pdf.text(a,x+w-p,ty,{align:'right'});
-    else pdf.text(a,x+w/2,ty,{align:'center'});
-  }
-  function rec273(r){
-    if(r)return r;
-    try{if(typeof window.idbiRecord==='function')return window.idbiRecord()}catch(e){}
-    return {};
-  }
-  function item273(it,rate){
-    it=it||{};
-    var g=N(it.grossWeight!=null?it.grossWeight:it.gross);
-    var s=N(it.stoneWeight!=null?it.stoneWeight:it.stone);
-    var p=N(it.purity);
-    var impurity=N(it.impurityWeight!=null?it.impurityWeight:it.impurity);
-    var net=N(it.netWeight!=null?it.netWeight:(g-s));
-    if(!net)net=Math.max(0,g-s);
-    if(!impurity && p)impurity=Math.max(0,net-(net*p/100));
-    var carat=N(it.carat); if(!carat && p)carat=Math.round(p*24/100);
-    var eq22=N(it.equivalent22Carat!=null?it.equivalent22Carat:
-      (it.equivalent22K!=null?it.equivalent22K:(net*p/100)*(24/22)));
-    var val=N(it.value); if(!val)val=eq22*rate;
-    return {
-      name:S(it.name||it.itemName||it.description||''),
-      qty:Math.max(1,parseInt(it.quantity||it.qty||1,10)||1),
-      gross:g,stone:s,impurity:impurity,net:net,carat:Math.round(carat),
-      eq22:eq22,rate:rate,value:val
-    };
-  }
+function n(v){v=Number(v);return Number.isFinite(v)?v:0}
+function s(v){return String(v==null?'':v)}
+function safe(v){return s(v||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').trim()||'Customer'}
+function money(v){return Math.round(n(v)).toLocaleString('en-IN')}
+function fmtDate(v){
+  if(!v)return '';
+  var d=new Date(v+'T00:00:00');
+  if(isNaN(d))return s(v);
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
+function font(pdf,size,bold){pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size)}
+function text(pdf,t,x,y,size,bold,align){
+  font(pdf,size,bold);pdf.text(s(t),x,y,align?{align:align}:undefined);
+}
+function wrapped(pdf,t,x,y,w,size,lh){
+  font(pdf,size,false);
+  var lines=pdf.splitTextToSize(s(t),w);
+  pdf.text(lines,x,y);
+  return y+lines.length*lh;
+}
+function cell(pdf,t,x,y,w,h,opt){
+  opt=opt||{};pdf.rect(x,y,w,h);font(pdf,opt.size||5.9,!!opt.bold);
+  var pad=1, lines=pdf.splitTextToSize(s(t),Math.max(2,w-pad*2));
+  var lh=opt.lh||2.45, ty=y+(h-lines.length*lh)/2+lh*.78;
+  if(opt.align==='left')pdf.text(lines,x+pad,ty);
+  else if(opt.align==='right')pdf.text(lines,x+w-pad,ty,{align:'right'});
+  else pdf.text(lines,x+w/2,ty,{align:'center'});
+}
 
-  window.buildIdbiDirectPdf273=async function(record){
-    if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF library is not ready.');
-    var r=rec273(record),jsPDF=window.jspdf.jsPDF;
-    var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-    var L=8,R=202,W=194,y=11;
-    pdf.setDrawColor(30);pdf.setLineWidth(.35);pdf.rect(6,6,198,285);
+window.buildIdbiDirectPdf274=async function(record){
+  if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF library is not ready.');
+  var r=record||(typeof window.idbiRecord==='function'?window.idbiRecord():null);
+  if(!r)throw new Error('IDBI valuation is unavailable.');
 
-    txt273(pdf,'CERTIFICATE OF THE GOLDSMITH/SHROFF',105,y,{size:13,bold:true,align:'center'});
-    pdf.line(55,y+1,155,y+1);y+=10;
+  var raw=(r.items||[]).filter(function(x){
+    return n(x.gross)>0 || n(x.less)>0 || (x.name && !/^Item\s+\d+$/i.test(x.name));
+  });
 
-    var intro='I, Shri. MAHENDRA SHANTILAL GANDHI son of Shri. SHANTILAL GANDHI aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have this day examined and appraised the gold ornaments described below.';
-    y=wrap273(pdf,intro,L,y,W,4.15,{size:9.2});y+=3;
+  var rows=[],tq=0,tg=0,ts=0,ti=0,tn=0,teq=0,tv=0;
+  raw.forEach(function(x){
+    var qty=Math.max(1,parseInt(x.quantity||x.qty||1)||1);
+    var gross=n(x.gross), stone=n(x.less!=null?x.less:x.stone);
+    var impurity=n(x.impurity), net=n(x.netWeight), purity=n(x.purity);
+    var eq=n(x.equivalent22k), value=n(x.value);
+    tq+=qty;tg+=gross;ts+=stone;ti+=impurity;tn+=net;teq+=eq;tv+=value;
+    rows.push([x.name||'',qty,gross,stone,impurity,net,purity,eq,n(r.rate),value]);
+  });
 
-    var cust=(r.customer||{});
-    var nm=S(cust.name||r.customerName||'');
-    var dt=S(cust.date||r.valuationDate||'');
-    var rate=N(r.rate22k||r.rate||r.goldRate||0);
+  var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+  var L=8,R=202,W=194,y=14;
+  pdf.setLineWidth(.35);pdf.rect(7,7,196,283);
 
-    txt273(pdf,'Name of Borrower: '+nm,L,y,{size:9.2,bold:true});
-    txt273(pdf,'Date: '+dt,R,y,{size:9.2,align:'right'});y+=6;
+  text(pdf,'CERTIFICATE OF THE GOLDSMITH/SHROFF',105,y,12,true,'center');
+  pdf.line(55,y+1,155,y+1);y+=10;
 
-    var widths=[8,29,13,16,14,14,15,13,21,18,23];
-    var heads=['Sr.\nNo.','Description of\nOrnaments','No. of\nItems','Gross Weight\nGrams','Stone Wt.\nGrams','Impurity\nGrams','Net Weight\nGrams','Purity in\ncarat','Equivalent weight of 22 carat gold contents (Grams)','Rate per gram\nfor 22 carat','Value of the gold\nornaments'];
-    var x=L,hh=23,i;
-    for(i=0;i<widths.length;i++){cell273(pdf,heads[i],x,y,widths[i],hh,{size:6.1});x+=widths[i]}
-    y+=hh;
+  var intro='I, Shri. MAHENDRA SHANTILAL GANDHI son of Shri. SHANTILAL GANDHI aged about 45 years residing at At Po Mangalwar Peth, Bhor, Tal-Bhor, Dist-Pune hereby certify that I have checked and weighed the below mentioned gold ornaments and/or gold coins issued by banks and the Net Weight of gold there in is '+tn.toFixed(3)+' Grams of carat. I hereby certify that the Bank may safely grant a loan of ₹'+money(r.sanctionedLoan)+' against delivery of the said gold ornaments/ and/or gold coins issued by banks. I am ready to purchase these gold ornaments and/or gold coins issued by banks at market rate at any time as and when demanded by the Bank.';
+  y=wrapped(pdf,intro,L,y,W,8.8,4.25)+3;
 
-    var raw=Array.isArray(r.items)?r.items:(Array.isArray(r.jewelleryItems)?r.jewelleryItems:[]);
-    var arr=raw.map(function(it){return item273(it,rate)});
-    var tq=0,tg=0,ts=0,ti=0,tn=0,te=0,tv=0;
-    var rows=Math.max(8,arr.length),rh=7.3;
-    for(var k=0;k<rows;k++){
-      var a=arr[k]||null,vals;
-      if(a){
-        tq+=a.qty;tg+=a.gross;ts+=a.stone;ti+=a.impurity;tn+=a.net;te+=a.eq22;tv+=a.value;
-        vals=[k+1,a.name,a.qty,a.gross.toFixed(2),a.stone.toFixed(2),a.impurity.toFixed(2),a.net.toFixed(2),a.carat,a.eq22.toFixed(2),money273(a.rate),money273(a.value)];
-      }else vals=['','','','','','','','','','',''];
-      x=L;
-      for(i=0;i<widths.length;i++){
-        cell273(pdf,vals[i],x,y,widths[i],rh,{size:6.5,bold:!!a,align:i===1?'left':(i===10?'right':'center')});x+=widths[i]
-      }
-      y+=rh;
-    }
-    var totals=['','TOTAL',tq,tg.toFixed(2),ts.toFixed(2),ti.toFixed(2),tn.toFixed(2),'',te.toFixed(2),'',money273(tv)];
+  var borrower=s(r.customer&&r.customer.name);
+  var acid='I hereby confirm that Acid test has been conducted for the Gold Ornaments/ and/or gold coins issued by banks pledged by Shri. '+borrower+'.';
+  y=wrapped(pdf,acid,L,y,W,8.8,4.25)+3;
+
+  /* Same proportions as the original HTML certificate. */
+  var widths=[9.7,38.8,13.6,15.5,15.5,15.5,15.5,13.6,21.3,15.5,19.4];
+  var heads=['Sr.\nNo','Description of Ornaments','No. of\nItems','Gross\nWeight\nGrams','Stone\nWt.\nGrams','Impurity\nGrams','Net Weight\nGrams','Purity\nin carat','Equivalent weight of 22 carat gold contents\n(Grams)','Rate per gram\nfor 22 carat','Value of the gold ornaments'];
+  var x=L,hh=25;
+  for(var i=0;i<widths.length;i++){cell(pdf,heads[i],x,y,widths[i],hh,{size:5.45,bold:false});x+=widths[i]}
+  y+=hh;
+
+  var rh=6.2;
+  for(var k=0;k<10;k++){
+    var a=rows[k],vals;
+    if(a){
+      vals=[k+1,a[0],a[1],a[2].toFixed(3),a[3].toFixed(3),a[4].toFixed(3),a[5].toFixed(3),Math.round(a[6]),a[7].toFixed(3),money(a[8]),money(a[9])];
+    }else vals=[k+1,'','','','','','','','','',''];
     x=L;
-    for(i=0;i<widths.length;i++){cell273(pdf,totals[i],x,y,widths[i],8,{size:6.5,bold:true,align:i===10?'right':'center'});x+=widths[i]}
-    y+=13;
+    for(i=0;i<widths.length;i++){
+      cell(pdf,vals[i],x,y,widths[i],rh,{size:5.65,bold:!!a,align:i===1?'left':(i===10?'right':'center')});x+=widths[i];
+    }
+    y+=rh;
+  }
 
-    var decl='I further certify that the above ornaments are genuine gold ornaments and that the weight, purity and valuation stated above are true and correct to the best of my knowledge and skill.';
-    y=wrap273(pdf,decl,L,y,W,4.2,{size:9.2});y+=7;
+  var totals=['','Total',tq,tg.toFixed(3),ts.toFixed(3),ti.toFixed(3),tn.toFixed(3),'',teq.toFixed(3),'',money(tv)];
+  x=L;
+  for(i=0;i<widths.length;i++){cell(pdf,totals[i],x,y,widths[i],6.5,{size:5.7,bold:true,align:i===10?'right':'center'});x+=widths[i]}
+  y+=6.5;
 
-    txt273(pdf,'Place: Bhor',L,y,{size:9.2});y+=6;
-    txt273(pdf,'Date: '+dt,L,y,{size:9.2});
+  /* Exact original two summary rows. */
+  var first=widths[0], rest=widths.slice(1,10).reduce(function(a,b){return a+b},0), last=widths[10];
+  cell(pdf,'',L,y,first,6,{size:5.7});
+  cell(pdf,'Total Amount of gold:-',L+first,y,rest,6,{size:6.2,bold:true,align:'left'});
+  cell(pdf,money(tv),L+first+rest,y,last,6,{size:6.2,bold:true,align:'right'});y+=6;
+  cell(pdf,'',L,y,first,6,{size:5.7});
+  cell(pdf,'Loan amount:-',L+first,y,rest,6,{size:6.2,bold:true,align:'left'});
+  cell(pdf,money(r.sanctionedLoan),L+first+rest,y,last,6,{size:6.2,bold:true,align:'right'});y+=13;
 
-    var sy=Math.max(y+12,250);
-    txt273(pdf,'Signature of Borrower',L,sy,{size:9});
-    txt273(pdf,nm,L,sy+5,{size:9,bold:true});
+  /* Original certificate has no added declaration or borrower-signature section. */
+  var by=247;
+  text(pdf,'Place: ',12,by,8.3,false);text(pdf,'Bhor',23,by,8.3,true);
+  text(pdf,'Date: ',12,by+5,8.3,false);text(pdf,fmtDate(r.customer&&r.customer.date),22,by+5,8.3,true);
 
-    txt273(pdf,'Signature of Goldsmith/Shroff',160,sy-4,{size:9,align:'center'});
-    txt273(pdf,'MAHENDRA SHANTILAL GANDHI',160,sy+4,{size:9,bold:true,align:'center'});
-    txt273(pdf,'REGISTERED GOLD APPRAISER',160,sy+9,{size:8.5,align:'center'});
-    txt273(pdf,'PPDC/GA/2026/244642',160,sy+14,{size:8.5,align:'center'});
+  text(pdf,'Signature of the Appraising Goldsmith',161,by-16,8.2,false,'center');
+  text(pdf,'MAHENDRA SHANTILAL GANDHI',161,by-2,8.2,true,'center');
+  text(pdf,'REGISTERED GOLD APPRAISER',161,by+3,7.8,false,'center');
+  text(pdf,'PPDC/GA/2026/244642',161,by+8,7.8,false,'center');
 
-    return {blob:pdf.output('blob'),filename:safe273(nm)+' - '+(dt||new Date().toISOString().slice(0,10))+'.pdf'};
+  return {
+    blob:pdf.output('blob'),
+    filename:safe(r.customer&&r.customer.name)+' - '+s((r.customer&&r.customer.date)||new Date().toISOString().slice(0,10))+'.pdf'
   };
+};
 
-  /* Step 272 calls this exact function after IDBI Save, so replacing it removes html2canvas from IDBI. */
-  var old273=window.buildIdbiPage1Certificate233;
-  window.buildIdbiPage1Certificate233=async function(record){
-    return await window.buildIdbiDirectPdf273(record);
-  };
-  window.buildIdbiPage1Certificate233.__step273Direct=true;
-  window.buildIdbiPage1Certificate233.__old273=old273;
+var previous274=window.buildIdbiPage1Certificate233;
+window.buildIdbiPage1Certificate233=async function(record){
+  return await window.buildIdbiDirectPdf274(record);
+};
+window.buildIdbiPage1Certificate233.__step274Exact=true;
+window.buildIdbiPage1Certificate233.__previous274=previous274;
 })();
 </script>
-<!-- /STEP 273 -->
+<!-- /STEP 274 -->
 
 </body>
 </html>
