@@ -25382,5 +25382,238 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <!-- /STEP 271 -->
 
+
+<!-- STEP 272 - CLEAN SINGLE SAVE PIPELINE: SAVE -> PDF -> RESET -> BACKGROUND STORAGE/BACKUP -->
+<script id="step272-clean-single-save-pipeline">
+(function(){
+  'use strict';
+  if(window.__step272CleanSaveInstalled)return;
+  window.__step272CleanSaveInstalled=true;
+
+  function unwrap272(fn){
+    var guard=0;
+    while(typeof fn==='function' && guard++<30){
+      if(fn.__autoBackup258 && fn.__original258){fn=fn.__original258;continue;}
+      if(fn.__singlePdf246 && fn.__original246){fn=fn.__original246;continue;}
+      if(fn.__step239 && fn.__original239){fn=fn.__original239;continue;}
+      if(fn.__step238 && fn.__original238){fn=fn.__original238;continue;}
+      if(fn.__certOnly237 && fn.__original237){fn=fn.__original237;continue;}
+      if(fn.__wrapped236 && fn.__original236){fn=fn.__original236;continue;}
+      break;
+    }
+    return fn;
+  }
+
+  /*
+    Capture the real core save functions NOW, before the legacy delayed wrappers
+    from Steps 236-258 install themselves.
+  */
+  var standardCore272=unwrap272(window.saveData);
+  var idbiCore272=unwrap272(window.idbiSaveData);
+  var busy272=false;
+
+  function state272(){
+    try{return localStorage.getItem('goldValuations')||'[]';}catch(e){return '';}
+  }
+
+  function openPdfWin272(){
+    try{
+      var w=window.open('about:blank','GV_CERTIFICATE_PDF');
+      if(w && !w.closed){
+        try{
+          w.document.open();
+          w.document.write('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Valuation Certificate</title><body style="font-family:Arial,sans-serif;padding:24px;text-align:center"><b>Generating valuation certificate PDF...</b></body>');
+          w.document.close();
+        }catch(e){}
+      }
+      return w;
+    }catch(e){return null;}
+  }
+
+  function showPdf272(win,out){
+    if(!out || !out.blob)throw new Error('Certificate PDF was not generated.');
+    var url=URL.createObjectURL(out.blob);
+    if(win && !win.closed) win.location.replace(url);
+    else{
+      var a=document.createElement('a');
+      a.href=url;a.target='_blank';a.rel='noopener';
+      document.body.appendChild(a);a.click();a.remove();
+    }
+    setTimeout(function(){try{URL.revokeObjectURL(url)}catch(e){}},120000);
+  }
+
+  function latest272(){
+    try{
+      var a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      if(!Array.isArray(a)||!a.length)return null;
+      return a.slice().sort(function(x,y){
+        return new Date(y.modifiedAt||y.modified||y.createdAt||y.created||0)-
+               new Date(x.modifiedAt||x.modified||x.createdAt||x.created||0);
+      })[0]||null;
+    }catch(e){return null;}
+  }
+
+  function safe272(v){
+    return String(v||'Customer').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
+  }
+
+  function backgroundStorage272(rec,isIdbi,realSaveBlob,realAutoBackup,realForceBackup){
+    setTimeout(function(){
+      try{
+        /* Save the individual valuation JSON after certificate is already open. */
+        if(rec && typeof realSaveBlob==='function'){
+          var blob=new Blob([JSON.stringify(rec,null,2)],{type:'application/json'});
+          var filename;
+          if(isIdbi){
+            filename='IDBI-Valuation-'+safe272(rec.customer&&rec.customer.name).replace(/\s+/g,'_')+'-'+String(rec.id||Date.now())+'.json';
+          }else{
+            var nm=safe272(rec.customer&&rec.customer.name);
+            var dt=String((rec.customer&&rec.customer.date)||'Valuation').replace(/[^0-9-]/g,'-');
+            var cert=String(rec.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
+            filename=(nm||'Customer')+' - '+(dt||'Valuation')+(cert?' - '+cert:'')+'.json';
+          }
+          Promise.resolve(realSaveBlob(filename,blob,'Valuations')).then(function(ok){
+            if(ok){
+              var backupName=isIdbi ? ('IDBI-Backup-'+String(rec.id||Date.now())+'.json') : ('Valuation Backup - '+filename);
+              return realSaveBlob(backupName,blob,'Backups');
+            }
+          }).catch(function(e){console.warn('Step 272 background valuation file save failed',e);});
+        }
+
+        /* Exactly one full automatic backup trigger, after PDF has opened. */
+        if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false'){
+          if(typeof realAutoBackup==='function'){
+            try{
+              window.__gvLastAutoBackupFingerprint='';
+              Promise.resolve(realAutoBackup()).catch(function(e){console.warn('Step 272 background auto backup failed',e);});
+            }catch(e){}
+          }else if(typeof realForceBackup==='function'){
+            try{Promise.resolve(realForceBackup()).catch(function(e){console.warn('Step 272 force backup failed',e);});}catch(e){}
+          }
+        }
+      }catch(e){console.warn('Step 272 background storage error',e);}
+    },0);
+  }
+
+  async function run272(kind){
+    if(busy272)return;
+    busy272=true;
+
+    var isIdbi=(kind==='idbi');
+    var core=isIdbi?idbiCore272:standardCore272;
+    if(typeof core!=='function'){
+      busy272=false;
+      alert('Save function is unavailable.');
+      return;
+    }
+
+    var pdfWin=openPdfWin272();
+    var before=state272();
+
+    /*
+      Suspend all disk/backup work while the local save and certificate are being made.
+      This is the key speed change: no Storage Access Framework work is allowed to
+      compete with the Save -> PDF critical path.
+    */
+    var realSaveBlob=window.saveBlobToStorageFolder;
+    var realAutoBackup=window.gvAutomaticFullBackup;
+    var realForceBackup=window.gvForceAutoBackup264;
+    var realStdReset=window.resetAfterSave;
+    var realIdbiReset=window.idbiReset;
+    var resetRequested=false;
+
+    if(typeof realSaveBlob==='function'){
+      window.saveBlobToStorageFolder=async function(){return false;};
+    }
+    if(typeof realAutoBackup==='function'){
+      window.gvAutomaticFullBackup=async function(){return true;};
+    }
+    if(typeof realForceBackup==='function'){
+      window.gvForceAutoBackup264=async function(){return true;};
+    }
+    if(isIdbi && typeof realIdbiReset==='function'){
+      window.idbiReset=function(){resetRequested=true;};
+    }else if(!isIdbi && typeof realStdReset==='function'){
+      window.resetAfterSave=function(){resetRequested=true;};
+      try{resetAfterSave=window.resetAfterSave}catch(e){}
+    }
+
+    var result,err=null;
+    try{
+      result=await core();
+    }catch(e){err=e;}
+
+    /* Restore real services immediately before PDF creation. */
+    if(typeof realSaveBlob==='function')window.saveBlobToStorageFolder=realSaveBlob;
+    if(typeof realAutoBackup==='function')window.gvAutomaticFullBackup=realAutoBackup;
+    if(typeof realForceBackup==='function')window.gvForceAutoBackup264=realForceBackup;
+    if(isIdbi && typeof realIdbiReset==='function')window.idbiReset=realIdbiReset;
+    if(!isIdbi && typeof realStdReset==='function'){
+      window.resetAfterSave=realStdReset;
+      try{resetAfterSave=realStdReset}catch(e){}
+    }
+
+    var after=state272();
+    var saved=(after!==before);
+
+    if(err || !saved){
+      if(pdfWin && !pdfWin.closed)try{pdfWin.close()}catch(e){}
+      busy272=false;
+      if(err)throw err;
+      return result;
+    }
+
+    var rec=window._currentSavedRecord||latest272();
+
+    try{
+      var out;
+      if(isIdbi){
+        if(typeof window.buildIdbiPage1Certificate233!=='function')
+          throw new Error('IDBI certificate builder unavailable.');
+        out=await window.buildIdbiPage1Certificate233(rec);
+      }else{
+        if(typeof window.buildCertificatePdf!=='function')
+          throw new Error('Certificate builder unavailable.');
+        out=await window.buildCertificatePdf(rec);
+      }
+      showPdf272(pdfWin,out);
+    }catch(e){
+      console.error('Step 272 certificate:',e);
+      if(pdfWin && !pdfWin.closed)try{pdfWin.close()}catch(x){}
+    }
+
+    /* Reset only AFTER the certificate has been generated. */
+    try{
+      if(isIdbi){
+        if(resetRequested && typeof realIdbiReset==='function')realIdbiReset();
+      }else{
+        if(resetRequested && typeof realStdReset==='function')realStdReset();
+      }
+    }catch(e){console.error('Step 272 reset:',e);}
+
+    /* Storage-folder file + full auto backup are now completely off the critical path. */
+    backgroundStorage272(rec,isIdbi,realSaveBlob,realAutoBackup,realForceBackup);
+
+    busy272=false;
+    return result;
+  }
+
+  /*
+    ALL visible Save buttons already call gvSaveWithBackup266().
+    Replace that entry point entirely so legacy wrapper chains are bypassed.
+  */
+  window.gvSaveWithBackup266=function(kind){
+    return run272(kind==='idbi'?'idbi':'standard').catch(function(e){
+      busy272=false;
+      console.error('Step 272 Save failed',e);
+      alert('Valuation could not be saved.');
+    });
+  };
+
+  window.gvFastCleanSave272=window.gvSaveWithBackup266;
+})();
+</script>
+<!-- /STEP 272 -->
+
 </body>
 </html>
