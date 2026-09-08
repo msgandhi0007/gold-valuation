@@ -5111,6 +5111,11 @@ async function saveData(){
       try{ await window.gvForceAutoBackup264(); }catch(e){ console.warn('Step 264 standard auto backup failed:',e); }
     }
 
+    // STEP 265: use Storage permission captured from the user's actual Save tap.
+    if(typeof window.gvAutoBackupFromSaveTap265==='function'){
+      try{ await window.gvAutoBackupFromSaveTap265(); }catch(e){ console.warn('Step 265 standard auto backup failed:',e); }
+    }
+
     const action=existingIndex>=0?'updated':'saved';
     // STEP 247: Storage-folder access is optional. A successful app save must
     // continue directly to certificate generation without an interrupting popup.
@@ -8277,6 +8282,11 @@ window.handleMainBankSelection=function(value){
       // STEP 264: direct full Auto Backup from the actual successful IDBI save path.
       if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
         try{ await window.gvForceAutoBackup264(); }catch(e){ console.warn('Step 264 IDBI auto backup failed:',e); }
+      }
+
+      // STEP 265: use Storage permission captured from the user's actual Save tap.
+      if(typeof window.gvAutoBackupFromSaveTap265==='function'){
+        try{ await window.gvAutoBackupFromSaveTap265(); }catch(e){ console.warn('Step 265 IDBI auto backup failed:',e); }
       }
 
       window._currentSavedRecord=rec; window._idbiEditingId=null;
@@ -24924,6 +24934,126 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 264 -->
+
+
+<!-- STEP 265 - CAPTURE STORAGE PERMISSION FROM THE ACTUAL SAVE TAP -->
+<script id="step265-save-tap-storage-handle">
+(function(){
+  'use strict';
+  if(window.__step265Installed)return;
+  window.__step265Installed=true;
+
+  function autoEnabled265(){
+    return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';
+  }
+
+  /* Start folder permission access synchronously from the user's actual Save tap.
+     Android/Chrome may reject requestPermission() later after awaited save work. */
+  function armHandle265(){
+    if(!autoEnabled265() || typeof window.getStorageFolderHandle!=='function'){
+      window.__gvSaveHandlePromise265=Promise.resolve(null);
+      return;
+    }
+    try{
+      window.__gvSaveHandlePromise265=Promise.resolve(window.getStorageFolderHandle())
+        .then(function(h){
+          if(h)window.__gvSaveHandle265=h;
+          return h||null;
+        })
+        .catch(function(){return null;});
+    }catch(e){
+      window.__gvSaveHandlePromise265=Promise.resolve(null);
+    }
+  }
+
+  document.addEventListener('click',function(ev){
+    var b=ev.target && ev.target.closest ? ev.target.closest('button') : null;
+    if(!b)return;
+    var txt=String(b.textContent||'').trim().toLowerCase();
+    var oc=String(b.getAttribute('onclick')||'').toLowerCase();
+    if(txt.indexOf('save')>=0 && (oc.indexOf('savedata')>=0 || oc.indexOf('idbisavedata')>=0)){
+      armHandle265();
+    }
+  },true);
+
+  function raw265(){
+    var o={};
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      o[k]=localStorage.getItem(k);
+    }
+    return o;
+  }
+  async function write265(dir,name,blob){
+    var fh=await dir.getFileHandle(name,{create:true});
+    var w=await fh.createWritable();
+    await w.write(blob);
+    await w.close();
+  }
+  function refresh265(now){
+    try{
+      var e=document.getElementById('sbAutoBackupStatus');
+      if(!e)return;
+      e.textContent='Auto Backup: ON ✓\nLast automatic backup: '+now.toLocaleString('en-IN')+
+        '\nFile: Backups/Auto_Backup_Latest.json';
+    }catch(e){}
+  }
+
+  window.gvAutoBackupFromSaveTap265=async function(){
+    if(!autoEnabled265())return false;
+    try{
+      var h=null;
+      if(window.__gvSaveHandlePromise265){
+        try{h=await window.__gvSaveHandlePromise265;}catch(e){}
+      }
+      h=h||window.__gvSaveHandle265||null;
+
+      /* If permission was already granted, this fallback is harmless.
+         Do not depend on it for a fresh Android permission request. */
+      if(!h && typeof window.getStorageFolderHandle==='function'){
+        try{h=await window.getStorageFolderHandle();}catch(e){}
+      }
+      if(!h)return false;
+
+      var data=raw265(), vals=[];
+      try{
+        var a=JSON.parse(data.goldValuations||'[]');
+        if(Array.isArray(a))vals=a;
+      }catch(e){}
+
+      var now=new Date();
+      var payload={
+        app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+        format:'GOLD_VALUATION_BACKUP_V6',
+        version:6,
+        backupType:'automatic',
+        createdAt:now.toISOString(),
+        summary:{valuations:vals.length,storageKeys:Object.keys(data).length},
+        rawData:data
+      };
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      var d=await h.getDirectoryHandle('Backups',{create:true});
+
+      await write265(d,'Auto_Backup_Latest.json',blob);
+      try{
+        var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        await write265(d,'Auto_Backup_'+day+'.json',blob);
+      }catch(e){}
+
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      refresh265(now);
+      return true;
+    }catch(e){
+      console.warn('Step 265 automatic backup failed',e);
+      return false;
+    }finally{
+      window.__gvSaveHandlePromise265=null;
+    }
+  };
+})();
+</script>
+<!-- /STEP 265 -->
 
 </body>
 </html>
