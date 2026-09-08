@@ -25132,5 +25132,48 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 268 -->
+
+
+<!-- STEP 269 - ULTRA FAST MOBILE PDF CAPTURE -->
+<script id="step269-ultra-fast-pdf-capture">
+(function(){
+  'use strict';
+  if(window.__step269Installed)return;
+  window.__step269Installed=true;
+
+  function install269(){
+    var cur=window.html2canvas;
+    if(typeof cur!=='function')return false;
+    /* unwrap Step 268 so there is only one lightweight capture wrapper */
+    var base=(cur.__step268 && cur.__original268)?cur.__original268:cur;
+    if(base.__step269Base)return true;
+
+    async function ultra269(el,opts){
+      opts=Object.assign({},opts||{});
+      /* A4 certificate is viewed/printed at page size; 0.85 is enough on mobile and
+         renders less than half the pixels of the old 1.25 setting. */
+      opts.scale=0.85;
+      opts.logging=false;
+      opts.removeContainer=true;
+      opts.useCORS=false;
+      opts.allowTaint=true;
+      opts.imageTimeout=0;
+      opts.backgroundColor='#ffffff';
+      return await base(el,opts);
+    }
+    ultra269.__step269=true;
+    ultra269.__original269=base;
+    base.__step269Base=true;
+    window.html2canvas=ultra269;
+    try{html2canvas=ultra269}catch(e){}
+    return true;
+  }
+
+  if(!install269()){
+    var n=0,t=setInterval(function(){n++;if(install269()||n>40)clearInterval(t)},75);
+  }
+})();
+</script>
+<!-- /STEP 269 -->
 </body>
 </html>
