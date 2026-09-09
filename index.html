@@ -6519,245 +6519,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 
-<!-- STEP 274 - DEFINITIVE SAVED-VALUATION RETURN / SCROLL / RESPONSIVE SAVE FIX -->
-<style id="step274-definitive-screen-scroll-css">
-html,body{overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important}
-body:not(.savedClean168Open){overflow-y:auto!important;height:auto!important;min-height:100vh!important;touch-action:pan-y!important}
-body.gv274-valuation-active>.app{display:block!important;height:auto!important;min-height:100vh!important;margin:0!important;overflow:visible!important}
-body.gv274-valuation-active #bankHome,
-body.gv274-valuation-active #savedClean168,
-body.gv274-valuation-active #savedValuationsHome,
-body.gv274-valuation-active #customersHomeScreen,
-body.gv274-valuation-active #dashboardHome,
-body.gv274-valuation-active #storageBackupScreen{display:none!important}
-body.gv274-standard-active #valuation-main-sections{display:block!important;visibility:visible!important;max-height:none!important;overflow:visible!important}
-body.gv274-standard-active #idbi-valuation-screen{display:none!important}
-body.gv274-idbi-active #valuation-main-sections{display:none!important}
-body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility:visible!important;max-height:none!important;overflow:visible!important}
-</style>
-<script id="step274-definitive-screen-scroll-speed-js">
-(function(){
-  'use strict';
-  if(window.__step274Installed)return;
-  window.__step274Installed=true;
 
-  var currentKind274='standard';
-  var currentBank274='';
-  var saving274=false;
-
-  function bank274(){
-    var v='';
-    try{v=document.getElementById('mainBankSelect')?.value||document.getElementById('bankName')?.value||'';}catch(e){}
-    return String(v||'').trim();
-  }
-
-  function exitActive274(){
-    var b=document.body;
-    b.classList.remove('gv274-valuation-active','gv274-standard-active','gv274-idbi-active');
-  }
-  window.gvExitActiveValuation274=exitActive274;
-
-  function clearUtility274(){
-    var b=document.body;
-    [
-      'bankHomeMode','bank-home-mode','storageMode','storage-backup-mode','savedHomeMode',
-      'savedClean168Open','customersHomeMode','dashboardHomeMode','menu-viewing'
-    ].forEach(function(c){b.classList.remove(c);});
-    ['bankHome','savedClean168','savedValuationsHome','customersHomeScreen','dashboardHome','storageBackupScreen'].forEach(function(id){
-      var e=document.getElementById(id);if(e)e.style.setProperty('display','none','important');
-    });
-    var sm=document.getElementById('saveManager');
-    if(sm){sm.classList.remove('open');sm.style.setProperty('display','none','important');}
-  }
-
-  function unlock274(){
-    var h=document.documentElement,b=document.body;
-    try{
-      h.style.setProperty('overflow-x','hidden','important');
-      h.style.setProperty('overflow-y','auto','important');
-      h.style.setProperty('height','auto','important');
-      h.style.setProperty('min-height','100%','important');
-      b.style.setProperty('overflow-x','hidden','important');
-      b.style.setProperty('overflow-y','auto','important');
-      b.style.setProperty('height','auto','important');
-      b.style.setProperty('min-height','100vh','important');
-      b.style.setProperty('touch-action','pan-y','important');
-      b.style.removeProperty('position');
-      b.style.removeProperty('top');
-      b.style.removeProperty('left');
-      b.style.removeProperty('right');
-    }catch(e){}
-  }
-
-  function hardTop274(target){
-    unlock274();
-    var nodes=[document.scrollingElement,document.documentElement,document.body,document.querySelector('body > .app'),target].filter(Boolean);
-    nodes.forEach(function(n){try{n.scrollTop=0;n.scrollLeft=0;}catch(e){}});
-    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(e){try{window.scrollTo(0,0);}catch(_){}}
-  }
-
-  function showValuation274(kind,bank){
-    kind=(kind==='idbi')?'idbi':'standard';
-    currentKind274=kind;
-    currentBank274=bank||currentBank274||bank274();
-    clearUtility274();
-    unlock274();
-
-    var b=document.body,app=document.querySelector('body > .app'),main=document.querySelector('body > .app main')||document.querySelector('main');
-    var std=document.getElementById('valuation-main-sections'),idbi=document.getElementById('idbi-valuation-screen');
-    b.classList.add('gv274-valuation-active');
-    b.classList.toggle('gv274-idbi-active',kind==='idbi');
-    b.classList.toggle('gv274-standard-active',kind!=='idbi');
-    b.classList.toggle('idbi-open',kind==='idbi');
-
-    if(app){
-      ['display','height','min-height','margin','padding','overflow','top','transform'].forEach(function(k){app.style.removeProperty(k);});
-      app.style.setProperty('display','block','important');
-      app.style.setProperty('height','auto','important');
-      app.style.setProperty('min-height','100vh','important');
-      app.style.setProperty('overflow','visible','important');
-    }
-    if(kind==='idbi'){
-      if(main)main.style.setProperty('display','none','important');
-      if(std)std.style.setProperty('display','none','important');
-      if(idbi){idbi.style.setProperty('display','block','important');idbi.style.setProperty('visibility','visible','important');}
-    }else{
-      if(main){main.style.setProperty('display','block','important');main.style.removeProperty('height');main.style.removeProperty('overflow');}
-      if(idbi)idbi.style.setProperty('display','none','important');
-      if(std){std.style.setProperty('display','block','important');std.style.setProperty('visibility','visible','important');}
-      var sel=document.getElementById('mainBankSelect'),hidden=document.getElementById('bankName');
-      if(currentBank274){if(sel)sel.value=currentBank274;if(hidden)hidden.value=currentBank274;}
-      var bar=document.getElementById('standardValuationActionBar192');if(bar)bar.style.setProperty('display','grid','important');
-    }
-
-    var target=(kind==='idbi'?idbi:std)||app;
-    hardTop274(target);
-    requestAnimationFrame(function(){hardTop274(target);requestAnimationFrame(function(){hardTop274(target);});});
-    [60,180,450,900].forEach(function(ms){setTimeout(function(){hardTop274(target);},ms);});
-  }
-  window.gvShowActiveValuation274=showValuation274;
-
-  function recordKind274(i){
-    try{
-      var a=typeof window.getSaved==='function'?window.getSaved():JSON.parse(localStorage.getItem('goldValuations')||'[]');
-      var r=a&&a[Number(i)],bk=String((r&&r.customer&&r.customer.bank)||r&&r.bank||'').toUpperCase();
-      return {kind:(r&&(r.valuationType==='IDBI_BANK'||r.bankSpecific===true||bk.indexOf('IDBI')>=0))?'idbi':'standard',bank:String((r&&r.customer&&r.customer.bank)||r&&r.bank||'')};
-    }catch(e){return {kind:'standard',bank:''};}
-  }
-
-  function wrapOpen274(){
-    var old=window.openSavedDirectFinal;
-    if(typeof old!=='function'||old.__step274)return;
-    var fn=function(i){
-      var info=recordKind274(i);
-      clearUtility274();
-      var r=old.apply(this,arguments);
-      showValuation274(info.kind,info.bank);
-      [80,250,650].forEach(function(ms){setTimeout(function(){showValuation274(info.kind,info.bank);},ms);});
-      return r;
-    };
-    fn.__step274=true;fn.__original274=old;
-    window.openSavedDirectFinal=fn;
-    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
-  }
-
-  /* Save should finish the app/local write first.  Never wait for folder permission or
-     backup work. Existing PDF wrappers still generate the certificate, but the active
-     valuation screen is restored and painted immediately after the core save returns. */
-  function installSave274(){
-    var prior=window.gvSaveWithBackup266;
-    if(prior&&prior.__step274)return;
-    var fn=async function(kind){
-      if(saving274)return false;
-      saving274=true;
-      kind=kind==='idbi'?'idbi':'standard';
-      var bk=kind==='idbi'?'IDBI BANK':bank274();
-      currentKind274=kind;currentBank274=bk;
-      showValuation274(kind,bk);
-      try{
-        if(kind==='idbi'){
-          if(typeof window.idbiSaveData!=='function')throw new Error('IDBI Save function is unavailable.');
-          await window.idbiSaveData();
-        }else{
-          if(typeof window.saveData!=='function')throw new Error('Save function is unavailable.');
-          await window.saveData();
-        }
-        showValuation274(kind,bk);
-
-        /* One idle backup fallback only; no permission request from Save. */
-        var idle=function(){
-          try{
-            if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && window.__gvActiveStorageHandle262 && typeof window.gvAutomaticFullBackup==='function'){
-              Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 274 idle backup failed',e);});
-            }
-          }catch(e){}
-        };
-        if('requestIdleCallback' in window)requestIdleCallback(idle,{timeout:12000});
-        else setTimeout(idle,2500);
-        return true;
-      }catch(e){
-        console.error('Step 274 Save failed',e);
-        showValuation274(kind,bk);
-        return false;
-      }finally{
-        saving274=false;
-        showValuation274(kind,bk);
-      }
-    };
-    fn.__step274=true;fn.__previous274=prior;
-    window.gvSaveWithBackup266=fn;
-  }
-
-  /* Step 258 installs delayed wrappers that trigger another auto-backup immediately.
-     Remove only that wrapper layer; keep the certificate/save wrappers underneath. */
-  function removeImmediateBackupWrapper274(name){
-    try{
-      var fn=window[name];
-      if(fn&&fn.__autoBackup258&&fn.__original258){
-        window[name]=fn.__original258;
-        if(name==='saveData')try{saveData=window[name];}catch(e){}
-        if(name==='idbiSaveData')try{idbiSaveData=window[name];}catch(e){}
-      }
-    }catch(e){}
-  }
-
-  function wrapExitRoute274(name){
-    var old=window[name];
-    if(typeof old!=='function'||old.__step274Exit)return;
-    var fn=function(){
-      exitActive274();
-      var r=old.apply(this,arguments);
-      unlock274();
-      return r;
-    };
-    fn.__step274Exit=true;fn.__original274Exit=old;
-    window[name]=fn;
-  }
-
-  function install274(){
-    wrapOpen274();
-    installSave274();
-    ['showBankHome','backToBankSelection194','idbiBackToBankHome196','openStorageBackupScreen','openSavedClean168','openCustomersHome','openDashboardHome'].forEach(wrapExitRoute274);
-    removeImmediateBackupWrapper274('saveData');
-    removeImmediateBackupWrapper274('idbiSaveData');
-    unlock274();
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(install274,30);});
-  else setTimeout(install274,0);
-  /* Run after all legacy delayed installers (notably Step 258 at 3.8/4.8 s). */
-  [1200,5200,6200].forEach(function(ms){setTimeout(install274,ms);});
-
-  document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('button'):null;
-    if(!b)return;
-    var oc=String(b.getAttribute('onclick')||'');
-    if(oc.indexOf("gvSaveWithBackup266('idbi')")>=0)currentKind274='idbi';
-    else if(oc.indexOf("gvSaveWithBackup266('standard')")>=0){currentKind274='standard';currentBank274=bank274();}
-  },true);
-})();
-</script>
-<!-- /STEP 274 -->
 
 </body></html>`;
     try{
@@ -26239,5 +26001,246 @@ body:not(.bankHomeMode):not(.bank-home-mode):not(.storageMode):not(.storage-back
 })();
 </script>
 <!-- /STEP 273 -->
+
+
+<!-- STEP 274 - DEFINITIVE SAVED-VALUATION RETURN / SCROLL / RESPONSIVE SAVE FIX -->
+<style id="step274-definitive-screen-scroll-css">
+html,body{overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important}
+body:not(.savedClean168Open){overflow-y:auto!important;height:auto!important;min-height:100vh!important;touch-action:pan-y!important}
+body.gv274-valuation-active>.app{display:block!important;height:auto!important;min-height:100vh!important;margin:0!important;overflow:visible!important}
+body.gv274-valuation-active #bankHome,
+body.gv274-valuation-active #savedClean168,
+body.gv274-valuation-active #savedValuationsHome,
+body.gv274-valuation-active #customersHomeScreen,
+body.gv274-valuation-active #dashboardHome,
+body.gv274-valuation-active #storageBackupScreen{display:none!important}
+body.gv274-standard-active #valuation-main-sections{display:block!important;visibility:visible!important;max-height:none!important;overflow:visible!important}
+body.gv274-standard-active #idbi-valuation-screen{display:none!important}
+body.gv274-idbi-active #valuation-main-sections{display:none!important}
+body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility:visible!important;max-height:none!important;overflow:visible!important}
+</style>
+<script id="step274-definitive-screen-scroll-speed-js">
+(function(){
+  'use strict';
+  if(window.__step274Installed)return;
+  window.__step274Installed=true;
+
+  var currentKind274='standard';
+  var currentBank274='';
+  var saving274=false;
+
+  function bank274(){
+    var v='';
+    try{v=document.getElementById('mainBankSelect')?.value||document.getElementById('bankName')?.value||'';}catch(e){}
+    return String(v||'').trim();
+  }
+
+  function exitActive274(){
+    var b=document.body;
+    b.classList.remove('gv274-valuation-active','gv274-standard-active','gv274-idbi-active');
+  }
+  window.gvExitActiveValuation274=exitActive274;
+
+  function clearUtility274(){
+    var b=document.body;
+    [
+      'bankHomeMode','bank-home-mode','storageMode','storage-backup-mode','savedHomeMode',
+      'savedClean168Open','customersHomeMode','dashboardHomeMode','menu-viewing'
+    ].forEach(function(c){b.classList.remove(c);});
+    ['bankHome','savedClean168','savedValuationsHome','customersHomeScreen','dashboardHome','storageBackupScreen'].forEach(function(id){
+      var e=document.getElementById(id);if(e)e.style.setProperty('display','none','important');
+    });
+    var sm=document.getElementById('saveManager');
+    if(sm){sm.classList.remove('open');sm.style.setProperty('display','none','important');}
+  }
+
+  function unlock274(){
+    var h=document.documentElement,b=document.body;
+    try{
+      h.style.setProperty('overflow-x','hidden','important');
+      h.style.setProperty('overflow-y','auto','important');
+      h.style.setProperty('height','auto','important');
+      h.style.setProperty('min-height','100%','important');
+      b.style.setProperty('overflow-x','hidden','important');
+      b.style.setProperty('overflow-y','auto','important');
+      b.style.setProperty('height','auto','important');
+      b.style.setProperty('min-height','100vh','important');
+      b.style.setProperty('touch-action','pan-y','important');
+      b.style.removeProperty('position');
+      b.style.removeProperty('top');
+      b.style.removeProperty('left');
+      b.style.removeProperty('right');
+    }catch(e){}
+  }
+
+  function hardTop274(target){
+    unlock274();
+    var nodes=[document.scrollingElement,document.documentElement,document.body,document.querySelector('body > .app'),target].filter(Boolean);
+    nodes.forEach(function(n){try{n.scrollTop=0;n.scrollLeft=0;}catch(e){}});
+    try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(e){try{window.scrollTo(0,0);}catch(_){}}
+  }
+
+  function showValuation274(kind,bank){
+    kind=(kind==='idbi')?'idbi':'standard';
+    currentKind274=kind;
+    currentBank274=bank||currentBank274||bank274();
+    clearUtility274();
+    unlock274();
+
+    var b=document.body,app=document.querySelector('body > .app'),main=document.querySelector('body > .app main')||document.querySelector('main');
+    var std=document.getElementById('valuation-main-sections'),idbi=document.getElementById('idbi-valuation-screen');
+    b.classList.add('gv274-valuation-active');
+    b.classList.toggle('gv274-idbi-active',kind==='idbi');
+    b.classList.toggle('gv274-standard-active',kind!=='idbi');
+    b.classList.toggle('idbi-open',kind==='idbi');
+
+    if(app){
+      ['display','height','min-height','margin','padding','overflow','top','transform'].forEach(function(k){app.style.removeProperty(k);});
+      app.style.setProperty('display','block','important');
+      app.style.setProperty('height','auto','important');
+      app.style.setProperty('min-height','100vh','important');
+      app.style.setProperty('overflow','visible','important');
+    }
+    if(kind==='idbi'){
+      if(main)main.style.setProperty('display','none','important');
+      if(std)std.style.setProperty('display','none','important');
+      if(idbi){idbi.style.setProperty('display','block','important');idbi.style.setProperty('visibility','visible','important');}
+    }else{
+      if(main){main.style.setProperty('display','block','important');main.style.removeProperty('height');main.style.removeProperty('overflow');}
+      if(idbi)idbi.style.setProperty('display','none','important');
+      if(std){std.style.setProperty('display','block','important');std.style.setProperty('visibility','visible','important');}
+      var sel=document.getElementById('mainBankSelect'),hidden=document.getElementById('bankName');
+      if(currentBank274){if(sel)sel.value=currentBank274;if(hidden)hidden.value=currentBank274;}
+      var bar=document.getElementById('standardValuationActionBar192');if(bar)bar.style.setProperty('display','grid','important');
+    }
+
+    var target=(kind==='idbi'?idbi:std)||app;
+    hardTop274(target);
+    requestAnimationFrame(function(){hardTop274(target);requestAnimationFrame(function(){hardTop274(target);});});
+    [60,180,450,900].forEach(function(ms){setTimeout(function(){hardTop274(target);},ms);});
+  }
+  window.gvShowActiveValuation274=showValuation274;
+
+  function recordKind274(i){
+    try{
+      var a=typeof window.getSaved==='function'?window.getSaved():JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      var r=a&&a[Number(i)],bk=String((r&&r.customer&&r.customer.bank)||r&&r.bank||'').toUpperCase();
+      return {kind:(r&&(r.valuationType==='IDBI_BANK'||r.bankSpecific===true||bk.indexOf('IDBI')>=0))?'idbi':'standard',bank:String((r&&r.customer&&r.customer.bank)||r&&r.bank||'')};
+    }catch(e){return {kind:'standard',bank:''};}
+  }
+
+  function wrapOpen274(){
+    var old=window.openSavedDirectFinal;
+    if(typeof old!=='function'||old.__step274)return;
+    var fn=function(i){
+      var info=recordKind274(i);
+      clearUtility274();
+      var r=old.apply(this,arguments);
+      showValuation274(info.kind,info.bank);
+      [80,250,650].forEach(function(ms){setTimeout(function(){showValuation274(info.kind,info.bank);},ms);});
+      return r;
+    };
+    fn.__step274=true;fn.__original274=old;
+    window.openSavedDirectFinal=fn;
+    window.custOpen=function(i){return window.openSavedDirectFinal(Number(i));};
+  }
+
+  /* Save should finish the app/local write first.  Never wait for folder permission or
+     backup work. Existing PDF wrappers still generate the certificate, but the active
+     valuation screen is restored and painted immediately after the core save returns. */
+  function installSave274(){
+    var prior=window.gvSaveWithBackup266;
+    if(prior&&prior.__step274)return;
+    var fn=async function(kind){
+      if(saving274)return false;
+      saving274=true;
+      kind=kind==='idbi'?'idbi':'standard';
+      var bk=kind==='idbi'?'IDBI BANK':bank274();
+      currentKind274=kind;currentBank274=bk;
+      showValuation274(kind,bk);
+      try{
+        if(kind==='idbi'){
+          if(typeof window.idbiSaveData!=='function')throw new Error('IDBI Save function is unavailable.');
+          await window.idbiSaveData();
+        }else{
+          if(typeof window.saveData!=='function')throw new Error('Save function is unavailable.');
+          await window.saveData();
+        }
+        showValuation274(kind,bk);
+
+        /* One idle backup fallback only; no permission request from Save. */
+        var idle=function(){
+          try{
+            if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && window.__gvActiveStorageHandle262 && typeof window.gvAutomaticFullBackup==='function'){
+              Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 274 idle backup failed',e);});
+            }
+          }catch(e){}
+        };
+        if('requestIdleCallback' in window)requestIdleCallback(idle,{timeout:12000});
+        else setTimeout(idle,2500);
+        return true;
+      }catch(e){
+        console.error('Step 274 Save failed',e);
+        showValuation274(kind,bk);
+        return false;
+      }finally{
+        saving274=false;
+        showValuation274(kind,bk);
+      }
+    };
+    fn.__step274=true;fn.__previous274=prior;
+    window.gvSaveWithBackup266=fn;
+  }
+
+  /* Step 258 installs delayed wrappers that trigger another auto-backup immediately.
+     Remove only that wrapper layer; keep the certificate/save wrappers underneath. */
+  function removeImmediateBackupWrapper274(name){
+    try{
+      var fn=window[name];
+      if(fn&&fn.__autoBackup258&&fn.__original258){
+        window[name]=fn.__original258;
+        if(name==='saveData')try{saveData=window[name];}catch(e){}
+        if(name==='idbiSaveData')try{idbiSaveData=window[name];}catch(e){}
+      }
+    }catch(e){}
+  }
+
+  function wrapExitRoute274(name){
+    var old=window[name];
+    if(typeof old!=='function'||old.__step274Exit)return;
+    var fn=function(){
+      exitActive274();
+      var r=old.apply(this,arguments);
+      unlock274();
+      return r;
+    };
+    fn.__step274Exit=true;fn.__original274Exit=old;
+    window[name]=fn;
+  }
+
+  function install274(){
+    wrapOpen274();
+    installSave274();
+    ['showBankHome','backToBankSelection194','idbiBackToBankHome196','openStorageBackupScreen','openSavedClean168','openCustomersHome','openDashboardHome'].forEach(wrapExitRoute274);
+    removeImmediateBackupWrapper274('saveData');
+    removeImmediateBackupWrapper274('idbiSaveData');
+    unlock274();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(install274,30);});
+  else setTimeout(install274,0);
+  /* Run after all legacy delayed installers (notably Step 258 at 3.8/4.8 s). */
+  [1200,5200,6200].forEach(function(ms){setTimeout(install274,ms);});
+
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!b)return;
+    var oc=String(b.getAttribute('onclick')||'');
+    if(oc.indexOf("gvSaveWithBackup266('idbi')")>=0)currentKind274='idbi';
+    else if(oc.indexOf("gvSaveWithBackup266('standard')")>=0){currentKind274='standard';currentBank274=bank274();}
+  },true);
+})();
+</script>
+<!-- /STEP 274 -->
 </body>
 </html>
