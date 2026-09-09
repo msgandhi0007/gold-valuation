@@ -27204,3 +27204,92 @@ body.dny-cert-248 #certificate .cert-note{
 }
 </style>
 <!-- /STEP 280 -->
+
+<!-- STEP 283 - AUTO BACKUP: REHYDRATE REMEMBERED STORAGE HANDLE WITHOUT PROMPT -->
+<script id="step283-auto-backup-handle-rehydrate">
+(function(){
+  'use strict';
+  if(window.__step283Installed)return;
+  window.__step283Installed=true;
+
+  function enabled283(){
+    try{return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+    catch(e){return true;}
+  }
+
+  async function hydrate283(){
+    if(!enabled283())return null;
+    try{
+      var h=null;
+      /* Query the remembered folder only. Passing false means NO Android
+         permission prompt is allowed from Save/background work. */
+      if(window.gvStorage && typeof window.gvStorage.getUsableHandle==='function'){
+        h=await window.gvStorage.getUsableHandle(false);
+      }else if(typeof window.gvGetSelectedStorageHandle==='function'){
+        h=await window.gvGetSelectedStorageHandle(false);
+      }else if(window.gvStorage && typeof window.gvStorage.getHandle==='function'){
+        h=await window.gvStorage.getHandle();
+        if(h && h.queryPermission){
+          var p=await h.queryPermission({mode:'readwrite'});
+          if(p!=='granted')h=null;
+        }
+      }
+      if(h){
+        window.__gvActiveStorageHandle262=h;
+        return h;
+      }
+    }catch(e){console.warn('Step 283 storage-handle refresh failed',e);}
+    return null;
+  }
+  window.gvHydrateAutoBackupHandle283=hydrate283;
+
+  function installSave283(){
+    var old=window.gvSaveWithBackup266;
+    if(typeof old!=='function'||old.__step283)return;
+    var fn=async function(kind){
+      var stampBefore='';
+      try{stampBefore=localStorage.getItem('goldValuationLastAutoBackup')||'';}catch(e){}
+
+      /* Fire-and-forget: this does not block Save and never requests permission. */
+      Promise.resolve(hydrate283()).catch(function(){});
+
+      var result=await old.apply(this,arguments);
+
+      /* Rehydrate again after Save in case the storage layer finished loading late. */
+      setTimeout(function(){Promise.resolve(hydrate283()).catch(function(){});},800);
+
+      /* Existing Step 274 runs the real background backup after the certificate
+         window. This fallback only runs if that backup did not update its timestamp. */
+      setTimeout(function(){
+        try{
+          if(!enabled283())return;
+          var nowStamp=localStorage.getItem('goldValuationLastAutoBackup')||'';
+          if(nowStamp!==stampBefore)return;
+          Promise.resolve(hydrate283()).then(function(h){
+            if(h && typeof window.gvAutomaticFullBackup==='function'){
+              return window.gvAutomaticFullBackup();
+            }
+          }).catch(function(e){console.warn('Step 283 auto-backup fallback failed',e);});
+        }catch(e){}
+      },14500);
+      return result;
+    };
+    fn.__step283=true;
+    fn.__original283=old;
+    window.gvSaveWithBackup266=fn;
+  }
+
+  function install283(){
+    installSave283();
+    Promise.resolve(hydrate283()).catch(function(){});
+  }
+
+  install283();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install283,{once:true});
+  [1200,5200,7500].forEach(function(ms){setTimeout(install283,ms);});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)Promise.resolve(hydrate283()).catch(function(){});
+  });
+})();
+</script>
+<!-- /STEP 283 -->
