@@ -26074,7 +26074,7 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
     try{window.scrollTo({top:0,left:0,behavior:'auto'});}catch(e){try{window.scrollTo(0,0);}catch(_){}}
   }
 
-  function showValuation274(kind,bank){
+  function showValuation274(kind,bank,scrollMode){
     kind=(kind==='idbi')?'idbi':'standard';
     currentKind274=kind;
     currentBank274=bank||currentBank274||bank274();
@@ -26109,9 +26109,17 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
     }
 
     var target=(kind==='idbi'?idbi:std)||app;
-    hardTop274(target);
-    requestAnimationFrame(function(){hardTop274(target);requestAnimationFrame(function(){hardTop274(target);});});
-    [60,180,450,900].forEach(function(ms){setTimeout(function(){hardTop274(target);},ms);});
+    /* Opening a saved valuation may need a few defensive top resets while legacy
+       screen wrappers finish. After Save, however, repeated resets fight the user's
+       finger and make Android appear unable to scroll. 'save' mode therefore does
+       one top reset only, after the freshly reset form has painted. */
+    if(scrollMode==='save'){
+      requestAnimationFrame(function(){hardTop274(target);});
+    }else if(scrollMode!=='keep'){
+      hardTop274(target);
+      requestAnimationFrame(function(){hardTop274(target);requestAnimationFrame(function(){hardTop274(target);});});
+      [60,180,450,900].forEach(function(ms){setTimeout(function(){hardTop274(target);},ms);});
+    }
   }
   window.gvShowActiveValuation274=showValuation274;
 
@@ -26151,7 +26159,7 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
       kind=kind==='idbi'?'idbi':'standard';
       var bk=kind==='idbi'?'IDBI BANK':bank274();
       currentKind274=kind;currentBank274=bk;
-      showValuation274(kind,bk);
+      showValuation274(kind,bk,'keep');
       try{
         if(kind==='idbi'){
           if(typeof window.idbiSaveData!=='function')throw new Error('IDBI Save function is unavailable.');
@@ -26160,7 +26168,7 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
           if(typeof window.saveData!=='function')throw new Error('Save function is unavailable.');
           await window.saveData();
         }
-        showValuation274(kind,bk);
+        showValuation274(kind,bk,'save');
 
         /* One idle backup fallback only; no permission request from Save. */
         var idle=function(){
@@ -26175,11 +26183,11 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
         return true;
       }catch(e){
         console.error('Step 274 Save failed',e);
-        showValuation274(kind,bk);
+        showValuation274(kind,bk,'save');
         return false;
       }finally{
         saving274=false;
-        showValuation274(kind,bk);
+        showValuation274(kind,bk,'keep');
       }
     };
     fn.__step274=true;fn.__previous274=prior;
@@ -26654,5 +26662,13 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
 })();
 </script>
 <!-- /STEP 279 -->
+
+<!-- STEP 280 - FINAL POST-SAVE MOBILE SCROLL RELEASE -->
+<style id="step280-post-save-scroll-release">
+html,body{overscroll-behavior-y:auto!important}
+body.gv274-valuation-active{overflow-y:auto!important;touch-action:pan-y!important}
+body.gv274-valuation-active>.app{overflow:visible!important;touch-action:pan-y!important}
+</style>
+<!-- /STEP 280 -->
 </body>
 </html>
