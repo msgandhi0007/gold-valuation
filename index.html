@@ -7282,13 +7282,9 @@ window.saveCurrentCertificatePdf = async function(){
     const old={display:cert.style.display,position:cert.style.position,left:cert.style.left,top:cert.style.top,width:cert.style.width,zIndex:cert.style.zIndex};
     cert.style.setProperty('display','block','important');
     cert.style.position='absolute'; cert.style.left='0'; cert.style.top='0'; cert.style.width='780px'; cert.style.zIndex='-1';
-    await new Promise(function(resolve){
-      setTimeout(function(){
-        if('requestIdleCallback' in window) requestIdleCallback(function(){resolve();},{timeout:650});
-        else resolve();
-      },250);
-    });
-    const canvas=await html2canvas(cert,{scale:1.25,backgroundColor:'#ffffff',useCORS:true,logging:false});
+    /* STEP 275: one paint frame is enough; do not hold certificate generation for an idle timeout. */
+    await new Promise(function(resolve){requestAnimationFrame(resolve);});
+    const canvas=await html2canvas(cert,{scale:1,backgroundColor:'#ffffff',useCORS:true,logging:false,imageTimeout:0,removeContainer:true});
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
     const pageW=210, pageH=297, margin=8;
@@ -21622,13 +21618,9 @@ body.premiumBankValuation210 #idbi-valuation-screen{
       const old={display:cert.style.display,position:cert.style.position,left:cert.style.left,top:cert.style.top,width:cert.style.width,zIndex:cert.style.zIndex};
       cert.style.setProperty('display','block','important');
       cert.style.position='absolute';cert.style.left='0';cert.style.top='0';cert.style.width='780px';cert.style.zIndex='-1';
-      await new Promise(function(resolve){
-        setTimeout(function(){
-          if('requestIdleCallback' in window) requestIdleCallback(function(){resolve();},{timeout:650});
-          else resolve();
-        },250);
-      });
-      const canvas=await html2canvas(cert,{scale:1.25,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      /* STEP 275: render on the next paint only; no artificial idle delay. */
+      await new Promise(function(resolve){requestAnimationFrame(resolve);});
+      const canvas=await html2canvas(cert,{scale:1,backgroundColor:'#ffffff',useCORS:true,logging:false,imageTimeout:0,removeContainer:true});
       const {jsPDF}=window.jspdf;
       const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
       const margin=6,pageW=210,pageH=297,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width,maxH=pageH-margin*2;
@@ -24085,9 +24077,10 @@ body.dny-cert-248 #certificate table td:nth-child(8){width:15%!important}
     cert.style.zIndex='-1';
 
     try{
-      await new Promise(function(resolve){setTimeout(resolve,140)});
+      /* STEP 275: remove fixed wait and 2x raster workload. */
+      await new Promise(function(resolve){requestAnimationFrame(resolve)});
       var canvas=await window.html2canvas(cert,{
-        scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false
+        scale:1,backgroundColor:'#ffffff',useCORS:true,logging:false,imageTimeout:0,removeContainer:true
       });
       var jsPDF=window.jspdf.jsPDF;
       var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
@@ -25053,8 +25046,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             console.warn('Step 270 background auto backup failed',e);
           });
         };
-        if('requestIdleCallback' in window) requestIdleCallback(runBackup270,{timeout:8000});
-        else setTimeout(runBackup270,1500);
+        /* STEP 275: keep auto-backup out of the certificate-generation window. */
+        setTimeout(runBackup270,10000);
       }
     }catch(e){
       console.error('Step 266 Save failed',e);
@@ -25291,17 +25284,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       doc.write('<!doctype html><html><head><meta charset="utf-8"><style>'+css268+'</style></head><body>'+pageHtml268(r)+'</body></html>');
       doc.close();
 
-      /* One paint frame is enough because the certificate has no external images/fonts. */
-      await new Promise(function(resolve){
-        requestAnimationFrame(function(){requestAnimationFrame(resolve);});
-      });
+      /* STEP 275: one paint frame only; the page has no external assets to wait for. */
+      await new Promise(function(resolve){requestAnimationFrame(resolve);});
 
       var target=doc.querySelector('.idbi-ref-page268');
       if(!target)throw new Error('IDBI certificate page could not be prepared.');
 
-      /* 1.2x is still clear for this text/table certificate and is substantially faster on mobile. */
+      /* STEP 275: 1x A4 raster keeps the layout unchanged and cuts mobile pixel work. */
       var canvas=await window.html2canvas(target,{
-        scale:1.2,
+        scale:1,
         backgroundColor:'#ffffff',
         useCORS:false,
         allowTaint:false,
@@ -25538,8 +25529,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             console.error('IDBI PDF after save:',e);
           });
         };
-        if('requestIdleCallback' in window) requestIdleCallback(startIdbiPdf271,{timeout:1200});
-        else setTimeout(startIdbiPdf271,350);
+        /* STEP 275: start promptly after the saved screen paints; do not wait for idle/backup work. */
+        setTimeout(startIdbiPdf271,80);
       }
       return result;
     };
@@ -26176,8 +26167,8 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
             }
           }catch(e){}
         };
-        if('requestIdleCallback' in window)requestIdleCallback(idle,{timeout:12000});
-        else setTimeout(idle,2500);
+        /* STEP 275: backup is important but must not compete with certificate rendering. */
+        setTimeout(idle,12000);
         return true;
       }catch(e){
         console.error('Step 274 Save failed',e);
@@ -26242,5 +26233,18 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
 })();
 </script>
 <!-- /STEP 274 -->
+
+<!-- STEP 275 - CERTIFICATE RENDER PERFORMANCE TUNING -->
+<script id="step275-certificate-render-performance">
+(function(){
+  'use strict';
+  window.__certificateRenderPerformance275={
+    rasterScale:1,
+    changedAt:'2026-09-09',
+    note:'No layout/data changes; fixed waits removed and auto-backup deferred until after PDF capture.'
+  };
+})();
+</script>
+<!-- /STEP 275 -->
 </body>
 </html>
