@@ -27016,6 +27016,194 @@ body.bank-home-mode #bankHome{
 })();
 </script>
 <!-- /STEP 281 -->
+
+
+<!-- STEP 284 - FINAL SAVED SCREEN ISOLATION + SINGLE RELIABLE AUTO BACKUP -->
+<style id="step284-final-saved-isolation-css">
+/* Saved Valuations must be a fully opaque standalone screen. A previous premium
+   theme rule made it transparent, which exposed Bank Home underneath. */
+#savedClean168{
+  background:#f8f4eb!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  z-index:2147483647!important;
+}
+#savedClean168 .sc-wrap{background:#f8f4eb!important;min-height:100dvh!important;}
+body.savedClean168Open #bankHome,
+body.savedClean168Open #savedValuationsHome,
+body.savedClean168Open #customersHomeScreen,
+body.savedClean168Open #dashboardHome,
+body.savedClean168Open #storageBackupScreen,
+body.savedClean168Open > .app{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+body.savedClean168Open #savedClean168{display:block!important;visibility:visible!important;pointer-events:auto!important;}
+</style>
+<script id="step284-final-saved-isolation-autobackup-js">
+(function(){
+  'use strict';
+  if(window.__step284Installed)return;
+  window.__step284Installed=true;
+
+  function enabled284(){
+    try{return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+    catch(e){return true;}
+  }
+  function valuationState284(){
+    try{return localStorage.getItem('goldValuations')||'[]';}catch(e){return '[]';}
+  }
+  function raw284(){
+    var o={};
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);o[k]=localStorage.getItem(k);}}catch(e){}
+    return o;
+  }
+  function refreshStatus284(now){
+    try{
+      var el=document.getElementById('sbAutoBackupStatus');
+      if(!el)return;
+      var t=now;
+      if(!t){var x=localStorage.getItem('goldValuationLastAutoBackup')||'';t=x?new Date(x):null;}
+      var when=(t&&Number.isFinite(t.getTime()))?t.toLocaleString('en-IN'):'Never';
+      el.textContent=enabled284()
+        ? 'Auto Backup: ON ✓\\nLast automatic backup: '+when+'\\nFile: Backups/Auto_Backup_Latest.json'
+        : 'Auto Backup: OFF\\nTurn it on to create a full backup after every successful valuation save.';
+    }catch(e){}
+  }
+  async function passiveHandle284(){
+    try{
+      var h=null;
+      /* Never call requestPermission here: Save must remain popup-free. */
+      if(window.gvStorage&&typeof window.gvStorage.getHandle==='function')h=await window.gvStorage.getHandle();
+      else if(typeof window.gvGetSelectedStorageHandle==='function')h=await window.gvGetSelectedStorageHandle(false);
+      if(!h)return null;
+      if(h.queryPermission){
+        var p=await h.queryPermission({mode:'readwrite'});
+        if(p!=='granted')return null;
+      }
+      window.__gvActiveStorageHandle262=h;
+      return h;
+    }catch(e){console.warn('Step 284 handle lookup failed',e);return null;}
+  }
+  async function write284(dir,name,blob){
+    var fh=await dir.getFileHandle(name,{create:true});
+    var w=await fh.createWritable();
+    await w.write(blob);await w.close();
+  }
+  async function backup284(){
+    if(!enabled284())return false;
+    var h=await passiveHandle284();
+    if(!h)return false;
+    try{
+      var data=raw284(),vals=[];
+      try{var a=JSON.parse(data.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      var now=new Date();
+      var payload={
+        app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+        format:'GOLD_VALUATION_BACKUP_V8',version:8,backupType:'automatic',
+        createdAt:now.toISOString(),
+        summary:{valuations:vals.length,storageKeys:Object.keys(data).length},
+        rawData:data
+      };
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      var d=await h.getDirectoryHandle('Backups',{create:true});
+      await write284(d,'Auto_Backup_Latest.json',blob);
+      try{
+        var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        await write284(d,'Auto_Backup_'+day+'.json',blob);
+      }catch(e){}
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      refreshStatus284(now);
+      return true;
+    }catch(e){console.warn('Step 284 automatic backup failed',e);return false;}
+  }
+  window.gvAutomaticFullBackup284=backup284;
+
+  function isolateSaved284(){
+    var x=document.getElementById('savedClean168');
+    if(!x)return;
+    document.body.classList.add('savedClean168Open');
+    x.style.setProperty('display','block','important');
+    x.style.setProperty('background','#f8f4eb','important');
+    x.style.setProperty('visibility','visible','important');
+    x.setAttribute('aria-hidden','false');
+    ['bankHome','savedValuationsHome','customersHomeScreen','dashboardHome','storageBackupScreen'].forEach(function(id){
+      var e=document.getElementById(id);if(e)e.style.setProperty('display','none','important');
+    });
+    try{x.scrollTop=0;}catch(e){}
+  }
+  function installSaved284(){
+    var old=window.openSavedClean168;
+    if(typeof old!=='function'||old.__step284)return;
+    var fn=function(){
+      var r=old.apply(this,arguments);
+      isolateSaved284();
+      requestAnimationFrame(isolateSaved284);
+      setTimeout(isolateSaved284,80);
+      return r;
+    };
+    fn.__step284=true;fn.__original284=old;
+    window.openSavedClean168=fn;
+    window.openSavedValuationsHome=fn;window.openLoad=fn;window.loadData=fn;window.idbiLoadData=fn;window.dashboardOpenSaved87=fn;
+  }
+
+  function installSave284(){
+    var old=window.gvSaveWithBackup266;
+    if(typeof old!=='function'||old.__step284)return;
+    var fn=async function(kind){
+      var before=valuationState284();
+      var result=await old.apply(this,arguments);
+      var after=valuationState284();
+      if(after!==before&&enabled284()){
+        /* Let certificate rendering finish first, then perform exactly one final
+           direct backup. This does not request Android permission. */
+        setTimeout(function(){Promise.resolve(backup284()).catch(function(){});},6500);
+      }
+      return result;
+    };
+    fn.__step284=true;fn.__original284=old;
+    window.gvSaveWithBackup266=fn;
+  }
+
+  function latestValuationTime284(){
+    try{
+      var a=JSON.parse(localStorage.getItem('goldValuations')||'[]');if(!Array.isArray(a))return 0;
+      var best=0;a.forEach(function(r){
+        var t=Date.parse((r&&r.modifiedAt)||(r&&r.updatedAt)||(r&&r.createdAt)||(r&&r.savedAt)||'');
+        if(Number.isFinite(t)&&t>best)best=t;
+        var id=Number(r&&r.id);if(Number.isFinite(id)&&id>1000000000000&&id>best)best=id;
+      });return best;
+    }catch(e){return 0;}
+  }
+  function installStorage284(){
+    var old=window.openStorageBackupScreen;
+    if(typeof old!=='function'||old.__step284)return;
+    var fn=function(){
+      var r=old.apply(this,arguments);
+      setTimeout(function(){
+        refreshStatus284();
+        if(!enabled284())return;
+        var last=Date.parse(localStorage.getItem('goldValuationLastAutoBackup')||'')||0;
+        if(latestValuationTime284()>last){Promise.resolve(backup284()).catch(function(){});}
+      },700);
+      return r;
+    };
+    fn.__step284=true;fn.__original284=old;window.openStorageBackupScreen=fn;
+  }
+
+  function install284(){installSaved284();installSave284();installStorage284();refreshStatus284();}
+  install284();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install284,{once:true});
+  [1200,5200,8200].forEach(function(ms){setTimeout(install284,ms);});
+})();
+</script>
+<!-- /STEP 284 -->
 </body>
 </html>
 
