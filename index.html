@@ -26558,5 +26558,101 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
 
 <!-- STEP 278 - NO AUTOMATIC STORAGE PERMISSION PROMPTS ON VALUATION SAVE -->
 <!-- Storage permission is now passive during Save/PDF background writes. -->
+<!-- STEP 279 - HARD GUARD: ANDROID FILE PERMISSION ONLY FROM EXPLICIT STORAGE ACTIONS -->
+<script id="step279-storage-permission-gesture-guard">
+(function(){
+  'use strict';
+  if(window.__step279Installed)return;
+  window.__step279Installed=true;
+
+  var depth279=0;
+  function explicit279(){ return depth279>0; }
+  function enter279(){ depth279++; window.__gvExplicitStoragePermission279=true; }
+  function leave279(){ depth279=Math.max(0,depth279-1); window.__gvExplicitStoragePermission279=depth279>0; }
+
+  /* Chrome/Android may keep an old save wrapper that still calls
+     handle.requestPermission().  Guard the native method itself so background
+     Save/PDF/Auto-Backup work can NEVER open the permission sheet. */
+  function patchPermission279(){
+    var seen=[];
+    ['FileSystemHandle','FileSystemDirectoryHandle','FileSystemFileHandle'].forEach(function(name){
+      try{
+        var C=window[name];
+        if(!C||!C.prototype)return;
+        var proto=C.prototype;
+        while(proto&&proto!==Object.prototype){
+          if(seen.indexOf(proto)>=0)break;
+          seen.push(proto);
+          var d=Object.getOwnPropertyDescriptor(proto,'requestPermission');
+          if(d&&typeof d.value==='function'&&!d.value.__step279){
+            var original=d.value;
+            var guarded=function(options){
+              if(explicit279())return original.call(this,options);
+              /* Querying does not display Android UI.  Return the existing state;
+                 if it is not granted, report "prompt" without actually prompting. */
+              try{
+                if(this&&typeof this.queryPermission==='function'){
+                  return Promise.resolve(this.queryPermission(options)).then(function(p){
+                    return p==='granted'?'granted':'prompt';
+                  },function(){return 'prompt';});
+                }
+              }catch(e){}
+              return Promise.resolve('prompt');
+            };
+            guarded.__step279=true;
+            guarded.__original279=original;
+            try{
+              Object.defineProperty(proto,'requestPermission',{
+                value:guarded,
+                writable:d.writable!==false,
+                enumerable:d.enumerable,
+                configurable:d.configurable!==false
+              });
+            }catch(e){
+              try{proto.requestPermission=guarded;}catch(x){}
+            }
+          }
+          proto=Object.getPrototypeOf(proto);
+        }
+      }catch(e){}
+    });
+  }
+
+  /* These functions are reached only after the user explicitly taps a Storage
+     & Backup control.  During them Android is allowed to display its permission
+     sheet.  Ordinary valuation Save is deliberately NOT in this list. */
+  function wrapExplicit279(name){
+    try{
+      var old=window[name];
+      if(typeof old!=='function'||old.__step279Explicit)return;
+      var fn=async function(){
+        enter279();
+        try{return await old.apply(this,arguments);}
+        finally{leave279();}
+      };
+      fn.__step279Explicit=true;
+      fn.__original279=old;
+      window[name]=fn;
+      try{
+        if(name==='refreshSB')refreshSB=fn;
+        else if(name==='backupSB')backupSB=fn;
+        else if(name==='syncSB')syncSB=fn;
+      }catch(e){}
+    }catch(e){}
+  }
+
+  function install279(){
+    patchPermission279();
+    ['refreshSB','backupSB','syncSB','runAutoBackupNow184','openRestoreBackups257','syncSavedManager84'].forEach(wrapExplicit279);
+  }
+
+  install279();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install279,{once:true});
+  /* Re-run after legacy delayed installers so they cannot restore an unguarded
+     permission method or replace the explicit Storage functions. */
+  [1200,5200,7000].forEach(function(ms){setTimeout(install279,ms);});
+})();
+</script>
+<!-- /STEP 279 -->
 </body>
 </html>
