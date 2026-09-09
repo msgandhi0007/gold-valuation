@@ -26402,5 +26402,155 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
 })();
 </script>
 <!-- /STEP 276 -->
+
+
+<!-- STEP 277 - MGB CERTIFICATE SNAPSHOT BEFORE SAVE RESET -->
+<script id="step277-mgb-certificate-snapshot-fix">
+(function(){
+  'use strict';
+  if(window.__step277Installed)return;
+  window.__step277Installed=true;
+
+  function text277(v){return String(v==null?'':v);}
+  function esc277(v){return text277(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function money277(v){return '₹'+(Number(v)||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+  function bank277(){
+    var b='';
+    try{b=(typeof window.selectedBankName==='function'?window.selectedBankName():'')||'';}catch(e){}
+    if(!b){var x=document.getElementById('mainBankSelect');if(x)b=x.value||'';}
+    if(!b){var y=document.getElementById('bankName');if(y)b=y.value||'';}
+    if(!b&&window._currentSavedRecord)b=window._currentSavedRecord.customer&&window._currentSavedRecord.customer.bank||window._currentSavedRecord.bank||'';
+    return text277(b).trim();
+  }
+  function isMgb277(){return bank277().toUpperCase().indexOf('MAHARASHTRA GRAMIN')>=0;}
+
+  function snapshot277(){
+    var $=function(id){return document.getElementById(id)};
+    var snap={
+      bank:bank277()||'MAHARASHTRA GRAMIN BANK',
+      name:$('customerName')?$('customerName').value:'',
+      mobile:$('customerMobile')?$('customerMobile').value:'',
+      date:$('valuationDate')?$('valuationDate').value:'',
+      rate:Number($('rate')&&$('rate').value||0),
+      loan:Number($('sanctionedLoan')&&$('sanctionedLoan').value||0),
+      items:[]
+    };
+    document.querySelectorAll('#valuation-main-sections .item').forEach(function(item){
+      var g=Number(item.querySelector('.gross')&&item.querySelector('.gross').value||0);
+      var st=Number(item.querySelector('.stone')&&item.querySelector('.stone').value||0);
+      var p=Number(item.querySelector('.purity')&&item.querySelector('.purity').value||0);
+      var nm='';
+      try{nm=typeof window.getItemName==='function'?window.getItemName(item):(item.querySelector('.itemName')&&item.querySelector('.itemName').value||'');}catch(e){}
+      var qty=Math.max(1,parseInt(item.querySelector('.itemQty229')&&item.querySelector('.itemQty229').value||1)||1);
+      if(!(g>0 || st>0 || text277(nm).trim()))return;
+      snap.items.push({name:text277(nm),qty:qty,gross:g,stone:st,purity:p});
+    });
+    return snap;
+  }
+
+  function populate277(snap){
+    var $=function(id){return document.getElementById(id)};
+    var cert=$('certificate');
+    if(!cert)throw new Error('Certificate section not found.');
+
+    try{
+      if($('cCertNo')){
+        $('cCertNo').textContent=typeof window.getCertificateNo==='function'?window.getCertificateNo(window._currentSavedRecord||null):'';
+        if(typeof window.persistCurrentCertificateNo==='function')window.persistCurrentCertificateNo();
+      }
+    }catch(e){}
+    if($('cBank'))$('cBank').textContent=snap.bank||'MAHARASHTRA GRAMIN BANK';
+    if($('cName'))$('cName').textContent=snap.name||'—';
+    if($('cMobile'))$('cMobile').textContent=snap.mobile||'—';
+    if($('cDate'))$('cDate').textContent=snap.date||'—';
+    if($('cRate'))$('cRate').textContent=money277(snap.rate)+'/g';
+    if($('cLoan'))$('cLoan').textContent=money277(snap.loan);
+
+    var rows='',no=0,tq=0,tg=0,ts=0,tn=0,weighted=0,tr=0,tv=0;
+    snap.items.forEach(function(it){
+      no++;
+      var net=Math.max(0,it.gross-it.stone);
+      var pure=net*it.purity/100;
+      var rounded=Math.floor((pure+1e-9)*10)/10;
+      var value=rounded*snap.rate;
+      tq+=it.qty;tg+=it.gross;ts+=it.stone;tn+=net;weighted+=net*it.purity;tr+=rounded;tv+=value;
+      rows+='<tr>'+ 
+        '<td>'+no+'</td>'+ 
+        '<td>'+esc277(it.name||('Item '+no))+'</td>'+ 
+        '<td>'+it.qty+'</td>'+ 
+        '<td>'+it.gross.toFixed(2)+'</td>'+ 
+        '<td>'+it.stone.toFixed(2)+'</td>'+ 
+        '<td>'+it.purity.toFixed(2)+'%</td>'+ 
+        '<td>'+rounded.toFixed(2)+'</td>'+ 
+        '<td>'+money277(value)+'</td>'+ 
+      '</tr>';
+    });
+
+    var body=$('cRows');
+    if(body)body.innerHTML=rows||'<tr><td colspan="8">No items</td></tr>';
+    var table=body&&body.closest('table');
+    var head=table&&table.querySelector('thead tr');
+    if(head){
+      head.innerHTML='<th>Sr.</th><th>Jewellery Item</th><th>No. of Items</th><th>Gross Wt.</th><th>Stone Wt.</th><th>Purity</th><th>Rounded Wt.</th><th>Value</th>';
+    }
+    var foot=table&&table.querySelector('tfoot');
+    var avg=tn?weighted/tn:0;
+    if(foot){
+      foot.innerHTML='<tr><th colspan="2">TOTAL</th><th>'+tq+'</th><th>'+tg.toFixed(2)+'</th><th>'+ts.toFixed(2)+'</th><th>'+avg.toFixed(2)+'%</th><th>'+tr.toFixed(2)+'</th><th>'+money277(tv)+'</th></tr>';
+    }
+    if($('cGross'))$('cGross').textContent=tg.toFixed(2);
+    if($('cStone'))$('cStone').textContent=ts.toFixed(2);
+    if($('cPurity'))$('cPurity').textContent=avg.toFixed(2)+'%';
+    if($('cRounded'))$('cRounded').textContent=tr.toFixed(2);
+    if($('cValue'))$('cValue').textContent=money277(tv);
+    if($('cTotal'))$('cTotal').textContent=money277(tv);
+    if($('cLoanTotal'))$('cLoanTotal').textContent=money277(snap.loan);
+    return cert;
+  }
+
+  async function buildMgb277(){
+    if(!window.html2canvas||!window.jspdf||!window.jspdf.jsPDF)throw new Error('PDF library is not ready.');
+
+    /* Critical: copy every live form value before the async function yields. */
+    var snap=snapshot277();
+    if(!snap.items.length)console.warn('Step 277: MGB snapshot contains no jewellery items.');
+    document.body.classList.add('mgb-cert-243');
+    var cert=populate277(snap);
+
+    var old={display:cert.style.display,position:cert.style.position,left:cert.style.left,top:cert.style.top,width:cert.style.width,zIndex:cert.style.zIndex,visibility:cert.style.visibility};
+    cert.style.setProperty('display','block','important');
+    cert.style.setProperty('visibility','visible','important');
+    cert.style.position='absolute';cert.style.left='0';cert.style.top='0';cert.style.width='780px';cert.style.zIndex='-1';
+
+    try{
+      await new Promise(function(resolve){requestAnimationFrame(resolve);});
+      var canvas=await window.html2canvas(cert,{scale:1,backgroundColor:'#ffffff',useCORS:true,logging:false,imageTimeout:0,removeContainer:true});
+      var jsPDF=window.jspdf.jsPDF;
+      var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      var pageW=210,pageH=297,margin=8,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width,maxH=pageH-margin*2,drawH=Math.min(imgH,maxH);
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.94),'JPEG',margin,margin,imgW,drawH,undefined,'FAST');
+      var filename=(typeof window.pdfFileName==='function')?window.pdfFileName(snap.name||'Customer',snap.date||'Valuation'):((snap.name||'Customer')+' - '+(snap.date||'Valuation')+'.pdf');
+      return {blob:pdf.output('blob'),filename:filename};
+    }finally{
+      cert.style.display=old.display;cert.style.position=old.position;cert.style.left=old.left;cert.style.top=old.top;cert.style.width=old.width;cert.style.zIndex=old.zIndex;cert.style.visibility=old.visibility;
+      document.body.classList.remove('mgb-cert-243');
+    }
+  }
+
+  var previous277=window.buildCertificatePdf;
+  if(typeof previous277==='function'){
+    var wrapped277=async function(){
+      if(isMgb277())return await buildMgb277();
+      return await previous277.apply(this,arguments);
+    };
+    wrapped277.__step277=true;
+    wrapped277.__original277=previous277;
+    window.buildCertificatePdf=wrapped277;
+    try{buildCertificatePdf=wrapped277;}catch(e){}
+  }
+  window.buildMgbCertificatePdf277=buildMgb277;
+})();
+</script>
+<!-- /STEP 277 -->
 </body>
 </html>
