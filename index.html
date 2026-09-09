@@ -25223,15 +25223,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var r=record || (typeof window.idbiRecord==='function'?window.idbiRecord():null);
     if(!r)throw new Error('IDBI valuation is unavailable.');
 
-    var holder=document.createElement('div');
-    holder.id='idbiReferenceHolder268';
-    holder.style.cssText='position:fixed;left:-12000px;top:0;width:794px;background:#fff;color:#111;z-index:-1;';
-    holder.innerHTML=pageHtml268(r);
-    document.body.appendChild(holder);
+    /* STEP 269 PERFORMANCE FIX:
+       Render IDBI Page 1 inside a tiny isolated same-origin iframe instead of
+       asking html2canvas to clone the complete 2+ MB application document.
+       This preserves the certificate layout but removes the main mobile delay. */
+    var frame=document.createElement('iframe');
+    frame.id='idbiFastPdfFrame269';
+    frame.setAttribute('aria-hidden','true');
+    frame.style.cssText='position:fixed;left:-12000px;top:0;width:794px;height:1122px;border:0;background:#fff;visibility:visible;pointer-events:none;z-index:-2147483647;';
+    document.body.appendChild(frame);
 
-    var style=document.createElement('style');
-    style.id='idbiReferenceStyle268';
-    style.textContent=`
+    var css268=`
+      *{box-sizing:border-box}html,body{margin:0;padding:0;width:794px;height:1122px;background:#fff;color:#111;overflow:hidden}
       .idbi-ref-page268{width:794px;height:1122px;box-sizing:border-box;background:#fff;color:#111;padding:72px 48px 34px;font-family:"Times New Roman",Times,serif;font-size:15.2px;line-height:1.48;overflow:hidden;position:relative}
       .idbi-ref-page268::before{content:"";position:absolute;inset:17px;border:2px solid #2f2f2f;box-sizing:border-box;pointer-events:none}
       .idbi-ref-page268::after{content:"";position:absolute;inset:22px;border:1px solid #777;box-sizing:border-box;pointer-events:none}
@@ -25274,21 +25277,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       .sigspace268{height:30px}
       .valuername268{font-weight:700;font-size:13.4px}
     `;
-    document.head.appendChild(style);
 
     try{
-      var canvas=await html2canvas(holder,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      var doc=frame.contentDocument || frame.contentWindow.document;
+      doc.open();
+      doc.write('<!doctype html><html><head><meta charset="utf-8"><style>'+css268+'</style></head><body>'+pageHtml268(r)+'</body></html>');
+      doc.close();
+
+      /* One paint frame is enough because the certificate has no external images/fonts. */
+      await new Promise(function(resolve){
+        requestAnimationFrame(function(){requestAnimationFrame(resolve);});
+      });
+
+      var target=doc.querySelector('.idbi-ref-page268');
+      if(!target)throw new Error('IDBI certificate page could not be prepared.');
+
+      /* 1.5x remains crisp on A4 while cutting pixels by ~44% vs the old 2x capture. */
+      var canvas=await window.html2canvas(target,{
+        scale:1.5,
+        backgroundColor:'#ffffff',
+        useCORS:false,
+        allowTaint:false,
+        logging:false,
+        imageTimeout:0,
+        windowWidth:794,
+        windowHeight:1122,
+        scrollX:0,
+        scrollY:0,
+        removeContainer:true
+      });
+
       var jsPDF=window.jspdf.jsPDF;
-      var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+      /* JPEG is already compressed, so PDF stream compression only wastes CPU on mobile. */
+      var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:false});
       var pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
-      var img=canvas.toDataURL('image/jpeg',0.98);
+      var img=canvas.toDataURL('image/jpeg',0.92);
       pdf.addImage(img,'JPEG',0,0,pw,ph,undefined,'FAST');
       var blob=pdf.output('blob');
       var filename=safe268(r.customer&&r.customer.name)+' - '+String((r.customer&&r.customer.date)||new Date().toISOString().slice(0,10))+'.pdf';
       return {blob:blob,filename:filename};
     }finally{
-      holder.remove();
-      style.remove();
+      frame.remove();
     }
   };
 
