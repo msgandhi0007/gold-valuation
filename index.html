@@ -25529,6 +25529,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     };
     window.idbiSaveData.__step271=true;
     window.idbiSaveData.__original271=baseSave271;
+
+    /* IMPORTANT: several legacy scripts above schedule delayed installers at
+       1.2s, 1.4s, 1.5s, 1.8s, 2.6s and 3.4s after page load.  Their old IDBI
+       wrappers open about:blank / browser PDF tabs.  Mark this final IDBI save
+       handler as already handled by those generations so none of them can
+       attach again after Step 271.  Step 258 auto-backup is intentionally NOT
+       blocked because it does not open a browser window. */
+    window.idbiSaveData.__wrapped236=true;
+    window.idbiSaveData.__certOnly237=true;
+    window.idbiSaveData.__step238=true;
+    window.idbiSaveData.__step239=true;
+    window.idbiSaveData.__singlePdf246=true;
+
     try{idbiSaveData=window.idbiSaveData;}catch(e){}
   }
 
