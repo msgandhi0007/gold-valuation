@@ -34,19 +34,34 @@ body.menu-viewing > footer, body:has(.menu-section.menu-active) > footer, body:h
 @media(min-width:521px){footer{position:static;margin:auto;max-width:520px}}
 
 .certificate{display:none;background:#fff;color:#222}
-.cert-page{width:100%;max-width:780px;box-sizing:border-box;margin:0 auto;padding:30px;border:2px solid #b78320;min-height:1000px}
+.cert-page{width:100%;max-width:780px;box-sizing:border-box;margin:0 auto;padding:28px 24px 22px;border:2px solid #b78320;min-height:1000px;display:flex;flex-direction:column}
 .cert-head{text-align:center;border-bottom:2px solid #b78320;padding-bottom:14px}
 .cert-company{font-size:28px;font-weight:900;letter-spacing:1px}
 .cert-number{font-size:11px;font-weight:800;margin-top:6px}.cert-title{font-size:18px;font-weight:800;margin-top:6px}
 .cert-sub{font-size:11px;color:#666;margin-top:5px}
-.cert-section{margin-top:18px}.cert-section h3{font-size:13px;margin:0 0 8px;background:#f3ead5;padding:8px;border-left:4px solid #b78320}
-.cert-info{display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;font-size:12px}
-.cert-table{width:100%;border-collapse:collapse;font-size:10px}.cert-table th,.cert-table td{border:1px solid #aaa;padding:6px}.cert-table th{background:#f3ead5}
-.cert-total{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.cert-box{border:1px solid #aaa;padding:9px;text-align:center}.cert-box span{display:block;font-size:9px;color:#666}.cert-box b{font-size:16px}
-.cert-footer{margin-top:48px;display:flex;justify-content:space-between;font-size:11px}.cert-note{margin-top:18px;font-size:9px;color:#666;line-height:1.5}
+.cert-section{margin-top:16px}.cert-section h3{font-size:13px;margin:0 0 9px;background:#f3ead5;padding:9px 10px;border-left:4px solid #b78320}
+.cert-info{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:12px;line-height:1.45;align-items:start}
+.cert-info > div{min-height:18px}
+.cert-table{width:100%;border-collapse:collapse;font-size:10.5px}
+.cert-table th,.cert-table td{border:1px solid #aaa;padding:7px 6px;vertical-align:middle}
+.cert-table th{background:#f3ead5;text-align:center;font-weight:800}
+.cert-table td{text-align:center}
+.cert-table th:nth-child(2),.cert-table td:nth-child(2){text-align:left}
+.cert-table tfoot th,.cert-table tfoot td{font-weight:800}
+.cert-total{margin-top:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cert-box{border:1px solid #aaa;padding:10px 9px;text-align:center;min-height:66px;display:flex;flex-direction:column;justify-content:center}
+.cert-box span{display:block;font-size:9px;color:#666}.cert-box b{font-size:16px;margin-top:4px}
+.cert-footer{margin-top:48px;display:flex;justify-content:space-between;font-size:11px}
+.cert-signature-block{page-break-inside:avoid;margin-top:auto!important}
+.cert-note{margin-top:14px;font-size:9px;color:#666;line-height:1.5}
+@media(max-width:560px){
+  .cert-page{padding:22px 18px 18px}
+  .cert-company{font-size:26px}
+  .cert-title{font-size:17px}
+  .cert-info{gap:8px 16px}
+}
 @media screen{.certificate{display:none!important}}
 @page{size:A4;margin:12mm}
-.cert-signature-block{page-break-inside:avoid}
 @media print{
   body{background:#fff}
   footer,.actions,.remove,.primary,.save-manager,.backup-card{display:none!important}
@@ -4369,6 +4384,8 @@ body:not(.menu-viewing) .s111-rate{
         <div><b>Mobile Number:</b> <span id="cMobile"></span></div>
         <div><b>Market Rate:</b> <span id="cRate"></span></div>
         <div><b>Sanctioned Loan Amount:</b> <span id="cLoan"></span></div>
+        <div class="dny-cert-only-282"><b>Loan Rate per gram:</b> <span id="cDnyLoanRate282"></span></div>
+        <div class="dny-cert-only-282"><b>Eligible Loan Amount:</b> <span id="cDnyEligible282"></span></div>
       </div>
     </div>
     <div class="cert-section">
@@ -23996,6 +24013,13 @@ body.dny-cert-248 #certificate table td:nth-child(8){width:15%!important}
     if($('cRate'))$('cRate').textContent=money249(rate)+'/g';
     if($('cLoan'))$('cLoan').textContent=money249(loan);
 
+    /* STEP 282: Dnyandeep certificate-only loan fields.
+       Capture the editable per-gram loan rate synchronously before Save resets the form. */
+    var dnyLoanRate249=Number($('loanRate')?.value||0);
+    if(!(dnyLoanRate249>0)){
+      try{dnyLoanRate249=Number(localStorage.getItem('dnyLoanRatePerGram200')||0);}catch(e){}
+    }
+
     var rows='',no=0,tq=0,tg=0,ts=0,tn=0,weighted=0,tr=0,tv=0;
     document.querySelectorAll('#valuation-main-sections .item').forEach(function(item){
       var g=Number(item.querySelector('.gross')?.value||0);
@@ -24065,6 +24089,8 @@ body.dny-cert-248 #certificate table td:nth-child(8){width:15%!important}
     if($('cValue'))$('cValue').textContent=money249(tv);
     if($('cTotal'))$('cTotal').textContent=money249(tv);
     if($('cLoanTotal'))$('cLoanTotal').textContent=money249(loan);
+    if($('cDnyLoanRate282'))$('cDnyLoanRate282').textContent=money249(dnyLoanRate249)+'/g';
+    if($('cDnyEligible282'))$('cDnyEligible282').textContent=money249(tr*dnyLoanRate249);
 
     document.body.classList.add('dny-cert-248');
 
@@ -26992,3 +27018,189 @@ body.bank-home-mode #bankHome{
 <!-- /STEP 281 -->
 </body>
 </html>
+
+<!-- STEP 282 - DNY CERTIFICATE LOAN RATE + ELIGIBLE LOAN -->
+<style id="step282-dny-loan-fields-certificate-only">
+/* Hidden for SBI/MGB and normal app UI; visible only while the Dnyandeep certificate is rendered. */
+#certificate .dny-cert-only-282{display:none!important}
+body.dny-cert-248 #certificate .dny-cert-only-282{display:block!important}
+</style>
+<!-- /STEP 282 -->
+
+<!-- STEP 280 - MGB + DNY BALANCED A4 CERTIFICATE ARRANGEMENT -->
+<style id="step280-mgb-dny-balanced-certificate-layout">
+/* Target only Maharashtra Gramin Bank and Dnyandeep certificate rendering. */
+body.mgb-cert-243 #certificate .cert-page,
+body.dny-cert-248 #certificate .cert-page{
+  width:780px!important;
+  max-width:780px!important;
+  min-height:1103px!important;
+  box-sizing:border-box!important;
+  padding:34px 34px 28px!important;
+  border:2px solid #b78320!important;
+  display:flex!important;
+  flex-direction:column!important;
+  background:#fff!important;
+}
+body.mgb-cert-243 #certificate .cert-head,
+body.dny-cert-248 #certificate .cert-head{
+  padding-bottom:17px!important;
+  border-bottom:2px solid #b78320!important;
+}
+body.mgb-cert-243 #certificate .cert-company,
+body.dny-cert-248 #certificate .cert-company{
+  font-size:30px!important;
+  line-height:1.12!important;
+  letter-spacing:.8px!important;
+}
+body.mgb-cert-243 #certificate .cert-title,
+body.dny-cert-248 #certificate .cert-title{
+  font-size:18px!important;
+  line-height:1.18!important;
+  margin-top:7px!important;
+}
+body.mgb-cert-243 #certificate .cert-number,
+body.dny-cert-248 #certificate .cert-number{
+  font-size:11px!important;
+  margin-top:7px!important;
+}
+body.mgb-cert-243 #certificate .cert-sub,
+body.dny-cert-248 #certificate .cert-sub{
+  font-size:11px!important;
+  margin-top:5px!important;
+}
+body.mgb-cert-243 #certificate .cert-section,
+body.dny-cert-248 #certificate .cert-section{
+  margin-top:20px!important;
+}
+body.mgb-cert-243 #certificate .cert-section h3,
+body.dny-cert-248 #certificate .cert-section h3{
+  margin:0 0 10px!important;
+  padding:9px 10px!important;
+  font-size:16px!important;
+  line-height:1.15!important;
+  font-weight:850!important;
+  background:#f3ead5!important;
+  border-left:4px solid #b78320!important;
+}
+body.mgb-cert-243 #certificate .cert-info,
+body.dny-cert-248 #certificate .cert-info{
+  grid-template-columns:1fr 1fr!important;
+  gap:9px 30px!important;
+  font-size:13px!important;
+  line-height:1.32!important;
+}
+body.mgb-cert-243 #certificate .cert-table,
+body.dny-cert-248 #certificate .cert-table{
+  width:100%!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
+  font-size:12px!important;
+  line-height:1.2!important;
+}
+body.mgb-cert-243 #certificate .cert-table th,
+body.dny-cert-248 #certificate .cert-table th{
+  text-align:center!important;
+  vertical-align:middle!important;
+  padding:8px 4px!important;
+  font-size:12px!important;
+  line-height:1.16!important;
+  font-weight:850!important;
+}
+body.mgb-cert-243 #certificate .cert-table td,
+body.dny-cert-248 #certificate .cert-table td{
+  text-align:center!important;
+  vertical-align:middle!important;
+  padding:7px 4px!important;
+  font-size:12px!important;
+  line-height:1.18!important;
+  font-weight:650!important;
+}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(1),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(1),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(1),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(1){width:5%!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(2),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(2),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(2),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(2){width:25%!important;text-align:left!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(3),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(3),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(3),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(3){width:12%!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(4),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(4),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(4),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(4){width:11%!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(5),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(5),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(5),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(5){width:10%!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(6),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(6),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(6),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(6){width:10%!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(7),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(7),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(7),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(7){width:12%!important}
+body.mgb-cert-243 #certificate .cert-table thead th:nth-child(8),
+body.dny-cert-248 #certificate .cert-table thead th:nth-child(8),
+body.mgb-cert-243 #certificate .cert-table tbody td:nth-child(8),
+body.dny-cert-248 #certificate .cert-table tbody td:nth-child(8){width:15%!important}
+body.mgb-cert-243 #certificate .cert-table tfoot th,
+body.dny-cert-248 #certificate .cert-table tfoot th{
+  text-align:center!important;
+  padding:8px 4px!important;
+  font-size:12px!important;
+  line-height:1.16!important;
+  font-weight:900!important;
+}
+body.mgb-cert-243 #certificate .cert-total,
+body.dny-cert-248 #certificate .cert-total{
+  margin-top:14px!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+}
+body.mgb-cert-243 #certificate .cert-box,
+body.dny-cert-248 #certificate .cert-box{
+  min-height:62px!important;
+  box-sizing:border-box!important;
+  padding:10px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+body.mgb-cert-243 #certificate .cert-box span,
+body.dny-cert-248 #certificate .cert-box span{
+  font-size:9px!important;
+  line-height:1.2!important;
+}
+body.mgb-cert-243 #certificate .cert-box b,
+body.dny-cert-248 #certificate .cert-box b{
+  margin-top:4px!important;
+  font-size:18px!important;
+  line-height:1.1!important;
+}
+/* Use the remaining A4 height for the signature area instead of leaving a large blank tail. */
+body.mgb-cert-243 #certificate .cert-signature-block,
+body.dny-cert-248 #certificate .cert-signature-block{
+  margin-top:auto!important;
+  padding-top:20px!important;
+  font-size:14px!important;
+  line-height:1.35!important;
+}
+body.mgb-cert-243 #certificate .cert-signature-block > div:first-child,
+body.dny-cert-248 #certificate .cert-signature-block > div:first-child{
+  margin-bottom:38px!important;
+}
+body.mgb-cert-243 #certificate .cert-note,
+body.dny-cert-248 #certificate .cert-note{
+  margin-top:18px!important;
+  font-size:8.5px!important;
+  line-height:1.4!important;
+  color:#666!important;
+}
+</style>
+<!-- /STEP 280 -->
