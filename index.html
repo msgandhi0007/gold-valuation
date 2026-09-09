@@ -4932,7 +4932,9 @@ if(!a.length){
 try{const old=localStorage.getItem('goldValuation');if(old){const d=JSON.parse(old);d.id=d.id||Date.now();d.customer=d.customer||{};d.customer.bank=d.customer.bank||'';a=[d]}}catch(e){}
 }
 const clean=dedupeValuations(a);
-if(JSON.stringify(clean)!==JSON.stringify(a)){
+// STEP 270: avoid serializing the complete valuation database twice on every Save.
+// A storage rewrite is needed only when deduplication actually removed records.
+if(clean.length!==a.length){
   try{localStorage.setItem('goldValuations',JSON.stringify(clean));}catch(e){}
 }
 return clean;
@@ -5066,50 +5068,31 @@ async function saveData(){
     // Keep the fast local copy for the app UI.
     localStorage.setItem('goldValuations',JSON.stringify(a));
 
-    // Step 62: also save this valuation as an individual JSON file in the
-    // user-selected Storage Folder -> Valuations. The local copy above is
-    // retained so Load/Reports continue to work even when folder access is unavailable.
-    let fileSaved=false, backupSaved=false, valuationFilename='';
+    // STEP 270 PERFORMANCE: the app save is complete once localStorage is updated.
+    // Folder copies are important, but must not block the Save button on Android.
+    // Queue the individual valuation file + protected copy for background writing.
     if(window.saveBlobToStorageFolder){
       const safeName=String(d.customer?.name||'Customer').trim()
         .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ');
       const safeDate=String(d.customer?.date||'Valuation').trim().replace(/[^0-9-]/g,'-');
       const cert=String(d.certificateNo||'').replace(/[^A-Za-z0-9_-]+/g,'_');
       const generatedFilename=(safeName||'Customer')+' - '+(safeDate||'Valuation')+(cert?' - '+cert:'')+'.json';
-      // Step 69: when editing an existing valuation, keep the original physical
-      // filename so changing the customer/date does not create a second file.
-      valuationFilename=window._editingValuationOriginalFilename || generatedFilename;
+      const valuationFilename=window._editingValuationOriginalFilename || generatedFilename;
       const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-      try{ fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations'); }catch(e){ console.warn('Valuation file save failed:',e); }
-
-      // Step 65: keep a protected copy in Selected Storage Folder -> Backups.
-      // This is an automatic per-valuation backup and is overwritten only for
-      // the same valuation filename when that valuation is updated.
-      if(fileSaved){
+      const writeCopies=async function(){
         try{
-          const backupName='Valuation Backup - '+valuationFilename;
-          backupSaved=await window.saveBlobToStorageFolder(backupName,blob,'Backups');
-          if(backupSaved){
-            localStorage.setItem('goldValuationLastAutoBackup',new Date().toISOString());
-            localStorage.setItem('goldValuationLastAutoBackupFile',backupName);
+          const fileSaved=await window.saveBlobToStorageFolder(valuationFilename,blob,'Valuations');
+          if(fileSaved){
+            try{await window.saveBlobToStorageFolder('Valuation Backup - '+valuationFilename,blob,'Backups');}catch(e){console.warn('Background valuation backup failed:',e);}
           }
-        }catch(e){ console.warn('Automatic valuation backup failed:',e); }
-      }
+        }catch(e){console.warn('Background valuation file save failed:',e);}
+      };
+      if('requestIdleCallback' in window) requestIdleCallback(function(){writeCopies();},{timeout:4000});
+      else setTimeout(writeCopies,250);
     }
 
-    // STEP 259: Guaranteed full Auto Backup after every successful standard-bank save.
-    // Run directly from the real save path so later/legacy Save wrappers cannot bypass it.
-    if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
-      try{
-        window.__gvLastAutoBackupFingerprint='';
-        await window.gvAutomaticFullBackup();
-      }catch(e){console.warn('Step 259 standard auto backup failed:',e);}
-    }
-
-    // STEP 264: direct full Auto Backup from the actual successful standard-bank save path.
-    if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
-      try{ Promise.resolve(window.gvForceAutoBackup264()).catch(function(e){console.warn('Step 264 standard auto backup failed:',e);}); }catch(e){}
-    }
+    // Full automatic backup is owned by the Save-button controller (Step 266/270)
+    // and runs only once in the background. Do not duplicate it here.
 
     const action=existingIndex>=0?'updated':'saved';
     // STEP 247: Storage-folder access is optional. A successful app save must
@@ -6533,6 +6516,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <!-- NEWEST-FIRST ORDER FIX 181: Customer Summary + Dashboard Recent Valuations -->
 <!-- DASHBOARD RECENT NEWEST-FIRST FIX 182 -->
+
 </body></html>`;
     try{
       if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF library is not ready.');
@@ -8261,27 +8245,33 @@ window.handleMainBankSelection=function(value){
         a.push(rec);
       }
       localStorage.setItem('goldValuations',JSON.stringify(a));
+      // STEP 270 PERFORMANCE: localStorage above is the immediate app save.
+      // Write the IDBI valuation file and protected copy afterward, without blocking Save.
       if(window.saveBlobToStorageFolder){
         var safe=(rec.customer.name||'Customer').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').slice(0,60);
         var filename='IDBI-Valuation-'+safe+'-'+String(rec.id)+'.json';
-        try{await window.saveBlobToStorageFolder(filename,new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Valuations');}catch(e){}
-        try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'Backups');}catch(e){}
+        var recBlob=new Blob([JSON.stringify(rec,null,2)],{type:'application/json'});
+        var writeIdbiCopies=async function(){
+          try{
+            var ok=await window.saveBlobToStorageFolder(filename,recBlob,'Valuations');
+            if(ok){try{await window.saveBlobToStorageFolder('IDBI-Backup-'+String(rec.id)+'.json',recBlob,'Backups');}catch(e){}}
+          }catch(e){console.warn('Background IDBI valuation file save failed:',e);}
+        };
+        if('requestIdleCallback' in window) requestIdleCallback(function(){writeIdbiCopies();},{timeout:4000});
+        else setTimeout(writeIdbiCopies,250);
       }
-      // STEP 259: Guaranteed full Auto Backup after every successful IDBI save.
-      if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvAutomaticFullBackup==='function'){
-        try{
-          window.__gvLastAutoBackupFingerprint='';
-          await window.gvAutomaticFullBackup();
-        }catch(e){console.warn('Step 259 IDBI auto backup failed:',e);}
-      }
-      // STEP 264: direct full Auto Backup from the actual successful IDBI save path.
-      if(localStorage.getItem('goldValuationAutoBackupEnabled')!=='false' && typeof window.gvForceAutoBackup264==='function'){
-        try{ Promise.resolve(window.gvForceAutoBackup264()).catch(function(e){console.warn('Step 264 IDBI auto backup failed:',e);}); }catch(e){}
-      }
+      // Full automatic backup is owned by the Save-button controller and runs once
+      // in the background. Do not run the legacy duplicate full backups here.
 
       window._currentSavedRecord=rec; window._idbiEditingId=null;
       // STEP 247: no success/storage popup; continue directly to certificate PDF.
-      if(typeof renderSaved==='function')renderSaved();
+      // STEP 270: rebuilding all Saved Valuation cards is not part of the save itself.
+      // Refresh only later/when idle so the Save tap returns immediately.
+      if(typeof renderSaved==='function'){
+        var refreshSaved270=function(){try{renderSaved();}catch(e){}};
+        if('requestIdleCallback' in window)requestIdleCallback(refreshSaved270,{timeout:5000});
+        else setTimeout(refreshSaved270,500);
+      }
       // STEP 151 - After a successful IDBI save, clear the complete IDBI valuation form.
       if(typeof window.idbiReset==='function') window.idbiReset();
       window.scrollTo(0,0);
@@ -24839,11 +24829,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var old=window.saveBlobToStorageFolder;
     if(typeof old!=='function'||old.__step263)return;
     async function wrapped(name,blob,subfolder){
-      var ok=await old.apply(this,arguments);
-      if(ok && String(subfolder||'').replace(/\//g,'')==='Valuations' && enabled()){
-        await directBackup();
-      }
-      return ok;
+      // STEP 270: do not launch a second full backup from every valuation-file write.
+      // The Save-button controller performs one consolidated full backup instead.
+      return await old.apply(this,arguments);
     }
     wrapped.__step263=true;wrapped.__original263=old;window.saveBlobToStorageFolder=wrapped;
   }
@@ -25043,11 +25031,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
       /* Only back up when the save actually changed app valuation data. */
       if(after!==before && handle && enabled266()){
-        /* Step 267: do not block certificate generation while writing the full backup.
-           The backup continues immediately in the background using the already-authorized handle. */
-        Promise.resolve(fullBackup266(handle)).catch(function(e){
-          console.warn('Step 267 background auto backup failed',e);
-        });
+        /* STEP 270: one consolidated full backup, scheduled when the browser is idle.
+           This prevents large backup serialization/file writes from competing with
+           Save/reset/certificate actions on Android. */
+        var runBackup270=function(){
+          Promise.resolve(fullBackup266(handle)).catch(function(e){
+            console.warn('Step 270 background auto backup failed',e);
+          });
+        };
+        if('requestIdleCallback' in window) requestIdleCallback(runBackup270,{timeout:8000});
+        else setTimeout(runBackup270,1500);
       }
     }catch(e){
       console.error('Step 266 Save failed',e);
@@ -25355,5 +25348,194 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 </script>
 <!-- /STEP 268 -->
+
+<!-- STEP 270 - FAST SAVE: NON-BLOCKING FOLDER COPIES + SINGLE IDLE AUTO BACKUP -->
+
+
+<!-- STEP 271 - ANDROID PDF APP HANDOFF FOR IDBI CERTIFICATES -->
+<style id="idbi-pdf-app-handoff-271-css">
+#idbiPdfReady271{position:fixed;left:12px;right:12px;bottom:16px;z-index:2147483646;display:none;max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #d5b66b;border-radius:14px;box-shadow:0 10px 32px rgba(0,0,0,.22);padding:12px;font-family:Arial,sans-serif;color:#171717}
+#idbiPdfReady271 .title271{font-size:15px;font-weight:900;margin-bottom:4px}
+#idbiPdfReady271 .sub271{font-size:11px;line-height:1.35;color:#6a6257;margin-bottom:10px;word-break:break-word}
+#idbiPdfReady271 .actions271{display:grid;grid-template-columns:1fr auto;gap:8px}
+#idbiPdfReady271 button{min-height:44px;border-radius:10px;border:1px solid #b98a2e;font-weight:900;font-size:13px;padding:8px 12px}
+#idbiPdfReady271 .open271{background:#1d1d1d;color:#fff;border-color:#1d1d1d}
+#idbiPdfReady271 .close271{background:#fff;color:#4a4033}
+</style>
+<script id="idbi-pdf-app-handoff-271-js">
+(function(){
+  'use strict';
+  if(window.__idbiPdfAppHandoff271)return;
+  window.__idbiPdfAppHandoff271=true;
+
+  var pending271=null;
+
+  function safe271(v){
+    return String(v||'IDBI Valuation Certificate.pdf').replace(/[\\/:*?"<>|]+/g,'_').trim() || 'IDBI Valuation Certificate.pdf';
+  }
+
+  function ensurePanel271(){
+    var box=document.getElementById('idbiPdfReady271');
+    if(box)return box;
+    box=document.createElement('div');
+    box.id='idbiPdfReady271';
+    box.innerHTML='<div class="title271">📄 IDBI certificate is ready</div><div class="sub271" id="idbiPdfReadyName271"></div><div class="actions271"><button type="button" class="open271" id="idbiPdfOpenApp271">OPEN PDF APP</button><button type="button" class="close271" id="idbiPdfClose271">✕</button></div>';
+    document.body.appendChild(box);
+    box.querySelector('#idbiPdfOpenApp271').addEventListener('click',function(){window.openPendingIdbiPdfApp271();});
+    box.querySelector('#idbiPdfClose271').addEventListener('click',function(){box.style.display='none';});
+    return box;
+  }
+
+  function download271(out){
+    var url=URL.createObjectURL(out.blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download=safe271(out.filename);
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},5000);
+  }
+
+  async function shareToAndroid271(out){
+    if(!out || !out.blob)throw new Error('PDF is not ready.');
+    var file=new File([out.blob],safe271(out.filename),{type:'application/pdf'});
+    var data={title:'IDBI Bank Valuation Certificate',files:[file]};
+    if(!navigator.share)throw new Error('Android app chooser is not available in this browser.');
+    if(navigator.canShare){
+      var ok=false;
+      try{ok=navigator.canShare({files:[file]});}catch(e){ok=false;}
+      if(!ok)throw new Error('This browser cannot send PDF files to Android apps.');
+    }
+    await navigator.share(data);
+    return true;
+  }
+
+  function showReady271(out){
+    pending271=out;
+    window._pendingIdbiPdf271=out;
+    var box=ensurePanel271();
+    var name=box.querySelector('#idbiPdfReadyName271');
+    if(name)name.textContent=safe271(out.filename)+' — tap Open PDF App to choose your PDF viewer.';
+    box.style.display='block';
+  }
+
+  window.openPendingIdbiPdfApp271=async function(){
+    var out=pending271 || window._pendingIdbiPdf271;
+    if(!out)return;
+    try{
+      await shareToAndroid271(out);
+      var box=document.getElementById('idbiPdfReady271');
+      if(box)box.style.display='none';
+    }catch(e){
+      if(e && e.name==='AbortError')return;
+      console.warn('Android PDF app handoff failed, downloading instead:',e);
+      download271(out);
+      alert('Android did not allow the PDF app chooser. The certificate was downloaded instead. Open it from Downloads with your PDF viewer.');
+    }
+  };
+
+  async function saveCertificateCopy271(out){
+    try{
+      if(window.saveBlobToStorageFolder){
+        await window.saveBlobToStorageFolder(safe271(out.filename),out.blob,'Certificates');
+      }
+    }catch(e){
+      console.warn('IDBI certificate background folder save failed:',e);
+    }
+  }
+
+  async function generate271(record,tryImmediateChooser){
+    if(typeof window.buildIdbiPage1Certificate233!=='function')throw new Error('IDBI certificate PDF builder is unavailable.');
+    var out=await window.buildIdbiPage1Certificate233(record);
+    if(!out || !out.blob)throw new Error('IDBI certificate PDF was not created.');
+
+    /* Keep a permanent Certificates-folder copy when a storage folder is selected,
+       but never make the app wait for that copy before offering the PDF. */
+    setTimeout(function(){saveCertificateCopy271(out);},0);
+
+    pending271=out;
+    window._pendingIdbiPdf271=out;
+
+    /* Android/Web Share needs transient user activation. A fast manual certificate
+       tap may still have it; a Save + long PDF render usually will not. */
+    if(tryImmediateChooser){
+      try{
+        await shareToAndroid271(out);
+        return out;
+      }catch(e){
+        if(e && e.name==='AbortError')return out;
+        if(!(e && (e.name==='NotAllowedError' || e.name==='InvalidStateError'))){
+          console.warn('Immediate PDF app chooser unavailable:',e);
+        }
+      }
+    }
+    showReady271(out);
+    return out;
+  }
+
+  window.idbiPrintCertificate=async function(){
+    try{
+      /* The certificate button always uses the values currently visible on the
+         IDBI valuation screen. Saved-record loading populates those same fields. */
+      var r=typeof window.idbiRecord==='function'?window.idbiRecord():window._currentSavedRecord;
+      return await generate271(r,true);
+    }catch(e){
+      console.error(e);
+      alert('IDBI certificate PDF could not be generated. '+(e&&e.message?e.message:''));
+    }
+  };
+
+  /* Remove the older Step 239/238/237/236 IDBI Save wrappers. Step 239 is the
+     code that opens an about:blank browser tab and later navigates it to the PDF. */
+  function unwrapSave271(fn){
+    var guard=0;
+    while(fn && guard++<12){
+      if(fn.__step239 && fn.__original239){fn=fn.__original239;continue;}
+      if(fn.__step238 && fn.__original238){fn=fn.__original238;continue;}
+      if(fn.__certOnly237 && fn.__original237){fn=fn.__original237;continue;}
+      if(fn.__wrapped236 && fn.__original236){fn=fn.__original236;continue;}
+      break;
+    }
+    return fn;
+  }
+
+  var baseSave271=unwrapSave271(window.idbiSaveData);
+  if(typeof baseSave271==='function'){
+    window.idbiSaveData=async function(){
+      var before=window._currentSavedRecord;
+      var beforeId=before&&before.id;
+      var beforeModified=before&&before.modifiedAt;
+      var captured=null;
+      try{captured=typeof window.idbiRecord==='function'?window.idbiRecord():null;}catch(e){}
+
+      var result=await baseSave271.apply(this,arguments);
+
+      /* Validation failures return without producing a new/modified saved record. */
+      var saved=window._currentSavedRecord;
+      var bank=String(saved && (saved.bank || (saved.customer&&saved.customer.bank)) || '').toUpperCase();
+      var changed=!!(saved && bank.indexOf('IDBI')>=0 && (String(saved.id)!==String(beforeId) || String(saved.modifiedAt||'')!==String(beforeModified||'')));
+      if(changed){
+        var exact=saved||captured;
+        /* Generate after Save has returned/reset. No browser tab is opened. */
+        setTimeout(function(){
+          generate271(exact,false).catch(function(e){
+            console.error('IDBI PDF after save:',e);
+          });
+        },0);
+      }
+      return result;
+    };
+    window.idbiSaveData.__step271=true;
+    window.idbiSaveData.__original271=baseSave271;
+    try{idbiSaveData=window.idbiSaveData;}catch(e){}
+  }
+
+  /* Saved-record PDF buttons that call idbiPrintCertificate automatically inherit
+     the same Android app handoff and never open a browser PDF tab. */
+})();
+</script>
+<!-- /STEP 271 -->
 </body>
 </html>
