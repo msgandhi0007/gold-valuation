@@ -25550,5 +25550,245 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <!-- /STEP 271 -->
+
+<!-- STEP 272 - ANDROID PDF APP HANDOFF FOR SBI + MGB + DNY -->
+
+<style id="standard-pdf-app-handoff-272-css">
+#standardPdfReady272{position:fixed;left:12px;right:12px;bottom:16px;z-index:2147483646;display:none;max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #d5b66b;border-radius:14px;box-shadow:0 10px 32px rgba(0,0,0,.22);padding:12px;font-family:Arial,sans-serif;color:#171717}
+#standardPdfReady272 .title272{font-size:15px;font-weight:900;margin-bottom:4px}
+#standardPdfReady272 .sub272{font-size:11px;line-height:1.35;color:#6a6257;margin-bottom:10px;word-break:break-word}
+#standardPdfReady272 .actions272{display:grid;grid-template-columns:1fr auto;gap:8px}
+#standardPdfReady272 button{min-height:44px;border-radius:10px;border:1px solid #b98a2e;font-weight:900;font-size:13px;padding:8px 12px}
+#standardPdfReady272 .open272{background:#1d1d1d;color:#fff;border-color:#1d1d1d}
+#standardPdfReady272 .close272{background:#fff;color:#4a4033}
+</style>
+<script id="standard-pdf-app-handoff-272-js">
+(function(){
+  'use strict';
+  if(window.__standardPdfAppHandoff272)return;
+  window.__standardPdfAppHandoff272=true;
+
+  var pending272=null;
+  var resetBusy272=false;
+
+  function bankName272(){
+    var b='';
+    try{
+      if(typeof window.selectedBankName==='function')b=window.selectedBankName()||'';
+      if(!b){var s=document.getElementById('mainBankSelect');if(s)b=s.value||'';}
+      if(!b){var h=document.getElementById('bankName');if(h)b=h.value||'';}
+      if(!b&&window.currentBank)b=window.currentBank;
+    }catch(e){}
+    return String(b||'').trim();
+  }
+  function code272(v){
+    var b=String(v||'').toUpperCase();
+    if(b.indexOf('IDBI')>=0)return 'IDBI';
+    if(b.indexOf('MAHARASHTRA GRAMIN')>=0)return 'MGB';
+    if(b.indexOf('DNYANDEEP')>=0)return 'DNY';
+    if(b.indexOf('SBI')>=0||b.indexOf('STATE BANK')>=0)return 'SBI';
+    return '';
+  }
+  function isStandard272(v){var c=code272(v);return c==='SBI'||c==='MGB'||c==='DNY';}
+  function safe272(v){
+    return String(v||'Valuation Certificate.pdf').replace(/[\\/:*?"<>|]+/g,'_').trim()||'Valuation Certificate.pdf';
+  }
+  function title272(bank){
+    var c=code272(bank);
+    if(c==='SBI')return 'SBI certificate is ready';
+    if(c==='MGB')return 'Maharashtra Gramin Bank certificate is ready';
+    if(c==='DNY')return 'Dnyandeep certificate is ready';
+    return 'Valuation certificate is ready';
+  }
+
+  function ensurePanel272(){
+    var box=document.getElementById('standardPdfReady272');
+    if(box)return box;
+    box=document.createElement('div');
+    box.id='standardPdfReady272';
+    box.innerHTML='<div class="title272" id="standardPdfReadyTitle272">📄 Certificate is ready</div><div class="sub272" id="standardPdfReadyName272"></div><div class="actions272"><button type="button" class="open272" id="standardPdfOpenApp272">OPEN PDF APP</button><button type="button" class="close272" id="standardPdfClose272">✕</button></div>';
+    document.body.appendChild(box);
+    box.querySelector('#standardPdfOpenApp272').addEventListener('click',function(){window.openPendingStandardPdfApp272();});
+    box.querySelector('#standardPdfClose272').addEventListener('click',function(){box.style.display='none';});
+    return box;
+  }
+
+  function download272(out){
+    var url=URL.createObjectURL(out.blob);
+    var a=document.createElement('a');
+    a.href=url;a.download=safe272(out.filename);a.style.display='none';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){try{URL.revokeObjectURL(url);}catch(e){}},5000);
+  }
+
+  async function shareToAndroid272(out){
+    if(!out||!out.blob)throw new Error('PDF is not ready.');
+    var file=new File([out.blob],safe272(out.filename),{type:'application/pdf'});
+    if(!navigator.share)throw new Error('Android app chooser is not available in this browser.');
+    if(navigator.canShare){
+      var ok=false;try{ok=navigator.canShare({files:[file]});}catch(e){ok=false;}
+      if(!ok)throw new Error('This browser cannot send PDF files to Android apps.');
+    }
+    await navigator.share({title:(pending272&&pending272.bank?pending272.bank+' ':'')+'Valuation Certificate',files:[file]});
+    return true;
+  }
+
+  function showReady272(out,bank){
+    pending272={blob:out.blob,filename:out.filename,bank:bank};
+    window._pendingStandardPdf272=pending272;
+    var box=ensurePanel272();
+    var t=box.querySelector('#standardPdfReadyTitle272');
+    var n=box.querySelector('#standardPdfReadyName272');
+    if(t)t.textContent='📄 '+title272(bank);
+    if(n)n.textContent=safe272(out.filename)+' — tap Open PDF App to send the certificate to an Android PDF app.';
+    box.style.display='block';
+  }
+
+  window.openPendingStandardPdfApp272=async function(){
+    var out=pending272||window._pendingStandardPdf272;
+    if(!out)return;
+    try{
+      pending272=out;
+      await shareToAndroid272(out);
+      var box=document.getElementById('standardPdfReady272');if(box)box.style.display='none';
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      console.warn('Standard-bank Android PDF handoff failed, downloading instead:',e);
+      download272(out);
+      alert('Android did not allow the PDF app handoff. The certificate was downloaded instead. Open it from Downloads with your PDF reader.');
+    }
+  };
+
+  async function saveCopy272(out){
+    try{
+      if(typeof window.saveCertificatePdfToCertificates==='function'){
+        await window.saveCertificatePdfToCertificates(out);
+      }else if(window.saveBlobToStorageFolder){
+        await window.saveBlobToStorageFolder(safe272(out.filename),out.blob,'Certificates');
+      }
+    }catch(e){console.warn('Standard certificate background folder save failed:',e);}
+  }
+
+  async function generate272(bank,tryImmediateChooser){
+    bank=bank||bankName272();
+    if(!isStandard272(bank))throw new Error('This PDF handoff is only for SBI, Maharashtra Gramin Bank and Dnyandeep.');
+    if(typeof window.buildCertificatePdf!=='function')throw new Error('Certificate PDF builder is unavailable.');
+    var out=await window.buildCertificatePdf();
+    if(!out||!out.blob)throw new Error('Certificate PDF was not created.');
+    setTimeout(function(){saveCopy272(out);},0);
+    pending272={blob:out.blob,filename:out.filename,bank:bank};
+    window._pendingStandardPdf272=pending272;
+    if(tryImmediateChooser){
+      try{
+        await shareToAndroid272(pending272);
+        return out;
+      }catch(e){
+        if(e&&e.name==='AbortError')return out;
+        if(!(e&&(e.name==='NotAllowedError'||e.name==='InvalidStateError'))){
+          console.warn('Immediate standard PDF app handoff unavailable:',e);
+        }
+      }
+    }
+    showReady272(out,bank);
+    return out;
+  }
+  window.generateStandardPdfToApp272=generate272;
+
+  /* Manual Valuation Certificate / PDF button for the three standard banks. */
+  var oldSaveCurrent272=window.saveCurrentCertificatePdf;
+  window.saveCurrentCertificatePdf=async function(){
+    var bank=bankName272();
+    if(isStandard272(bank)){
+      try{return await generate272(bank,true);}
+      catch(e){console.error(e);alert('Certificate PDF could not be generated. '+(e&&e.message?e.message:''));return;}
+    }
+    if(typeof oldSaveCurrent272==='function')return await oldSaveCurrent272.apply(this,arguments);
+  };
+  try{saveCurrentCertificatePdf=window.saveCurrentCertificatePdf;}catch(e){}
+
+  function unwrapSave272(fn){
+    var guard=0;
+    while(fn&&guard++<20){
+      if(fn.__singlePdf246&&fn.__original246){fn=fn.__original246;continue;}
+      if(fn.__step239&&fn.__original239){fn=fn.__original239;continue;}
+      if(fn.__step238&&fn.__original238){fn=fn.__original238;continue;}
+      if(fn.__certOnly237&&fn.__original237){fn=fn.__original237;continue;}
+      if(fn.__wrapped236&&fn.__original236){fn=fn.__original236;continue;}
+      break;
+    }
+    return fn;
+  }
+
+  var baseSave272=unwrapSave272(window.saveData);
+  if(typeof baseSave272==='function'){
+    window.saveData=async function(){
+      var bank=bankName272();
+      if(!isStandard272(bank))return await baseSave272.apply(this,arguments);
+
+      /* Obvious validation/locked-edit failures should never prepare a PDF. */
+      var shouldPrepare=true;
+      try{
+        if(window._editingValuationId&&!window._editUnlocked)shouldPrepare=false;
+        var nm=document.getElementById('customerName');
+        if(!nm||!String(nm.value||'').trim())shouldPrepare=false;
+        var valid=false;
+        document.querySelectorAll('#valuation-main-sections .item').forEach(function(el){
+          var name=(typeof window.getItemName==='function'?window.getItemName(el):(el.querySelector('.itemName')&&el.querySelector('.itemName').value))||'';
+          var g=Number(el.querySelector('.gross')&&el.querySelector('.gross').value||0);
+          var p=Number(el.querySelector('.purity')&&el.querySelector('.purity').value||0);
+          if(String(name).trim()&&g>0&&p>0)valid=true;
+        });
+        if(!valid)shouldPrepare=false;
+      }catch(e){}
+
+      var realReset=window.resetAfterSave;
+      var resetRequested=false;
+      if(shouldPrepare&&typeof realReset==='function'){
+        window.resetAfterSave=function(){resetRequested=true;};
+        try{resetAfterSave=window.resetAfterSave;}catch(e){}
+      }
+
+      var result,err=null;
+      try{result=await baseSave272.apply(this,arguments);}catch(e){err=e;}
+
+      if(shouldPrepare&&typeof realReset==='function'){
+        window.resetAfterSave=realReset;
+        try{resetAfterSave=realReset;}catch(e){}
+      }
+      if(err){
+        if(resetRequested&&typeof realReset==='function'&&!resetBusy272){try{realReset();}catch(e){}}
+        throw err;
+      }
+
+      if(shouldPrepare&&resetRequested){
+        /* Save is already complete. PDF work starts afterward and never opens a browser tab. */
+        setTimeout(function(){
+          generate272(bank,false).catch(function(e){console.error('Standard PDF after save:',e);})
+            .finally(function(){
+              if(typeof realReset==='function'&&!resetBusy272){
+                resetBusy272=true;
+                try{realReset();}catch(e){console.error(e);}finally{resetBusy272=false;}
+              }
+            });
+        },0);
+      }
+      return result;
+    };
+    window.saveData.__step272=true;
+    window.saveData.__original272=baseSave272;
+
+    /* Stop Steps 236/237/238/239/246 from attaching their old browser/download
+       certificate wrappers again during their delayed installation passes. */
+    window.saveData.__wrapped236=true;
+    window.saveData.__certOnly237=true;
+    window.saveData.__step238=true;
+    window.saveData.__step239=true;
+    window.saveData.__singlePdf246=true;
+    try{saveData=window.saveData;}catch(e){}
+  }
+})();
+
+</script>
+<!-- /STEP 272 -->
 </body>
 </html>
