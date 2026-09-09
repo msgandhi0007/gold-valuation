@@ -26246,5 +26246,161 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
 })();
 </script>
 <!-- /STEP 275 -->
+
+
+<!-- STEP 276 - BANK LOGO SYNC + ISOLATED CERTIFICATE RENDER -->
+<script id="step276-logo-sync-isolated-render">
+(function(){
+  'use strict';
+  if(window.__step276Installed)return;
+  window.__step276Installed=true;
+
+  function norm276(v){
+    v=String(v||'').trim().toUpperCase();
+    if(v.indexOf('IDBI')>=0)return 'IDBI BANK';
+    if(v.indexOf('MAHARASHTRA')>=0&&v.indexOf('GRAMIN')>=0)return 'MAHARASHTRA GRAMIN BANK';
+    if(v.indexOf('DNYANDEEP')>=0)return 'DNYANDEEP CO-OP SOCIETY LTD, MUMBAI';
+    if(v.indexOf('SBI')>=0||v.indexOf('STATE BANK')>=0)return 'SBI BANK';
+    return v;
+  }
+
+  function activeBank276(){
+    var std=document.getElementById('valuationBankBrand209');
+    var idb=document.getElementById('idbiBankBrand209');
+    var b='';
+    if(std&&std.offsetParent!==null)b=std.getAttribute('data-bank213')||'';
+    if(!b&&idb&&idb.offsetParent!==null)b='IDBI BANK';
+    if(!b){var x=document.getElementById('mainBankSelect');if(x)b=x.value||'';}
+    if(!b){var h=document.getElementById('bankName');if(h)b=h.value||'';}
+    return norm276(b);
+  }
+
+  function homeLogo276(bank){
+    var home=document.getElementById('bankHome');
+    if(!home)return '';
+    var cards=home.querySelectorAll('button,[role="button"],.bank-card,.bankCard,.bank-option,.bankOption');
+    for(var i=0;i<cards.length;i++){
+      var t=norm276(cards[i].textContent||'');
+      var match=(bank==='DNYANDEEP CO-OP SOCIETY LTD, MUMBAI')?t.indexOf('DNYANDEEP')>=0:t.indexOf(bank)>=0;
+      if(match){
+        var im=cards[i].querySelector('img');
+        if(im&&im.src)return im.src;
+      }
+    }
+    /* Fallback: locate an image whose nearest text container names the bank. */
+    var imgs=home.querySelectorAll('img');
+    for(var j=0;j<imgs.length;j++){
+      var n=imgs[j],par=n.parentElement;
+      for(var k=0;k<4&&par;k++,par=par.parentElement){
+        var txt=norm276(par.textContent||'');
+        var ok=(bank==='DNYANDEEP CO-OP SOCIETY LTD, MUMBAI')?txt.indexOf('DNYANDEEP')>=0:txt.indexOf(bank)>=0;
+        if(ok&&n.src)return n.src;
+      }
+    }
+    return '';
+  }
+
+  function syncLogo276(){
+    var bank=activeBank276();
+    if(!bank)return;
+    var img=(bank==='IDBI BANK')?document.getElementById('idbiBankLogo209'):document.getElementById('valuationBankLogo209');
+    if(!img)return;
+    var src=homeLogo276(bank);
+    if(src&&img.src!==src){img.src=src;img.alt=bank+' logo';}
+  }
+  window.syncValuationBankLogo276=syncLogo276;
+
+  function watchLogo276(){
+    var brand=document.getElementById('valuationBankBrand209');
+    if(brand&&window.MutationObserver){
+      new MutationObserver(function(){syncLogo276();}).observe(brand,{attributes:true,attributeFilter:['data-bank213'],childList:true,subtree:true});
+    }
+    ['mainBankSelect','bankName'].forEach(function(id){
+      var e=document.getElementById(id);if(e)e.addEventListener('change',function(){setTimeout(syncLogo276,0);});
+    });
+    document.addEventListener('click',function(){setTimeout(syncLogo276,0);setTimeout(syncLogo276,80);},true);
+    [0,100,350,900,1800].forEach(function(ms){setTimeout(syncLogo276,ms);});
+  }
+
+  /* html2canvas normally clones the entire application document before rendering
+     one certificate.  This app is very large, so that document clone dominates the
+     5-8 second mobile render time.  Certificate targets are copied, with their
+     computed styles, into a tiny same-origin iframe first.  html2canvas then clones
+     only that tiny document.  If a browser rejects the isolated path, fall back to
+     the original renderer so certificate generation still works. */
+  var native276=window.html2canvas;
+  function isCertificateTarget276(el){
+    if(!el||!el.nodeType)return false;
+    if(el.id==='certificate'||el.id==='sbiCertificate223'||el.id==='idbiPage1Holder233')return true;
+    return !!(el.closest&&el.closest('#certificate,#sbiCertificate223,#idbiPage1Holder233'));
+  }
+
+  function copyComputed276(src,dst){
+    if(!src||!dst||src.nodeType!==1||dst.nodeType!==1)return;
+    try{
+      var cs=window.getComputedStyle(src);
+      for(var i=0;i<cs.length;i++){
+        var prop=cs[i];
+        dst.style.setProperty(prop,cs.getPropertyValue(prop),cs.getPropertyPriority(prop));
+      }
+    }catch(e){}
+    var a=src.children||[],b=dst.children||[];
+    for(var j=0;j<a.length&&j<b.length;j++)copyComputed276(a[j],b[j]);
+  }
+
+  async function isolated276(el,opts){
+    var frame=document.createElement('iframe');
+    var w=Math.max(320,Math.ceil(el.getBoundingClientRect().width||el.scrollWidth||780)+8);
+    var h=Math.max(480,Math.ceil(el.scrollHeight||el.getBoundingClientRect().height||1122)+8);
+    frame.setAttribute('aria-hidden','true');
+    frame.style.cssText='position:fixed;left:-20000px;top:0;border:0;visibility:hidden;pointer-events:none;width:'+w+'px;height:'+h+'px;z-index:-2147483647;';
+    document.body.appendChild(frame);
+    try{
+      var d=frame.contentDocument||frame.contentWindow.document;
+      d.open();
+      d.write('<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#fff;overflow:visible"></body></html>');
+      d.close();
+      var clone=el.cloneNode(true);
+      copyComputed276(el,clone);
+      clone.style.setProperty('display','block','important');
+      clone.style.setProperty('position','relative','important');
+      clone.style.setProperty('left','0','important');
+      clone.style.setProperty('top','0','important');
+      clone.style.setProperty('z-index','0','important');
+      clone.style.setProperty('visibility','visible','important');
+      d.body.appendChild(clone);
+      await new Promise(function(resolve){frame.contentWindow.requestAnimationFrame(function(){resolve();});});
+      var o=Object.assign({},opts||{});
+      o.scale=1;
+      o.logging=false;
+      o.imageTimeout=0;
+      o.removeContainer=true;
+      o.backgroundColor=o.backgroundColor||'#ffffff';
+      return await native276(clone,o);
+    }finally{
+      frame.remove();
+    }
+  }
+
+  if(typeof native276==='function'&&!native276.__step276){
+    var fast276=async function(el,opts){
+      if(!isCertificateTarget276(el))return await native276.apply(this,arguments);
+      try{return await isolated276(el,opts);}catch(e){
+        console.warn('Step 276 isolated certificate render fallback:',e);
+        var o=Object.assign({},opts||{});o.scale=1;o.imageTimeout=0;o.logging=false;
+        return await native276(el,o);
+      }
+    };
+    fast276.__step276=true;
+    fast276.__original276=native276;
+    window.html2canvas=fast276;
+    try{html2canvas=fast276;}catch(e){}
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watchLogo276,{once:true});
+  else watchLogo276();
+})();
+</script>
+<!-- /STEP 276 -->
 </body>
 </html>
