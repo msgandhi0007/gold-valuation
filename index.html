@@ -26833,5 +26833,162 @@ body.bank-home-mode>.app{
 })();
 </script>
 <!-- /STEP 280 -->
+
+<!-- STEP 281 - BANK HOME DEDICATED MOBILE SCROLLER / NO BLANK OVERSCROLL -->
+<style id="step281-bankhome-scroller-css">
+html.gv281-bank-home,
+html.gv281-bank-home body{
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.bankHomeMode #bankHome,
+body.bank-home-mode #bankHome{
+  display:block!important;
+  position:fixed!important;
+  top:0!important;
+  bottom:0!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  max-width:520px!important;
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh!important;
+  margin:0 auto!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:none!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  transform:none!important;
+  z-index:20!important;
+}
+</style>
+<script id="step281-bankhome-scroller-js">
+(function(){
+  'use strict';
+  if(window.__gvStep281)return;
+  window.__gvStep281=true;
+
+  var home=null,startY=0,lastY=0,guardInstalled=false;
+
+  function isHome281(){
+    var b=document.body;
+    return !!(b&&(b.classList.contains('bankHomeMode')||b.classList.contains('bank-home-mode')));
+  }
+
+  function apply281(resetTop){
+    if(!isHome281())return;
+    var h=document.documentElement,b=document.body;
+    home=document.getElementById('bankHome');
+    if(!home)return;
+
+    h.classList.add('gv281-bank-home');
+    h.style.setProperty('overflow','hidden','important');
+    h.style.setProperty('height','100%','important');
+    h.style.setProperty('max-height','100%','important');
+    h.style.setProperty('overscroll-behavior','none','important');
+    b.style.setProperty('overflow','hidden','important');
+    b.style.setProperty('height','100%','important');
+    b.style.setProperty('max-height','100%','important');
+    b.style.setProperty('overscroll-behavior','none','important');
+
+    home.style.setProperty('display','block','important');
+    home.style.setProperty('position','fixed','important');
+    home.style.setProperty('top','0','important');
+    home.style.setProperty('bottom','0','important');
+    home.style.setProperty('left','0','important');
+    home.style.setProperty('right','0','important');
+    home.style.setProperty('width','100%','important');
+    home.style.setProperty('max-width','520px','important');
+    home.style.setProperty('height','100dvh','important');
+    home.style.setProperty('min-height','0','important');
+    home.style.setProperty('max-height','100dvh','important');
+    home.style.setProperty('margin','0 auto','important');
+    home.style.setProperty('overflow-x','hidden','important');
+    home.style.setProperty('overflow-y','auto','important');
+    home.style.setProperty('overscroll-behavior-y','none','important');
+    home.style.setProperty('-webkit-overflow-scrolling','touch','important');
+    home.style.setProperty('touch-action','pan-y','important');
+    home.style.setProperty('transform','none','important');
+
+    if(resetTop===true) home.scrollTop=0;
+    installGuard281();
+  }
+
+  function release281(){
+    var h=document.documentElement,b=document.body;
+    h.classList.remove('gv281-bank-home');
+    if(home){
+      ['position','top','bottom','left','right','width','height','min-height','max-height','margin','overflow-x','overflow-y','overscroll-behavior-y','-webkit-overflow-scrolling','touch-action','transform','z-index'].forEach(function(k){home.style.removeProperty(k);});
+    }
+    /* Let the existing valuation/storage screen controllers own scrolling again. */
+    h.style.removeProperty('overflow');
+    h.style.removeProperty('height');
+    h.style.removeProperty('max-height');
+    h.style.removeProperty('overscroll-behavior');
+    b.style.removeProperty('overflow');
+    b.style.removeProperty('height');
+    b.style.removeProperty('max-height');
+    b.style.removeProperty('overscroll-behavior');
+  }
+
+  function installGuard281(){
+    if(!home||guardInstalled)return;
+    guardInstalled=true;
+    home.addEventListener('touchstart',function(e){
+      if(!isHome281()||!e.touches||!e.touches.length)return;
+      startY=lastY=e.touches[0].clientY;
+    },{passive:true});
+    home.addEventListener('touchmove',function(e){
+      if(!isHome281()||!e.touches||!e.touches.length)return;
+      var y=e.touches[0].clientY;
+      var dy=y-lastY;
+      lastY=y;
+      var atTop=home.scrollTop<=0;
+      var atBottom=(home.scrollTop+home.clientHeight)>=home.scrollHeight-1;
+      /* Block only the elastic motion outside the real content. Normal scrolling stays free. */
+      if((atTop&&dy>0)||(atBottom&&dy<0)){
+        if(e.cancelable)e.preventDefault();
+      }
+    },{passive:false});
+  }
+
+  function observe281(){
+    var b=document.body;if(!b)return;
+    var wasHome=isHome281();
+    if(wasHome) requestAnimationFrame(function(){apply281(false);});
+    new MutationObserver(function(){
+      var now=isHome281();
+      if(now){
+        requestAnimationFrame(function(){apply281(!wasHome);});
+        setTimeout(function(){apply281(false);},40);
+      }else if(wasHome){
+        release281();
+      }
+      wasHome=now;
+    }).observe(b,{attributes:true,attributeFilter:['class']});
+  }
+
+  /* Back/Home functions may still contain older inline scroll code. Run after them. */
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!btn)return;
+    var txt=(btn.textContent||'')+' '+(btn.getAttribute('onclick')||'');
+    if(/Back to Bank Selection|backToBankSelection|idbiBackToBankHome|showBankHome/i.test(txt)){
+      setTimeout(function(){if(isHome281())apply281(true);},0);
+      setTimeout(function(){if(isHome281())apply281(false);},80);
+    }
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe281,{once:true});
+  else observe281();
+})();
+</script>
+<!-- /STEP 281 -->
 </body>
 </html>
