@@ -25761,16 +25761,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
 
       if(shouldPrepare&&resetRequested){
-        /* Save is already complete. PDF work starts afterward and never opens a browser tab. */
-        setTimeout(function(){
-          generate272(bank,false).catch(function(e){console.error('Standard PDF after save:',e);})
-            .finally(function(){
-              if(typeof realReset==='function'&&!resetBusy272){
-                resetBusy272=true;
-                try{realReset();}catch(e){console.error(e);}finally{resetBusy272=false;}
-              }
-            });
-        },0);
+        /* STEP 273 PERFORMANCE: start the certificate builder while the saved values are
+           still present so it can synchronously populate its hidden certificate DOM,
+           then reset the valuation screen immediately.  Do NOT make the user wait for
+           html2canvas/PDF generation before Save visibly completes. */
+        var pdfPromise272=null;
+        try{ pdfPromise272=generate272(bank,false); }
+        catch(e){ console.error('Standard PDF start after save:',e); }
+        if(typeof realReset==='function'&&!resetBusy272){
+          resetBusy272=true;
+          try{realReset();}catch(e){console.error(e);}finally{resetBusy272=false;}
+        }
+        if(pdfPromise272 && typeof pdfPromise272.catch==='function'){
+          pdfPromise272.catch(function(e){console.error('Standard PDF after save:',e);});
+        }
       }
       return result;
     };
@@ -25790,5 +25794,196 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 </script>
 <!-- /STEP 272 -->
+
+
+<!-- STEP 273 - RESTORE SAVED-VALUATION SHELL + MOBILE SCROLL + FAST SAVE CONTROLLER -->
+<style id="step273-saved-open-scroll-fix-css">
+/* A saved-valuation overlay intentionally locks body scroll while it is open.
+   Once a valuation is opened/closed/saved, always restore normal vertical scrolling. */
+html,body{overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important}
+body:not(.savedClean168Open){overflow-y:auto!important;height:auto!important;min-height:100%!important;touch-action:pan-y!important}
+body:not(.bankHomeMode):not(.bank-home-mode):not(.storageMode):not(.storage-backup-mode):not(.savedClean168Open)>.app{
+  display:block!important;height:auto!important;min-height:100vh!important;overflow:visible!important
+}
+#valuation-main-sections,#idbi-valuation-screen{max-height:none!important;overflow:visible!important}
+</style>
+<script id="step273-saved-open-scroll-fast-save-js">
+(function(){
+  'use strict';
+  if(window.__step273Installed)return;
+  window.__step273Installed=true;
+  var saveBusy273=false;
+
+  function utilityMode273(){
+    var b=document.body;
+    return b.classList.contains('bankHomeMode')||b.classList.contains('bank-home-mode')||
+      b.classList.contains('storageMode')||b.classList.contains('storage-backup-mode')||
+      b.classList.contains('savedClean168Open');
+  }
+
+  function unlockScroll273(){
+    try{
+      var html=document.documentElement,body=document.body;
+      html.style.setProperty('overflow-x','hidden','important');
+      html.style.setProperty('overflow-y','auto','important');
+      html.style.setProperty('height','auto','important');
+      body.style.removeProperty('overflow');
+      body.style.setProperty('overflow-x','hidden','important');
+      if(!body.classList.contains('savedClean168Open')){
+        body.style.setProperty('overflow-y','auto','important');
+        body.style.setProperty('height','auto','important');
+        body.style.setProperty('min-height','100vh','important');
+        body.style.setProperty('touch-action','pan-y','important');
+      }
+    }catch(e){}
+  }
+
+  function restoreAppShell273(){
+    try{
+      if(utilityMode273()){unlockScroll273();return;}
+      var app=document.querySelector('body > .app');
+      if(app){
+        /* showBankHome/final-gap code writes inline !important display:none on .app.
+           Saved Valuations previously returned directly to a valuation without clearing it,
+           causing the blank screen shown on Android. */
+        ['display','height','min-height','padding','margin','overflow'].forEach(function(k){app.style.removeProperty(k);});
+        app.style.setProperty('display','block','important');
+        app.style.setProperty('height','auto','important');
+        app.style.setProperty('min-height','100vh','important');
+        app.style.setProperty('overflow','visible','important');
+      }
+      unlockScroll273();
+    }catch(e){}
+  }
+  window.gvRestoreValuationShell273=restoreAppShell273;
+
+  function closeSavedOverlayOnly273(){
+    try{
+      var x=document.getElementById('savedClean168');
+      if(x){x.style.display='none';x.setAttribute('aria-hidden','true');}
+      document.body.classList.remove('savedClean168Open','savedHomeMode');
+      var old=document.getElementById('saveManager');
+      if(old){old.style.display='none';old.classList.remove('open');}
+    }catch(e){}
+    restoreAppShell273();
+  }
+
+  /* Do not call closeSavedClean168() here: that routine intentionally opens Bank Home,
+     which hides the .app shell immediately before the direct saved-record router runs. */
+  window.openSavedCleanItem168=function(i){
+    closeSavedOverlayOnly273();
+    setTimeout(function(){
+      restoreAppShell273();
+      try{
+        if(typeof window.openSavedDirectFinal==='function')window.openSavedDirectFinal(i);
+        else if(typeof window.loadSaved==='function')window.loadSaved(i);
+      }catch(e){console.error(e);alert('Could not open this valuation.');}
+      setTimeout(restoreAppShell273,0);
+      setTimeout(restoreAppShell273,120);
+      setTimeout(function(){unlockScroll273();window.scrollTo(0,0);},220);
+    },0);
+    return false;
+  };
+
+  var direct273=window.openSavedDirectFinal;
+  if(typeof direct273==='function'&&!direct273.__step273){
+    var wrappedDirect273=function(){
+      closeSavedOverlayOnly273();
+      restoreAppShell273();
+      var r=direct273.apply(this,arguments);
+      restoreAppShell273();
+      setTimeout(restoreAppShell273,30);
+      setTimeout(restoreAppShell273,180);
+      setTimeout(function(){unlockScroll273();window.scrollTo(0,0);},260);
+      return r;
+    };
+    wrappedDirect273.__step273=true;
+    wrappedDirect273.__original273=direct273;
+    window.openSavedDirectFinal=wrappedDirect273;
+  }
+
+  function wrapReset273(){
+    var old=window.resetAfterSave;
+    if(typeof old!=='function'||old.__step273)return;
+    var fn=function(){
+      var r=old.apply(this,arguments);
+      restoreAppShell273();
+      setTimeout(restoreAppShell273,0);
+      setTimeout(unlockScroll273,80);
+      return r;
+    };
+    fn.__step273=true;fn.__original273=old;
+    window.resetAfterSave=fn;
+    try{resetAfterSave=fn;}catch(e){}
+  }
+
+  function wrapIdbiReset273(){
+    var old=window.idbiReset;
+    if(typeof old!=='function'||old.__step273)return;
+    var fn=function(){var r=old.apply(this,arguments);restoreAppShell273();setTimeout(unlockScroll273,30);return r;};
+    fn.__step273=true;fn.__original273=old;window.idbiReset=fn;
+  }
+
+  /* FAST SAVE: the former Step 266 awaited Android storage-folder permission before
+     calling the real save. On some phones that costs several seconds. App/local save
+     now happens first. Folder copies and auto backup remain background work owned by
+     the existing save/backup routines and therefore never block the Save button. */
+  window.gvSaveWithBackup266=async function(kind){
+    if(saveBusy273)return false;
+    saveBusy273=true;
+    var before='';
+    var backupStampBefore='';
+    try{before=localStorage.getItem('goldValuations')||'[]';backupStampBefore=localStorage.getItem('goldValuationLastAutoBackup')||'';}catch(e){}
+    try{
+      restoreAppShell273();
+      if(kind==='idbi'){
+        if(typeof window.idbiSaveData!=='function')throw new Error('IDBI Save function is unavailable.');
+        await window.idbiSaveData();
+      }else{
+        if(typeof window.saveData!=='function')throw new Error('Save function is unavailable.');
+        await window.saveData();
+      }
+      restoreAppShell273();
+      unlockScroll273();
+
+      /* If a previously authorized storage handle is already active, refresh the full
+         backup when the browser is idle. Never request Android permission in this path. */
+      var after='';try{after=localStorage.getItem('goldValuations')||'[]';}catch(e){}
+      if(after!==before && localStorage.getItem('goldValuationAutoBackupEnabled')!=='false'){
+        var idleBackup273=function(){
+          try{
+            /* Step 258 may already have completed the backup. Only run this fallback
+               if no newer backup timestamp appeared after this Save. */
+            var nowStamp=localStorage.getItem('goldValuationLastAutoBackup')||'';
+            if(nowStamp===backupStampBefore && window.__gvActiveStorageHandle262 && typeof window.gvAutomaticFullBackup==='function'){
+              Promise.resolve(window.gvAutomaticFullBackup()).catch(function(e){console.warn('Step 273 idle backup failed',e);});
+            }
+          }catch(e){}
+        };
+        if('requestIdleCallback' in window)requestIdleCallback(idleBackup273,{timeout:10000});
+        else setTimeout(idleBackup273,1800);
+      }
+      return true;
+    }catch(e){
+      console.error('Fast Save failed',e);
+      return false;
+    }finally{
+      saveBusy273=false;
+      restoreAppShell273();
+      unlockScroll273();
+    }
+  };
+
+  function install273(){
+    wrapReset273();wrapIdbiReset273();restoreAppShell273();unlockScroll273();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(install273,50);});
+  else setTimeout(install273,0);
+  /* Re-apply after delayed legacy installers finish. */
+  setTimeout(install273,1200);setTimeout(install273,5200);
+  document.addEventListener('click',function(){setTimeout(unlockScroll273,20);},true);
+})();
+</script>
+<!-- /STEP 273 -->
 </body>
 </html>
