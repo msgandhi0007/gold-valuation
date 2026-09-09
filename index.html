@@ -14351,7 +14351,10 @@ body.savedClean168Open>footer{display:none!important}body.savedClean168Open{over
 
   // All valuation file saves use the same stored handle.
   window.saveBlobToStorageFolder=async function(name,blob,subfolder){
-    const h=await selectedHandle(true);if(!h)return false;
+    /* STEP 278: Passive background storage write. Never trigger Android's
+       read/write permission prompt from valuation Save/certificate generation.
+       Permission is granted only from explicit Storage & Backup actions. */
+    const h=await selectedHandle(false);if(!h)return false;
     /* STEP 262: remember the exact handle that just succeeded under the user's Save tap. */
     window.__gvActiveStorageHandle262=h;
     await ensure(h);
@@ -24952,11 +24955,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
       var p='granted';
       if(h.queryPermission)p=await h.queryPermission({mode:'readwrite'});
-      /* IMPORTANT: this function is entered directly by the user's Save tap,
-         so Android permits requestPermission here. */
-      if(p!=='granted' && h.requestPermission){
-        p=await h.requestPermission({mode:'readwrite'});
-      }
+      /* STEP 278: Do not request storage permission from the Save tap.
+         Repeated File System Access permission prompts were appearing once or
+         twice after every valuation. A save must stay local/non-blocking when
+         the remembered folder is not currently authorized. The user can grant
+         access explicitly from Storage & Backup. */
       return p==='granted' ? h : null;
     }catch(e){
       console.warn('Step 266 storage permission failed',e);
@@ -26552,5 +26555,8 @@ body.gv274-idbi-active #idbi-valuation-screen{display:block!important;visibility
 })();
 </script>
 <!-- /STEP 277 -->
+
+<!-- STEP 278 - NO AUTOMATIC STORAGE PERMISSION PROMPTS ON VALUATION SAVE -->
+<!-- Storage permission is now passive during Save/PDF background writes. -->
 </body>
 </html>
