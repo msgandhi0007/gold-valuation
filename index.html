@@ -8082,20 +8082,25 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   }
 
+  /* STEP 289 - IDBI Add New Item must always open the next jewellery card.
+     Do not block adding a row just because the current row has no Gross Weight yet. */
   window.idbiAddRow=function(){
     var cards=document.querySelectorAll('#idbiRows .idbi-item-card');
+    if(!cards.length){
+      idbiRows();
+      cards=document.querySelectorAll('#idbiRows .idbi-item-card');
+    }
     for(var i=0;i<cards.length;i++){
-      var card=cards[i], gw=document.getElementById('idbiGW'+(i+1));
-      if(card.style.display==='none'){
+      var card=cards[i];
+      var hidden=(card.style.display==='none' || window.getComputedStyle(card).display==='none');
+      if(hidden){
         card.style.display='block';
         var item=document.getElementById('idbiItem'+(i+1));
-        if(item)item.focus();
+        if(item){
+          try{ item.focus({preventScroll:true}); }catch(e){ item.focus(); }
+          try{ item.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+        }
         idbiCalculate();
-        return;
-      }
-      if(gw && !gw.value){
-        var item2=document.getElementById('idbiItem'+(i+1));
-        if(item2)item2.focus();
         return;
       }
     }
