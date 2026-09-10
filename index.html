@@ -27481,3 +27481,79 @@ body.dny-cert-248 #certificate .cert-note{
 })();
 </script>
 <!-- /STEP 283 -->
+
+
+<!-- STEP 285 - FINAL RELIABLE AUTO BACKUP AFTER EVERY SUCCESSFUL SAVE -->
+<script id="step285-final-auto-backup-after-save">
+(function(){
+  'use strict';
+  if(window.__step285Installed)return;
+  window.__step285Installed=true;
+
+  function enabled285(){return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+  function state285(){try{return localStorage.getItem('goldValuations')||'[]';}catch(e){return '[]';}}
+  function raw285(){var o={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);o[k]=localStorage.getItem(k);}return o;}
+  function status285(now){
+    try{
+      var e=document.getElementById('sbAutoBackupStatus');if(!e)return;
+      var t=now||new Date(localStorage.getItem('goldValuationLastAutoBackup')||'');
+      var when=(t&&Number.isFinite(t.getTime()))?t.toLocaleString('en-IN'):'Never';
+      e.textContent='Auto Backup: ON ✓\nLast automatic backup: '+when+'\nFile: Backups/Auto_Backup_Latest.json';
+    }catch(e){}
+  }
+  async function handle285(){
+    try{
+      var h=null;
+      if(typeof window.gvGetSelectedStorageHandle==='function') h=await window.gvGetSelectedStorageHandle(false);
+      if(!h && window.gvStorage && typeof window.gvStorage.getUsableHandle==='function') h=await window.gvStorage.getUsableHandle(false);
+      if(!h && window.__gvActiveStorageHandle262){
+        h=window.__gvActiveStorageHandle262;
+        if(h.queryPermission && await h.queryPermission({mode:'readwrite'})!=='granted')h=null;
+      }
+      if(h)window.__gvActiveStorageHandle262=h;
+      return h;
+    }catch(e){return null;}
+  }
+  async function write285(dir,name,blob){var f=await dir.getFileHandle(name,{create:true});var w=await f.createWritable();await w.write(blob);await w.close();}
+  async function backup285(){
+    if(!enabled285()||window.__step285Busy)return false;
+    window.__step285Busy=true;
+    try{
+      var h=await handle285();if(!h)return false;
+      var data=raw285(),vals=[];try{var a=JSON.parse(data.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      var now=new Date();
+      var payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V9',version:9,backupType:'automatic',createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(data).length},rawData:data};
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      var dir=await h.getDirectoryHandle('Backups',{create:true});
+      await write285(dir,'Auto_Backup_Latest.json',blob);
+      try{var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');await write285(dir,'Auto_Backup_'+day+'.json',blob);}catch(e){}
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      status285(now);return true;
+    }catch(e){console.warn('Step 285 auto backup failed',e);return false;}
+    finally{window.__step285Busy=false;}
+  }
+  window.gvAutomaticFullBackup285=backup285;
+
+  function install285(){
+    var old=window.gvSaveWithBackup266;
+    if(typeof old!=='function'||old.__step285)return;
+    var fn=async function(){
+      var before=state285();
+      var result=await old.apply(this,arguments);
+      var after=state285();
+      if(after!==before&&enabled285()){
+        /* Save is already complete. Refresh the backup shortly afterwards without
+           requesting Android folder permission and without delaying the PDF. */
+        setTimeout(function(){backup285();},700);
+      }
+      return result;
+    };
+    fn.__step285=true;fn.__original285=old;window.gvSaveWithBackup266=fn;
+  }
+  install285();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install285,{once:true});
+  [1200,5200,9000].forEach(function(ms){setTimeout(install285,ms);});
+})();
+</script>
+<!-- /STEP 285 -->
