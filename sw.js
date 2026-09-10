@@ -1,4 +1,4 @@
-const CACHE_NAME = "gold-valuation-clean-20260909";
+const CACHE_NAME = "gold-valuation-clean-20260910-step287";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
