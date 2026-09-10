@@ -27557,3 +27557,188 @@ body.dny-cert-248 #certificate .cert-note{
 })();
 </script>
 <!-- /STEP 285 -->
+
+
+<!-- STEP 286 - AUTO BACKUP AFTER CONFIRMED VALUATION FILE WRITE -->
+<script id="step286-autobackup-after-confirmed-file-write">
+(function(){
+  'use strict';
+  if(window.__step286Installed)return;
+  window.__step286Installed=true;
+
+  function enabled286(){
+    try{return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+    catch(e){return true;}
+  }
+
+  function raw286(){
+    var out={};
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        out[k]=localStorage.getItem(k);
+      }
+    }catch(e){}
+    return out;
+  }
+
+  function refresh286(now){
+    try{
+      var el=document.getElementById('sbAutoBackupStatus');
+      if(!el)return;
+      if(!enabled286()){
+        el.textContent='Auto Backup: OFF\nTurn it on to create a full backup after every successful valuation save.';
+        return;
+      }
+      var d=now;
+      if(!d){
+        var s=localStorage.getItem('goldValuationLastAutoBackup')||'';
+        d=s?new Date(s):null;
+      }
+      var when=(d&&Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
+      el.textContent='Auto Backup: ON ✓\nLast automatic backup: '+when+
+        '\nFile: Backups/Auto_Backup_Latest.json';
+    }catch(e){}
+  }
+
+  function buildBlob286(now){
+    var raw=raw286(), vals=[];
+    try{
+      var a=JSON.parse(raw.goldValuations||'[]');
+      if(Array.isArray(a))vals=a;
+    }catch(e){}
+    var payload={
+      app:'RAJENDRA JEWELLERS GOLD VALUATION APP',
+      format:'GOLD_VALUATION_BACKUP_V10',
+      version:10,
+      backupType:'automatic',
+      createdAt:now.toISOString(),
+      summary:{valuations:vals.length,storageKeys:Object.keys(raw).length},
+      rawData:raw
+    };
+    return new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  }
+
+  var backupTimer286=null;
+  var backupBusy286=false;
+
+  async function run286(saveFn){
+    if(!enabled286()||backupBusy286||typeof saveFn!=='function')return false;
+    backupBusy286=true;
+    try{
+      var now=new Date();
+      var blob=buildBlob286(now);
+
+      /* Use the exact storage writer that has just successfully written the
+         valuation file. At this point Android folder access is already active. */
+      var ok=await saveFn('Auto_Backup_Latest.json',blob,'Backups');
+      if(!ok)return false;
+
+      /* Daily copy is best-effort; Latest is the required automatic backup. */
+      try{
+        var day=now.getFullYear()+'-'+
+          String(now.getMonth()+1).padStart(2,'0')+'-'+
+          String(now.getDate()).padStart(2,'0');
+        await saveFn('Auto_Backup_'+day+'.json',blob,'Backups');
+      }catch(e){}
+
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      localStorage.setItem('goldValuationAutoBackupPending286','0');
+      refresh286(now);
+      return true;
+    }catch(e){
+      console.warn('Step 286 automatic backup failed',e);
+      try{localStorage.setItem('goldValuationAutoBackupPending286','1');}catch(_){}
+      return false;
+    }finally{
+      backupBusy286=false;
+    }
+  }
+
+  function schedule286(saveFn){
+    if(!enabled286())return;
+    try{localStorage.setItem('goldValuationAutoBackupPending286','1');}catch(e){}
+    if(backupTimer286)clearTimeout(backupTimer286);
+    /* Coalesce SBI/IDBI valuation + protected-copy writes into one full backup. */
+    backupTimer286=setTimeout(function(){
+      backupTimer286=null;
+      Promise.resolve(run286(saveFn)).catch(function(){});
+    },500);
+  }
+
+  function install286(){
+    var old=window.saveBlobToStorageFolder;
+    if(typeof old!=='function'||old.__step286)return;
+
+    async function wrapped286(filename,blob,subfolder){
+      var result=await old.apply(this,arguments);
+
+      /* This is the authoritative trigger: only a confirmed successful valuation
+         file write starts Auto Backup. Backup writes themselves never retrigger it. */
+      if(result && String(subfolder||'').replace(/^\/+|\/+$/g,'')==='Valuations'){
+        schedule286(old);
+      }
+      return result;
+    }
+
+    wrapped286.__step286=true;
+    wrapped286.__original286=old;
+    window.saveBlobToStorageFolder=wrapped286;
+  }
+
+  function latestValuation286(){
+    try{
+      var a=JSON.parse(localStorage.getItem('goldValuations')||'[]');
+      if(!Array.isArray(a))return 0;
+      var best=0;
+      a.forEach(function(r){
+        var t=Date.parse((r&&r.modifiedAt)||(r&&r.updatedAt)||(r&&r.createdAt)||(r&&r.savedAt)||'');
+        if(Number.isFinite(t)&&t>best)best=t;
+        var id=Number(r&&r.id);
+        if(Number.isFinite(id)&&id>1000000000000&&id>best)best=id;
+      });
+      return best;
+    }catch(e){return 0;}
+  }
+
+  /* Keep the existing useful catch-up behavior when Storage & Backup is opened.
+     This does not alter normal Save behavior. */
+  function installStorage286(){
+    var old=window.openStorageBackupScreen;
+    if(typeof old!=='function'||old.__step286)return;
+    var fn=function(){
+      var r=old.apply(this,arguments);
+      setTimeout(function(){
+        refresh286();
+        try{
+          var last=Date.parse(localStorage.getItem('goldValuationLastAutoBackup')||'')||0;
+          if(enabled286() && latestValuation286()>last){
+            var writer=window.saveBlobToStorageFolder;
+            var base=(writer&&writer.__step286&&writer.__original286)?writer.__original286:writer;
+            if(typeof base==='function')Promise.resolve(run286(base)).catch(function(){});
+          }
+        }catch(e){}
+      },350);
+      return r;
+    };
+    fn.__step286=true;
+    fn.__original286=old;
+    window.openStorageBackupScreen=fn;
+  }
+
+  function installAll286(){
+    install286();
+    installStorage286();
+    refresh286();
+  }
+
+  installAll286();
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',installAll286,{once:true});
+  }
+  [800,2500,5500,9000].forEach(function(ms){setTimeout(installAll286,ms);});
+})();
+</script>
+<!-- /STEP 286 -->
+
