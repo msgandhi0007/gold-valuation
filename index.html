@@ -27742,3 +27742,111 @@ body.dny-cert-248 #certificate .cert-note{
 </script>
 <!-- /STEP 286 -->
 
+
+<!-- STEP 287 - RELIABLE AUTO BACKUP: AUTHORIZE ON SAVE TAP, THEN BACK UP AFTER LOCAL SAVE -->
+<script id="step287-reliable-autobackup-save-tap">
+(function(){
+  'use strict';
+  if(window.__step287Installed)return;
+  window.__step287Installed=true;
+
+  function enabled287(){
+    try{return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}
+    catch(e){return true;}
+  }
+  function state287(){
+    try{return localStorage.getItem('goldValuations')||'[]';}
+    catch(e){return '[]';}
+  }
+  async function remembered287(){
+    try{
+      if(window.__gvActiveStorageHandle262)return window.__gvActiveStorageHandle262;
+      if(window.gvStorage&&typeof window.gvStorage.getHandle==='function')return await window.gvStorage.getHandle();
+      return null;
+    }catch(e){return null;}
+  }
+  async function authorize287(){
+    if(!enabled287())return null;
+    try{
+      var h=await remembered287();
+      if(!h)return null;
+      var p=h.queryPermission?await h.queryPermission({mode:'readwrite'}):'granted';
+      /* This function starts directly from the Save button click. Android is therefore
+         allowed to restore a remembered folder permission if the browser reports prompt.
+         Once granted, later saves remain silent. */
+      if(p!=='granted'&&h.requestPermission)p=await h.requestPermission({mode:'readwrite'});
+      if(p!=='granted')return null;
+      window.__gvActiveStorageHandle262=h;
+      return h;
+    }catch(e){console.warn('Step 287 folder authorization failed',e);return null;}
+  }
+  function raw287(){
+    var o={};
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);o[k]=localStorage.getItem(k);}}catch(e){}
+    return o;
+  }
+  async function write287(dir,name,blob){
+    var f=await dir.getFileHandle(name,{create:true});
+    var w=await f.createWritable();
+    await w.write(blob);await w.close();
+  }
+  function status287(now){
+    try{
+      var e=document.getElementById('sbAutoBackupStatus');if(!e)return;
+      e.textContent='Auto Backup: ON ✓\nLast automatic backup: '+now.toLocaleString('en-IN')+'\nFile: Backups/Auto_Backup_Latest.json';
+    }catch(e){}
+  }
+  var busy287=false,timer287=null;
+  async function backup287(h){
+    if(!enabled287()||busy287)return false;
+    busy287=true;
+    try{
+      h=h||await remembered287();if(!h)return false;
+      if(h.queryPermission&&await h.queryPermission({mode:'readwrite'})!=='granted')return false;
+      var data=raw287(),vals=[];
+      try{var a=JSON.parse(data.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      var now=new Date();
+      var payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V11',version:11,backupType:'automatic',createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(data).length},rawData:data};
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      var dir=await h.getDirectoryHandle('Backups',{create:true});
+      await write287(dir,'Auto_Backup_Latest.json',blob);
+      try{
+        var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        await write287(dir,'Auto_Backup_'+day+'.json',blob);
+      }catch(e){}
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      localStorage.setItem('goldValuationAutoBackupPending286','0');
+      status287(now);
+      return true;
+    }catch(e){console.warn('Step 287 automatic backup failed',e);return false;}
+    finally{busy287=false;}
+  }
+  window.gvAutomaticFullBackup287=backup287;
+
+  function install287(){
+    var old=window.gvSaveWithBackup266;
+    if(typeof old!=='function'||old.__step287)return;
+    var fn=async function(){
+      var before=state287();
+      /* Start permission recovery before the first await in the existing save chain. */
+      var handlePromise=authorize287();
+      var result=await old.apply(this,arguments);
+      var after=state287();
+      if(after!==before&&enabled287()){
+        var h=null;try{h=await handlePromise;}catch(e){}
+        if(timer287)clearTimeout(timer287);
+        timer287=setTimeout(function(){timer287=null;Promise.resolve(backup287(h)).catch(function(){});},900);
+      }
+      return result;
+    };
+    fn.__step287=true;fn.__original287=old;
+    window.gvSaveWithBackup266=fn;
+  }
+
+  install287();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install287,{once:true});
+  [700,1800,4200,8000].forEach(function(ms){setTimeout(install287,ms);});
+})();
+</script>
+<!-- /STEP 287 -->
