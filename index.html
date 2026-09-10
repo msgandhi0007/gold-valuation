@@ -27850,3 +27850,105 @@ body.dny-cert-248 #certificate .cert-note{
 })();
 </script>
 <!-- /STEP 287 -->
+
+<!-- STEP 288 - FINAL AUTO BACKUP: DIRECTLY COUPLE SUCCESSFUL SAVE TO REMEMBERED STORAGE FOLDER -->
+<script id="step288-final-save-autobackup">
+(function(){
+  'use strict';
+  if(window.__step288Installed)return;
+  window.__step288Installed=true;
+
+  function enabled288(){
+    try{return localStorage.getItem('goldValuationAutoBackupEnabled')!=='false';}catch(e){return true;}
+  }
+  function valuationState288(){
+    try{return localStorage.getItem('goldValuations')||'[]';}catch(e){return '[]';}
+  }
+  async function handle288(){
+    try{
+      var h=window.__gvActiveStorageHandle262||null;
+      if(!h && typeof window.getStorageFolderHandle==='function') h=await window.getStorageFolderHandle();
+      if(!h && window.gvStorage && typeof window.gvStorage.getHandle==='function') h=await window.gvStorage.getHandle();
+      if(!h)return null;
+      var p='granted';
+      if(h.queryPermission)p=await h.queryPermission({mode:'readwrite'});
+      if(p!=='granted' && h.requestPermission)p=await h.requestPermission({mode:'readwrite'});
+      if(p!=='granted')return null;
+      window.__gvActiveStorageHandle262=h;
+      return h;
+    }catch(e){console.warn('Step 288 storage access failed',e);return null;}
+  }
+  function raw288(){
+    var o={};
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);o[k]=localStorage.getItem(k);}}catch(e){}
+    return o;
+  }
+  async function write288(dir,name,blob){
+    var f=await dir.getFileHandle(name,{create:true});
+    var w=await f.createWritable();
+    await w.write(blob);await w.close();
+  }
+  function refresh288(now){
+    try{
+      var e=document.getElementById('sbAutoBackupStatus');
+      if(e)e.textContent='Auto Backup: ON ✓\nLast automatic backup: '+now.toLocaleString('en-IN')+'\nFile: Backups/Auto_Backup_Latest.json';
+    }catch(e){}
+  }
+  var busy288=false;
+  async function backup288(h){
+    if(!enabled288()||busy288||!h)return false;
+    busy288=true;
+    try{
+      var data=raw288(),vals=[];
+      try{var a=JSON.parse(data.goldValuations||'[]');if(Array.isArray(a))vals=a;}catch(e){}
+      var now=new Date();
+      var payload={app:'RAJENDRA JEWELLERS GOLD VALUATION APP',format:'GOLD_VALUATION_BACKUP_V12',version:12,backupType:'automatic',createdAt:now.toISOString(),summary:{valuations:vals.length,storageKeys:Object.keys(data).length},rawData:data};
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      var dir=await h.getDirectoryHandle('Backups',{create:true});
+      await write288(dir,'Auto_Backup_Latest.json',blob);
+      try{
+        var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        await write288(dir,'Auto_Backup_'+day+'.json',blob);
+      }catch(e){}
+      localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
+      localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
+      localStorage.setItem('goldValuationAutoBackupPending286','0');
+      refresh288(now);
+      return true;
+    }catch(e){
+      console.warn('Step 288 automatic backup failed',e);
+      try{localStorage.setItem('goldValuationAutoBackupPending286','1');}catch(_){}
+      return false;
+    }finally{busy288=false;}
+  }
+  window.gvAutomaticFullBackup288=backup288;
+
+  function install288(){
+    var old=window.gvSaveWithBackup266;
+    if(typeof old!=='function'||old.__step288)return;
+    var fn=async function(){
+      var before=valuationState288();
+      /* Permission recovery begins from the user's Save tap, where Android permits it. */
+      var hp=enabled288()?handle288():Promise.resolve(null);
+      var result=await old.apply(this,arguments);
+      var after=valuationState288();
+      if(after!==before && enabled288()){
+        var h=null;try{h=await hp;}catch(e){}
+        if(h){
+          /* Local save has succeeded. Run one direct full backup shortly afterward;
+             certificate generation remains independent and is not blocked by this write. */
+          setTimeout(function(){Promise.resolve(backup288(h)).catch(function(){});},350);
+        }
+      }
+      return result;
+    };
+    fn.__step288=true;fn.__original288=old;
+    window.gvSaveWithBackup266=fn;
+  }
+
+  install288();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install288,{once:true});
+  [600,1600,4000,8500].forEach(function(ms){setTimeout(install288,ms);});
+})();
+</script>
+<!-- /STEP 288 -->
