@@ -24699,8 +24699,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const d=last?new Date(last):null;
       const when=(d && Number.isFinite(d.getTime()))?d.toLocaleString('en-IN'):'Never';
       e.textContent=enabled258()
-        ? 'Auto Backup: ON ✓\\nLast automatic backup: '+when+'\\nFile: Backups/'+file
-        : 'Auto Backup: OFF\\nTurn it on to create a full backup after every successful valuation save.';
+        ? 'Auto Backup: ON ✓\nLast automatic backup: '+when+'\nFile: Backups/'+file
+        : 'Auto Backup: OFF\nTurn it on to create a full backup after every successful valuation save.';
     }catch(e){}
   }
   function run258(){
@@ -24856,7 +24856,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       localStorage.setItem('goldValuationLastAutoBackup',now.toISOString());
       localStorage.setItem('goldValuationLastAutoBackupFile','Auto_Backup_Latest.json');
       try{var day=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');await writeFile(bdir,'Auto_Backup_'+day+'.json',blob);}catch(e){}
-      try{var el=document.getElementById('sbAutoBackupStatus');if(el)el.textContent='Auto Backup: ON ✓\\nLast automatic backup: '+now.toLocaleString('en-IN')+'\\nFile: Backups/Auto_Backup_Latest.json';}catch(e){}
+      try{var el=document.getElementById('sbAutoBackupStatus');if(el)el.textContent='Auto Backup: ON ✓\nLast automatic backup: '+now.toLocaleString('en-IN')+'\nFile: Backups/Auto_Backup_Latest.json';}catch(e){}
       return true;
     }catch(e){console.warn('Step 263 direct auto backup failed',e);return false;}
   }
@@ -27071,8 +27071,8 @@ body.savedClean168Open #savedClean168{display:block!important;visibility:visible
       if(!t){var x=localStorage.getItem('goldValuationLastAutoBackup')||'';t=x?new Date(x):null;}
       var when=(t&&Number.isFinite(t.getTime()))?t.toLocaleString('en-IN'):'Never';
       el.textContent=enabled284()
-        ? 'Auto Backup: ON ✓\\nLast automatic backup: '+when+'\\nFile: Backups/Auto_Backup_Latest.json'
-        : 'Auto Backup: OFF\\nTurn it on to create a full backup after every successful valuation save.';
+        ? 'Auto Backup: ON ✓\nLast automatic backup: '+when+'\nFile: Backups/Auto_Backup_Latest.json'
+        : 'Auto Backup: OFF\nTurn it on to create a full backup after every successful valuation save.';
     }catch(e){}
   }
   async function passiveHandle284(){
